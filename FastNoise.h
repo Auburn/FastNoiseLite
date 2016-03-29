@@ -49,6 +49,7 @@ public:
 	float GetCellularCaves(float x, float y, float z);	// 196 ms	185 ms
 
 	float GetWhiteNoise(float x, float y, float z);
+	float GetWhiteNoiseInt(int x, int y, int z);
 
 	float GetNoise(float x, float y, float z);
 
@@ -66,11 +67,15 @@ public:
 	float GetCellularHQ(float x, float y);				// 96 ms	90 ms
 
 	float GetWhiteNoise(float x, float y);
+	float GetWhiteNoiseInt(int x, int y);
 
 	float GetNoise(float x, float y);
 
 	//4D
 	float GetSimplex(float x, float y, float z, float w);
+
+	float GetWhiteNoise(float x, float y, float z, float w);
+	float GetWhiteNoiseInt(int x, int y, int z, int w);
 
 protected:
 	int m_seed = 0;

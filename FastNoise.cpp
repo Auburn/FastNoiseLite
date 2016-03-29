@@ -157,20 +157,20 @@ static const float CELLULAR2D_HQ_LUT[][2] =
 
 };
 
-static inline int FastFloor(float f) { return (f >= 0.0f ? (int)f : (int)f - 1); }
-static inline int FastRound(float f) { return (f >= 0.0f) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
-static inline float FastAbs(float f) { return (f >= 0.0f) ? f : -f; }
-static inline int FastAbs(int i) { return (i > 0) ? i : -i; }
-static inline float Lerp(float a, float b, float t) { return a + t * (b - a); }
-static inline void LerpVector3(float* out, float* a, float* b, float t)
+static int FastFloor(float f) { return (f >= 0.0f ? (int)f : (int)f - 1); }
+static int FastRound(float f) { return (f >= 0.0f) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+static float FastAbs(float f) { return (f >= 0.0f) ? f : -f; }
+static int FastAbs(int i) { return (i > 0) ? i : -i; }
+static float Lerp(float a, float b, float t) { return a + t * (b - a); }
+static void LerpVector3(float* out, float* a, float* b, float t)
 {
 	out[0] = Lerp(a[0], b[0], t);
 	out[1] = Lerp(a[1], b[1], t);
 	out[2] = Lerp(a[2], b[2], t);
 }
 
-static inline float InterpHermiteFunc(float t) { return (t*t*(3 - 2 * t)); }
-static inline float InterpQuinticFunc(float t) { return t*t*t*(t*(t * 6 - 15) + 10); }
+static float InterpHermiteFunc(float t) { return (t*t*(3 - 2 * t)); }
+static float InterpQuinticFunc(float t) { return t*t*t*(t*(t * 6 - 15) + 10); }
 
 // Hashing
 
@@ -376,11 +376,13 @@ float FastNoise::GetNoise(float x, float y)
 }
 
 // White Noise
-float FastNoise::GetWhiteNoise(float x, float y)
+float FastNoise::GetWhiteNoise(float x, float y, float z, float w)
 {
 	return VAL_LUT[CoordLUTIndex(
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
-		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16))];
+		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
+		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16),
+		*reinterpret_cast<int*>(&w) ^ (*reinterpret_cast<int*>(&w) >> 16))];
 }
 
 float FastNoise::GetWhiteNoise(float x, float y, float z)
@@ -389,6 +391,28 @@ float FastNoise::GetWhiteNoise(float x, float y, float z)
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
 		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16))];
+}
+
+float FastNoise::GetWhiteNoise(float x, float y)
+{
+	return VAL_LUT[CoordLUTIndex(
+		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
+		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16))];
+}
+
+float FastNoise::GetWhiteNoiseInt(int x, int y, int z, int w)
+{
+	return VAL_LUT[CoordLUTIndex(x, y, z, w)];
+}
+
+float FastNoise::GetWhiteNoiseInt(int x, int y, int z)
+{
+	return VAL_LUT[CoordLUTIndex(x, y, z)];
+}
+
+float FastNoise::GetWhiteNoiseInt(int x, int y)
+{
+	return VAL_LUT[CoordLUTIndex(x, y)];
 }
 
 // Value Noise
@@ -1504,7 +1528,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 	float vec[3];
 	int lutPos;
 	int xc = 0, yc = 0, zc = 0;
-	int xc2, yc2, zc2;
 
 	switch (m_cellularDistanceFunction)
 	{
@@ -1526,9 +1549,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1538,9 +1558,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -1564,9 +1581,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1576,9 +1590,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -1602,9 +1613,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1614,9 +1622,6 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -1794,7 +1799,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 	float vec[3];
 	int lutPos;
 	int xc = 0, yc = 0, zc = 0;
-	int xc2, yc2, zc2;
 
 	switch (m_cellularDistanceFunction)
 	{
@@ -1816,9 +1820,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1828,9 +1829,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -1854,9 +1852,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1866,9 +1861,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -1892,9 +1884,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					if (newDistance < distance)
 					{
 						distance2 = distance;
-						xc2 = xc;
-						yc2 = yc;
-						zc2 = zc;
 
 						distance = newDistance;
 						xc = xi;
@@ -1904,9 +1893,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 					else if (newDistance < distance2)
 					{
 						distance2 = newDistance;
-						xc2 = xi;
-						yc2 = yi;
-						zc2 = zi;
 					}
 				}
 			}
@@ -2065,7 +2051,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 	float vec[2];
 	int lutPos;
 	int xc = 0, yc = 0;
-	int xc2, yc2;
 
 	switch (m_cellularDistanceFunction)
 	{
@@ -2085,8 +2070,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2095,8 +2078,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
@@ -2116,8 +2097,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2126,8 +2105,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
@@ -2147,8 +2124,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2157,8 +2132,6 @@ float FastNoise::_Cellular2Edge(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
@@ -2314,7 +2287,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 	float vec[2];
 	int lutPos;
 	int xc = 0, yc = 0;
-	int xc2, yc2;
 
 	switch (m_cellularDistanceFunction)
 	{
@@ -2334,8 +2306,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2344,8 +2314,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
@@ -2365,8 +2333,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2375,8 +2341,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
@@ -2396,8 +2360,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				if (newDistance < distance)
 				{
 					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
 
 					distance = newDistance;
 					xc = xi;
@@ -2406,8 +2368,6 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 				else if (newDistance < distance2)
 				{
 					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
 				}
 			}
 		}
