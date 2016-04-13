@@ -103,26 +103,26 @@ protected:
 	float _ValueFractalFBM(float x, float y, float z);
 	float _ValueFractalBillow(float x, float y, float z);
 	float _ValueFractalRigidMulti(float x, float y, float z);
-	float _Value(float x, float y, float z);
+	float _Value(int seed, float x, float y, float z);
 
 	float _GradientFractalFBM(float x, float y, float z);
 	float _GradientFractalBillow(float x, float y, float z);
 	float _GradientFractalRigidMulti(float x, float y, float z);
-	float _Gradient(float x, float y, float z);
+	float _Gradient(int seed, float x, float y, float z);
 
 	float _SimplexFractalFBM(float x, float y, float z);
 	float _SimplexFractalBillow(float x, float y, float z);
 	float _SimplexFractalRigidMulti(float x, float y, float z);
-	float _Simplex(float x, float y, float z);
+	float _Simplex(int seed, float x, float y, float z);
 
 	float _Cellular(float x, float y, float z);
 	float _CellularHQ(float x, float y, float z);
 	float _Cellular2Edge(float x, float y, float z);
 	float _Cellular2EdgeHQ(float x, float y, float z);
 
-	inline int CoordLUTIndex(int x, int y, int z);
-	inline float GetValCoord(int x, int y, int z);
-	inline float GetGradCoord(int xi, int yi, int zi, float x, float y, float z);
+	inline static int CoordLUTIndex(int seed, int x, int y, int z);
+	inline float GetValCoord(int seed, int x, int y, int z);
+	inline float GetGradCoord(int seed, int xi, int yi, int zi, float x, float y, float z);
 
 	//Caves
 	float _CellularCaves(float x, float y, float z);
@@ -133,29 +133,29 @@ protected:
 	float _ValueFractalFBM(float x, float y);
 	float _ValueFractalBillow(float x, float y);
 	float _ValueFractalRigidMulti(float x, float y);
-	float _Value(float x, float y);
+	float _Value(int seed, float x, float y);
 
 	float _GradientFractalFBM(float x, float y);
 	float _GradientFractalBillow(float x, float y);
 	float _GradientFractalRigidMulti(float x, float y);
-	float _Gradient(float x, float y);
+	float _Gradient(int seed, float x, float y);
 
 	float _SimplexFractalFBM(float x, float y);
 	float _SimplexFractalBillow(float x, float y);
 	float _SimplexFractalRigidMulti(float x, float y);
-	float _Simplex(float x, float y);
+	float _Simplex(int seed, float x, float y);
 
 	float _Cellular(float x, float y);
 	float _CellularHQ(float x, float y);
 	float _Cellular2Edge(float x, float y);
 	float _Cellular2EdgeHQ(float x, float y);
 	
-	inline int CoordLUTIndex(int x, int y);
-	inline float GetValCoord(int x, int y);
-	inline float GetGradCoord(int xi, int yi, float x, float y);
+	inline int CoordLUTIndex(int seed, int x, int y);
+	inline float GetValCoord(int seed, int x, int y);
+	inline float GetGradCoord(int seed, int xi, int yi, float x, float y);
 
 	//4D
 	float _Simplex(float x, float y, float z, float w);
-	inline int CoordLUTIndex(int x, int y, int z, int w);
+	inline static int CoordLUTIndex(int seed, int x, int y, int z, int w);
 };
 

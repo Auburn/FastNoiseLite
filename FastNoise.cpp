@@ -174,9 +174,9 @@ static float InterpQuinticFunc(float t) { return t*t*t*(t*(t * 6 - 15) + 10); }
 
 // Hashing
 
-inline int FastNoise::CoordLUTIndex(int x, int y, int z, int w)
+inline int FastNoise::CoordLUTIndex(int seed, int x, int y, int z, int w)
 {
-	int hash = m_seed;
+	int hash = seed;
 	hash ^= x;
 	hash *= 15485863;
 	hash ^= y;
@@ -190,9 +190,9 @@ inline int FastNoise::CoordLUTIndex(int x, int y, int z, int w)
 	return hash & LUT_MASK;
 }
 
-inline int FastNoise::CoordLUTIndex(int x, int y, int z)
+inline int FastNoise::CoordLUTIndex(int seed, int x, int y, int z)
 {
-	int hash = m_seed;
+	int hash = seed;
 	hash ^= x;
 	hash *= 15485863;
 	hash ^= y;
@@ -204,9 +204,9 @@ inline int FastNoise::CoordLUTIndex(int x, int y, int z)
 	return hash & LUT_MASK;
 }
 
-inline int FastNoise::CoordLUTIndex(int x, int y)
+inline int FastNoise::CoordLUTIndex(int seed, int x, int y)
 {
-	int hash = m_seed;
+	int hash = seed;
 	hash ^= x;
 	hash *= 15485863;
 	hash ^= y;
@@ -225,7 +225,7 @@ float FastNoise::GetNoise(float x, float y, float z)
 	switch (m_noiseType)
 	{
 	case FastNoise::NoiseType::Value:
-		return _Value(x, y, z);
+		return _Value(m_seed, x, y, z);
 	case FastNoise::NoiseType::ValueFractal:
 		switch (m_fractalType)
 		{
@@ -239,7 +239,7 @@ float FastNoise::GetNoise(float x, float y, float z)
 			return 0.0f;
 		}
 	case FastNoise::NoiseType::Gradient:
-		return _Gradient(x, y, z);
+		return _Gradient(m_seed, x, y, z);
 	case FastNoise::NoiseType::GradientFractal:
 		switch (m_fractalType)
 		{
@@ -253,7 +253,7 @@ float FastNoise::GetNoise(float x, float y, float z)
 			return 0.0f;
 		}
 	case FastNoise::NoiseType::Simplex:
-		return _Simplex(x, y, z);
+		return _Simplex(m_seed, x, y, z);
 	case FastNoise::NoiseType::SimplexFractal:
 		switch (m_fractalType)
 		{
@@ -305,7 +305,7 @@ float FastNoise::GetNoise(float x, float y)
 	switch (m_noiseType)
 	{
 	case FastNoise::NoiseType::Value:
-		return _Value(x, y);
+		return _Value(m_seed, x, y);
 	case FastNoise::NoiseType::ValueFractal:
 		switch (m_fractalType)
 		{
@@ -319,7 +319,7 @@ float FastNoise::GetNoise(float x, float y)
 			return 0.0f;
 		}
 	case FastNoise::NoiseType::Gradient:
-		return _Gradient(x, y);
+		return _Gradient(m_seed, x, y);
 	case FastNoise::NoiseType::GradientFractal:
 		switch (m_fractalType)
 		{
@@ -333,7 +333,7 @@ float FastNoise::GetNoise(float x, float y)
 			return 0.0f;
 		}
 	case FastNoise::NoiseType::Simplex:
-		return _Simplex(x, y);
+		return _Simplex(m_seed, x, y);
 	case FastNoise::NoiseType::SimplexFractal:
 		switch (m_fractalType)
 		{
@@ -378,7 +378,7 @@ float FastNoise::GetNoise(float x, float y)
 // White Noise
 float FastNoise::GetWhiteNoise(float x, float y, float z, float w)
 {
-	return VAL_LUT[CoordLUTIndex(
+	return VAL_LUT[CoordLUTIndex(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
 		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16),
@@ -387,7 +387,7 @@ float FastNoise::GetWhiteNoise(float x, float y, float z, float w)
 
 float FastNoise::GetWhiteNoise(float x, float y, float z)
 {
-	return VAL_LUT[CoordLUTIndex(
+	return VAL_LUT[CoordLUTIndex(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
 		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16))];
@@ -395,24 +395,24 @@ float FastNoise::GetWhiteNoise(float x, float y, float z)
 
 float FastNoise::GetWhiteNoise(float x, float y)
 {
-	return VAL_LUT[CoordLUTIndex(
+	return VAL_LUT[CoordLUTIndex(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16))];
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y, int z, int w)
 {
-	return VAL_LUT[CoordLUTIndex(x, y, z, w)];
+	return VAL_LUT[CoordLUTIndex(m_seed, x, y, z, w)];
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y, int z)
 {
-	return VAL_LUT[CoordLUTIndex(x, y, z)];
+	return VAL_LUT[CoordLUTIndex(m_seed, x, y, z)];
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y)
 {
-	return VAL_LUT[CoordLUTIndex(x, y)];
+	return VAL_LUT[CoordLUTIndex(m_seed, x, y)];
 }
 
 // Value Noise
@@ -437,7 +437,8 @@ float FastNoise::GetValueFractal(float x, float y, float z)
 
 float FastNoise::_ValueFractalFBM(float x, float y, float z)
 {
-	float sum = _Value(x, y, z);
+	int seed = m_seed;
+	float sum = _Value(seed, x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -450,7 +451,7 @@ float FastNoise::_ValueFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Value(x, y, z) * amp;
+		sum += _Value(++seed, x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -458,7 +459,8 @@ float FastNoise::_ValueFractalFBM(float x, float y, float z)
 
 float FastNoise::_ValueFractalBillow(float x, float y, float z)
 {
-	float sum = FastAbs(_Value(x, y, z)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Value(seed, x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -471,7 +473,7 @@ float FastNoise::_ValueFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Value(x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Value(++seed, x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -479,7 +481,8 @@ float FastNoise::_ValueFractalBillow(float x, float y, float z)
 
 float FastNoise::_ValueFractalRigidMulti(float x, float y, float z)
 {
-	float sum = 1.0f - FastAbs(_Value(x, y, z));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Value(seed, x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -490,7 +493,7 @@ float FastNoise::_ValueFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Value(x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(_Value(++seed, x, y, z))) * amp;
 	}
 
 	return sum;
@@ -498,10 +501,10 @@ float FastNoise::_ValueFractalRigidMulti(float x, float y, float z)
 
 float FastNoise::GetValue(float x, float y, float z)
 {
-	return _Value(x * m_frequency, y * m_frequency, z * m_frequency);
+	return _Value(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
 }
 
-float FastNoise::_Value(float x, float y, float z)
+float FastNoise::_Value(int seed, float x, float y, float z)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -530,10 +533,10 @@ float FastNoise::_Value(float x, float y, float z)
 		break;
 	}
 
-	float xf00 = Lerp(GetValCoord(x0, y0, z0), GetValCoord(x1, y0, z0), xs);
-	float xf10 = Lerp(GetValCoord(x0, y1, z0), GetValCoord(x1, y1, z0), xs);
-	float xf01 = Lerp(GetValCoord(x0, y0, z1), GetValCoord(x1, y0, z1), xs);
-	float xf11 = Lerp(GetValCoord(x0, y1, z1), GetValCoord(x1, y1, z1), xs);
+	float xf00 = Lerp(GetValCoord(seed, x0, y0, z0), GetValCoord(seed, x1, y0, z0), xs);
+	float xf10 = Lerp(GetValCoord(seed, x0, y1, z0), GetValCoord(seed, x1, y1, z0), xs);
+	float xf01 = Lerp(GetValCoord(seed, x0, y0, z1), GetValCoord(seed, x1, y0, z1), xs);
+	float xf11 = Lerp(GetValCoord(seed, x0, y1, z1), GetValCoord(seed, x1, y1, z1), xs);
 
 	float yf0 = Lerp(xf00, xf10, ys);
 	float yf1 = Lerp(xf01, xf11, ys);
@@ -541,9 +544,9 @@ float FastNoise::_Value(float x, float y, float z)
 	return Lerp(yf0, yf1, zs);
 }
 
-float FastNoise::GetValCoord(int x, int y, int z)
+float FastNoise::GetValCoord(int seed, int x, int y, int z)
 {
-	return VAL_LUT[CoordLUTIndex(x, y, z)];
+	return VAL_LUT[CoordLUTIndex(seed, x, y, z)];
 }
 
 float FastNoise::GetValueFractal(float x, float y)
@@ -566,7 +569,8 @@ float FastNoise::GetValueFractal(float x, float y)
 
 float FastNoise::_ValueFractalFBM(float x, float y)
 {
-	float sum = _Value(x, y);
+	int seed = m_seed;
+	float sum = _Value(seed, x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -578,7 +582,7 @@ float FastNoise::_ValueFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Value(x, y) * amp;
+		sum += _Value(++seed, x, y) * amp;
 	}
 
 	return sum / max;
@@ -586,19 +590,20 @@ float FastNoise::_ValueFractalFBM(float x, float y)
 
 float FastNoise::_ValueFractalBillow(float x, float y)
 {
-	float sum = FastAbs(_Value(x, y)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Value(seed, x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
+
 	unsigned int i = 0;
 
 	while (++i < m_octaves)
 	{
 		x *= m_lacunarity;
 		y *= m_lacunarity;
-
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Value(x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Value(++seed, x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -606,7 +611,8 @@ float FastNoise::_ValueFractalBillow(float x, float y)
 
 float FastNoise::_ValueFractalRigidMulti(float x, float y)
 {
-	float sum = 1.0f - FastAbs(_Value(x, y));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Value(seed, x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -616,7 +622,7 @@ float FastNoise::_ValueFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Value(x, y))) * amp;
+		sum -= (1.0f - FastAbs(_Value(++seed, x, y))) * amp;
 	}
 
 	return sum;
@@ -624,10 +630,10 @@ float FastNoise::_ValueFractalRigidMulti(float x, float y)
 
 float FastNoise::GetValue(float x, float y)
 {
-	return _Value(x * m_frequency, y * m_frequency);
+	return _Value(m_seed, x * m_frequency, y * m_frequency);
 }
 
-float FastNoise::_Value(float x, float y)
+float FastNoise::_Value(int seed, float x, float y)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -651,15 +657,15 @@ float FastNoise::_Value(float x, float y)
 		break;
 	}
 
-	float xf0 = Lerp(GetValCoord(x0, y0), GetValCoord(x1, y0), xs);
-	float xf1 = Lerp(GetValCoord(x0, y1), GetValCoord(x1, y1), xs);
+	float xf0 = Lerp(GetValCoord(seed, x0, y0), GetValCoord(seed, x1, y0), xs);
+	float xf1 = Lerp(GetValCoord(seed, x0, y1), GetValCoord(seed, x1, y1), xs);
 
 	return Lerp(xf0, xf1, ys);
 }
 
-float FastNoise::GetValCoord(int x, int y)
+float FastNoise::GetValCoord(int seed, int x, int y)
 {
-	return VAL_LUT[CoordLUTIndex(x, y)];
+	return VAL_LUT[CoordLUTIndex(seed, x, y)];
 }
 
 // Gradient Noise
@@ -684,7 +690,8 @@ float FastNoise::GetGradientFractal(float x, float y, float z)
 
 float FastNoise::_GradientFractalFBM(float x, float y, float z)
 {
-	float sum = _Gradient(x, y, z);
+	int seed = m_seed;
+	float sum = _Gradient(seed, x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -697,7 +704,7 @@ float FastNoise::_GradientFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Gradient(x, y, z) * amp;
+		sum += _Gradient(++seed, x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -705,7 +712,8 @@ float FastNoise::_GradientFractalFBM(float x, float y, float z)
 
 float FastNoise::_GradientFractalBillow(float x, float y, float z)
 {
-	float sum = FastAbs(_Gradient(x, y, z)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Gradient(seed, x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -718,7 +726,7 @@ float FastNoise::_GradientFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Gradient(x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Gradient(++seed, x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -726,7 +734,8 @@ float FastNoise::_GradientFractalBillow(float x, float y, float z)
 
 float FastNoise::_GradientFractalRigidMulti(float x, float y, float z)
 {
-	float sum = 1.0f - FastAbs(_Gradient(x, y, z));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Gradient(seed, x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -737,7 +746,7 @@ float FastNoise::_GradientFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Gradient(x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(_Gradient(++seed, x, y, z))) * amp;
 	}
 
 	return sum;
@@ -745,10 +754,10 @@ float FastNoise::_GradientFractalRigidMulti(float x, float y, float z)
 
 float FastNoise::GetGradient(float x, float y, float z)
 {
-	return _Gradient(x * m_frequency, y * m_frequency, z * m_frequency);
+	return _Gradient(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
 }
 
-float FastNoise::_Gradient(float x, float y, float z)
+float FastNoise::_Gradient(int seed, float x, float y, float z)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -777,10 +786,10 @@ float FastNoise::_Gradient(float x, float y, float z)
 		break;
 	}
 
-	float xf00 = Lerp(GetGradCoord(x0, y0, z0, x, y, z), GetGradCoord(x1, y0, z0, x, y, z), xs);
-	float xf10 = Lerp(GetGradCoord(x0, y1, z0, x, y, z), GetGradCoord(x1, y1, z0, x, y, z), xs);
-	float xf01 = Lerp(GetGradCoord(x0, y0, z1, x, y, z), GetGradCoord(x1, y0, z1, x, y, z), xs);
-	float xf11 = Lerp(GetGradCoord(x0, y1, z1, x, y, z), GetGradCoord(x1, y1, z1, x, y, z), xs);
+	float xf00 = Lerp(GetGradCoord(seed, x0, y0, z0, x, y, z), GetGradCoord(seed, x1, y0, z0, x, y, z), xs);
+	float xf10 = Lerp(GetGradCoord(seed, x0, y1, z0, x, y, z), GetGradCoord(seed, x1, y1, z0, x, y, z), xs);
+	float xf01 = Lerp(GetGradCoord(seed, x0, y0, z1, x, y, z), GetGradCoord(seed, x1, y0, z1, x, y, z), xs);
+	float xf11 = Lerp(GetGradCoord(seed, x0, y1, z1, x, y, z), GetGradCoord(seed, x1, y1, z1, x, y, z), xs);
 
 	float yf0 = Lerp(xf00, xf10, ys);
 	float yf1 = Lerp(xf01, xf11, ys);
@@ -788,13 +797,13 @@ float FastNoise::_Gradient(float x, float y, float z)
 	return Lerp(yf0, yf1, zs) * 1.4f;
 }
 
-float FastNoise::GetGradCoord(int xi, int yi, int zi, float x, float y, float z)
+float FastNoise::GetGradCoord(int seed, int xi, int yi, int zi, float x, float y, float z)
 {
 	float xs = x - (float)xi;
 	float ys = y - (float)yi;
 	float zs = z - (float)zi;
 
-	int lutPos = CoordLUTIndex(xi, yi, zi);
+	int lutPos = CoordLUTIndex(seed, xi, yi, zi);
 
 	return xs*GRAD3D_LUT[lutPos][0] + ys*GRAD3D_LUT[lutPos][1] + zs*GRAD3D_LUT[lutPos][2];
 }
@@ -819,7 +828,8 @@ float FastNoise::GetGradientFractal(float x, float y)
 
 float FastNoise::_GradientFractalFBM(float x, float y)
 {
-	float sum = _Gradient(x, y);
+	int seed = m_seed;
+	float sum = _Gradient(seed, x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -831,7 +841,7 @@ float FastNoise::_GradientFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Gradient(x, y) * amp;
+		sum += _Gradient(++seed, x, y) * amp;
 	}
 
 	return sum / max;
@@ -839,7 +849,8 @@ float FastNoise::_GradientFractalFBM(float x, float y)
 
 float FastNoise::_GradientFractalBillow(float x, float y)
 {
-	float sum = FastAbs(_Gradient(x, y)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Gradient(seed, x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -851,7 +862,7 @@ float FastNoise::_GradientFractalBillow(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Gradient(x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Gradient(++seed, x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -859,7 +870,8 @@ float FastNoise::_GradientFractalBillow(float x, float y)
 
 float FastNoise::_GradientFractalRigidMulti(float x, float y)
 {
-	float sum = 1.0f - FastAbs(_Gradient(x, y));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Gradient(seed, x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -869,7 +881,7 @@ float FastNoise::_GradientFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Gradient(x, y))) * amp;
+		sum -= (1.0f - FastAbs(_Gradient(++seed, x, y))) * amp;
 	}
 
 	return sum;
@@ -877,10 +889,10 @@ float FastNoise::_GradientFractalRigidMulti(float x, float y)
 
 float FastNoise::GetGradient(float x, float y)
 {
-	return _Gradient(x * m_frequency, y * m_frequency);
+	return _Gradient(m_seed, x * m_frequency, y * m_frequency);
 }
 
-float FastNoise::_Gradient(float x, float y)
+float FastNoise::_Gradient(int seed, float x, float y)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -904,18 +916,18 @@ float FastNoise::_Gradient(float x, float y)
 		break;
 	}
 
-	float xf0 = Lerp(GetGradCoord(x0, y0, x, y), GetGradCoord(x1, y0, x, y), xs);
-	float xf1 = Lerp(GetGradCoord(x0, y1, x, y), GetGradCoord(x1, y1, x, y), xs);
+	float xf0 = Lerp(GetGradCoord(seed, x0, y0, x, y), GetGradCoord(seed, x1, y0, x, y), xs);
+	float xf1 = Lerp(GetGradCoord(seed, x0, y1, x, y), GetGradCoord(seed, x1, y1, x, y), xs);
 
 	return Lerp(xf0, xf1, ys) * 1.4f;
 }
 
-float FastNoise::GetGradCoord(int xi, int yi, float x, float y)
+float FastNoise::GetGradCoord(int seed, int xi, int yi, float x, float y)
 {
 	float xs = x - (float)xi;
 	float ys = y - (float)yi;
 
-	int lutPos = CoordLUTIndex(xi, yi);
+	int lutPos = CoordLUTIndex(seed, xi, yi);
 
 	return xs*GRAD2D_LUT[lutPos][0] + ys*GRAD2D_LUT[lutPos][1];
 }
@@ -943,7 +955,8 @@ float FastNoise::GetSimplexFractal(float x, float y, float z)
 
 float FastNoise::_SimplexFractalFBM(float x, float y, float z)
 {
-	float sum = _Simplex(x, y, z);
+	int seed = m_seed;
+	float sum = _Simplex(seed, x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -956,7 +969,7 @@ float FastNoise::_SimplexFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Simplex(x, y, z) * amp;
+		sum += _Simplex(++seed, x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -964,7 +977,8 @@ float FastNoise::_SimplexFractalFBM(float x, float y, float z)
 
 float FastNoise::_SimplexFractalBillow(float x, float y, float z)
 {
-	float sum = FastAbs(_Simplex(x, y, z)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Simplex(seed, x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -977,7 +991,7 @@ float FastNoise::_SimplexFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Simplex(x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Simplex(++seed, x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -985,7 +999,8 @@ float FastNoise::_SimplexFractalBillow(float x, float y, float z)
 
 float FastNoise::_SimplexFractalRigidMulti(float x, float y, float z)
 {
-	float sum = 1.0f - FastAbs(_Simplex(x, y, z));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Simplex(seed, x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -996,7 +1011,7 @@ float FastNoise::_SimplexFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Simplex(x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(_Simplex(++seed, x, y, z))) * amp;
 	}
 
 	return sum;
@@ -1004,7 +1019,7 @@ float FastNoise::_SimplexFractalRigidMulti(float x, float y, float z)
 
 float FastNoise::GetSimplex(float x, float y, float z)
 {
-	return _Simplex(x * m_frequency, y * m_frequency, z * m_frequency);
+	return _Simplex(m_seed, x * m_frequency, y * m_frequency, z * m_frequency);
 }
 
 static inline float Dot(const float *g, float x, float y, float z)
@@ -1015,7 +1030,7 @@ static inline float Dot(const float *g, float x, float y, float z)
 static const float F3 = 1.0f / 3.0f;
 static const float G3 = 1.0f / 6.0f;
 
-float FastNoise::_Simplex(float x, float y, float z)
+float FastNoise::_Simplex(int seed, float x, float y, float z)
 {
 	float t = (x + y + z) * F3;
 	int i = FastFloor(x + t);
@@ -1082,7 +1097,7 @@ float FastNoise::_Simplex(float x, float y, float z)
 	else
 	{
 		t *= t;
-		n0 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(i, j, k)][0], x0, y0, z0);
+		n0 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(seed, i, j, k)][0], x0, y0, z0);
 	}
 
 	t = 0.6f - x1*x1 - y1*y1 - z1*z1;
@@ -1090,7 +1105,7 @@ float FastNoise::_Simplex(float x, float y, float z)
 	else
 	{
 		t *= t;
-		n1 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(i + i1, j + j1, k + k1)][0], x1, y1, z1);
+		n1 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(seed, i + i1, j + j1, k + k1)][0], x1, y1, z1);
 	}
 
 	t = 0.6f - x2*x2 - y2*y2 - z2*z2;
@@ -1098,7 +1113,7 @@ float FastNoise::_Simplex(float x, float y, float z)
 	else
 	{
 		t *= t;
-		n2 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(i + i2, j + j2, k + k2)][0], x2, y2, z2);
+		n2 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(seed, i + i2, j + j2, k + k2)][0], x2, y2, z2);
 	}
 
 	t = 0.6f - x3*x3 - y3*y3 - z3*z3;
@@ -1106,7 +1121,7 @@ float FastNoise::_Simplex(float x, float y, float z)
 	else
 	{
 		t *= t;
-		n3 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(i + 1, j + 1, k + 1)][0], x3, y3, z3);
+		n3 = t*t*Dot(&GRAD3D_LUT[CoordLUTIndex(seed, i + 1, j + 1, k + 1)][0], x3, y3, z3);
 	}
 
 	return 40.0f * (n0 + n1 + n2 + n3);
@@ -1132,7 +1147,8 @@ float FastNoise::GetSimplexFractal(float x, float y)
 
 float FastNoise::_SimplexFractalFBM(float x, float y)
 {
-	float sum = _Simplex(x, y);
+	int seed = m_seed;
+	float sum = _Simplex(seed, x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1144,7 +1160,7 @@ float FastNoise::_SimplexFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += _Simplex(x, y) * amp;
+		sum += _Simplex(++seed, x, y) * amp;
 	}
 
 	return sum / max;
@@ -1152,7 +1168,8 @@ float FastNoise::_SimplexFractalFBM(float x, float y)
 
 float FastNoise::_SimplexFractalBillow(float x, float y)
 {
-	float sum = FastAbs(_Simplex(x, y)) * 2.0f - 1.0f;
+	int seed = m_seed;
+	float sum = FastAbs(_Simplex(seed, x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1164,7 +1181,7 @@ float FastNoise::_SimplexFractalBillow(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(_Simplex(x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(_Simplex(++seed, x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -1172,7 +1189,8 @@ float FastNoise::_SimplexFractalBillow(float x, float y)
 
 float FastNoise::_SimplexFractalRigidMulti(float x, float y)
 {
-	float sum = 1.0f - FastAbs(_Simplex(x, y));
+	int seed = m_seed;
+	float sum = 1.0f - FastAbs(_Simplex(seed, x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -1182,7 +1200,7 @@ float FastNoise::_SimplexFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(_Simplex(x, y))) * amp;
+		sum -= (1.0f - FastAbs(_Simplex(++seed, x, y))) * amp;
 	}
 
 	return sum;
@@ -1190,7 +1208,7 @@ float FastNoise::_SimplexFractalRigidMulti(float x, float y)
 
 float FastNoise::GetSimplex(float x, float y)
 {
-	return _Simplex(x * m_frequency, y * m_frequency);
+	return _Simplex(m_seed, x * m_frequency, y * m_frequency);
 }
 
 static inline float Dot(const float *g, float x, float y)
@@ -1201,7 +1219,7 @@ static inline float Dot(const float *g, float x, float y)
 static const float F2 = 1.f / 2.f;
 static const float G2 = 1.f / 4.f;
 
-float FastNoise::_Simplex(float x, float y)
+float FastNoise::_Simplex(int seed, float x, float y)
 {
 	float t = (x + y) * F2;
 	int i = FastFloor(x + t);
@@ -1236,7 +1254,7 @@ float FastNoise::_Simplex(float x, float y)
 	else
 	{
 		t *= t;
-		n0 = t * t * Dot(&GRAD2D_LUT[CoordLUTIndex(i, j)][0], x0, y0);
+		n0 = t * t * Dot(&GRAD2D_LUT[CoordLUTIndex(seed, i, j)][0], x0, y0);
 	}
 
 	t = 0.6f - x1*x1 - y1*y1;
@@ -1244,7 +1262,7 @@ float FastNoise::_Simplex(float x, float y)
 	else
 	{
 		t *= t;
-		n1 = t*t*Dot(&GRAD2D_LUT[CoordLUTIndex(i + i1, j + j1)][0], x1, y1);
+		n1 = t*t*Dot(&GRAD2D_LUT[CoordLUTIndex(seed, i + i1, j + j1)][0], x1, y1);
 	}
 
 	t = 0.6f - x2*x2 - y2*y2;
@@ -1252,7 +1270,7 @@ float FastNoise::_Simplex(float x, float y)
 	else
 	{
 		t *= t;
-		n2 = t*t*Dot(&GRAD2D_LUT[CoordLUTIndex(i + 1, j + 1)][0], x2, y2);
+		n2 = t*t*Dot(&GRAD2D_LUT[CoordLUTIndex(seed, i + 1, j + 1)][0], x2, y2);
 	}
 
 	return  27.7f * (n0 + n1 + n2);// +0.001054489f;
@@ -1415,7 +1433,7 @@ float FastNoise::_Cellular(float x, float y, float z)
 		{
 			for (int zi = zr - 1; zi <= zr + 1; zi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi, zi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 				vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1441,7 +1459,7 @@ float FastNoise::_Cellular(float x, float y, float z)
 			{
 				for (int zi = zr - 1; zi <= zr + 1; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1467,7 +1485,7 @@ float FastNoise::_Cellular(float x, float y, float z)
 			{
 				for (int zi = zr - 1; zi <= zr + 1; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1493,24 +1511,24 @@ float FastNoise::_Cellular(float x, float y, float z)
 	switch (m_cellularReturnType)
 	{
 	case FastNoise::CellValue:
-		return VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::NoiseLookup:		
 		if (!m_cellularNoiseLookup)
 			return 0;
 
-		lutPos = CoordLUTIndex(xc, yc, zc);
+		lutPos = CoordLUTIndex(m_seed, xc, yc, zc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELLULAR3D_LUT[lutPos][0], yc + CELLULAR3D_LUT[lutPos][1], zc + CELLULAR3D_LUT[lutPos][2]);
 		
 	case FastNoise::Distance2Center:
 		return sqrtf(distance);
 	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::Distance2CenterSq:
 		return distance;
 	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 	default:
 		return 0.0f;
 	}
@@ -1538,7 +1556,7 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 			{
 				for (int zi = zr - 1; zi <= zr + 1; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1570,7 +1588,7 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 			{
 				for (int zi = zr - 1; zi <= zr + 1; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1602,7 +1620,7 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 			{
 				for (int zi = zr - 1; zi <= zr + 1; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -1636,12 +1654,12 @@ float FastNoise::_Cellular2Edge(float x, float y, float z)
 	case FastNoise::Distance2Edge:
 		return sqrtf(distance2) - sqrtf(distance);
 	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::Distance2EdgeSq:
 		return distance2 - distance;
 	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 	default:
 		return 0.0f;
 	}
@@ -1686,7 +1704,7 @@ float FastNoise::_CellularHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1712,7 +1730,7 @@ float FastNoise::_CellularHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1738,7 +1756,7 @@ float FastNoise::_CellularHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1764,24 +1782,24 @@ float FastNoise::_CellularHQ(float x, float y, float z)
 	switch (m_cellularReturnType)
 	{
 	case FastNoise::CellValue:
-		return VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::NoiseLookup:
 		if (!m_cellularNoiseLookup)
 			return 0;
 
-		lutPos = CoordLUTIndex(xc, yc, zc);
+		lutPos = CoordLUTIndex(m_seed, xc, yc, zc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELLULAR3D_HQ_LUT[lutPos][0], yc + CELLULAR3D_HQ_LUT[lutPos][1], zc + CELLULAR3D_HQ_LUT[lutPos][2]);
 
 	case FastNoise::Distance2Center:
 		return sqrtf(distance);
 	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::Distance2CenterSq:
 		return distance;
 	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 	default:
 		return 0.0f;
 	}
@@ -1809,7 +1827,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1841,7 +1859,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1873,7 +1891,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 			{
 				for (int zi = zr - 2; zi <= zr + 2; zi++)
 				{
-					lutPos = CoordLUTIndex(xi, yi, zi);
+					lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 					vec[0] = xi - x + CELLULAR3D_HQ_LUT[lutPos][0];
 					vec[1] = yi - y + CELLULAR3D_HQ_LUT[lutPos][1];
@@ -1907,12 +1925,12 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y, float z)
 	case FastNoise::Distance2Edge:
 		return sqrtf(distance2) - sqrtf(distance);
 	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 
 	case FastNoise::Distance2EdgeSq:
 		return distance2 - distance;
 	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(xc, yc, zc)];
+		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc, zc)];
 	default:
 		return 0.0f;
 	}
@@ -1954,7 +1972,7 @@ float FastNoise::_Cellular(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -1975,7 +1993,7 @@ float FastNoise::_Cellular(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -1996,7 +2014,7 @@ float FastNoise::_Cellular(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -2017,24 +2035,24 @@ float FastNoise::_Cellular(float x, float y)
 	switch (m_cellularReturnType)
 	{
 	case FastNoise::CellValue:
-		return VAL_LUT[CoordLUTIndex(xc, yc)];
+		return VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::NoiseLookup:
 		if (!m_cellularNoiseLookup)
 			return 0;
 
-		lutPos = CoordLUTIndex(xc, yc);
+		lutPos = CoordLUTIndex(m_seed, xc, yc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELLULAR2D_LUT[lutPos][0], yc + CELLULAR2D_LUT[lutPos][1]);
 
 	case FastNoise::Distance2Center:
 		return sqrtf(distance);
 	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::Distance2CenterSq:
 		return distance;
 	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 	default:
 		return 0.0f;
 	}
@@ -2060,7 +2078,7 @@ float FastNoise::_Cellular2Edge(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -2087,7 +2105,7 @@ float FastNoise::_Cellular2Edge(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -2114,7 +2132,7 @@ float FastNoise::_Cellular2Edge(float x, float y)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_LUT[lutPos][1];
@@ -2143,12 +2161,12 @@ float FastNoise::_Cellular2Edge(float x, float y)
 	case FastNoise::Distance2Edge:
 		return sqrtf(distance2) - sqrtf(distance);
 	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::Distance2EdgeSq:
 		return distance2 - distance;
 	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 	default:
 		return 0.0f;
 	}
@@ -2190,7 +2208,7 @@ float FastNoise::_CellularHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2211,7 +2229,7 @@ float FastNoise::_CellularHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2232,7 +2250,7 @@ float FastNoise::_CellularHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2253,24 +2271,24 @@ float FastNoise::_CellularHQ(float x, float y)
 	switch (m_cellularReturnType)
 	{
 	case FastNoise::CellValue:
-		return VAL_LUT[CoordLUTIndex(xc, yc)];
+		return VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::NoiseLookup:
 		if (!m_cellularNoiseLookup)
 			return 0;
 
-		lutPos = CoordLUTIndex(xc, yc);
+		lutPos = CoordLUTIndex(m_seed, xc, yc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELLULAR2D_HQ_LUT[lutPos][0], yc + CELLULAR2D_HQ_LUT[lutPos][1]);
 
 	case FastNoise::Distance2Center:
 		return sqrtf(distance);
 	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (1.0f - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::Distance2CenterSq:
 		return distance;
 	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (1.0f - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 	default:
 		return 0.0f;
 	}
@@ -2296,7 +2314,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2323,7 +2341,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2350,7 +2368,7 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 		{
 			for (int yi = yr - 2; yi <= yr + 2; yi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi);
 
 				vec[0] = xi - x + CELLULAR2D_HQ_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR2D_HQ_LUT[lutPos][1];
@@ -2379,12 +2397,12 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 	case FastNoise::Distance2Edge:
 		return sqrtf(distance2) - sqrtf(distance);
 	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (sqrtf(distance2) - sqrtf(distance)) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 
 	case FastNoise::Distance2EdgeSq:
 		return distance2 - distance;
 	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(xc, yc)];
+		return (distance2 - distance) * VAL_LUT[CoordLUTIndex(m_seed, xc, yc)];
 	default:
 		return 0.0f;
 	}
@@ -2416,7 +2434,7 @@ float FastNoise::_CellularCaves(float x, float y, float z)
 		{
 			for (int zi = zr - 1; zi <= zr + 1; zi++)
 			{
-				lutPos = CoordLUTIndex(xi, yi, zi);
+				lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
 
 				vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
 				vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
@@ -2460,7 +2478,7 @@ float FastNoise::_CellularCaves(float x, float y, float z)
 
 bool FastNoise::_IsCaveCell(int x, int y, int z)
 {
-	float valueNoise = _Value(x * m_caveAreaFrequency, y * m_caveAreaFrequency, z * m_caveAreaFrequency);
+	float valueNoise = _Value(m_seed, x * m_caveAreaFrequency, y * m_caveAreaFrequency, z * m_caveAreaFrequency);
 
 	if (valueNoise < m_caveAreaThreshold)
 		return false;
@@ -2513,11 +2531,11 @@ void FastNoise::_GradientVector(float* vec, float x, float y, float z)
 	float yf0[3];
 	float yf1[3];
 
-	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(x0, y0, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(x1, y0, z0)][0], xs);
-	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(x0, y1, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(x1, y1, z0)][0], xs);
+	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y0, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y0, z0)][0], xs);
+	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y1, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y1, z0)][0], xs);
 	LerpVector3(&yf0[0], &xf0[0], &xf1[0], ys);
-	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(x0, y0, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(x1, y0, z1)][0], xs);
-	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(x0, y1, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(x1, y1, z1)][0], xs);
+	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y0, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y0, z1)][0], xs);
+	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y1, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y1, z1)][0], xs);
 	LerpVector3(&yf1[0], &xf0[0], &xf1[0], ys);
 	LerpVector3(vec, &yf0[0], &yf1[0], zs);
 }
