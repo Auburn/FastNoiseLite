@@ -22,7 +22,7 @@
 #include "FastNoise.h"
 #include <math.h>
 
-#define LUT_MASK 127
+const int LUT_MASK = 127;
 
 static const float VAL_LUT[] =
 {
