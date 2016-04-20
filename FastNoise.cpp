@@ -309,8 +309,6 @@ float FastNoise::GetNoise(float x, float y, float z)
 		default:
 			return _CellularHQ(x, y, z);
 		}
-	case FastNoise::NoiseType::CellularCaves:
-		return _CellularCaves(x, y, z);
 	case FastNoise::NoiseType::WhiteNoise:
 		return GetWhiteNoise(x, y, z);
 	default:
@@ -389,8 +387,6 @@ float FastNoise::GetNoise(float x, float y)
 		default:
 			return _CellularHQ(x, y);
 		}
-	case FastNoise::NoiseType::CellularCaves:
-		return _CellularCaves(x, y, 0.0f);
 	case FastNoise::NoiseType::WhiteNoise:
 		return GetWhiteNoise(x, y);
 	default:
@@ -2429,136 +2425,4 @@ float FastNoise::_Cellular2EdgeHQ(float x, float y)
 	default:
 		return 0.0f;
 	}
-}
-
-// Cellular Caves
-
-float FastNoise::GetCellularCaves(float x, float y, float z)
-{
-	return _CellularCaves(x * m_frequency, y * m_frequency, z * m_frequency);
-}
-
-float FastNoise::_CellularCaves(float x, float y, float z)
-{
-	int xr = FastRound(x);
-	int yr = FastRound(y);
-	int zr = FastRound(z);
-
-	float distance = 999999.f;
-	float distance2 = 999999.f;
-	float newDistance;
-	float vec[3];
-	int lutPos;
-	int xc = 0, yc = 0, zc = 0, xc2, yc2, zc2;
-
-	for (int xi = xr - 1; xi <= xr + 1; xi++)
-	{
-		for (int yi = yr - 1; yi <= yr + 1; yi++)
-		{
-			for (int zi = zr - 1; zi <= zr + 1; zi++)
-			{
-				lutPos = CoordLUTIndex(m_seed, xi, yi, zi);
-
-				vec[0] = xi - x + CELLULAR3D_LUT[lutPos][0];
-				vec[1] = yi - y + CELLULAR3D_LUT[lutPos][1];
-				vec[2] = zi - z + CELLULAR3D_LUT[lutPos][2];
-
-				newDistance = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
-
-				if (newDistance < distance)
-				{
-					distance2 = distance;
-					xc2 = xc;
-					yc2 = yc;
-					zc2 = zc;
-
-					distance = newDistance;
-					xc = xi;
-					yc = yi;
-					zc = zi;
-				}
-				else if (newDistance < distance2)
-				{
-					distance2 = newDistance;
-					xc2 = xi;
-					yc2 = yi;
-					zc2 = zi;
-				}
-			}
-		}
-	}
-
-	if (_IsCaveCell(xc, yc, zc))
-	{
-		if (_IsCaveCell(xc2, yc2, zc2))
-			return 1.0f;
-		else
-			return 1.0f - distance * 2.0f;
-	}
-	else
-		return -1.0f;
-}
-
-bool FastNoise::_IsCaveCell(int x, int y, int z)
-{
-	float valueNoise = _Value(m_seed, x * m_caveAreaFrequency, y * m_caveAreaFrequency, z * m_caveAreaFrequency);
-
-	if (valueNoise < m_caveAreaThreshold)
-		return false;
-	if (valueNoise > m_caveCavernThreshold)
-		return true;
-
-	int caveSpacing = 1 << m_caveSpacing;
-	float vec[3];
-
-	_GradientVector(&vec[0], x * m_caveTurbulenceFrequency, y * m_caveTurbulenceFrequency, z * m_caveTurbulenceFrequency);
-
-	int xc = x + FastRound(vec[0] * m_caveTurbulenceAmp);
-	int yc = y + FastRound(vec[1] * m_caveTurbulenceAmp);
-	int zc = z + FastRound(vec[2] * m_caveTurbulenceAmp);
-
-	if ((xc & caveSpacing) == 0 ^
-		(yc & caveSpacing) == 0)
-		zc += caveSpacing >> 1;
-
-	if (xc % caveSpacing == 0)
-	{
-		if (yc % caveSpacing == 0 ||
-			zc % caveSpacing == 0)
-			return true;
-
-		return false;
-	}
-	if (yc % caveSpacing == 0 &&
-		zc % caveSpacing == 0)
-		return true;
-
-	return false;
-}
-
-void FastNoise::_GradientVector(float* vec, float x, float y, float z)
-{
-	int x0 = FastFloor(x);
-	int y0 = FastFloor(y);
-	int z0 = FastFloor(z);
-	int x1 = x0 + 1;
-	int y1 = y0 + 1;
-	int z1 = z0 + 1;
-
-	float xs = x - (float)x0;
-	float ys = y - (float)y0;
-	float zs = z - (float)z0;
-
-	float xf0[3];
-	float xf1[3];
-	float yf0[3];
-	float yf1[3];
-
-	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y0, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y0, z0)][0], xs);
-	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y1, z0)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y1, z0)][0], xs);
-	LerpVector3(&yf0[0], &xf0[0], &xf1[0], ys);
-	LerpVector3(&xf0[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y0, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y0, z1)][0], xs);
-	LerpVector3(&xf1[0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x0, y1, z1)][0], (float*)&GRAD3D_LUT[CoordLUTIndex(m_seed, x1, y1, z1)][0], xs);
-	LerpVector3(&yf1[0], &xf0[0], &xf1[0], ys);
-	LerpVector3(vec, &yf0[0], &yf1[0], zs);
 }

@@ -28,7 +28,7 @@ public:
 	FastNoise(int seed = 0) { m_seed = seed; }
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
-	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, CellularHQ, CellularCaves, WhiteNoise };
+	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, CellularHQ, WhiteNoise };
 	enum Interp { InterpLinear = 0, InterpHermite = 1, InterpQuintic = 2 };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Ecludian, Manhattan, Natural };
@@ -68,7 +68,6 @@ public:
 
 	float GetCellular(float x, float y, float z);		// 111 ms	107 ms
 	float GetCellularHQ(float x, float y, float z);		// 415 ms	410 ms
-	float GetCellularCaves(float x, float y, float z);	// 196 ms	185 ms
 
 	float GetWhiteNoise(float x, float y, float z);		// 2 ms		2 ms
 	float GetWhiteNoiseInt(int x, int y, int z);		// 2 ms		2 ms
@@ -145,11 +144,6 @@ protected:
 	inline static int CoordLUTIndex(int seed, int x, int y, int z);
 	inline float GetValCoord(int seed, int x, int y, int z);
 	inline float GetGradCoord(int seed, int xi, int yi, int zi, float x, float y, float z);
-
-	//Caves
-	float _CellularCaves(float x, float y, float z);
-	void _GradientVector(float* vec, float x, float y, float z);
-	bool _IsCaveCell(int x, int y, int z);
 
 	//2D
 	float _ValueFractalFBM(float x, float y);
