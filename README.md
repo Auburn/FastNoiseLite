@@ -121,3 +121,8 @@ LibNoise |
 
 ANL |
 2934.5 ms
+
+#Notes
+
+- I have a partially complete C# and Java version of FastNoise that I will release when I get it to the same feature level
+- Any suggestions or questions welcome
