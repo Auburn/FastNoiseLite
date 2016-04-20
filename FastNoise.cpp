@@ -1,3 +1,24 @@
+// FastNoise.cpp
+//
+// Copyright (C) 2016 Jordan Peck
+//
+// FastNoise is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.If not, see <http://www.gnu.org/licenses/>.
+//
+// The developer's email is jorzixdan.me2@gzixmail.com (for great email, take
+// off every 'zix'.)
+//
+
 #include "FastNoise.h"
 #include <math.h>
 
@@ -368,6 +389,8 @@ float FastNoise::GetNoise(float x, float y)
 		default:
 			return _CellularHQ(x, y);
 		}
+	case FastNoise::NoiseType::CellularCaves:
+		return _CellularCaves(x, y, 0.0f);
 	case FastNoise::NoiseType::WhiteNoise:
 		return GetWhiteNoise(x, y);
 	default:

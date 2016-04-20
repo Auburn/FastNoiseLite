@@ -1,4 +1,26 @@
-#pragma once
+// FastNoise.h
+//
+// Copyright (C) 2016 Jordan Peck
+//
+// FastNoise is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.If not, see <http://www.gnu.org/licenses/>.
+//
+// The developer's email is jorzixdan.me2@gzixmail.com (for great email, take
+// off every 'zix'.)
+//
+
+#ifndef __FASTNOISE_H__
+#define __FASTNOISE_H__
 
 class FastNoise
 {
@@ -45,11 +67,11 @@ public:
 	float GetSimplexFractal(float x, float y, float z);	// 105 ms	102 ms
 
 	float GetCellular(float x, float y, float z);		// 111 ms	107 ms
-	float GetCellularHQ(float x, float y, float z);		// 415 ms	430 ms
+	float GetCellularHQ(float x, float y, float z);		// 415 ms	410 ms
 	float GetCellularCaves(float x, float y, float z);	// 196 ms	185 ms
 
-	float GetWhiteNoise(float x, float y, float z);
-	float GetWhiteNoiseInt(int x, int y, int z);
+	float GetWhiteNoise(float x, float y, float z);		// 2 ms		2 ms
+	float GetWhiteNoiseInt(int x, int y, int z);		// 2 ms		2 ms
 
 	float GetNoise(float x, float y, float z);
 
@@ -66,8 +88,8 @@ public:
 	float GetCellular(float x, float y);				// 35 ms	33 ms
 	float GetCellularHQ(float x, float y);				// 96 ms	90 ms
 
-	float GetWhiteNoise(float x, float y);
-	float GetWhiteNoiseInt(int x, int y);
+	float GetWhiteNoise(float x, float y);				// 1 ms		1 ms
+	float GetWhiteNoiseInt(int x, int y);				// 1 ms		1 ms
 
 	float GetNoise(float x, float y);
 
@@ -159,3 +181,4 @@ protected:
 	inline static int CoordLUTIndex(int seed, int x, int y, int z, int w);
 };
 
+#endif
