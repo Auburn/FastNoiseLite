@@ -57,20 +57,20 @@ public:
 	*/
 
 	//3D												// Win32	x64
-	float GetValue(float x, float y, float z);			// 16 ms	14 ms
-	float GetValueFractal(float x, float y, float z);	// 56 ms	45 ms
+	float GetValue(float x, float y, float z);			// 14 ms	14 ms
+	float GetValueFractal(float x, float y, float z);	// 48 ms	49 ms
 
-	float GetGradient(float x, float y, float z);		// 23 ms	21 ms
-	float GetGradientFractal(float x, float y, float z);// 79 ms	73 ms
+	float GetGradient(float x, float y, float z);		// 23 ms	22 ms
+	float GetGradientFractal(float x, float y, float z);// 80 ms	73 ms
 
 	float GetSimplex(float x, float y, float z);		// 30 ms	30 ms
-	float GetSimplexFractal(float x, float y, float z);	// 105 ms	102 ms
+	float GetSimplexFractal(float x, float y, float z);	// 98 ms	101 ms
 
-	float GetCellular(float x, float y, float z);		// 111 ms	107 ms
-	float GetCellularHQ(float x, float y, float z);		// 415 ms	410 ms
+	float GetCellular(float x, float y, float z);		// 123 ms	113 ms
+	float GetCellularHQ(float x, float y, float z);		// 433 ms	449 ms
 
-	float GetWhiteNoise(float x, float y, float z);		// 2 ms		2 ms
-	float GetWhiteNoiseInt(int x, int y, int z);		// 2 ms		2 ms
+	float GetWhiteNoise(float x, float y, float z);		// 1.5 ms	1.5 ms
+	float GetWhiteNoiseInt(int x, int y, int z);
 
 	float GetNoise(float x, float y, float z);
 
@@ -112,13 +112,6 @@ protected:
 	CellularDistanceFunction m_cellularDistanceFunction = Ecludian;
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
-	
-	int m_caveSpacing = 3;
-	float m_caveAreaFrequency = 0.1f;
-	float m_caveAreaThreshold = 0.0f;
-	float m_caveCavernThreshold = 0.92f;
-	float m_caveTurbulenceAmp = 15.0f;
-	float m_caveTurbulenceFrequency = 0.05f;
 
 	//3D
 	float _ValueFractalFBM(float x, float y, float z);
