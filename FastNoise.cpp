@@ -22,9 +22,6 @@
 #include "FastNoise.h"
 #include <math.h>
 
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-
 #define LUT_MASK 127
 
 static const float VAL_LUT[] =
