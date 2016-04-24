@@ -1,8 +1,8 @@
 # FastNoise
 
-FastNoise has been designed from the ground up to be as optimised as possible without sacrificing noise quality.
+FastNoise is an open source noise generation library with a large collection of different noise algorithms. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality.
 
-This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of ANL and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise. 
+This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise. 
 
 ### Features
 - Value Noise 2D, 3D
@@ -20,7 +20,7 @@ Download links can be found in the [Releases Section](https://github.com/scooby1
 
 ![FastNoise Preview](http://i.imgur.com/33QdL8m.png)
 
-## LibNoise and ANL speed comparisons
+## LibNoise and Accidental Noise Library (ANL) Speed Comparisons
 
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
 
@@ -125,4 +125,5 @@ ANL |
 #Notes
 
 - I have a partially complete C# and Java version of FastNoise that I will release when I get it to the same feature level
+- Documentation coming at some point
 - Any suggestions or questions welcome
