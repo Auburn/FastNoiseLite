@@ -16,7 +16,7 @@ This project started when my search to find a good noise library for procedural 
 
 I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
 
-Download links can be found in the [Releases Section](https://github.com/scooby1222/FastNoise/releases).
+Download links can be found in the [Releases Section](https://github.com/Auburns/FastNoise/releases).
 
 ![FastNoise Preview](http://i.imgur.com/33QdL8m.png)
 
