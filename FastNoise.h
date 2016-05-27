@@ -26,8 +26,8 @@
 // off every 'zix'.)
 //
 
-#ifndef __FASTNOISE_H__
-#define __FASTNOISE_H__
+#ifndef FASTNOISE_H
+#define FASTNOISE_H
 
 class FastNoise
 {
@@ -143,6 +143,7 @@ protected:
 
 	inline static int CoordLUTIndex(int seed, int x, int y, int z);
 	inline float GetValCoord(int seed, int x, int y, int z);
+	inline float GetValCoordNoLUT(int seed, int x, int y, int z);
 	inline float GetGradCoord(int seed, int xi, int yi, int zi, float x, float y, float z);
 
 	//2D
@@ -168,11 +169,13 @@ protected:
 	
 	inline int CoordLUTIndex(int seed, int x, int y);
 	inline float GetValCoord(int seed, int x, int y);
+	inline float GetValCoordNoLUT(int seed, int x, int y);
 	inline float GetGradCoord(int seed, int xi, int yi, float x, float y);
 
 	//4D
 	float _Simplex(float x, float y, float z, float w);
 	inline static int CoordLUTIndex(int seed, int x, int y, int z, int w);
+	inline float GetValCoordNoLUT(int seed, int x, int y, int z, int w);
 };
 
 #endif

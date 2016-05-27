@@ -29,7 +29,7 @@
 #include "FastNoise.h"
 #include <math.h>
 
-const int LUT_MASK = 127;
+#define LUT_MASK 127
 
 static const float VAL_LUT[] =
 {
@@ -198,18 +198,22 @@ static float InterpHermiteFunc(float t) { return (t*t*(3 - 2 * t)); }
 static float InterpQuinticFunc(float t) { return t*t*t*(t*(t * 6 - 15) + 10); }
 
 // Hashing
+#define X_PRIME 15485863
+#define Y_PRIME 10057189
+#define Z_PRIME 987391
+#define W_PRIME 418493
 
 inline int FastNoise::CoordLUTIndex(int seed, int x, int y, int z, int w)
 {
 	int hash = seed;
 	hash ^= x;
-	hash *= 15485863;
+	hash *= X_PRIME;
 	hash ^= y;
-	hash *= 10057189;
+	hash *= Y_PRIME;
 	hash ^= z;
-	hash *= 987391;
+	hash *= Z_PRIME;
 	hash ^= w;
-	hash *= 418493;
+	hash *= W_PRIME;
 	hash ^= hash >> 16;
 
 	return hash & LUT_MASK;
@@ -219,11 +223,11 @@ inline int FastNoise::CoordLUTIndex(int seed, int x, int y, int z)
 {
 	int hash = seed;
 	hash ^= x;
-	hash *= 15485863;
+	hash *= X_PRIME;
 	hash ^= y;
-	hash *= 10057189;
+	hash *= Y_PRIME;
 	hash ^= z;
-	hash *= 987391;
+	hash *= Z_PRIME;
 	hash ^= hash >> 16;
 
 	return hash & LUT_MASK;
@@ -233,9 +237,9 @@ inline int FastNoise::CoordLUTIndex(int seed, int x, int y)
 {
 	int hash = seed;
 	hash ^= x;
-	hash *= 15485863;
+	hash *= X_PRIME;
 	hash ^= y;
-	hash *= 10057189;
+	hash *= Y_PRIME;
 	hash ^= hash >> 16;
 
 	return hash & LUT_MASK;
@@ -401,41 +405,74 @@ float FastNoise::GetNoise(float x, float y)
 // White Noise
 float FastNoise::GetWhiteNoise(float x, float y, float z, float w)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed,
+	return  GetValCoordNoLUT(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
 		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16),
-		*reinterpret_cast<int*>(&w) ^ (*reinterpret_cast<int*>(&w) >> 16))];
+		*reinterpret_cast<int*>(&w) ^ (*reinterpret_cast<int*>(&w) >> 16));
 }
 
 float FastNoise::GetWhiteNoise(float x, float y, float z)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed,
+	return  GetValCoordNoLUT(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
 		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16),
-		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16))];
+		*reinterpret_cast<int*>(&z) ^ (*reinterpret_cast<int*>(&z) >> 16));
 }
 
 float FastNoise::GetWhiteNoise(float x, float y)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed,
+	return GetValCoordNoLUT(m_seed,
 		*reinterpret_cast<int*>(&x) ^ (*reinterpret_cast<int*>(&x) >> 16),
-		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16))];
+		*reinterpret_cast<int*>(&y) ^ (*reinterpret_cast<int*>(&y) >> 16));
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y, int z, int w)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed, x, y, z, w)];
+	return GetValCoordNoLUT(m_seed, x, y, z, w);
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y, int z)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed, x, y, z)];
+	return GetValCoordNoLUT(m_seed, x, y, z);
 }
 
 float FastNoise::GetWhiteNoiseInt(int x, int y)
 {
-	return VAL_LUT[CoordLUTIndex(m_seed, x, y)];
+	return GetValCoordNoLUT(m_seed, x, y);
+}
+
+float FastNoise::GetValCoordNoLUT(int seed, int x, int y, int z, int w)
+{
+	int n = X_PRIME * x;
+	n ^= Y_PRIME * y;
+	n ^= Z_PRIME * z;
+	n ^= W_PRIME * w;
+	n ^= seed;
+	n &= 0x7fffffff;
+	n = (n >> 13) ^ n;
+	return 1.0f - (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) / 1073741824.0f);
+}
+
+float FastNoise::GetValCoordNoLUT(int seed, int x, int y, int z)
+{
+	int n = X_PRIME * x;
+	n ^= Y_PRIME * y;
+	n ^= Z_PRIME * z;
+	n ^= seed;
+	n &= 0x7fffffff;
+	n = (n >> 13) ^ n;
+	return 1.0f - (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) / 1073741824.0f);
+}
+
+float FastNoise::GetValCoordNoLUT(int seed, int x, int y)
+{
+	int n = X_PRIME * x;
+	n ^= Y_PRIME * y;
+	n ^= seed;
+	n &= 0x7fffffff;
+	n = (n >> 13) ^ n;
+	return 1.0f - (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) / 1073741824.0f);
 }
 
 // Value Noise
