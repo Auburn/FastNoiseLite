@@ -12,6 +12,11 @@ This project started when my search to find a good noise library for procedural 
 - Cellular (Voronoi) Noise 2D, 3D
 - White Noise 2D, 3D, 4D
 
+### Wiki
+Usage and documentation available in wiki
+
+[Wiki Link](https://github.com/Auburns/FastNoise/wiki)
+
 ## FastNoise Preview
 
 I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
@@ -125,5 +130,4 @@ ANL |
 #Notes
 
 - I have a partially complete C# and Java version of FastNoise that I will release when I get it to the same feature level
-- Documentation coming at some point
 - Any suggestions or questions welcome
