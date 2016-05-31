@@ -47,7 +47,7 @@ LibNoise |
 23.324 ms
 
 ANL |
-101.81 
+101.81 ms
 
 **ValueFractal3D**
 
