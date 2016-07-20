@@ -32,17 +32,17 @@
 class FastNoise
 {
 public:
-	FastNoise(int seed = 0) { m_seed = seed; }
+	FastNoise(int seed = 1337) { m_seed = seed; }
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
-	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, CellularHQ, WhiteNoise };
+	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
 	enum Interp { InterpLinear = 0, InterpHermite = 1, InterpQuintic = 2 };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
 	enum CellularReturnType { CellValue, NoiseLookup, Distance2Center, Distance2CenterXValue, Distance2CenterSq, Distance2CenterSqXValue, Distance2Edge, Distance2EdgeXValue, Distance2EdgeSq, Distance2EdgeSqXValue };
 
 	void SetSeed(int seed) { m_seed = seed; }
-	int GetSeed(void) { return m_seed; }
+	int GetSeed(void) const { return m_seed; }
 	void SetFrequency(float frequency) { m_frequency = frequency; }
 	void SetInterp(Interp interp) { m_interp = interp; }
 	void SetNoiseType(NoiseType noiseType) { m_noiseType = noiseType; }
@@ -74,7 +74,6 @@ public:
 	float GetSimplexFractal(float x, float y, float z);	// 98 ms	101 ms
 
 	float GetCellular(float x, float y, float z);		// 123 ms	113 ms
-	float GetCellularHQ(float x, float y, float z);		// 433 ms	449 ms
 
 	float GetWhiteNoise(float x, float y, float z);		// 1.5 ms	1.5 ms
 	float GetWhiteNoiseInt(int x, int y, int z);
@@ -92,7 +91,6 @@ public:
 	float GetSimplexFractal(float x, float y);			// 55 ms	52 ms
 
 	float GetCellular(float x, float y);				// 35 ms	33 ms
-	float GetCellularHQ(float x, float y);				// 96 ms	90 ms
 
 	float GetWhiteNoise(float x, float y);				// 1 ms		1 ms
 	float GetWhiteNoiseInt(int x, int y);				// 1 ms		1 ms
@@ -106,10 +104,10 @@ public:
 	float GetWhiteNoiseInt(int x, int y, int z, int w);
 
 protected:
-	int m_seed = 0;
+	int m_seed = 1337;
 	float m_frequency = 0.01f;
 	Interp m_interp = InterpQuintic;
-	NoiseType m_noiseType = Value;
+	NoiseType m_noiseType = Simplex;
 
 	unsigned int m_octaves = 3;
 	float m_lacunarity = 2.0f;
@@ -120,62 +118,46 @@ protected:
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
 
-	//3D
-	float _ValueFractalFBM(float x, float y, float z);
-	float _ValueFractalBillow(float x, float y, float z);
-	float _ValueFractalRigidMulti(float x, float y, float z);
-	float _Value(int seed, float x, float y, float z);
-
-	float _GradientFractalFBM(float x, float y, float z);
-	float _GradientFractalBillow(float x, float y, float z);
-	float _GradientFractalRigidMulti(float x, float y, float z);
-	float _Gradient(int seed, float x, float y, float z);
-
-	float _SimplexFractalFBM(float x, float y, float z);
-	float _SimplexFractalBillow(float x, float y, float z);
-	float _SimplexFractalRigidMulti(float x, float y, float z);
-	float _Simplex(int seed, float x, float y, float z);
-
-	float _Cellular(float x, float y, float z);
-	float _CellularHQ(float x, float y, float z);
-	float _Cellular2Edge(float x, float y, float z);
-	float _Cellular2EdgeHQ(float x, float y, float z);
-
-	inline static int CoordLUTIndex(int seed, int x, int y, int z);
-	inline float GetValCoord(int seed, int x, int y, int z);
-	inline float GetValCoordNoLUT(int seed, int x, int y, int z);
-	inline float GetGradCoord(int seed, int xi, int yi, int zi, float x, float y, float z);
-
 	//2D
-	float _ValueFractalFBM(float x, float y);
-	float _ValueFractalBillow(float x, float y);
-	float _ValueFractalRigidMulti(float x, float y);
-	float _Value(int seed, float x, float y);
+	float SingleValueFractalFBM(float x, float y);
+	float SingleValueFractalBillow(float x, float y);
+	float SingleValueFractalRigidMulti(float x, float y);
+	float SingleValue(int seed, float x, float y);
 
-	float _GradientFractalFBM(float x, float y);
-	float _GradientFractalBillow(float x, float y);
-	float _GradientFractalRigidMulti(float x, float y);
-	float _Gradient(int seed, float x, float y);
+	float SingleGradientFractalFBM(float x, float y);
+	float SingleGradientFractalBillow(float x, float y);
+	float SingleGradientFractalRigidMulti(float x, float y);
+	float SingleGradient(int seed, float x, float y);
 
-	float _SimplexFractalFBM(float x, float y);
-	float _SimplexFractalBillow(float x, float y);
-	float _SimplexFractalRigidMulti(float x, float y);
-	float _Simplex(int seed, float x, float y);
+	float SingleSimplexFractalFBM(float x, float y);
+	float SingleSimplexFractalBillow(float x, float y);
+	float SingleSimplexFractalRigidMulti(float x, float y);
+	float SingleSimplex(int seed, float x, float y);
 
-	float _Cellular(float x, float y);
-	float _CellularHQ(float x, float y);
-	float _Cellular2Edge(float x, float y);
-	float _Cellular2EdgeHQ(float x, float y);
-	
-	inline int CoordLUTIndex(int seed, int x, int y);
-	inline float GetValCoord(int seed, int x, int y);
-	inline float GetValCoordNoLUT(int seed, int x, int y);
-	inline float GetGradCoord(int seed, int xi, int yi, float x, float y);
+	float SingleCellular(float x, float y);
+	float SingleCellular2Edge(float x, float y);	
+
+	//3D
+	float SingleValueFractalFBM(float x, float y, float z);
+	float SingleValueFractalBillow(float x, float y, float z);
+	float SingleValueFractalRigidMulti(float x, float y, float z);
+	float SingleValue(int seed, float x, float y, float z);
+
+	float SingleGradientFractalFBM(float x, float y, float z);
+	float SingleGradientFractalBillow(float x, float y, float z);
+	float SingleGradientFractalRigidMulti(float x, float y, float z);
+	float SingleGradient(int seed, float x, float y, float z);
+
+	float SingleSimplexFractalFBM(float x, float y, float z);
+	float SingleSimplexFractalBillow(float x, float y, float z);
+	float SingleSimplexFractalRigidMulti(float x, float y, float z);
+	float SingleSimplex(int seed, float x, float y, float z);
+
+	float SingleCellular(float x, float y, float z);
+	float SingleCellular2Edge(float x, float y, float z);
 
 	//4D
-	float _Simplex(float x, float y, float z, float w);
-	inline static int CoordLUTIndex(int seed, int x, int y, int z, int w);
-	inline float GetValCoordNoLUT(int seed, int x, int y, int z, int w);
+	float SingleSimplex(float x, float y, float z, float w);
 };
 
 #endif
