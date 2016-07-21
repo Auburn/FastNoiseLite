@@ -218,8 +218,8 @@ const float CELL_3D_Z[] =
 
 static int FastFloor(float f) { return (f >= 0.0f ? (int)f : (int)f - 1); }
 static int FastRound(float f) { return (f >= 0.0f) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
-static float FastAbs(float f) { return (f >= 0.0f) ? f : -f; }
-static int FastAbs(int i) { return i & 0x7fffffff; }
+static float FastAbs(float f) { return fabsf(f); }
+static int FastAbs(int i) { return abs(i); }
 static float Lerp(float a, float b, float t) { return a + t * (b - a); }
 static void LerpVector3(float* out, float* a, float* b, float t)
 {
