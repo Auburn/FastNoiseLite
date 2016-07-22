@@ -32,16 +32,16 @@
 class FastNoise
 {
 public:
-	FastNoise(int seed = 1337) { m_seed = seed; }
+	FastNoise(int seed = 1337) { SetSeed(seed); };
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
 	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
-	enum Interp { InterpLinear = 0, InterpHermite = 1, InterpQuintic = 2 };
+	enum Interp { InterpLinear, InterpHermite, InterpQuintic };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
 	enum CellularReturnType { CellValue, NoiseLookup, Distance2Center, Distance2CenterXValue, Distance2CenterSq, Distance2CenterSqXValue, Distance2Edge, Distance2EdgeXValue, Distance2EdgeSq, Distance2EdgeSqXValue };
 
-	void SetSeed(int seed) { m_seed = seed; }
+	void SetSeed(int seed);
 	int GetSeed(void) const { return m_seed; }
 	void SetFrequency(float frequency) { m_frequency = frequency; }
 	void SetInterp(Interp interp) { m_interp = interp; }
@@ -104,6 +104,9 @@ public:
 	float GetWhiteNoiseInt(int x, int y, int z, int w);
 
 protected:
+	unsigned char m_perm[512];
+	unsigned char m_perm12[512];
+
 	int m_seed = 1337;
 	float m_frequency = 0.01f;
 	Interp m_interp = InterpQuintic;
@@ -122,17 +125,17 @@ protected:
 	float SingleValueFractalFBM(float x, float y);
 	float SingleValueFractalBillow(float x, float y);
 	float SingleValueFractalRigidMulti(float x, float y);
-	float SingleValue(int seed, float x, float y);
+	float SingleValue(unsigned char offset, float x, float y);
 
 	float SingleGradientFractalFBM(float x, float y);
 	float SingleGradientFractalBillow(float x, float y);
 	float SingleGradientFractalRigidMulti(float x, float y);
-	float SingleGradient(int seed, float x, float y);
+	float SingleGradient(unsigned char offset, float x, float y);
 
 	float SingleSimplexFractalFBM(float x, float y);
 	float SingleSimplexFractalBillow(float x, float y);
 	float SingleSimplexFractalRigidMulti(float x, float y);
-	float SingleSimplex(int seed, float x, float y);
+	float SingleSimplex(unsigned char offset, float x, float y);
 
 	float SingleCellular(float x, float y);
 	float SingleCellular2Edge(float x, float y);	
@@ -141,23 +144,36 @@ protected:
 	float SingleValueFractalFBM(float x, float y, float z);
 	float SingleValueFractalBillow(float x, float y, float z);
 	float SingleValueFractalRigidMulti(float x, float y, float z);
-	float SingleValue(int seed, float x, float y, float z);
+	float SingleValue(unsigned char offset, float x, float y, float z);
 
 	float SingleGradientFractalFBM(float x, float y, float z);
 	float SingleGradientFractalBillow(float x, float y, float z);
 	float SingleGradientFractalRigidMulti(float x, float y, float z);
-	float SingleGradient(int seed, float x, float y, float z);
+	float SingleGradient(unsigned char offset, float x, float y, float z);
 
 	float SingleSimplexFractalFBM(float x, float y, float z);
 	float SingleSimplexFractalBillow(float x, float y, float z);
 	float SingleSimplexFractalRigidMulti(float x, float y, float z);
-	float SingleSimplex(int seed, float x, float y, float z);
+	float SingleSimplex(unsigned char offset, float x, float y, float z);
 
 	float SingleCellular(float x, float y, float z);
 	float SingleCellular2Edge(float x, float y, float z);
 
 	//4D
-	float SingleSimplex(float x, float y, float z, float w);
+	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);
+
+private:
+	inline unsigned char Index2D_12(unsigned char offset, int x, int y);
+	inline unsigned char Index3D_12(unsigned char offset, int x, int y, int z);
+	inline unsigned char Index4D_32(unsigned char offset, int x, int y, int z, int w);
+	inline unsigned char Index2D_256(unsigned char offset, int x, int y);
+	inline unsigned char Index3D_256(unsigned char offset, int x, int y, int z);
+	inline unsigned char Index4D_256(unsigned char offset, int x, int y, int z, int w);
+	inline float ValCoord2DFast(unsigned char offset, int x, int y);
+	inline float ValCoord3DFast(unsigned char offset, int x, int y, int z);
+	inline float GradCoord2D(unsigned char offset, int x, int y, float xd, float yd);
+	inline float GradCoord3D(unsigned char offset, int x, int y, int z, float xd, float yd, float zd);
+	inline float GradCoord4D(unsigned char offset, int x, int y, int z, int w, float xd, float yd, float zd, float wd);
 };
 
 #endif
