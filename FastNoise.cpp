@@ -499,8 +499,7 @@ float FastNoise::GetValueFractal(float x, float y, float z)
 
 float FastNoise::SingleValueFractalFBM(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = SingleValue(m_perm[offset], x, y, z);
+	float sum = SingleValue(m_perm[0], x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -513,7 +512,7 @@ float FastNoise::SingleValueFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleValue(m_perm[++offset], x, y, z) * amp;
+		sum += SingleValue(m_perm[i], x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -521,8 +520,7 @@ float FastNoise::SingleValueFractalFBM(float x, float y, float z)
 
 float FastNoise::SingleValueFractalBillow(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleValue(m_perm[offset], x, y, z)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleValue(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -535,7 +533,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleValue(m_perm[++offset], x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleValue(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -543,8 +541,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y, float z)
 
 float FastNoise::SingleValueFractalRigidMulti(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleValue(m_perm[offset], x, y, z));
+	float sum = 1.0f - FastAbs(SingleValue(m_perm[0], x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -555,7 +552,7 @@ float FastNoise::SingleValueFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleValue(m_perm[++offset], x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(SingleValue(m_perm[i], x, y, z))) * amp;
 	}
 
 	return sum;
@@ -626,8 +623,7 @@ float FastNoise::GetValueFractal(float x, float y)
 
 float FastNoise::SingleValueFractalFBM(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = SingleValue(m_perm[offset], x, y);
+	float sum = SingleValue(m_perm[0], x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -639,7 +635,7 @@ float FastNoise::SingleValueFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleValue(m_perm[++offset], x, y) * amp;
+		sum += SingleValue(m_perm[i], x, y) * amp;
 	}
 
 	return sum / max;
@@ -647,11 +643,9 @@ float FastNoise::SingleValueFractalFBM(float x, float y)
 
 float FastNoise::SingleValueFractalBillow(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleValue(m_perm[offset], x, y)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleValue(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
-
 	unsigned int i = 0;
 
 	while (++i < m_octaves)
@@ -660,7 +654,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y)
 		y *= m_lacunarity;
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleValue(m_perm[++offset], x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleValue(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -668,8 +662,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y)
 
 float FastNoise::SingleValueFractalRigidMulti(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleValue(m_perm[offset], x, y));
+	float sum = 1.0f - FastAbs(SingleValue(m_perm[0], x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -679,7 +672,7 @@ float FastNoise::SingleValueFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleValue(m_perm[++offset], x, y))) * amp;
+		sum -= (1.0f - FastAbs(SingleValue(m_perm[i], x, y))) * amp;
 	}
 
 	return sum;
@@ -742,8 +735,7 @@ float FastNoise::GetGradientFractal(float x, float y, float z)
 
 float FastNoise::SingleGradientFractalFBM(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = SingleGradient(m_perm[offset], x, y, z);
+	float sum = SingleGradient(m_perm[0], x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -756,7 +748,7 @@ float FastNoise::SingleGradientFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleGradient(m_perm[++offset], x, y, z) * amp;
+		sum += SingleGradient(m_perm[i], x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -764,8 +756,7 @@ float FastNoise::SingleGradientFractalFBM(float x, float y, float z)
 
 float FastNoise::SingleGradientFractalBillow(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleGradient(m_perm[offset], x, y, z)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleGradient(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -778,7 +769,7 @@ float FastNoise::SingleGradientFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleGradient(m_perm[++offset], x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleGradient(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -786,8 +777,7 @@ float FastNoise::SingleGradientFractalBillow(float x, float y, float z)
 
 float FastNoise::SingleGradientFractalRigidMulti(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleGradient(m_perm[offset], x, y, z));
+	float sum = 1.0f - FastAbs(SingleGradient(m_perm[0], x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -798,7 +788,7 @@ float FastNoise::SingleGradientFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleGradient(m_perm[++offset], x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(SingleGradient(m_perm[i], x, y, z))) * amp;
 	}
 
 	return sum;
@@ -876,8 +866,7 @@ float FastNoise::GetGradientFractal(float x, float y)
 
 float FastNoise::SingleGradientFractalFBM(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = SingleGradient(m_perm[offset], x, y);
+	float sum = SingleGradient(m_perm[0], x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -889,7 +878,7 @@ float FastNoise::SingleGradientFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleGradient(m_perm[++offset], x, y) * amp;
+		sum += SingleGradient(m_perm[i], x, y) * amp;
 	}
 
 	return sum / max;
@@ -897,8 +886,7 @@ float FastNoise::SingleGradientFractalFBM(float x, float y)
 
 float FastNoise::SingleGradientFractalBillow(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleGradient(m_perm[offset], x, y)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleGradient(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -910,7 +898,7 @@ float FastNoise::SingleGradientFractalBillow(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleGradient(m_perm[++offset], x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleGradient(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -918,8 +906,7 @@ float FastNoise::SingleGradientFractalBillow(float x, float y)
 
 float FastNoise::SingleGradientFractalRigidMulti(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleGradient(m_perm[offset], x, y));
+	float sum = 1.0f - FastAbs(SingleGradient(m_perm[0], x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -929,7 +916,7 @@ float FastNoise::SingleGradientFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleGradient(m_perm[++offset], x, y))) * amp;
+		sum -= (1.0f - FastAbs(SingleGradient(m_perm[i], x, y))) * amp;
 	}
 
 	return sum;
@@ -998,8 +985,7 @@ float FastNoise::GetSimplexFractal(float x, float y, float z)
 
 float FastNoise::SingleSimplexFractalFBM(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = SingleSimplex(m_perm[offset], x, y, z);
+	float sum = SingleSimplex(m_perm[0], x, y, z);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1012,7 +998,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleSimplex(m_perm[++offset], x, y, z) * amp;
+		sum += SingleSimplex(m_perm[i], x, y, z) * amp;
 	}
 
 	return sum / max;
@@ -1020,8 +1006,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y, float z)
 
 float FastNoise::SingleSimplexFractalBillow(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleSimplex(m_perm[offset], x, y, z)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleSimplex(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1034,7 +1019,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y, float z)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleSimplex(m_perm[++offset], x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleSimplex(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -1042,8 +1027,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y, float z)
 
 float FastNoise::SingleSimplexFractalRigidMulti(float x, float y, float z)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[offset], x, y, z));
+	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[0], x, y, z));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -1054,7 +1038,7 @@ float FastNoise::SingleSimplexFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleSimplex(m_perm[++offset], x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(SingleSimplex(m_perm[i], x, y, z))) * amp;
 	}
 
 	return sum;
@@ -1185,8 +1169,7 @@ float FastNoise::GetSimplexFractal(float x, float y)
 
 float FastNoise::SingleSimplexFractalFBM(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = SingleSimplex(m_perm[offset], x, y);
+	float sum = SingleSimplex(m_perm[0], x, y);
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1198,7 +1181,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += SingleSimplex(m_perm[++offset], x, y) * amp;
+		sum += SingleSimplex(m_perm[i], x, y) * amp;
 	}
 
 	return sum / max;
@@ -1206,8 +1189,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y)
 
 float FastNoise::SingleSimplexFractalBillow(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = FastAbs(SingleSimplex(m_perm[offset], x, y)) * 2.0f - 1.0f;
+	float sum = FastAbs(SingleSimplex(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float max = 1.0f;
 	float amp = 1.0f;
 	unsigned int i = 0;
@@ -1219,7 +1201,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y)
 
 		amp *= m_gain;
 		max += amp;
-		sum += (FastAbs(SingleSimplex(m_perm[++offset], x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SingleSimplex(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum / max;
@@ -1227,8 +1209,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y)
 
 float FastNoise::SingleSimplexFractalRigidMulti(float x, float y)
 {
-	unsigned char offset = 0;
-	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[offset], x, y));
+	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[0], x, y));
 	float amp = 1.0f;
 	unsigned int i = 0;
 
@@ -1238,7 +1219,7 @@ float FastNoise::SingleSimplexFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleSimplex(m_perm[++offset], x, y))) * amp;
+		sum -= (1.0f - FastAbs(SingleSimplex(m_perm[i], x, y))) * amp;
 	}
 
 	return sum;

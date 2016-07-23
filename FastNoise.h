@@ -169,6 +169,7 @@ private:
 	inline unsigned char Index2D_256(unsigned char offset, int x, int y);
 	inline unsigned char Index3D_256(unsigned char offset, int x, int y, int z);
 	inline unsigned char Index4D_256(unsigned char offset, int x, int y, int z, int w);
+
 	inline float ValCoord2DFast(unsigned char offset, int x, int y);
 	inline float ValCoord3DFast(unsigned char offset, int x, int y, int z);
 	inline float GradCoord2D(unsigned char offset, int x, int y, float xd, float yd);
