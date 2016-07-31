@@ -39,7 +39,7 @@ public:
 	enum Interp { InterpLinear, InterpHermite, InterpQuintic };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
-	enum CellularReturnType { CellValue, NoiseLookup, Distance2Center, Distance2CenterXValue, Distance2CenterSq, Distance2CenterSqXValue, Distance2Edge, Distance2EdgeXValue, Distance2EdgeSq, Distance2EdgeSqXValue };
+	enum CellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
 
 	void SetSeed(int seed);
 	int GetSeed(void) const { return m_seed; }

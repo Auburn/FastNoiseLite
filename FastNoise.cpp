@@ -28,6 +28,7 @@
 
 #include "FastNoise.h"
 #include <math.h>
+#include <assert.h>
 #include <random>
 
 const float GRAD_X[] =
@@ -310,60 +311,59 @@ float FastNoise::GetNoise(float x, float y, float z)
 
 	switch (m_noiseType)
 	{
-	case FastNoise::NoiseType::Value:
+	case Value:
 		return SingleValue(0, x, y, z);
-	case FastNoise::NoiseType::ValueFractal:
+	case ValueFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleValueFractalFBM(x, y, z);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleValueFractalBillow(x, y, z);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleValueFractalRigidMulti(x, y, z);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Gradient:
+	case Gradient:
 		return SingleGradient(0, x, y, z);
-	case FastNoise::NoiseType::GradientFractal:
+	case GradientFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleGradientFractalFBM(x, y, z);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleGradientFractalBillow(x, y, z);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleGradientFractalRigidMulti(x, y, z);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Simplex:
+	case Simplex:
 		return SingleSimplex(0, x, y, z);
-	case FastNoise::NoiseType::SimplexFractal:
+	case SimplexFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleSimplexFractalFBM(x, y, z);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleSimplexFractalBillow(x, y, z);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleSimplexFractalRigidMulti(x, y, z);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Cellular:
+	case Cellular:
 		switch (m_cellularReturnType)
 		{
-		case Distance2Edge:
-		case Distance2EdgeXValue:
-		case Distance2EdgeSq:
-		case Distance2EdgeSqXValue:
-			return SingleCellular2Edge(x, y, z);
-		default:
+		case CellValue:
+		case NoiseLookup:
+		case Distance:
 			return SingleCellular(x, y, z);
+		default:
+			return SingleCellular2Edge(x, y, z);
 		}
-	case FastNoise::NoiseType::WhiteNoise:
+	case WhiteNoise:
 		return GetWhiteNoise(x, y, z);
 	default:
 		return 0.0f;
@@ -377,60 +377,59 @@ float FastNoise::GetNoise(float x, float y)
 
 	switch (m_noiseType)
 	{
-	case FastNoise::NoiseType::Value:
+	case Value:
 		return SingleValue(0, x, y);
-	case FastNoise::NoiseType::ValueFractal:
+	case ValueFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleValueFractalFBM(x, y);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleValueFractalBillow(x, y);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleValueFractalRigidMulti(x, y);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Gradient:
+	case Gradient:
 		return SingleGradient(0, x, y);
-	case FastNoise::NoiseType::GradientFractal:
+	case GradientFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleGradientFractalFBM(x, y);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleGradientFractalBillow(x, y);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleGradientFractalRigidMulti(x, y);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Simplex:
+	case Simplex:
 		return SingleSimplex(0, x, y);
-	case FastNoise::NoiseType::SimplexFractal:
+	case SimplexFractal:
 		switch (m_fractalType)
 		{
-		case FastNoise::FBM:
+		case FBM:
 			return SingleSimplexFractalFBM(x, y);
-		case FastNoise::Billow:
+		case Billow:
 			return SingleSimplexFractalBillow(x, y);
-		case FastNoise::RigidMulti:
+		case RigidMulti:
 			return SingleSimplexFractalRigidMulti(x, y);
 		default:
 			return 0.0f;
 		}
-	case FastNoise::NoiseType::Cellular:
+	case Cellular:
 		switch (m_cellularReturnType)
 		{
-		case Distance2Edge:
-		case Distance2EdgeXValue:
-		case Distance2EdgeSq:
-		case Distance2EdgeSqXValue:
-			return SingleCellular2Edge(x, y);
-		default:
+		case CellValue:
+		case NoiseLookup:
+		case Distance:
 			return SingleCellular(x, y);
+		default:
+			return SingleCellular2Edge(x, y);
 		}
-	case FastNoise::NoiseType::WhiteNoise:
+	case WhiteNoise:
 		return GetWhiteNoise(x, y);
 	default:
 		return 0.0f;
@@ -486,11 +485,11 @@ float FastNoise::GetValueFractal(float x, float y, float z)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleValueFractalFBM(x, y, z);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleValueFractalBillow(x, y, z);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleValueFractalRigidMulti(x, y, z);
 	default:
 		return 0.0f;
@@ -575,17 +574,17 @@ float FastNoise::SingleValue(unsigned char offset, float x, float y, float z)
 	float xs, ys, zs;
 	switch (m_interp)
 	{
-	case FastNoise::InterpLinear:
+	case InterpLinear:
 		xs = x - (float)x0;
 		ys = y - (float)y0;
 		zs = z - (float)z0;
 		break;
-	case FastNoise::InterpHermite:
+	case InterpHermite:
 		xs = InterpHermiteFunc(x - (float)x0);
 		ys = InterpHermiteFunc(y - (float)y0);
 		zs = InterpHermiteFunc(z - (float)z0);
 		break;
-	case FastNoise::InterpQuintic:
+	case InterpQuintic:
 		xs = InterpQuinticFunc(x - (float)x0);
 		ys = InterpQuinticFunc(y - (float)y0);
 		zs = InterpQuinticFunc(z - (float)z0);
@@ -610,11 +609,11 @@ float FastNoise::GetValueFractal(float x, float y)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleValueFractalFBM(x, y);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleValueFractalBillow(x, y);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleValueFractalRigidMulti(x, y);
 	default:
 		return 0.0f;
@@ -693,15 +692,15 @@ float FastNoise::SingleValue(unsigned char offset, float x, float y)
 	float xs, ys;
 	switch (m_interp)
 	{
-	case FastNoise::InterpLinear:
+	case InterpLinear:
 		xs = x - (float)x0;
 		ys = y - (float)y0;
 		break;
-	case FastNoise::InterpHermite:
+	case InterpHermite:
 		xs = InterpHermiteFunc(x - (float)x0);
 		ys = InterpHermiteFunc(y - (float)y0);
 		break;
-	case FastNoise::InterpQuintic:
+	case InterpQuintic:
 		xs = InterpQuinticFunc(x - (float)x0);
 		ys = InterpQuinticFunc(y - (float)y0);
 		break;
@@ -722,11 +721,11 @@ float FastNoise::GetGradientFractal(float x, float y, float z)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleGradientFractalFBM(x, y, z);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleGradientFractalBillow(x, y, z);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleGradientFractalRigidMulti(x, y, z);
 	default:
 		return 0.0f;
@@ -811,17 +810,17 @@ float FastNoise::SingleGradient(unsigned char offset, float x, float y, float z)
 	float xs, ys, zs;
 	switch (m_interp)
 	{
-	case FastNoise::InterpLinear:
+	case InterpLinear:
 		xs = x - (float)x0;
 		ys = y - (float)y0;
 		zs = z - (float)z0;
 		break;
-	case FastNoise::InterpHermite:
+	case InterpHermite:
 		xs = InterpHermiteFunc(x - (float)x0);
 		ys = InterpHermiteFunc(y - (float)y0);
 		zs = InterpHermiteFunc(z - (float)z0);
 		break;
-	case FastNoise::InterpQuintic:
+	case InterpQuintic:
 		xs = InterpQuinticFunc(x - (float)x0);
 		ys = InterpQuinticFunc(y - (float)y0);
 		zs = InterpQuinticFunc(z - (float)z0);
@@ -853,11 +852,11 @@ float FastNoise::GetGradientFractal(float x, float y)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleGradientFractalFBM(x, y);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleGradientFractalBillow(x, y);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleGradientFractalRigidMulti(x, y);
 	default:
 		return 0.0f;
@@ -937,15 +936,15 @@ float FastNoise::SingleGradient(unsigned char offset, float x, float y)
 	float xs, ys;
 	switch (m_interp)
 	{
-	case FastNoise::InterpLinear:
+	case InterpLinear:
 		xs = x - (float)x0;
 		ys = y - (float)y0;
 		break;
-	case FastNoise::InterpHermite:
+	case InterpHermite:
 		xs = InterpHermiteFunc(x - (float)x0);
 		ys = InterpHermiteFunc(y - (float)y0);
 		break;
-	case FastNoise::InterpQuintic:
+	case InterpQuintic:
 		xs = InterpQuinticFunc(x - (float)x0);
 		ys = InterpQuinticFunc(y - (float)y0);
 		break;
@@ -972,11 +971,11 @@ float FastNoise::GetSimplexFractal(float x, float y, float z)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleSimplexFractalFBM(x, y, z);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleSimplexFractalBillow(x, y, z);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleSimplexFractalRigidMulti(x, y, z);
 	default:
 		return 0.0f;
@@ -1156,11 +1155,11 @@ float FastNoise::GetSimplexFractal(float x, float y)
 
 	switch (m_fractalType)
 	{
-	case FastNoise::FBM:
+	case FBM:
 		return SingleSimplexFractalFBM(x, y);
-	case FastNoise::Billow:
+	case Billow:
 		return SingleSimplexFractalBillow(x, y);
-	case FastNoise::RigidMulti:
+	case RigidMulti:
 		return SingleSimplexFractalRigidMulti(x, y);
 	default:
 		return 0.0f;
@@ -1409,13 +1408,12 @@ float FastNoise::GetCellular(float x, float y, float z)
 
 	switch (m_cellularReturnType)
 	{
-	case Distance2Edge:
-	case Distance2EdgeXValue:
-	case Distance2EdgeSq:
-	case Distance2EdgeSqXValue:
-		return SingleCellular2Edge(x, y, z);
-	default:
+	case CellValue:
+	case NoiseLookup:
+	case Distance:
 		return SingleCellular(x, y, z);
+	default:
+		return SingleCellular2Edge(x, y, z);
 	}
 }
 
@@ -1430,7 +1428,7 @@ float FastNoise::SingleCellular(float x, float y, float z)
 
 	switch (m_cellularDistanceFunction)
 	{
-	case FastNoise::Euclidean:
+	case Euclidean:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1456,7 +1454,7 @@ float FastNoise::SingleCellular(float x, float y, float z)
 			}
 		}
 		break;
-	case FastNoise::Manhattan:
+	case Manhattan:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1482,7 +1480,7 @@ float FastNoise::SingleCellular(float x, float y, float z)
 			}
 		}
 		break;
-	case FastNoise::Natural:
+	case Natural:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1515,25 +1513,17 @@ float FastNoise::SingleCellular(float x, float y, float z)
 	unsigned char lutPos;
 	switch (m_cellularReturnType)
 	{
-	case FastNoise::CellValue:
+	case CellValue:
 		return ValCoord3D(0, xc, yc, zc);
 
-	case FastNoise::NoiseLookup:
-		if (!m_cellularNoiseLookup)
-			return 0;
+	case NoiseLookup:
+		assert(m_cellularNoiseLookup);
 
 		lutPos = Index3D_256(0, xc, yc, zc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELL_3D_X[lutPos], yc + CELL_3D_Y[lutPos], zc + CELL_3D_Z[lutPos]);
 
-	case FastNoise::Distance2Center:
-		return sqrtf(distance);
-	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * ValCoord3D(0, xc, yc, zc);
-
-	case FastNoise::Distance2CenterSq:
-		return distance;
-	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * ValCoord3D(0, xc, yc, zc);
+	case Distance:
+		return distance - 1.0f;
 	default:
 		return 0.0f;
 	}
@@ -1551,7 +1541,7 @@ float FastNoise::SingleCellular2Edge(float x, float y, float z)
 
 	switch (m_cellularDistanceFunction)
 	{
-	case FastNoise::Euclidean:
+	case Euclidean:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1583,7 +1573,7 @@ float FastNoise::SingleCellular2Edge(float x, float y, float z)
 			}
 		}
 		break;
-	case FastNoise::Manhattan:
+	case Manhattan:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1615,7 +1605,7 @@ float FastNoise::SingleCellular2Edge(float x, float y, float z)
 			}
 		}
 		break;
-	case FastNoise::Natural:
+	case Natural:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1653,15 +1643,16 @@ float FastNoise::SingleCellular2Edge(float x, float y, float z)
 
 	switch (m_cellularReturnType)
 	{
-	case FastNoise::Distance2Edge:
-		return sqrtf(distance2) - sqrtf(distance);
-	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * ValCoord3D(0, xc, yc, zc);
-
-	case FastNoise::Distance2EdgeSq:
-		return distance2 - distance;
-	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * ValCoord3D(0, xc, yc, zc);
+	case Distance2:
+		return distance2 - 1.0f;
+	case FastNoise::Distance2Add:
+		return distance2 + distance - 1.0f;
+	case FastNoise::Distance2Sub:
+		return distance2 - distance - 1.0f;
+	case FastNoise::Distance2Mul:
+		return distance2 * distance - 1.0f;
+	case FastNoise::Distance2Div:
+		return distance / distance2 - 1.0f;
 	default:
 		return 0.0f;
 	}
@@ -1674,13 +1665,12 @@ float FastNoise::GetCellular(float x, float y)
 
 	switch (m_cellularReturnType)
 	{
-	case Distance2Edge:
-	case Distance2EdgeXValue:
-	case Distance2EdgeSq:
-	case Distance2EdgeSqXValue:
-		return SingleCellular2Edge(x, y);
-	default:
+	case CellValue:
+	case NoiseLookup:
+	case Distance:
 		return SingleCellular(x, y);
+	default:
+		return SingleCellular2Edge(x, y);
 	}
 }
 
@@ -1695,7 +1685,7 @@ float FastNoise::SingleCellular(float x, float y)
 	switch (m_cellularDistanceFunction)
 	{
 	default:
-	case FastNoise::Euclidean:
+	case Euclidean:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1716,7 +1706,7 @@ float FastNoise::SingleCellular(float x, float y)
 			}
 		}
 		break;
-	case FastNoise::Manhattan:
+	case Manhattan:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1737,7 +1727,7 @@ float FastNoise::SingleCellular(float x, float y)
 			}
 		}
 		break;
-	case FastNoise::Natural:
+	case Natural:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1763,25 +1753,17 @@ float FastNoise::SingleCellular(float x, float y)
 	unsigned char lutPos;
 	switch (m_cellularReturnType)
 	{
-	case FastNoise::CellValue:
+	case CellValue:
 		return ValCoord2D(0, xc, yc);
 
-	case FastNoise::NoiseLookup:
-		if (!m_cellularNoiseLookup)
-			return 0;
+	case NoiseLookup:
+		assert(m_cellularNoiseLookup);
 
 		lutPos = Index2D_256(0, xc, yc);
 		return m_cellularNoiseLookup->GetNoise(xc + CELL_2D_X[lutPos], yc + CELL_2D_Y[lutPos]);
 
-	case FastNoise::Distance2Center:
-		return sqrtf(distance);
-	case FastNoise::Distance2CenterXValue:
-		return (1.0f - sqrtf(distance)) * ValCoord2D(0, xc, yc);
-
-	case FastNoise::Distance2CenterSq:
-		return distance;
-	case FastNoise::Distance2CenterSqXValue:
-		return (1.0f - distance) * ValCoord2D(0, xc, yc);
+	case Distance:
+		return distance - 1.0f;
 	default:
 		return 0.0f;
 	}
@@ -1799,7 +1781,7 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 	switch (m_cellularDistanceFunction)
 	{
 	default:
-	case FastNoise::Euclidean:
+	case Euclidean:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1826,7 +1808,7 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 			}
 		}
 		break;
-	case FastNoise::Manhattan:
+	case Manhattan:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1853,7 +1835,7 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 			}
 		}
 		break;
-	case FastNoise::Natural:
+	case Natural:
 		for (int xi = xr - 1; xi <= xr + 1; xi++)
 		{
 			for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1884,15 +1866,16 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 
 	switch (m_cellularReturnType)
 	{
-	case FastNoise::Distance2Edge:
-		return sqrtf(distance2) - sqrtf(distance);
-	case FastNoise::Distance2EdgeXValue:
-		return (sqrtf(distance2) - sqrtf(distance)) * ValCoord2D(0, xc, yc);
-
-	case FastNoise::Distance2EdgeSq:
-		return distance2 - distance;
-	case FastNoise::Distance2EdgeSqXValue:
-		return (distance2 - distance) * ValCoord2D(0, xc, yc);
+	case Distance2:
+		return distance2 - 1.0f;
+	case FastNoise::Distance2Add:
+		return distance2 + distance - 1.0f;
+	case FastNoise::Distance2Sub:
+		return distance2 - distance - 1.0f;
+	case FastNoise::Distance2Mul:
+		return distance2 * distance - 1.0f;
+	case FastNoise::Distance2Div:
+		return distance / distance2 - 1.0f;
 	default:
 		return 0.0f;
 	}
