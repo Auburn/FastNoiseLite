@@ -2,7 +2,9 @@
 
 FastNoise is an open source noise generation library with a large collection of different noise algorithms. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality.
 
-This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise. 
+This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise.
+
+I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
 
 ### Features
 - Value Noise 2D, 3D
@@ -23,7 +25,7 @@ I have written a compact testing application for all the features included in Fa
 
 Download links can be found in the [Releases Section](https://github.com/Auburns/FastNoise/releases).
 
-![FastNoise Preview](http://i.imgur.com/33QdL8m.png)
+![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
 
 
 #Performance Comparisons
@@ -44,6 +46,31 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 | Simplex Fractal  | 85.47     | 19.91                 |          | 154.41   |
 | White Noise      | 2.81      | 0.47                  |          |          |
 | Cellular         | 122.21    | 31.42                 | 1,122.60 | 2,473.06 |
+
+#Examples
+##Cellular Noise
+![Cellular Noise](http://i.imgur.com/quAic8M.png)
+
+![Cellular Noise](http://i.imgur.com/gAd9Y2t.png)
+
+![Cellular Noise](http://i.imgur.com/7kJd4fA.png)
+
+##Fractal Noise
+![Fractal Noise](http://i.imgur.com/XqSD7eR.png)
+
+##Value Noise
+![Value Noise](http://i.imgur.com/X2lbFZR.png)
+
+##White Noise
+![White Noise](http://i.imgur.com/QIlYvyQ.png)
+
+##Position Warpring
+![Position Warpring](http://i.imgur.com/gOjc1u1.png)
+
+![Position Warpring](http://i.imgur.com/ui045Bk.png)
+
+![Position Warpring](http://i.imgur.com/JICFypT.png)
+
 
 #Notes
 
