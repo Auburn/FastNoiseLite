@@ -32,11 +32,11 @@
 class FastNoise
 {
 public:
-	FastNoise(int seed = 1337) { SetSeed(seed); };
+	FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
 	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
-	enum Interp { InterpLinear, InterpHermite, InterpQuintic };
+	enum Interp { Linear, Hermite, Quintic };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
 	enum CellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
@@ -47,55 +47,56 @@ public:
 	void SetInterp(Interp interp) { m_interp = interp; }
 	void SetNoiseType(NoiseType noiseType) { m_noiseType = noiseType; }
 
-	void SetFractalOctaves(unsigned int octaves) { m_octaves = octaves; }
+	void SetFractalOctaves(unsigned int octaves) { m_octaves = octaves; CalculateFractalBounding(); }
 	void SetFractalLacunarity(float lacunarity) { m_lacunarity = lacunarity; }
-	void SetFractalGain(float gain) { m_gain = gain; }
+	void SetFractalGain(float gain) { m_gain = gain; CalculateFractalBounding(); }
 	void SetFractalType(FractalType fractalType) { m_fractalType = fractalType; }
 
 	void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { m_cellularDistanceFunction = cellularDistanceFunction; }
 	void SetCellularReturnType(CellularReturnType cellularReturnType) { m_cellularReturnType = cellularReturnType; }
 	void SetCellularNoiseLookup(FastNoise* noise) { m_cellularNoiseLookup = noise; }
 
-	/*
-	Timing below are averages of time taken for 1 million iterations on a single thread
-	Default noise settings
-	CPU: i7 4790k @ 4.0Ghz
-	VS 2013 - C++ Console Application
-	*/
+	void SetPositionWarpAmp(float positionWarpAmp) { m_positionWarpAmp = positionWarpAmp / 0.45f; }
 
-	//3D												// Win32	x64
-	float GetValue(float x, float y, float z);			// 14 ms	14 ms
-	float GetValueFractal(float x, float y, float z);	// 48 ms	49 ms
+	//2D												
+	float GetValue(float x, float y);					
+	float GetValueFractal(float x, float y);			
 
-	float GetGradient(float x, float y, float z);		// 23 ms	22 ms
-	float GetGradientFractal(float x, float y, float z);// 80 ms	73 ms
+	float GetGradient(float x, float y);				
+	float GetGradientFractal(float x, float y);			
 
-	float GetSimplex(float x, float y, float z);		// 30 ms	30 ms
-	float GetSimplexFractal(float x, float y, float z);	// 98 ms	101 ms
+	float GetSimplex(float x, float y);					
+	float GetSimplexFractal(float x, float y);			
 
-	float GetCellular(float x, float y, float z);		// 123 ms	113 ms
+	float GetCellular(float x, float y);				
 
-	float GetWhiteNoise(float x, float y, float z);		// 1.5 ms	1.5 ms
+	float GetWhiteNoise(float x, float y);				
+	float GetWhiteNoiseInt(int x, int y);				
+
+	float GetNoise(float x, float y);
+
+	void PositionWarp(float& x, float& y);
+	void PositionWarpFractal(float& x, float& y);
+
+	//3D												
+	float GetValue(float x, float y, float z);			
+	float GetValueFractal(float x, float y, float z);	
+
+	float GetGradient(float x, float y, float z);		
+	float GetGradientFractal(float x, float y, float z);
+
+	float GetSimplex(float x, float y, float z);		
+	float GetSimplexFractal(float x, float y, float z);	
+
+	float GetCellular(float x, float y, float z);		
+
+	float GetWhiteNoise(float x, float y, float z);		
 	float GetWhiteNoiseInt(int x, int y, int z);
 
 	float GetNoise(float x, float y, float z);
 
-	//2D												// Win32	x64
-	float GetValue(float x, float y);					// 8 ms 	8 ms
-	float GetValueFractal(float x, float y);			// 29 ms	29 ms
-
-	float GetGradient(float x, float y);				// 12 ms	11 ms
-	float GetGradientFractal(float x, float y);			// 43 ms	40 ms
-
-	float GetSimplex(float x, float y);					// 17 ms	17 ms
-	float GetSimplexFractal(float x, float y);			// 55 ms	52 ms
-
-	float GetCellular(float x, float y);				// 35 ms	33 ms
-
-	float GetWhiteNoise(float x, float y);				// 1 ms		1 ms
-	float GetWhiteNoiseInt(int x, int y);				// 1 ms		1 ms
-
-	float GetNoise(float x, float y);
+	void PositionWarp(float& x, float& y, float& z);
+	void PositionWarpFractal(float& x, float& y, float& z);
 
 	//4D
 	float GetSimplex(float x, float y, float z, float w);
@@ -109,7 +110,7 @@ protected:
 
 	int m_seed = 1337;
 	float m_frequency = 0.01f;
-	Interp m_interp = InterpQuintic;
+	Interp m_interp = Quintic;
 	NoiseType m_noiseType = Simplex;
 
 	unsigned int m_octaves = 3;
@@ -117,9 +118,24 @@ protected:
 	float m_gain = 0.5f;
 	FractalType m_fractalType = FBM;
 
+	float m_fractalBounding;
+	void CalculateFractalBounding()
+	{
+		float amp = m_gain;
+		float ampFractal = 1.0f;
+		for (unsigned int i = 1; i < m_octaves; i++)
+		{
+			ampFractal += amp;
+			amp *= m_gain;
+		}
+		m_fractalBounding = 1.0f / ampFractal;
+	}
+
 	CellularDistanceFunction m_cellularDistanceFunction = Euclidean;
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
+
+	float m_positionWarpAmp = 1.0f / 0.45f;
 
 	//2D
 	float SingleValueFractalFBM(float x, float y);
@@ -138,7 +154,9 @@ protected:
 	float SingleSimplex(unsigned char offset, float x, float y);
 
 	float SingleCellular(float x, float y);
-	float SingleCellular2Edge(float x, float y);	
+	float SingleCellular2Edge(float x, float y);
+
+	void SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
 
 	//3D
 	float SingleValueFractalFBM(float x, float y, float z);
@@ -158,6 +176,8 @@ protected:
 
 	float SingleCellular(float x, float y, float z);
 	float SingleCellular2Edge(float x, float y, float z);
+
+	void SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
 
 	//4D
 	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);
