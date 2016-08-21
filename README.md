@@ -25,107 +25,25 @@ Download links can be found in the [Releases Section](https://github.com/Auburns
 
 ![FastNoise Preview](http://i.imgur.com/33QdL8m.png)
 
-## LibNoise and Accidental Noise Library (ANL) Speed Comparisons
 
+#Performance Comparisons
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
 
 Timing are averages of time taken for 1 million iterations on a single thread.
 
-CPU: i7 4790k @ 4.0Ghz
+- CPU: i7 4790k @ 4.0Ghz
+- Compiler: MSVC v140 x64
 
-**WhiteNoise3D**
-
-FastNoise |
-1.52028 ms
-
-**Value3D**
-
-FastNoise |
-14.752 ms
-
-LibNoise |
-23.324 ms
-
-ANL |
-101.81 ms
-
-**ValueFractal3D**
-
-FastNoise FBM |
-49.485 ms
-
-FastNoise Billow |
-51.917 ms
-
-FastNoise RigidMulti |
-48.006 ms
-
-ANL FBM |
-308.46 ms
-
-**Gradient3D**
-
-FastNoise |
-22.527 ms
-
-LibNoise |
-26.516 ms
-
-ANL |
-99.062 ms
-
-**GradientFractal3D**
-
-FastNoise FBM |
-73.554 ms
-
-FastNoise Billow |
-79.088 ms
-
-FastNoise RigidMulti |
-73.024 ms
-
-LibNoise Billow |
-92.558 ms
-
-ANL FBM |
-302.5 ms
-
-**Simplex3D**
-
-FastNoise |
-29.697 ms
-
-ANL |
-41.803 ms
-
-**SimplexFractal3D**
-
-FastNoise FBM |
-101.44 ms
-
-FastNoise Billow |
-102.81 ms
-
-FastNoise RigidMulti |
-101.41 ms
-
-ANL FBM |
-145.98 ms
-
-**Cellular3D**
-
-FastNoise |
-113.41 ms
-
-FastNoise HQ |
-449.82 ms
-
-LibNoise |
-1012.9 ms
-
-ANL |
-2934.5 ms
+| Noise Type       | FastNoise | FastNoise SIMD - AVX2 | LibNoise | ANL      |
+|------------------|-----------|-----------------------|----------|----------|
+| Value            | 13.85     | 4.12                  | 24.16    | 94.73    |
+| Value Fractal    | 46.99     | 12.22                 |          | 289.91   |
+| Gradient         | 21.69     | 7.68                  | 32.68    | 109.26   |
+| Gradient Fractal | 84.22     | 21.54                 | 122.15   | 325.04   |
+| Simplex          | 27.56     | 7.03                  |          | 43.68    |
+| Simplex Fractal  | 85.47     | 19.91                 |          | 154.41   |
+| White Noise      | 2.81      | 0.47                  |          |          |
+| Cellular         | 122.21    | 31.42                 | 1,122.60 | 2,473.06 |
 
 #Notes
 
