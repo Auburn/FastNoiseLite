@@ -2,7 +2,9 @@
 
 FastNoise is an open source noise generation library with a large collection of different noise algorithms. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality.
 
-This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise. 
+This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise.
+
+I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
 
 ### Features
 - Value Noise 2D, 3D
@@ -23,109 +25,52 @@ I have written a compact testing application for all the features included in Fa
 
 Download links can be found in the [Releases Section](https://github.com/Auburns/FastNoise/releases).
 
-![FastNoise Preview](http://i.imgur.com/33QdL8m.png)
+![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
 
-## LibNoise and Accidental Noise Library (ANL) Speed Comparisons
 
+#Performance Comparisons
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
 
 Timing are averages of time taken for 1 million iterations on a single thread.
 
-CPU: i7 4790k @ 4.0Ghz
+- CPU: i7 4790k @ 4.0Ghz
+- Compiler: MSVC v140 x64
 
-**WhiteNoise3D**
+| Noise Type       | FastNoise | FastNoise SIMD - AVX2 | LibNoise | ANL      |
+|------------------|-----------|-----------------------|----------|----------|
+| Value            | 13.85     | 4.12                  | 24.16    | 94.73    |
+| Value Fractal    | 46.99     | 12.22                 |          | 289.91   |
+| Gradient         | 21.69     | 7.68                  | 32.68    | 109.26   |
+| Gradient Fractal | 84.22     | 21.54                 | 122.15   | 325.04   |
+| Simplex          | 27.56     | 7.03                  |          | 43.68    |
+| Simplex Fractal  | 85.47     | 19.91                 |          | 154.41   |
+| White Noise      | 2.81      | 0.47                  |          |          |
+| Cellular         | 122.21    | 31.42                 | 1,122.60 | 2,473.06 |
 
-FastNoise |
-1.52028 ms
+#Examples
+##Cellular Noise
+![Cellular Noise](http://i.imgur.com/quAic8M.png)
 
-**Value3D**
+![Cellular Noise](http://i.imgur.com/gAd9Y2t.png)
 
-FastNoise |
-14.752 ms
+![Cellular Noise](http://i.imgur.com/7kJd4fA.png)
 
-LibNoise |
-23.324 ms
+##Fractal Noise
+![Fractal Noise](http://i.imgur.com/XqSD7eR.png)
 
-ANL |
-101.81 ms
+##Value Noise
+![Value Noise](http://i.imgur.com/X2lbFZR.png)
 
-**ValueFractal3D**
+##White Noise
+![White Noise](http://i.imgur.com/QIlYvyQ.png)
 
-FastNoise FBM |
-49.485 ms
+##Position Warpring
+![Position Warpring](http://i.imgur.com/gOjc1u1.png)
 
-FastNoise Billow |
-51.917 ms
+![Position Warpring](http://i.imgur.com/ui045Bk.png)
 
-FastNoise RigidMulti |
-48.006 ms
+![Position Warpring](http://i.imgur.com/JICFypT.png)
 
-ANL FBM |
-308.46 ms
-
-**Gradient3D**
-
-FastNoise |
-22.527 ms
-
-LibNoise |
-26.516 ms
-
-ANL |
-99.062 ms
-
-**GradientFractal3D**
-
-FastNoise FBM |
-73.554 ms
-
-FastNoise Billow |
-79.088 ms
-
-FastNoise RigidMulti |
-73.024 ms
-
-LibNoise Billow |
-92.558 ms
-
-ANL FBM |
-302.5 ms
-
-**Simplex3D**
-
-FastNoise |
-29.697 ms
-
-ANL |
-41.803 ms
-
-**SimplexFractal3D**
-
-FastNoise FBM |
-101.44 ms
-
-FastNoise Billow |
-102.81 ms
-
-FastNoise RigidMulti |
-101.41 ms
-
-ANL FBM |
-145.98 ms
-
-**Cellular3D**
-
-FastNoise |
-113.41 ms
-
-FastNoise HQ |
-449.82 ms
-
-LibNoise |
-1012.9 ms
-
-ANL |
-2934.5 ms
 
 #Notes
 
