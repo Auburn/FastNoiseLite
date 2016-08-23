@@ -52,13 +52,13 @@ public:
 	// Default: 0.01
 	void SetFrequency(float frequency) { m_frequency = frequency; }
 
-	//Changes the interpolation method used to smooth between noise values
-	//Possible interpolation methods (lowest to highest quality) :
-	//- Linear
-	//- Hermite
-	//- Quintic
-	//Used in Value, Gradient Noise and Position Warping
-	//Default: Quintic
+	// Changes the interpolation method used to smooth between noise values
+	// Possible interpolation methods (lowest to highest quality) :
+	// - Linear
+	// - Hermite
+	// - Quintic
+	// Used in Value, Gradient Noise and Position Warping
+	// Default: Quintic
 	void SetInterp(Interp interp) { m_interp = interp; }
 
 	// Sets noise return type of GetNoise(...)

@@ -270,28 +270,28 @@ static float ValCoord4D(int seed, int x, int y, int z, int w)
 
 float FastNoise::ValCoord2DFast(unsigned char offset, int x, int y)
 {
-	return VAL_LUT[Index2D_256(x, y, offset)];
+	return VAL_LUT[Index2D_256(offset, x, y)];
 }
 float FastNoise::ValCoord3DFast(unsigned char offset, int x, int y, int z)
 {
-	return VAL_LUT[Index3D_256(x, y, z, offset)];
+	return VAL_LUT[Index3D_256(offset, x, y, z)];
 }
 
 float FastNoise::GradCoord2D(unsigned char offset, int x, int y, float xd, float yd)
 {
-	unsigned char lutPos = Index2D_12(x, y, offset);
+	unsigned char lutPos = Index2D_12(offset, x, y);
 
 	return xd*GRAD_X[lutPos] + yd*GRAD_Y[lutPos];
 }
 float FastNoise::GradCoord3D(unsigned char offset, int x, int y, int z, float xd, float yd, float zd)
 {
-	unsigned char lutPos = Index3D_12(x, y, z, offset);
+	unsigned char lutPos = Index3D_12(offset, x, y, z);
 
 	return xd*GRAD_X[lutPos] + yd*GRAD_Y[lutPos] + zd*GRAD_Z[lutPos];
 }
 float FastNoise::GradCoord4D(unsigned char offset, int x, int y, int z, int w, float xd, float yd, float zd, float wd)
 {
-	unsigned char lutPos = Index4D_32(x, y, z, w, offset) << 2;
+	unsigned char lutPos = Index4D_32(offset, x, y, z, w) << 2;
 
 	return xd*GRAD_4D[lutPos] + yd*GRAD_4D[lutPos + 1] + zd*GRAD_4D[lutPos + 2] + wd*GRAD_4D[lutPos + 3];
 }
