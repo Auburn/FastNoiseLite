@@ -20,6 +20,10 @@ Usage and documentation available in wiki
 
 [Wiki Link](https://github.com/Auburns/FastNoise/wiki)
 
+### Related repositories
+ - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
+ - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
+
 ## FastNoise Preview
 
 I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
