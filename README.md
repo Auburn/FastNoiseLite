@@ -21,6 +21,7 @@ Usage and documentation available in wiki
 [Wiki Link](https://github.com/Auburns/FastNoise/wiki)
 
 ### Related repositories
+ - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
  - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
 
