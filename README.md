@@ -78,7 +78,4 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 ![Position Warpring](http://i.imgur.com/JICFypT.png)
 
 
-#Notes
-
-- I have a partially complete C# and Java version of FastNoise that I will release when I get it to the same feature level
-- Any suggestions or questions welcome
+#Any suggestions or questions welcome
