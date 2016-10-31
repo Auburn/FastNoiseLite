@@ -23,6 +23,7 @@ Usage and documentation available in wiki
 ### Related repositories
  - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
  - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
+ - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
 
 ## FastNoise Preview
