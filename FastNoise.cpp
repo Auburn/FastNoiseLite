@@ -315,17 +315,17 @@ float FastNoise::GetNoise(float x, float y, float z)
 		default:
 			return 0.0f;
 		}
-	case Gradient:
-		return SingleGradient(0, x, y, z);
-	case GradientFractal:
+	case Perlin:
+		return SinglePerlin(0, x, y, z);
+	case PerlinFractal:
 		switch (m_fractalType)
 		{
 		case FBM:
-			return SingleGradientFractalFBM(x, y, z);
+			return SinglePerlinFractalFBM(x, y, z);
 		case Billow:
-			return SingleGradientFractalBillow(x, y, z);
+			return SinglePerlinFractalBillow(x, y, z);
 		case RigidMulti:
-			return SingleGradientFractalRigidMulti(x, y, z);
+			return SinglePerlinFractalRigidMulti(x, y, z);
 		default:
 			return 0.0f;
 		}
@@ -381,17 +381,17 @@ float FastNoise::GetNoise(float x, float y)
 		default:
 			return 0.0f;
 		}
-	case Gradient:
-		return SingleGradient(0, x, y);
-	case GradientFractal:
+	case Perlin:
+		return SinglePerlin(0, x, y);
+	case PerlinFractal:
 		switch (m_fractalType)
 		{
 		case FBM:
-			return SingleGradientFractalFBM(x, y);
+			return SinglePerlinFractalFBM(x, y);
 		case Billow:
-			return SingleGradientFractalBillow(x, y);
+			return SinglePerlinFractalBillow(x, y);
 		case RigidMulti:
-			return SingleGradientFractalRigidMulti(x, y);
+			return SinglePerlinFractalRigidMulti(x, y);
 		default:
 			return 0.0f;
 		}
@@ -490,7 +490,7 @@ float FastNoise::SingleValueFractalFBM(float x, float y, float z)
 {
 	float sum = SingleValue(m_perm[0], x, y, z);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -509,7 +509,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y, float z)
 {
 	float sum = FastAbs(SingleValue(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -528,7 +528,7 @@ float FastNoise::SingleValueFractalRigidMulti(float x, float y, float z)
 {
 	float sum = 1.0f - FastAbs(SingleValue(m_perm[0], x, y, z));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -610,7 +610,7 @@ float FastNoise::SingleValueFractalFBM(float x, float y)
 {
 	float sum = SingleValue(m_perm[0], x, y);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -628,7 +628,7 @@ float FastNoise::SingleValueFractalBillow(float x, float y)
 {
 	float sum = FastAbs(SingleValue(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -645,7 +645,7 @@ float FastNoise::SingleValueFractalRigidMulti(float x, float y)
 {
 	float sum = 1.0f - FastAbs(SingleValue(m_perm[0], x, y));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -694,8 +694,8 @@ float FastNoise::SingleValue(unsigned char offset, float x, float y)
 	return Lerp(xf0, xf1, ys);
 }
 
-// Gradient Noise
-float FastNoise::GetGradientFractal(float x, float y, float z)
+// Perlin Noise
+float FastNoise::GetPerlinFractal(float x, float y, float z)
 {
 	x *= m_frequency;
 	y *= m_frequency;
@@ -704,21 +704,21 @@ float FastNoise::GetGradientFractal(float x, float y, float z)
 	switch (m_fractalType)
 	{
 	case FBM:
-		return SingleGradientFractalFBM(x, y, z);
+		return SinglePerlinFractalFBM(x, y, z);
 	case Billow:
-		return SingleGradientFractalBillow(x, y, z);
+		return SinglePerlinFractalBillow(x, y, z);
 	case RigidMulti:
-		return SingleGradientFractalRigidMulti(x, y, z);
+		return SinglePerlinFractalRigidMulti(x, y, z);
 	default:
 		return 0.0f;
 	}
 }
 
-float FastNoise::SingleGradientFractalFBM(float x, float y, float z)
+float FastNoise::SinglePerlinFractalFBM(float x, float y, float z)
 {
-	float sum = SingleGradient(m_perm[0], x, y, z);
+	float sum = SinglePerlin(m_perm[0], x, y, z);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -727,17 +727,17 @@ float FastNoise::SingleGradientFractalFBM(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum += SingleGradient(m_perm[i], x, y, z) * amp;
+		sum += SinglePerlin(m_perm[i], x, y, z) * amp;
 	}
 
 	return sum * m_fractalBounding;
 }
 
-float FastNoise::SingleGradientFractalBillow(float x, float y, float z)
+float FastNoise::SinglePerlinFractalBillow(float x, float y, float z)
 {
-	float sum = FastAbs(SingleGradient(m_perm[0], x, y, z)) * 2.0f - 1.0f;
+	float sum = FastAbs(SinglePerlin(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -746,17 +746,17 @@ float FastNoise::SingleGradientFractalBillow(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum += (FastAbs(SingleGradient(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SinglePerlin(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum * m_fractalBounding;
 }
 
-float FastNoise::SingleGradientFractalRigidMulti(float x, float y, float z)
+float FastNoise::SinglePerlinFractalRigidMulti(float x, float y, float z)
 {
-	float sum = 1.0f - FastAbs(SingleGradient(m_perm[0], x, y, z));
+	float sum = 1.0f - FastAbs(SinglePerlin(m_perm[0], x, y, z));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -765,18 +765,18 @@ float FastNoise::SingleGradientFractalRigidMulti(float x, float y, float z)
 		z *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleGradient(m_perm[i], x, y, z))) * amp;
+		sum -= (1.0f - FastAbs(SinglePerlin(m_perm[i], x, y, z))) * amp;
 	}
 
 	return sum;
 }
 
-float FastNoise::GetGradient(float x, float y, float z)
+float FastNoise::GetPerlin(float x, float y, float z)
 {
-	return SingleGradient(0, x * m_frequency, y * m_frequency, z * m_frequency);
+	return SinglePerlin(0, x * m_frequency, y * m_frequency, z * m_frequency);
 }
 
-float FastNoise::SingleGradient(unsigned char offset, float x, float y, float z)
+float FastNoise::SinglePerlin(unsigned char offset, float x, float y, float z)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -823,7 +823,7 @@ float FastNoise::SingleGradient(unsigned char offset, float x, float y, float z)
 	return Lerp(yf0, yf1, zs);
 }
 
-float FastNoise::GetGradientFractal(float x, float y)
+float FastNoise::GetPerlinFractal(float x, float y)
 {
 	x *= m_frequency;
 	y *= m_frequency;
@@ -831,21 +831,21 @@ float FastNoise::GetGradientFractal(float x, float y)
 	switch (m_fractalType)
 	{
 	case FBM:
-		return SingleGradientFractalFBM(x, y);
+		return SinglePerlinFractalFBM(x, y);
 	case Billow:
-		return SingleGradientFractalBillow(x, y);
+		return SinglePerlinFractalBillow(x, y);
 	case RigidMulti:
-		return SingleGradientFractalRigidMulti(x, y);
+		return SinglePerlinFractalRigidMulti(x, y);
 	default:
 		return 0.0f;
 	}
 }
 
-float FastNoise::SingleGradientFractalFBM(float x, float y)
+float FastNoise::SinglePerlinFractalFBM(float x, float y)
 {
-	float sum = SingleGradient(m_perm[0], x, y);
+	float sum = SinglePerlin(m_perm[0], x, y);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -853,17 +853,17 @@ float FastNoise::SingleGradientFractalFBM(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum += SingleGradient(m_perm[i], x, y) * amp;
+		sum += SinglePerlin(m_perm[i], x, y) * amp;
 	}
 
 	return sum * m_fractalBounding;
 }
 
-float FastNoise::SingleGradientFractalBillow(float x, float y)
+float FastNoise::SinglePerlinFractalBillow(float x, float y)
 {
-	float sum = FastAbs(SingleGradient(m_perm[0], x, y)) * 2.0f - 1.0f;
+	float sum = FastAbs(SinglePerlin(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -871,17 +871,17 @@ float FastNoise::SingleGradientFractalBillow(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum += (FastAbs(SingleGradient(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
+		sum += (FastAbs(SinglePerlin(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
 	}
 
 	return sum * m_fractalBounding;
 }
 
-float FastNoise::SingleGradientFractalRigidMulti(float x, float y)
+float FastNoise::SinglePerlinFractalRigidMulti(float x, float y)
 {
-	float sum = 1.0f - FastAbs(SingleGradient(m_perm[0], x, y));
+	float sum = 1.0f - FastAbs(SinglePerlin(m_perm[0], x, y));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -889,18 +889,18 @@ float FastNoise::SingleGradientFractalRigidMulti(float x, float y)
 		y *= m_lacunarity;
 
 		amp *= m_gain;
-		sum -= (1.0f - FastAbs(SingleGradient(m_perm[i], x, y))) * amp;
+		sum -= (1.0f - FastAbs(SinglePerlin(m_perm[i], x, y))) * amp;
 	}
 
 	return sum;
 }
 
-float FastNoise::GetGradient(float x, float y)
+float FastNoise::GetPerlin(float x, float y)
 {
-	return SingleGradient(0, x * m_frequency, y * m_frequency);
+	return SinglePerlin(0, x * m_frequency, y * m_frequency);
 }
 
-float FastNoise::SingleGradient(unsigned char offset, float x, float y)
+float FastNoise::SinglePerlin(unsigned char offset, float x, float y)
 {
 	int x0 = FastFloor(x);
 	int y0 = FastFloor(y);
@@ -960,7 +960,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y, float z)
 {
 	float sum = SingleSimplex(m_perm[0], x, y, z);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -979,7 +979,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y, float z)
 {
 	float sum = FastAbs(SingleSimplex(m_perm[0], x, y, z)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -998,7 +998,7 @@ float FastNoise::SingleSimplexFractalRigidMulti(float x, float y, float z)
 {
 	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[0], x, y, z));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -1140,7 +1140,7 @@ float FastNoise::SingleSimplexFractalFBM(float x, float y)
 {
 	float sum = SingleSimplex(m_perm[0], x, y);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -1158,7 +1158,7 @@ float FastNoise::SingleSimplexFractalBillow(float x, float y)
 {
 	float sum = FastAbs(SingleSimplex(m_perm[0], x, y)) * 2.0f - 1.0f;
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -1176,7 +1176,7 @@ float FastNoise::SingleSimplexFractalRigidMulti(float x, float y)
 {
 	float sum = 1.0f - FastAbs(SingleSimplex(m_perm[0], x, y));
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -1194,7 +1194,7 @@ float FastNoise::SingleSimplexFractalBlend(float x, float y)
 {
 	float sum = SingleSimplex(m_perm[0], x, y);
 	float amp = 1.0f;
-	unsigned int i = 0;
+	int i = 0;
 
 	while (++i < m_octaves)
 	{
@@ -1800,28 +1800,28 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 	}
 }
 
-void FastNoise::PositionWarp(float& x, float& y, float& z)
+void FastNoise::Perturb(float& x, float& y, float& z)
 {
-	SinglePositionWarp(0, m_positionWarpAmp, m_frequency, x, y, z);
+	SinglePerturb(0, m_perturbAmp, m_frequency, x, y, z);
 }
 
-void FastNoise::PositionWarpFractal(float& x, float& y, float& z)
+void FastNoise::PerturbFractal(float& x, float& y, float& z)
 {
-	float amp = m_positionWarpAmp * m_fractalBounding;
+	float amp = m_perturbAmp * m_fractalBounding;
 	float freq = m_frequency;
-	unsigned int i = 0;
+	int i = 0;
 
-	SinglePositionWarp(m_perm[0], amp, m_frequency, x, y, z);
+	SinglePerturb(m_perm[0], amp, m_frequency, x, y, z);
 
 	while (++i < m_octaves)
 	{
 		freq *= m_lacunarity;
 		amp *= m_gain;
-		SinglePositionWarp(m_perm[i], amp, freq, x, y, z);
+		SinglePerturb(m_perm[i], amp, freq, x, y, z);
 	}
 }
 
-void FastNoise::SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z)
+void FastNoise::SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z)
 {
 	float xf = x * frequency;
 	float yf = y * frequency;
@@ -1892,28 +1892,28 @@ void FastNoise::SinglePositionWarp(unsigned char offset, float warpAmp, float fr
 	z += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * warpAmp;
 }
 
-void FastNoise::PositionWarp(float& x, float& y)
+void FastNoise::Perturb(float& x, float& y)
 {
-	SinglePositionWarp(0, m_positionWarpAmp, m_frequency, x, y);
+	SinglePerturb(0, m_perturbAmp, m_frequency, x, y);
 }
 
-void FastNoise::PositionWarpFractal(float& x, float& y)
+void FastNoise::PerturbFractal(float& x, float& y)
 {
-	float amp = m_positionWarpAmp * m_fractalBounding;
+	float amp = m_perturbAmp * m_fractalBounding;
 	float freq = m_frequency;
-	unsigned int i = 0;
+	int i = 0;
 
-	SinglePositionWarp(m_perm[0], amp, m_frequency, x, y);
+	SinglePerturb(m_perm[0], amp, m_frequency, x, y);
 
 	while (++i < m_octaves)
 	{
 		freq *= m_lacunarity;
 		amp *= m_gain;
-		SinglePositionWarp(m_perm[i], amp, freq, x, y);
+		SinglePerturb(m_perm[i], amp, freq, x, y);
 	}
 }
 
-void FastNoise::SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y)
+void FastNoise::SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y)
 {
 	float xf = x * frequency;
 	float yf = y * frequency;

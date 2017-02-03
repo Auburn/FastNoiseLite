@@ -35,7 +35,7 @@ public:
 	FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
-	enum NoiseType { Value, ValueFractal, Gradient, GradientFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
+	enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
 	enum Interp { Linear, Hermite, Quintic };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
@@ -57,7 +57,7 @@ public:
 	// - Linear
 	// - Hermite
 	// - Quintic
-	// Used in Value, Gradient Noise and Position Warping
+	// Used in Value, Perlin Noise and Position Warping
 	// Default: Quintic
 	void SetInterp(Interp interp) { m_interp = interp; }
 
@@ -67,7 +67,7 @@ public:
 
 	// Sets octave count for all fractal noise types
 	// Default: 3
-	void SetFractalOctaves(unsigned int octaves) { m_octaves = octaves; CalculateFractalBounding(); }
+	void SetFractalOctaves(int octaves) { m_octaves = octaves; CalculateFractalBounding(); }
 	
 	// Sets octave lacunarity for all fractal noise types
 	// Default: 2.0
@@ -91,19 +91,19 @@ public:
 	void SetCellularReturnType(CellularReturnType cellularReturnType) { m_cellularReturnType = cellularReturnType; }
 	
 	// Noise used to calculate a cell value if cellular return type is NoiseLookup
-	// The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, gradient or simplex is recommended
+	// The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, Perlin or simplex is recommended
 	void SetCellularNoiseLookup(FastNoise* noise) { m_cellularNoiseLookup = noise; }
 
-	// Sets the maximum warp distance from original location when using PositionWarp{Fractal}(...)
+	// Sets the maximum warp distance from original location when using Perturb{Fractal}(...)
 	// Default: 1.0
-	void SetPositionWarpAmp(float positionWarpAmp) { m_positionWarpAmp = positionWarpAmp / 0.45f; }
+	void SetPerturbAmp(float perturbAmp) { m_perturbAmp = perturbAmp / 0.45f; }
 
 	//2D												
 	float GetValue(float x, float y);					
 	float GetValueFractal(float x, float y);			
 
-	float GetGradient(float x, float y);				
-	float GetGradientFractal(float x, float y);			
+	float GetPerlin(float x, float y);				
+	float GetPerlinFractal(float x, float y);			
 
 	float GetSimplex(float x, float y);					
 	float GetSimplexFractal(float x, float y);			
@@ -115,15 +115,15 @@ public:
 
 	float GetNoise(float x, float y);
 
-	void PositionWarp(float& x, float& y);
-	void PositionWarpFractal(float& x, float& y);
+	void Perturb(float& x, float& y);
+	void PerturbFractal(float& x, float& y);
 
 	//3D												
 	float GetValue(float x, float y, float z);			
 	float GetValueFractal(float x, float y, float z);	
 
-	float GetGradient(float x, float y, float z);		
-	float GetGradientFractal(float x, float y, float z);
+	float GetPerlin(float x, float y, float z);		
+	float GetPerlinFractal(float x, float y, float z);
 
 	float GetSimplex(float x, float y, float z);		
 	float GetSimplexFractal(float x, float y, float z);	
@@ -135,8 +135,8 @@ public:
 
 	float GetNoise(float x, float y, float z);
 
-	void PositionWarp(float& x, float& y, float& z);
-	void PositionWarpFractal(float& x, float& y, float& z);
+	void Perturb(float& x, float& y, float& z);
+	void PerturbFractal(float& x, float& y, float& z);
 
 	//4D
 	float GetSimplex(float x, float y, float z, float w);
@@ -153,7 +153,7 @@ protected:
 	Interp m_interp = Quintic;
 	NoiseType m_noiseType = Simplex;
 
-	unsigned int m_octaves = 3;
+	int m_octaves = 3;
 	float m_lacunarity = 2.0f;
 	float m_gain = 0.5f;
 	FractalType m_fractalType = FBM;
@@ -175,7 +175,7 @@ protected:
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
 
-	float m_positionWarpAmp = 1.0f / 0.45f;
+	float m_perturbAmp = 1.0f / 0.45f;
 
 	//2D
 	float SingleValueFractalFBM(float x, float y);
@@ -183,10 +183,10 @@ protected:
 	float SingleValueFractalRigidMulti(float x, float y);
 	float SingleValue(unsigned char offset, float x, float y);
 
-	float SingleGradientFractalFBM(float x, float y);
-	float SingleGradientFractalBillow(float x, float y);
-	float SingleGradientFractalRigidMulti(float x, float y);
-	float SingleGradient(unsigned char offset, float x, float y);
+	float SinglePerlinFractalFBM(float x, float y);
+	float SinglePerlinFractalBillow(float x, float y);
+	float SinglePerlinFractalRigidMulti(float x, float y);
+	float SinglePerlin(unsigned char offset, float x, float y);
 
 	float SingleSimplexFractalFBM(float x, float y);
 	float SingleSimplexFractalBillow(float x, float y);
@@ -197,7 +197,7 @@ protected:
 	float SingleCellular(float x, float y);
 	float SingleCellular2Edge(float x, float y);
 
-	void SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
+	void SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
 
 	//3D
 	float SingleValueFractalFBM(float x, float y, float z);
@@ -205,10 +205,10 @@ protected:
 	float SingleValueFractalRigidMulti(float x, float y, float z);
 	float SingleValue(unsigned char offset, float x, float y, float z);
 
-	float SingleGradientFractalFBM(float x, float y, float z);
-	float SingleGradientFractalBillow(float x, float y, float z);
-	float SingleGradientFractalRigidMulti(float x, float y, float z);
-	float SingleGradient(unsigned char offset, float x, float y, float z);
+	float SinglePerlinFractalFBM(float x, float y, float z);
+	float SinglePerlinFractalBillow(float x, float y, float z);
+	float SinglePerlinFractalRigidMulti(float x, float y, float z);
+	float SinglePerlin(unsigned char offset, float x, float y, float z);
 
 	float SingleSimplexFractalFBM(float x, float y, float z);
 	float SingleSimplexFractalBillow(float x, float y, float z);
@@ -218,7 +218,7 @@ protected:
 	float SingleCellular(float x, float y, float z);
 	float SingleCellular2Edge(float x, float y, float z);
 
-	void SinglePositionWarp(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
+	void SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
 
 	//4D
 	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);
