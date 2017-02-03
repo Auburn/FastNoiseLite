@@ -20,6 +20,12 @@ Usage and documentation available in wiki
 
 [Wiki Link](https://github.com/Auburns/FastNoise/wiki)
 
+### Related repositories
+ - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
+ - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
+ - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
+ - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
+
 ## FastNoise Preview
 
 I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
@@ -73,7 +79,4 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 ![Position Warpring](http://i.imgur.com/JICFypT.png)
 
 
-#Notes
-
-- I have a partially complete C# and Java version of FastNoise that I will release when I get it to the same feature level
-- Any suggestions or questions welcome
+#Any suggestions or questions welcome
