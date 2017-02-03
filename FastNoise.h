@@ -94,9 +94,9 @@ public:
 	// The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, Perlin or simplex is recommended
 	void SetCellularNoiseLookup(FastNoise* noise) { m_cellularNoiseLookup = noise; }
 
-	// Sets the maximum warp distance from original location when using Perturb{Fractal}(...)
+	// Sets the maximum warp distance from original location when using GradientPerturb{Fractal}(...)
 	// Default: 1.0
-	void SetPerturbAmp(float perturbAmp) { m_perturbAmp = perturbAmp / 0.45f; }
+	void SetGradientPerturbAmp(float gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp / 0.45f; }
 
 	//2D												
 	float GetValue(float x, float y);					
@@ -115,8 +115,8 @@ public:
 
 	float GetNoise(float x, float y);
 
-	void Perturb(float& x, float& y);
-	void PerturbFractal(float& x, float& y);
+	void GradientPerturb(float& x, float& y);
+	void GradientPerturbFractal(float& x, float& y);
 
 	//3D												
 	float GetValue(float x, float y, float z);			
@@ -135,8 +135,8 @@ public:
 
 	float GetNoise(float x, float y, float z);
 
-	void Perturb(float& x, float& y, float& z);
-	void PerturbFractal(float& x, float& y, float& z);
+	void GradientPerturb(float& x, float& y, float& z);
+	void GradientPerturbFractal(float& x, float& y, float& z);
 
 	//4D
 	float GetSimplex(float x, float y, float z, float w);
@@ -175,7 +175,7 @@ protected:
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
 
-	float m_perturbAmp = 1.0f / 0.45f;
+	float m_gradientPerturbAmp = 1.0f / 0.45f;
 
 	//2D
 	float SingleValueFractalFBM(float x, float y);
@@ -197,7 +197,7 @@ protected:
 	float SingleCellular(float x, float y);
 	float SingleCellular2Edge(float x, float y);
 
-	void SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
+	void SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
 
 	//3D
 	float SingleValueFractalFBM(float x, float y, float z);
@@ -218,7 +218,7 @@ protected:
 	float SingleCellular(float x, float y, float z);
 	float SingleCellular2Edge(float x, float y, float z);
 
-	void SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
+	void SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
 
 	//4D
 	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);

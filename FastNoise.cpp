@@ -1800,28 +1800,28 @@ float FastNoise::SingleCellular2Edge(float x, float y)
 	}
 }
 
-void FastNoise::Perturb(float& x, float& y, float& z)
+void FastNoise::GradientPerturb(float& x, float& y, float& z)
 {
-	SinglePerturb(0, m_perturbAmp, m_frequency, x, y, z);
+	SingleGradientPerturb(0, m_gradientPerturbAmp, m_frequency, x, y, z);
 }
 
-void FastNoise::PerturbFractal(float& x, float& y, float& z)
+void FastNoise::GradientPerturbFractal(float& x, float& y, float& z)
 {
-	float amp = m_perturbAmp * m_fractalBounding;
+	float amp = m_gradientPerturbAmp * m_fractalBounding;
 	float freq = m_frequency;
 	int i = 0;
 
-	SinglePerturb(m_perm[0], amp, m_frequency, x, y, z);
+	SingleGradientPerturb(m_perm[0], amp, m_frequency, x, y, z);
 
 	while (++i < m_octaves)
 	{
 		freq *= m_lacunarity;
 		amp *= m_gain;
-		SinglePerturb(m_perm[i], amp, freq, x, y, z);
+		SingleGradientPerturb(m_perm[i], amp, freq, x, y, z);
 	}
 }
 
-void FastNoise::SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z)
+void FastNoise::SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z)
 {
 	float xf = x * frequency;
 	float yf = y * frequency;
@@ -1892,28 +1892,28 @@ void FastNoise::SinglePerturb(unsigned char offset, float warpAmp, float frequen
 	z += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * warpAmp;
 }
 
-void FastNoise::Perturb(float& x, float& y)
+void FastNoise::GradientPerturb(float& x, float& y)
 {
-	SinglePerturb(0, m_perturbAmp, m_frequency, x, y);
+	SingleGradientPerturb(0, m_gradientPerturbAmp, m_frequency, x, y);
 }
 
-void FastNoise::PerturbFractal(float& x, float& y)
+void FastNoise::GradientPerturbFractal(float& x, float& y)
 {
-	float amp = m_perturbAmp * m_fractalBounding;
+	float amp = m_gradientPerturbAmp * m_fractalBounding;
 	float freq = m_frequency;
 	int i = 0;
 
-	SinglePerturb(m_perm[0], amp, m_frequency, x, y);
+	SingleGradientPerturb(m_perm[0], amp, m_frequency, x, y);
 
 	while (++i < m_octaves)
 	{
 		freq *= m_lacunarity;
 		amp *= m_gain;
-		SinglePerturb(m_perm[i], amp, freq, x, y);
+		SingleGradientPerturb(m_perm[i], amp, freq, x, y);
 	}
 }
 
-void FastNoise::SinglePerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y)
+void FastNoise::SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y)
 {
 	float xf = x * frequency;
 	float yf = y * frequency;
