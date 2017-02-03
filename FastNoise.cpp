@@ -239,33 +239,30 @@ unsigned char FastNoise::Index4D_256(unsigned char offset, int x, int y, int z, 
 
 static float ValCoord2D(int seed, int x, int y)
 {
-	int n = X_PRIME * x;
-	n += Y_PRIME * y;
-	n += seed;
-	n &= 0x7fffffff;
-	n = (n >> 13) ^ n;
-	return 9.311924889611565e-10f * (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) - 1073891824);
+	int n = seed;
+	n ^= X_PRIME * x;
+	n ^= Y_PRIME * y;
+
+	return (n * n * n * 60493) / 2147483648.f;
 }
 static float ValCoord3D(int seed, int x, int y, int z)
 {
-	int n = X_PRIME * x;
-	n += Y_PRIME * y;
-	n += Z_PRIME * z;
-	n += seed;
-	n &= 0x7fffffff;
-	n = (n >> 13) ^ n;
-	return 9.311924889611565e-10f * (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) - 1073891824);
+	int n = seed;
+	n ^= X_PRIME * x;
+	n ^= Y_PRIME * y;
+	n ^= Z_PRIME * z;
+
+	return (n * n * n * 60493) / 2147483648.f;
 }
 static float ValCoord4D(int seed, int x, int y, int z, int w)
 {
-	int n = X_PRIME * x;
-	n += Y_PRIME * y;
-	n += Z_PRIME * z;
-	n += W_PRIME * w;
-	n += seed;
-	n &= 0x7fffffff;
-	n = (n >> 13) ^ n;
-	return 9.311924889611565e-10f * (((n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff) - 1073891824);
+	int n = seed;
+	n ^= X_PRIME * x;
+	n ^= Y_PRIME * y;
+	n ^= Z_PRIME * z;
+	n ^= W_PRIME * w;
+
+	return (n * n * n * 60493) / 2147483648.f;
 }
 
 float FastNoise::ValCoord2DFast(unsigned char offset, int x, int y)
@@ -1193,6 +1190,24 @@ float FastNoise::SingleSimplexFractalRigidMulti(float x, float y)
 	return sum;
 }
 
+float FastNoise::SingleSimplexFractalBlend(float x, float y)
+{
+	float sum = SingleSimplex(m_perm[0], x, y);
+	float amp = 1.0f;
+	unsigned int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+
+		amp *= m_gain;
+		sum *= SingleSimplex(m_perm[i], x, y) * amp + 1.f;
+	}
+
+	return sum * m_fractalBounding;
+}
+
 float FastNoise::GetSimplex(float x, float y)
 {
 	return SingleSimplex(0, x * m_frequency, y * m_frequency);
@@ -1263,7 +1278,7 @@ float FastNoise::GetSimplex(float x, float y, float z, float w)
 	return SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
 }
 
-static const int SIMPLEX_4D[] =
+static const unsigned char SIMPLEX_4D[] =
 {
 	0,1,2,3,0,1,3,2,0,0,0,0,0,2,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,0,
 	0,2,1,3,0,0,0,0,0,3,1,2,0,3,2,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,2,0,
@@ -1483,7 +1498,7 @@ float FastNoise::SingleCellular(float x, float y, float z)
 	switch (m_cellularReturnType)
 	{
 	case CellValue:
-		return ValCoord3D(0, xc, yc, zc);
+		return ValCoord3D(m_seed, xc, yc, zc);
 
 	case NoiseLookup:
 		assert(m_cellularNoiseLookup);
@@ -1689,7 +1704,7 @@ float FastNoise::SingleCellular(float x, float y)
 	switch (m_cellularReturnType)
 	{
 	case CellValue:
-		return ValCoord2D(0, xc, yc);
+		return ValCoord2D(m_seed, xc, yc);
 
 	case NoiseLookup:
 		assert(m_cellularNoiseLookup);

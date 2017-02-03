@@ -191,6 +191,7 @@ protected:
 	float SingleSimplexFractalFBM(float x, float y);
 	float SingleSimplexFractalBillow(float x, float y);
 	float SingleSimplexFractalRigidMulti(float x, float y);
+	float SingleSimplexFractalBlend(float x, float y);
 	float SingleSimplex(unsigned char offset, float x, float y);
 
 	float SingleCellular(float x, float y);
