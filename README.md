@@ -27,6 +27,8 @@ Usage and documentation available in wiki
  - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
 
+Credit to https://github.com/jobtalle/CubicNoise for the cubic noise algorithm
+
 ## FastNoise Preview
 
 I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
