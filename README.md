@@ -27,7 +27,7 @@ Usage and documentation available in wiki
  - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
 
-Credit to https://github.com/jobtalle/CubicNoise for the cubic noise algorithm
+Credit to [CubicNoise](https://github.com/jobtalle/CubicNoise) for the cubic noise algorithm
 
 ## FastNoise Preview
 
