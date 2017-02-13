@@ -8,9 +8,9 @@ I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIM
 
 ### Features
 - Value Noise 2D, 3D
-- Gradient (Perlin) Noise 2D, 3D
+- Perlin Noise 2D, 3D
 - Simplex Noise 2D, 3D, 4D
-- Position Warping 2D, 3D
+- Gradient Perturb 2D, 3D
 - Multiple fractal options for all of the above
 - Cellular (Voronoi) Noise 2D, 3D
 - White Noise 2D, 3D, 4D
@@ -47,8 +47,8 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 |------------------|-----------|-----------------------|----------|----------|
 | Value            | 13.85     | 4.12                  | 24.16    | 94.73    |
 | Value Fractal    | 46.99     | 12.22                 |          | 289.91   |
-| Gradient         | 21.69     | 7.68                  | 32.68    | 109.26   |
-| Gradient Fractal | 84.22     | 21.54                 | 122.15   | 325.04   |
+| Perlin           | 21.69     | 7.68                  | 32.68    | 109.26   |
+| Perlin Fractal   | 84.22     | 21.54                 | 122.15   | 325.04   |
 | Simplex          | 27.56     | 7.03                  |          | 43.68    |
 | Simplex Fractal  | 85.47     | 19.91                 |          | 154.41   |
 | White Noise      | 2.81      | 0.47                  |          |          |
@@ -71,12 +71,12 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 ##White Noise
 ![White Noise](http://i.imgur.com/QIlYvyQ.png)
 
-##Position Warpring
-![Position Warpring](http://i.imgur.com/gOjc1u1.png)
+##Gradient Perturb
+![Gradient Perturb](http://i.imgur.com/gOjc1u1.png)
 
-![Position Warpring](http://i.imgur.com/ui045Bk.png)
+![Gradient Perturb](http://i.imgur.com/ui045Bk.png)
 
-![Position Warpring](http://i.imgur.com/JICFypT.png)
+![Gradient Perturb](http://i.imgur.com/JICFypT.png)
 
 
 #Any suggestions or questions welcome
