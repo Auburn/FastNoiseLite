@@ -35,7 +35,7 @@ public:
 	FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
 	~FastNoise() { delete m_cellularNoiseLookup; }
 
-	enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise };
+	enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal };
 	enum Interp { Linear, Hermite, Quintic };
 	enum FractalType { FBM, Billow, RigidMulti };
 	enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
@@ -111,7 +111,10 @@ public:
 	float GetCellular(float x, float y);				
 
 	float GetWhiteNoise(float x, float y);				
-	float GetWhiteNoiseInt(int x, int y);				
+	float GetWhiteNoiseInt(int x, int y);
+
+	float GetCubic(float x, float y);
+	float GetCubicFractal(float x, float y);
 
 	float GetNoise(float x, float y);
 
@@ -132,6 +135,9 @@ public:
 
 	float GetWhiteNoise(float x, float y, float z);		
 	float GetWhiteNoiseInt(int x, int y, int z);
+
+	float GetCubic(float x, float y, float z);
+	float GetCubicFractal(float x, float y, float z);
 
 	float GetNoise(float x, float y, float z);
 
@@ -194,6 +200,11 @@ protected:
 	float SingleSimplexFractalBlend(float x, float y);
 	float SingleSimplex(unsigned char offset, float x, float y);
 
+	float SingleCubicFractalFBM(float x, float y);
+	float SingleCubicFractalBillow(float x, float y);
+	float SingleCubicFractalRigidMulti(float x, float y);
+	float SingleCubic(unsigned char offset, float x, float y);
+
 	float SingleCellular(float x, float y);
 	float SingleCellular2Edge(float x, float y);
 
@@ -215,6 +226,11 @@ protected:
 	float SingleSimplexFractalRigidMulti(float x, float y, float z);
 	float SingleSimplex(unsigned char offset, float x, float y, float z);
 
+	float SingleCubicFractalFBM(float x, float y, float z);
+	float SingleCubicFractalBillow(float x, float y, float z);
+	float SingleCubicFractalRigidMulti(float x, float y, float z);
+	float SingleCubic(unsigned char offset, float x, float y, float z);
+
 	float SingleCellular(float x, float y, float z);
 	float SingleCellular2Edge(float x, float y, float z);
 
@@ -222,7 +238,6 @@ protected:
 
 	//4D
 	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);
-
 private:
 	inline unsigned char Index2D_12(unsigned char offset, int x, int y);
 	inline unsigned char Index3D_12(unsigned char offset, int x, int y, int z);

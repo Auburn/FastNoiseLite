@@ -185,7 +185,11 @@ static int FastAbs(int i) { return abs(i); }
 static float Lerp(float a, float b, float t) { return a + t * (b - a); }
 static float InterpHermiteFunc(float t) { return t*t*(3 - 2 * t); }
 static float InterpQuinticFunc(float t) { return t*t*t*(t*(t * 6 - 15) + 10); }
-
+static float CubicLerp(float a, float b, float c, float d, float t)
+{
+	float p = (d - c) - (a - b);
+	return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
+}
 void FastNoise::SetSeed(int seed)
 {
 	m_seed = seed;
@@ -355,6 +359,18 @@ float FastNoise::GetNoise(float x, float y, float z)
 		}
 	case WhiteNoise:
 		return GetWhiteNoise(x, y, z);
+	case Cubic:
+		return SingleCubic(0, x, y, z);
+	case CubicFractal:
+		switch (m_fractalType)
+		{
+		case FBM:
+			return SingleCubicFractalFBM(x, y, z);
+		case Billow:
+			return SingleCubicFractalBillow(x, y, z);
+		case RigidMulti:
+			return SingleCubicFractalRigidMulti(x, y, z);
+		}
 	default:
 		return 0.0f;
 	}
@@ -378,8 +394,6 @@ float FastNoise::GetNoise(float x, float y)
 			return SingleValueFractalBillow(x, y);
 		case RigidMulti:
 			return SingleValueFractalRigidMulti(x, y);
-		default:
-			return 0.0f;
 		}
 	case Perlin:
 		return SinglePerlin(0, x, y);
@@ -392,8 +406,6 @@ float FastNoise::GetNoise(float x, float y)
 			return SinglePerlinFractalBillow(x, y);
 		case RigidMulti:
 			return SinglePerlinFractalRigidMulti(x, y);
-		default:
-			return 0.0f;
 		}
 	case Simplex:
 		return SingleSimplex(0, x, y);
@@ -406,8 +418,6 @@ float FastNoise::GetNoise(float x, float y)
 			return SingleSimplexFractalBillow(x, y);
 		case RigidMulti:
 			return SingleSimplexFractalRigidMulti(x, y);
-		default:
-			return 0.0f;
 		}
 	case Cellular:
 		switch (m_cellularReturnType)
@@ -421,9 +431,20 @@ float FastNoise::GetNoise(float x, float y)
 		}
 	case WhiteNoise:
 		return GetWhiteNoise(x, y);
-	default:
-		return 0.0f;
+	case Cubic:
+		return SingleCubic(0, x, y);
+	case CubicFractal:
+		switch (m_fractalType)
+		{
+		case FBM:
+			return SingleCubicFractalFBM(x, y);
+		case Billow:	 
+			return SingleCubicFractalBillow(x, y);
+		case RigidMulti: 
+			return SingleCubicFractalRigidMulti(x, y);
+		}
 	}
+	return 0.0f;
 }
 
 // White Noise
@@ -1381,6 +1402,244 @@ float FastNoise::SingleSimplex(unsigned char offset, float x, float y, float z, 
 	}
 
 	return 27.0f * (n0 + n1 + n2 + n3 + n4);
+}
+
+// Cubic Noise
+float FastNoise::GetCubicFractal(float x, float y, float z)
+{
+	x *= m_frequency;
+	y *= m_frequency;
+	z *= m_frequency;
+
+	switch (m_fractalType)
+	{
+	case FBM:
+		return SingleCubicFractalFBM(x, y, z);
+	case Billow:	 
+		return SingleCubicFractalBillow(x, y, z);
+	case RigidMulti: 
+		return SingleCubicFractalRigidMulti(x, y, z);
+	default:
+		return 0.0f;
+	}
+}
+
+float FastNoise::SingleCubicFractalFBM(float x, float y, float z)
+{
+	float sum = SingleCubic(m_perm[0], x, y, z);
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += SingleCubic(m_perm[i], x, y, z) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+float FastNoise::SingleCubicFractalBillow(float x, float y, float z)
+{
+	float sum = FastAbs(SingleCubic(m_perm[0], x, y, z)) * 2.0f - 1.0f;
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += (FastAbs(SingleCubic(m_perm[i], x, y, z)) * 2.0f - 1.0f) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+float FastNoise::SingleCubicFractalRigidMulti(float x, float y, float z)
+{
+	float sum = 1.0f - FastAbs(SingleCubic(m_perm[0], x, y, z));
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+
+		amp *= m_gain;
+		sum -= (1.0f - FastAbs(SingleCubic(m_perm[i], x, y, z))) * amp;
+	}
+
+	return sum;
+}
+
+float FastNoise::GetCubic(float x, float y, float z)
+{
+	return SingleCubic(0, x * m_frequency, y * m_frequency, z * m_frequency);
+}
+
+const float CUBIC_3D_BOUNDING = 1.f / (1.5f*1.5f*1.5f);
+
+float FastNoise::SingleCubic(unsigned char offset, float x, float y, float z)
+{
+	int x1 = FastFloor(x);
+	int y1 = FastFloor(y);
+	int z1 = FastFloor(z);
+
+	int x0 = x1 - 1;
+	int y0 = y1 - 1;
+	int z0 = z1 - 1;
+	int x2 = x1 + 1;
+	int y2 = y1 + 1;
+	int z2 = z1 + 1;
+	int x3 = x1 + 2;
+	int y3 = y1 + 2;
+	int z3 = z1 + 2;
+
+	float xs = x - (float)x1;
+	float ys = y - (float)y1;
+	float zs = z - (float)z1;
+
+	return CubicLerp(
+		CubicLerp(
+		CubicLerp(ValCoord3DFast(offset, x0, y0, z0), ValCoord3DFast(offset, x1, y0, z0), ValCoord3DFast(offset, x2, y0, z0), ValCoord3DFast(offset, x3, y0, z0), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y1, z0), ValCoord3DFast(offset, x1, y1, z0), ValCoord3DFast(offset, x2, y1, z0), ValCoord3DFast(offset, x3, y1, z0), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y2, z0), ValCoord3DFast(offset, x1, y2, z0), ValCoord3DFast(offset, x2, y2, z0), ValCoord3DFast(offset, x3, y2, z0), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y3, z0), ValCoord3DFast(offset, x1, y3, z0), ValCoord3DFast(offset, x2, y3, z0), ValCoord3DFast(offset, x3, y3, z0), xs),
+		ys),
+		CubicLerp(
+		CubicLerp(ValCoord3DFast(offset, x0, y0, z1), ValCoord3DFast(offset, x1, y0, z1), ValCoord3DFast(offset, x2, y0, z1), ValCoord3DFast(offset, x3, y0, z1), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y1, z1), ValCoord3DFast(offset, x1, y1, z1), ValCoord3DFast(offset, x2, y1, z1), ValCoord3DFast(offset, x3, y1, z1), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y2, z1), ValCoord3DFast(offset, x1, y2, z1), ValCoord3DFast(offset, x2, y2, z1), ValCoord3DFast(offset, x3, y2, z1), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y3, z1), ValCoord3DFast(offset, x1, y3, z1), ValCoord3DFast(offset, x2, y3, z1), ValCoord3DFast(offset, x3, y3, z1), xs),
+		ys),
+		CubicLerp(
+		CubicLerp(ValCoord3DFast(offset, x0, y0, z2), ValCoord3DFast(offset, x1, y0, z2), ValCoord3DFast(offset, x2, y0, z2), ValCoord3DFast(offset, x3, y0, z2), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y1, z2), ValCoord3DFast(offset, x1, y1, z2), ValCoord3DFast(offset, x2, y1, z2), ValCoord3DFast(offset, x3, y1, z2), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y2, z2), ValCoord3DFast(offset, x1, y2, z2), ValCoord3DFast(offset, x2, y2, z2), ValCoord3DFast(offset, x3, y2, z2), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y3, z2), ValCoord3DFast(offset, x1, y3, z2), ValCoord3DFast(offset, x2, y3, z2), ValCoord3DFast(offset, x3, y3, z2), xs),
+		ys),
+		CubicLerp(
+		CubicLerp(ValCoord3DFast(offset, x0, y0, z3), ValCoord3DFast(offset, x1, y0, z3), ValCoord3DFast(offset, x2, y0, z3), ValCoord3DFast(offset, x3, y0, z3), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y1, z3), ValCoord3DFast(offset, x1, y1, z3), ValCoord3DFast(offset, x2, y1, z3), ValCoord3DFast(offset, x3, y1, z3), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y2, z3), ValCoord3DFast(offset, x1, y2, z3), ValCoord3DFast(offset, x2, y2, z3), ValCoord3DFast(offset, x3, y2, z3), xs),
+		CubicLerp(ValCoord3DFast(offset, x0, y3, z3), ValCoord3DFast(offset, x1, y3, z3), ValCoord3DFast(offset, x2, y3, z3), ValCoord3DFast(offset, x3, y3, z3), xs),
+		ys),
+		zs) * CUBIC_3D_BOUNDING;
+}
+
+
+float FastNoise::GetCubicFractal(float x, float y)
+{
+	x *= m_frequency;
+	y *= m_frequency;
+
+	switch (m_fractalType)
+	{
+	case FBM:
+		return SingleCubicFractalFBM(x, y);
+	case Billow:	 
+		return SingleCubicFractalBillow(x, y);
+	case RigidMulti: 
+		return SingleCubicFractalRigidMulti(x, y);
+	default:
+		return 0.0f;
+	}
+}
+
+float FastNoise::SingleCubicFractalFBM(float x, float y)
+{
+	float sum = SingleCubic(m_perm[0], x, y);
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += SingleCubic(m_perm[i], x, y) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+float FastNoise::SingleCubicFractalBillow(float x, float y)
+{
+	float sum = FastAbs(SingleCubic(m_perm[0], x, y)) * 2.0f - 1.0f;
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += (FastAbs(SingleCubic(m_perm[i], x, y)) * 2.0f - 1.0f) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+float FastNoise::SingleCubicFractalRigidMulti(float x, float y)
+{
+	float sum = 1.0f - FastAbs(SingleCubic(m_perm[0], x, y));
+	float amp = 1.0f;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+
+		amp *= m_gain;
+		sum -= (1.0f - FastAbs(SingleCubic(m_perm[i], x, y))) * amp;
+	}
+
+	return sum;
+}
+
+float FastNoise::GetCubic(float x, float y)
+{
+	x *= m_frequency;
+	y *= m_frequency;
+
+	return SingleCubic(0, x, y);
+}
+
+const float CUBIC_2D_BOUNDING = 1.f / (1.5f*1.5f);
+
+float FastNoise::SingleCubic(unsigned char offset, float x, float y)
+{
+	int x1 = FastFloor(x);
+	int y1 = FastFloor(y);
+
+	int x0 = x1 - 1;
+	int y0 = y1 - 1;
+	int x2 = x1 + 1;
+	int y2 = y1 + 1;
+	int x3 = x1 + 2;
+	int y3 = y1 + 2;
+
+	float xs = x - (float)x1;
+	float ys = y - (float)y1;
+
+	return CubicLerp(
+		CubicLerp(ValCoord2DFast(offset, x0, y0), ValCoord2DFast(offset, x1, y0), ValCoord2DFast(offset, x2, y0), ValCoord2DFast(offset, x3, y0), xs),
+		CubicLerp(ValCoord2DFast(offset, x0, y1), ValCoord2DFast(offset, x1, y1), ValCoord2DFast(offset, x2, y1), ValCoord2DFast(offset, x3, y1), xs),
+		CubicLerp(ValCoord2DFast(offset, x0, y2), ValCoord2DFast(offset, x1, y2), ValCoord2DFast(offset, x2, y2), ValCoord2DFast(offset, x3, y2), xs),
+		CubicLerp(ValCoord2DFast(offset, x0, y3), ValCoord2DFast(offset, x1, y3), ValCoord2DFast(offset, x2, y3), ValCoord2DFast(offset, x3, y3), xs),
+		ys) * CUBIC_2D_BOUNDING;
 }
 
 // Cellular Noise
