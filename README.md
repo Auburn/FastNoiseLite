@@ -55,6 +55,8 @@ Timings below are x1000 ns to generate 32x32x32 points of noise.
 | Cellular    | 3039      | 1406                 | 59688    | 1102         |
 | Cubic       | 2968      | 1349                 |          | 910          |
 
+Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
+
 # Examples
 ## Cellular Noise
 ![Cellular Noise](http://i.imgur.com/quAic8M.png)
