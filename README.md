@@ -38,43 +38,41 @@ Download links can be found in the [Releases Section](https://github.com/Auburns
 ![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
 
 
-#Performance Comparisons
+# Performance Comparisons
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
 
-Timing are averages of time taken for 1 million iterations on a single thread.
+Timings below are x1000 ns to generate 32x32x32 points of noise.
 
-- CPU: i7 4790k @ 4.0Ghz
-- Compiler: MSVC v140 x64
+- CPU: Intel Xeon Skylake @ 2.0Ghz
+- Compiler: Intel 17.0 x64
 
-| Noise Type       | FastNoise | FastNoise SIMD - AVX2 | LibNoise | ANL      |
-|------------------|-----------|-----------------------|----------|----------|
-| Value            | 13.85     | 4.12                  | 24.16    | 94.73    |
-| Value Fractal    | 46.99     | 12.22                 |          | 289.91   |
-| Perlin           | 21.69     | 7.68                  | 32.68    | 109.26   |
-| Perlin Fractal   | 84.22     | 21.54                 | 122.15   | 325.04   |
-| Simplex          | 27.56     | 7.03                  |          | 43.68    |
-| Simplex Fractal  | 85.47     | 19.91                 |          | 154.41   |
-| White Noise      | 2.81      | 0.47                  |          |          |
-| Cellular         | 122.21    | 31.42                 | 1,122.60 | 2,473.06 |
+| Noise Type  | FastNoise | FastNoiseSIMD - AVX2 | LibNoise | FastNoise 2D |
+|-------------|-----------|----------------------|----------|--------------|
+| White Noise | 211       | 13                   |          | 115          |
+| Value       | 663       | 147                  |          | 394          |
+| Perlin      | 952       | 334                  | 1374     | 483          |
+| Simplex     | 1246      | 338                  |          | 899          |
+| Cellular    | 3039      | 1406                 | 59688    | 1102         |
+| Cubic       | 2968      | 1349                 |          | 910          |
 
-#Examples
-##Cellular Noise
+# Examples
+## Cellular Noise
 ![Cellular Noise](http://i.imgur.com/quAic8M.png)
 
 ![Cellular Noise](http://i.imgur.com/gAd9Y2t.png)
 
 ![Cellular Noise](http://i.imgur.com/7kJd4fA.png)
 
-##Fractal Noise
+## Fractal Noise
 ![Fractal Noise](http://i.imgur.com/XqSD7eR.png)
 
-##Value Noise
+## Value Noise
 ![Value Noise](http://i.imgur.com/X2lbFZR.png)
 
-##White Noise
+## White Noise
 ![White Noise](http://i.imgur.com/QIlYvyQ.png)
 
-##Gradient Perturb
+## Gradient Perturb
 ![Gradient Perturb](http://i.imgur.com/gOjc1u1.png)
 
 ![Gradient Perturb](http://i.imgur.com/ui045Bk.png)
@@ -82,4 +80,4 @@ Timing are averages of time taken for 1 million iterations on a single thread.
 ![Gradient Perturb](http://i.imgur.com/JICFypT.png)
 
 
-#Any suggestions or questions welcome
+# Any suggestions or questions welcome
