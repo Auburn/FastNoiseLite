@@ -169,7 +169,7 @@ protected:
 	{
 		float amp = m_gain;
 		float ampFractal = 1.0f;
-		for (unsigned int i = 1; i < m_octaves; i++)
+		for (int i = 1; i < m_octaves; i++)
 		{
 			ampFractal += amp;
 			amp *= m_gain;
