@@ -10,6 +10,7 @@ I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIM
 - Value Noise 2D, 3D
 - Perlin Noise 2D, 3D
 - Simplex Noise 2D, 3D, 4D
+- Cubic Noise 2D, 3D
 - Gradient Perturb 2D, 3D
 - Multiple fractal options for all of the above
 - Cellular (Voronoi) Noise 2D, 3D
@@ -25,6 +26,8 @@ Usage and documentation available in wiki
  - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
  - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
+
+Credit to [CubicNoise](https://github.com/jobtalle/CubicNoise) for the cubic noise algorithm
 
 ## FastNoise Preview
 
