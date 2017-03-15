@@ -47,13 +47,13 @@ Timings below are x1000 ns to generate 32x32x32 points of noise.
 - Compiler: Intel 17.0 x64
 
 | Noise Type  | FastNoise | FastNoiseSIMD - AVX2 | LibNoise | FastNoise 2D |
-|-------------|-----------|----------------------|----------|--------------|
-| White Noise | 211       | 13                   |          | 115          |
-| Value       | 663       | 147                  |          | 394          |
-| Perlin      | 952       | 334                  | 1374     | 483          |
-| Simplex     | 1246      | 338                  |          | 899          |
-| Cellular    | 3039      | 1406                 | 59688    | 1102         |
-| Cubic       | 2968      | 1349                 |          | 910          |
+|-------------|-----------|------|----------|--------------|
+| White Noise | 194       | 17   |          | 179          |
+| Value       | 935       | 197  |          | 519          |
+| Perlin      | 1315      | 444  | 2151     | 645          |
+| Simplex     | 1612      | 417  |          | 983          |
+| Cellular    | 4469      | 1870 | 98785    | 1496         |
+| Cubic       | 3648      | 1880 |          | 1258         |
 
 Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
 
