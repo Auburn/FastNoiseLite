@@ -15,6 +15,7 @@ I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIM
 - Multiple fractal options for all of the above
 - Cellular (Voronoi) Noise 2D, 3D
 - White Noise 2D, 3D, 4D
+- Supports floats or doubles
 
 ### Wiki
 Usage and documentation available in wiki
