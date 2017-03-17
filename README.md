@@ -41,19 +41,19 @@ Download links can be found in the [Releases Section](https://github.com/Auburns
 # Performance Comparisons
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
 
-Timings below are x1000 ns to generate 32x32x32 points of noise.
+Timings below are x1000 ns to generate 32x32x32 points of noise on a single thread.
 
 - CPU: Intel Xeon Skylake @ 2.0Ghz
 - Compiler: Intel 17.0 x64
 
-| Noise Type  | FastNoise | FastNoiseSIMD - AVX2 | LibNoise | FastNoise 2D |
-|-------------|-----------|------|----------|--------------|
-| White Noise | 194       | 17   |          | 179          |
-| Value       | 935       | 197  |          | 519          |
-| Perlin      | 1315      | 444  | 2151     | 645          |
-| Simplex     | 1612      | 417  |          | 983          |
-| Cellular    | 4469      | 1870 | 98785    | 1496         |
-| Cubic       | 3648      | 1880 |          | 1258         |
+| Noise Type  |FastNoise | FastNoiseSIMD AVX2 |  LibNoise | FastNoise 2D |
+|-------------|----------|--------------------|-----------|--------------|
+| White Noise |141       | 13                 |           | 111          |
+| Value       |635       | 160                |           | 364          |
+| Perlin      |964       | 342                |  1409     | 476          |
+| Simplex     |1189      | 340                |           | 875          |
+| Cellular    |2933      | 1472               |  56960    | 1074         |
+| Cubic       |2933      | 1393               |           | 872          |
 
 Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
 
