@@ -29,6 +29,15 @@
 #ifndef FASTNOISE_H
 #define FASTNOISE_H
 
+// Uncomment the line below to use doubles throughout FastNoise instead of floats
+//#define FN_USE_DOUBLES
+
+#ifdef FN_USE_DOUBLES
+typedef double FN_DECIMAL;
+#else
+typedef float FN_DECIMAL;
+#endif
+
 class FastNoise
 {
 public:
@@ -50,7 +59,7 @@ public:
 
 	// Sets frequency for all noise types
 	// Default: 0.01
-	void SetFrequency(float frequency) { m_frequency = frequency; }
+	void SetFrequency(FN_DECIMAL frequency) { m_frequency = frequency; }
 
 	// Changes the interpolation method used to smooth between noise values
 	// Possible interpolation methods (lowest to highest quality) :
@@ -71,11 +80,11 @@ public:
 	
 	// Sets octave lacunarity for all fractal noise types
 	// Default: 2.0
-	void SetFractalLacunarity(float lacunarity) { m_lacunarity = lacunarity; }
+	void SetFractalLacunarity(FN_DECIMAL lacunarity) { m_lacunarity = lacunarity; }
 
 	// Sets octave gain for all fractal noise types
 	// Default: 0.5
-	void SetFractalGain(float gain) { m_gain = gain; CalculateFractalBounding(); }
+	void SetFractalGain(FN_DECIMAL gain) { m_gain = gain; CalculateFractalBounding(); }
 
 	// Sets method for combining octaves in all fractal noise types
 	// Default: FBM
@@ -96,148 +105,148 @@ public:
 
 	// Sets the maximum warp distance from original location when using GradientPerturb{Fractal}(...)
 	// Default: 1.0
-	void SetGradientPerturbAmp(float gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp / 0.45f; }
+	void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp / 0.45f; }
 
 	//2D												
-	float GetValue(float x, float y);					
-	float GetValueFractal(float x, float y);			
+	FN_DECIMAL GetValue(FN_DECIMAL x, FN_DECIMAL y);					
+	FN_DECIMAL GetValueFractal(FN_DECIMAL x, FN_DECIMAL y);			
 
-	float GetPerlin(float x, float y);				
-	float GetPerlinFractal(float x, float y);			
+	FN_DECIMAL GetPerlin(FN_DECIMAL x, FN_DECIMAL y);				
+	FN_DECIMAL GetPerlinFractal(FN_DECIMAL x, FN_DECIMAL y);			
 
-	float GetSimplex(float x, float y);					
-	float GetSimplexFractal(float x, float y);			
+	FN_DECIMAL GetSimplex(FN_DECIMAL x, FN_DECIMAL y);					
+	FN_DECIMAL GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y);			
 
-	float GetCellular(float x, float y);				
+	FN_DECIMAL GetCellular(FN_DECIMAL x, FN_DECIMAL y);				
 
-	float GetWhiteNoise(float x, float y);				
-	float GetWhiteNoiseInt(int x, int y);
+	FN_DECIMAL GetWhiteNoise(FN_DECIMAL x, FN_DECIMAL y);				
+	FN_DECIMAL GetWhiteNoiseInt(int x, int y);
 
-	float GetCubic(float x, float y);
-	float GetCubicFractal(float x, float y);
+	FN_DECIMAL GetCubic(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL GetCubicFractal(FN_DECIMAL x, FN_DECIMAL y);
 
-	float GetNoise(float x, float y);
+	FN_DECIMAL GetNoise(FN_DECIMAL x, FN_DECIMAL y);
 
-	void GradientPerturb(float& x, float& y);
-	void GradientPerturbFractal(float& x, float& y);
+	void GradientPerturb(FN_DECIMAL& x, FN_DECIMAL& y);
+	void GradientPerturbFractal(FN_DECIMAL& x, FN_DECIMAL& y);
 
 	//3D												
-	float GetValue(float x, float y, float z);			
-	float GetValueFractal(float x, float y, float z);	
+	FN_DECIMAL GetValue(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);			
+	FN_DECIMAL GetValueFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);	
 
-	float GetPerlin(float x, float y, float z);		
-	float GetPerlinFractal(float x, float y, float z);
+	FN_DECIMAL GetPerlin(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);		
+	FN_DECIMAL GetPerlinFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float GetSimplex(float x, float y, float z);		
-	float GetSimplexFractal(float x, float y, float z);	
+	FN_DECIMAL GetSimplex(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);		
+	FN_DECIMAL GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);	
 
-	float GetCellular(float x, float y, float z);		
+	FN_DECIMAL GetCellular(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);		
 
-	float GetWhiteNoise(float x, float y, float z);		
-	float GetWhiteNoiseInt(int x, int y, int z);
+	FN_DECIMAL GetWhiteNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);		
+	FN_DECIMAL GetWhiteNoiseInt(int x, int y, int z);
 
-	float GetCubic(float x, float y, float z);
-	float GetCubicFractal(float x, float y, float z);
+	FN_DECIMAL GetCubic(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL GetCubicFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float GetNoise(float x, float y, float z);
+	FN_DECIMAL GetNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	void GradientPerturb(float& x, float& y, float& z);
-	void GradientPerturbFractal(float& x, float& y, float& z);
+	void GradientPerturb(FN_DECIMAL& x, FN_DECIMAL& y, FN_DECIMAL& z);
+	void GradientPerturbFractal(FN_DECIMAL& x, FN_DECIMAL& y, FN_DECIMAL& z);
 
 	//4D
-	float GetSimplex(float x, float y, float z, float w);
+	FN_DECIMAL GetSimplex(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w);
 
-	float GetWhiteNoise(float x, float y, float z, float w);
-	float GetWhiteNoiseInt(int x, int y, int z, int w);
+	FN_DECIMAL GetWhiteNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w);
+	FN_DECIMAL GetWhiteNoiseInt(int x, int y, int z, int w);
 
 protected:
 	unsigned char m_perm[512];
 	unsigned char m_perm12[512];
 
 	int m_seed = 1337;
-	float m_frequency = 0.01f;
+	FN_DECIMAL m_frequency = FN_DECIMAL(0.01);
 	Interp m_interp = Quintic;
 	NoiseType m_noiseType = Simplex;
 
 	int m_octaves = 3;
-	float m_lacunarity = 2.0f;
-	float m_gain = 0.5f;
+	FN_DECIMAL m_lacunarity = FN_DECIMAL(2);
+	FN_DECIMAL m_gain = FN_DECIMAL(0.5);
 	FractalType m_fractalType = FBM;
 
-	float m_fractalBounding;
+	FN_DECIMAL m_fractalBounding;
 	void CalculateFractalBounding()
 	{
-		float amp = m_gain;
-		float ampFractal = 1.0f;
+		FN_DECIMAL amp = m_gain;
+		FN_DECIMAL ampFractal = 1;
 		for (int i = 1; i < m_octaves; i++)
 		{
 			ampFractal += amp;
 			amp *= m_gain;
 		}
-		m_fractalBounding = 1.0f / ampFractal;
+		m_fractalBounding = 1 / ampFractal;
 	}
 
 	CellularDistanceFunction m_cellularDistanceFunction = Euclidean;
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
 
-	float m_gradientPerturbAmp = 1.0f / 0.45f;
+	FN_DECIMAL m_gradientPerturbAmp = 1 / FN_DECIMAL(0.45);
 
 	//2D
-	float SingleValueFractalFBM(float x, float y);
-	float SingleValueFractalBillow(float x, float y);
-	float SingleValueFractalRigidMulti(float x, float y);
-	float SingleValue(unsigned char offset, float x, float y);
+	FN_DECIMAL SingleValueFractalFBM(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleValueFractalBillow(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleValueFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleValue(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y);
 
-	float SinglePerlinFractalFBM(float x, float y);
-	float SinglePerlinFractalBillow(float x, float y);
-	float SinglePerlinFractalRigidMulti(float x, float y);
-	float SinglePerlin(unsigned char offset, float x, float y);
+	FN_DECIMAL SinglePerlinFractalFBM(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SinglePerlinFractalBillow(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SinglePerlinFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SinglePerlin(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y);
 
-	float SingleSimplexFractalFBM(float x, float y);
-	float SingleSimplexFractalBillow(float x, float y);
-	float SingleSimplexFractalRigidMulti(float x, float y);
-	float SingleSimplexFractalBlend(float x, float y);
-	float SingleSimplex(unsigned char offset, float x, float y);
+	FN_DECIMAL SingleSimplexFractalFBM(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleSimplexFractalBillow(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleSimplexFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleSimplexFractalBlend(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y);
 
-	float SingleCubicFractalFBM(float x, float y);
-	float SingleCubicFractalBillow(float x, float y);
-	float SingleCubicFractalRigidMulti(float x, float y);
-	float SingleCubic(unsigned char offset, float x, float y);
+	FN_DECIMAL SingleCubicFractalFBM(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleCubicFractalBillow(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleCubicFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleCubic(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y);
 
-	float SingleCellular(float x, float y);
-	float SingleCellular2Edge(float x, float y);
+	FN_DECIMAL SingleCellular(FN_DECIMAL x, FN_DECIMAL y);
+	FN_DECIMAL SingleCellular2Edge(FN_DECIMAL x, FN_DECIMAL y);
 
-	void SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y);
+	void SingleGradientPerturb(unsigned char offset, FN_DECIMAL warpAmp, FN_DECIMAL frequency, FN_DECIMAL& x, FN_DECIMAL& y);
 
 	//3D
-	float SingleValueFractalFBM(float x, float y, float z);
-	float SingleValueFractalBillow(float x, float y, float z);
-	float SingleValueFractalRigidMulti(float x, float y, float z);
-	float SingleValue(unsigned char offset, float x, float y, float z);
+	FN_DECIMAL SingleValueFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleValueFractalBillow(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleValueFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleValue(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float SinglePerlinFractalFBM(float x, float y, float z);
-	float SinglePerlinFractalBillow(float x, float y, float z);
-	float SinglePerlinFractalRigidMulti(float x, float y, float z);
-	float SinglePerlin(unsigned char offset, float x, float y, float z);
+	FN_DECIMAL SinglePerlinFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SinglePerlinFractalBillow(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SinglePerlinFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SinglePerlin(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float SingleSimplexFractalFBM(float x, float y, float z);
-	float SingleSimplexFractalBillow(float x, float y, float z);
-	float SingleSimplexFractalRigidMulti(float x, float y, float z);
-	float SingleSimplex(unsigned char offset, float x, float y, float z);
+	FN_DECIMAL SingleSimplexFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleSimplexFractalBillow(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleSimplexFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float SingleCubicFractalFBM(float x, float y, float z);
-	float SingleCubicFractalBillow(float x, float y, float z);
-	float SingleCubicFractalRigidMulti(float x, float y, float z);
-	float SingleCubic(unsigned char offset, float x, float y, float z);
+	FN_DECIMAL SingleCubicFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleCubicFractalBillow(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleCubicFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleCubic(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	float SingleCellular(float x, float y, float z);
-	float SingleCellular2Edge(float x, float y, float z);
+	FN_DECIMAL SingleCellular(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+	FN_DECIMAL SingleCellular2Edge(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
 
-	void SingleGradientPerturb(unsigned char offset, float warpAmp, float frequency, float& x, float& y, float& z);
+	void SingleGradientPerturb(unsigned char offset, FN_DECIMAL warpAmp, FN_DECIMAL frequency, FN_DECIMAL& x, FN_DECIMAL& y, FN_DECIMAL& z);
 
 	//4D
-	float SingleSimplex(unsigned char offset, float x, float y, float z, float w);
+	FN_DECIMAL SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w);
 private:
 	inline unsigned char Index2D_12(unsigned char offset, int x, int y);
 	inline unsigned char Index3D_12(unsigned char offset, int x, int y, int z);
@@ -246,10 +255,10 @@ private:
 	inline unsigned char Index3D_256(unsigned char offset, int x, int y, int z);
 	inline unsigned char Index4D_256(unsigned char offset, int x, int y, int z, int w);
 
-	inline float ValCoord2DFast(unsigned char offset, int x, int y);
-	inline float ValCoord3DFast(unsigned char offset, int x, int y, int z);
-	inline float GradCoord2D(unsigned char offset, int x, int y, float xd, float yd);
-	inline float GradCoord3D(unsigned char offset, int x, int y, int z, float xd, float yd, float zd);
-	inline float GradCoord4D(unsigned char offset, int x, int y, int z, int w, float xd, float yd, float zd, float wd);
+	inline FN_DECIMAL ValCoord2DFast(unsigned char offset, int x, int y);
+	inline FN_DECIMAL ValCoord3DFast(unsigned char offset, int x, int y, int z);
+	inline FN_DECIMAL GradCoord2D(unsigned char offset, int x, int y, FN_DECIMAL xd, FN_DECIMAL yd);
+	inline FN_DECIMAL GradCoord3D(unsigned char offset, int x, int y, int z, FN_DECIMAL xd, FN_DECIMAL yd, FN_DECIMAL zd);
+	inline FN_DECIMAL GradCoord4D(unsigned char offset, int x, int y, int z, int w, FN_DECIMAL xd, FN_DECIMAL yd, FN_DECIMAL zd, FN_DECIMAL wd);
 };
 #endif
