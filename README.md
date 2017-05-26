@@ -15,6 +15,7 @@ I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIM
 - Multiple fractal options for all of the above
 - Cellular (Voronoi) Noise 2D, 3D
 - White Noise 2D, 3D, 4D
+- Supports floats or doubles
 
 ### Wiki
 Usage and documentation available in wiki
@@ -23,6 +24,7 @@ Usage and documentation available in wiki
 
 ### Related repositories
  - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
+ - [FastNoise Java](https://github.com/Auburns/FastNoise_Java)
  - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
  - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
@@ -46,14 +48,14 @@ Timings below are x1000 ns to generate 32x32x32 points of noise on a single thre
 - CPU: Intel Xeon Skylake @ 2.0Ghz
 - Compiler: Intel 17.0 x64
 
-| Noise Type  |FastNoise | FastNoiseSIMD AVX2 |  LibNoise | FastNoise 2D |
-|-------------|----------|--------------------|-----------|--------------|
-| White Noise |141       | 13                 |           | 111          |
-| Value       |635       | 160                |           | 364          |
-| Perlin      |964       | 342                |  1409     | 476          |
-| Simplex     |1189      | 340                |           | 875          |
-| Cellular    |2933      | 1472               |  56960    | 1074         |
-| Cubic       |2933      | 1393               |           | 872          |
+| Noise Type  | FastNoise | FastNoiseSIMD AVX2 | LibNoise | FastNoise 2D |
+|-------------|-----------|--------------------|----------|--------------|
+| White Noise | 141       | 9                  |          | 111          |
+| Value       | 642       | 152                |          | 361          |
+| Perlin      | 1002      | 324                | 1368     | 473          |
+| Simplex     | 1194      | 294                |          | 883          |
+| Cellular    | 2979      | 1283               | 58125    | 1074         |
+| Cubic       | 2979      | 952                |          | 858          |
 
 Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
 
