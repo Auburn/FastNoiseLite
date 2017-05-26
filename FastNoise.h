@@ -2,7 +2,7 @@
 //
 // MIT License
 //
-// Copyright(c) 2016 Jordan Peck
+// Copyright(c) 2017 Jordan Peck
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -26,11 +26,15 @@
 // off every 'zix'.)
 //
 
+// VERSION: 0.3.1
+
 #ifndef FASTNOISE_H
 #define FASTNOISE_H
 
 // Uncomment the line below to use doubles throughout FastNoise instead of floats
 //#define FN_USE_DOUBLES
+
+#define FN_CELLULAR_INDEX_MAX 3
 
 #ifdef FN_USE_DOUBLES
 typedef double FN_DECIMAL;
@@ -74,6 +78,7 @@ public:
 	// Default: Simplex
 	void SetNoiseType(NoiseType noiseType) { m_noiseType = noiseType; }
 
+
 	// Sets octave count for all fractal noise types
 	// Default: 3
 	void SetFractalOctaves(int octaves) { m_octaves = octaves; CalculateFractalBounding(); }
@@ -90,6 +95,7 @@ public:
 	// Default: FBM
 	void SetFractalType(FractalType fractalType) { m_fractalType = fractalType; }
 
+
 	// Sets return type from cellular noise calculations
 	// Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
 	// Default: CellValue
@@ -103,9 +109,21 @@ public:
 	// The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, Perlin or simplex is recommended
 	void SetCellularNoiseLookup(FastNoise* noise) { m_cellularNoiseLookup = noise; }
 
+	// Sets the 2 distance indicies used for distance2 return types
+	// Default: 0, 1
+	// Note: index0 should be lower than index1
+	// Both indicies must be >= 0, index1 must be < 4
+	void SetCellularDistance2Indicies(int cellularDistanceIndex0, int cellularDistanceIndex1);
+
+	// Sets the maximum distance a cellular point can move from it's grid position
+	// Setting this high will make artifacts more common
+	// Default: 0.45
+	void SetCellularJitter(float cellularJitter) { m_cellularJitter = cellularJitter; }
+
+
 	// Sets the maximum warp distance from original location when using GradientPerturb{Fractal}(...)
 	// Default: 1.0
-	void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp / 0.45f; }
+	void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp; }
 
 	//2D												
 	FN_DECIMAL GetValue(FN_DECIMAL x, FN_DECIMAL y);					
@@ -172,25 +190,18 @@ protected:
 	FN_DECIMAL m_lacunarity = FN_DECIMAL(2);
 	FN_DECIMAL m_gain = FN_DECIMAL(0.5);
 	FractalType m_fractalType = FBM;
-
 	FN_DECIMAL m_fractalBounding;
-	void CalculateFractalBounding()
-	{
-		FN_DECIMAL amp = m_gain;
-		FN_DECIMAL ampFractal = 1;
-		for (int i = 1; i < m_octaves; i++)
-		{
-			ampFractal += amp;
-			amp *= m_gain;
-		}
-		m_fractalBounding = 1 / ampFractal;
-	}
 
 	CellularDistanceFunction m_cellularDistanceFunction = Euclidean;
 	CellularReturnType m_cellularReturnType = CellValue;
 	FastNoise* m_cellularNoiseLookup = nullptr;
+	int m_cellularDistanceIndex0 = 0;
+	int m_cellularDistanceIndex1 = 1;
+	float m_cellularJitter = 0.45f;
 
-	FN_DECIMAL m_gradientPerturbAmp = 1 / FN_DECIMAL(0.45);
+	FN_DECIMAL m_gradientPerturbAmp = FN_DECIMAL(1);
+
+	void CalculateFractalBounding();
 
 	//2D
 	FN_DECIMAL SingleValueFractalFBM(FN_DECIMAL x, FN_DECIMAL y);
