@@ -26,7 +26,7 @@
 // off every 'zix'.)
 //
 
-// VERSION: 0.4
+// VERSION: 0.4.1
 
 #ifndef FASTNOISE_H
 #define FASTNOISE_H
@@ -45,8 +45,7 @@ typedef float FN_DECIMAL;
 class FastNoise
 {
 public:
-	FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
-	~FastNoise() { delete m_cellularNoiseLookup; }
+	explicit FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
 
 	enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal };
 	enum Interp { Linear, Hermite, Quintic };
@@ -59,7 +58,7 @@ public:
 	void SetSeed(int seed);
 
 	// Returns seed used for all noise types
-	int GetSeed(void) const { return m_seed; }
+	int GetSeed() const { return m_seed; }
 
 	// Sets frequency for all noise types
 	// Default: 0.01
