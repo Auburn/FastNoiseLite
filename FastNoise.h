@@ -45,7 +45,7 @@ typedef float FN_DECIMAL;
 class FastNoise
 {
 public:
-	explicit FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); };
+	explicit FastNoise(int seed = 1337) { SetSeed(seed); CalculateFractalBounding(); }
 
 	enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal };
 	enum Interp { Linear, Hermite, Quintic };
@@ -152,7 +152,7 @@ public:
 	void SetCellularJitter(FN_DECIMAL cellularJitter) { m_cellularJitter = cellularJitter; }
 
 	// Returns the maximum distance a cellular point can move from its grid position
-    FN_DECIMAL GetCellularJitter() const { return m_cellularJitter; }
+	FN_DECIMAL GetCellularJitter() const { return m_cellularJitter; }
 
 	// Sets the maximum warp distance from original location when using GradientPerturb{Fractal}(...)
 	// Default: 1.0
