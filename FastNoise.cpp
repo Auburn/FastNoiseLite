@@ -216,8 +216,8 @@ void FastNoise::SetSeed(int seed)
 
 void FastNoise::CalculateFractalBounding()
 {
-	float amp = m_gain;
-	float ampFractal = 1.0f;
+	FN_DECIMAL amp = m_gain;
+	FN_DECIMAL ampFractal = 1.0f;
 	for (int i = 1; i < m_octaves; i++)
 	{
 		ampFractal += amp;
