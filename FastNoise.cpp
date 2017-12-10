@@ -198,15 +198,15 @@ void FastNoise::SetSeed(int seed)
 {
 	m_seed = seed;
 
-	std::mt19937 gen(seed);
+	std::mt19937_64 gen(seed);
 
 	for (int i = 0; i < 256; i++)
 		m_perm[i] = i;
 
 	for (int j = 0; j < 256; j++)
 	{
-		std::uniform_int_distribution<> dis(0, 256 - j);
-		int k = dis(gen) + j;
+        int rng = (int)(gen() % (256 - j));
+		int k = rng + j;
 		int l = m_perm[j];
 		m_perm[j] = m_perm[j + 256] = m_perm[k];
 		m_perm[k] = l;
