@@ -216,8 +216,8 @@ void FastNoise::SetSeed(int seed)
 
 void FastNoise::CalculateFractalBounding()
 {
-	float amp = m_gain;
-	float ampFractal = 1.0f;
+	FN_DECIMAL amp = m_gain;
+	FN_DECIMAL ampFractal = 1.0f;
 	for (int i = 1; i < m_octaves; i++)
 	{
 		ampFractal += amp;
@@ -1347,7 +1347,7 @@ static const unsigned char SIMPLEX_4D[] =
 };
 
 static const FN_DECIMAL F4 = (sqrt(FN_DECIMAL(5)) - 1) / 4;
-static const FN_DECIMAL G4 = (5 - sqrt(FN_DECIMAL(5))) / 2;
+static const FN_DECIMAL G4 = (5 - sqrt(FN_DECIMAL(5))) / 20;
 
 FN_DECIMAL FastNoise::SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
 {
