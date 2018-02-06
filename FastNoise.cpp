@@ -1,9 +1,3 @@
-// Since simthetiq's code base uses very high warnings, we deactivate them for
-// this non propritary file
-//
-#pragma warning(push, 0)   
-#pragma warning( disable : 4701)
-
 // FastNoise.cpp
 //
 // MIT License
@@ -2454,5 +2448,3 @@ void FastNoise::SingleGradientPerturb(unsigned char offset, FN_DECIMAL warpAmp, 
 	x += Lerp(lx0x, lx1x, ys) * warpAmp;
 	y += Lerp(ly0x, ly1x, ys) * warpAmp;
 }
-
-#pragma warning(pop)
