@@ -197,13 +197,15 @@ static FN_DECIMAL CubicLerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL c, FN_DECIMAL
 // i is the index
 // p is the period
 //
-static void indexToPeriodicIndex(int *i, int p)
+static inline void indexToPeriodicIndex(int *i, const int &p)
 {
     if (p > 0)
     {
-        *i = *i % p;
-        if (*i < 0)
-        { *i = p - 1; }
+        int v = *i;
+        v = v % p;
+        if (v < 0)
+        { v = p - 1; }
+        *i = v;
     }
 }
 
@@ -287,7 +289,7 @@ unsigned char FastNoise::Index2D_12(unsigned char offset, int x, int y, int px /
 {
     indexToPeriodicIndex(&x, px);
     indexToPeriodicIndex(&y, py);
-
+    
     return m_perm12[(x & 0x000000ff) + m_perm[(y & 0x000000ff) + offset]];
 }
 unsigned char FastNoise::Index3D_12(unsigned char offset, int x, int y, int z,
