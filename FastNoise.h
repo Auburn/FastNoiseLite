@@ -209,7 +209,6 @@ public:
 
 	//4D
 	FN_DECIMAL GetSimplex(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const;
-  FN_DECIMAL GetSimplexRanked(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const;
 
 	FN_DECIMAL GetWhiteNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const;
 	FN_DECIMAL GetWhiteNoiseInt(int x, int y, int z, int w) const;
@@ -295,7 +294,6 @@ private:
 
 	//4D
 	FN_DECIMAL SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const;
-  FN_DECIMAL SingleSimplexRanked(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const;
 
 	inline unsigned char Index2D_12(unsigned char offset, int x, int y) const;
 	inline unsigned char Index3D_12(unsigned char offset, int x, int y, int z) const;
