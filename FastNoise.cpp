@@ -1334,6 +1334,11 @@ FN_DECIMAL FastNoise::GetSimplex(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DE
 	return SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
 }
 
+FN_DECIMAL FastNoise::GetSimplexRanked(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+  return SingleSimplexRanked(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
+}
+
 static const unsigned char SIMPLEX_4D[] =
 {
 	0,1,2,3,0,1,3,2,0,0,0,0,0,2,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,0,
@@ -1437,6 +1442,121 @@ FN_DECIMAL FastNoise::SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIM
 	}
 
 	return 27 * (n0 + n1 + n2 + n3 + n4);
+}
+
+FN_DECIMAL FastNoise::SingleSimplexRanked(unsigned char offset, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+  FN_DECIMAL n0, n1, n2, n3, n4;
+  FN_DECIMAL t = (x + y + z + w) * F4;
+  int i = FastFloor(x + t);
+  int j = FastFloor(y + t);
+  int k = FastFloor(z + t);
+  int l = FastFloor(w + t);
+  t = (i + j + k + l) * G4;
+  FN_DECIMAL X0 = i - t;
+  FN_DECIMAL Y0 = j - t;
+  FN_DECIMAL Z0 = k - t;
+  FN_DECIMAL W0 = l - t;
+  FN_DECIMAL x0 = x - X0;
+  FN_DECIMAL y0 = y - Y0;
+  FN_DECIMAL z0 = z - Z0;
+  FN_DECIMAL w0 = w - W0;
+
+  int rankx = 0;
+  int ranky = 0;
+  int rankz = 0;
+  int rankw = 0;
+
+  if (x0 > y0) rankx++; else ranky++;
+  if (x0 > z0) rankx++; else rankz++;
+  if (x0 > w0) rankx++; else rankw++;
+  if (y0 > z0) ranky++; else rankz++;
+  if (z0 > w0) rankz++; else rankw++;
+
+  int i1 = rankx >= 3 ? 1 : 0;
+  int j1 = ranky >= 3 ? 1 : 0;
+  int k1 = rankz >= 3 ? 1 : 0;
+  int l1 = rankw >= 3 ? 1 : 0;
+
+  int i2 = rankx >= 2 ? 1 : 0;
+  int j2 = ranky >= 2 ? 1 : 0;
+  int k2 = rankz >= 2 ? 1 : 0;
+  int l2 = rankw >= 2 ? 1 : 0;
+
+  int i3 = rankx >= 1 ? 1 : 0;
+  int j3 = ranky >= 1 ? 1 : 0;
+  int k3 = rankz >= 1 ? 1 : 0;
+  int l3 = rankw >= 1 ? 1 : 0;
+
+  //int c = (x0 > y0) ? 32 : 0;
+  //c += (x0 > z0) ? 16 : 0;
+  //c += (y0 > z0) ? 8 : 0;
+  //c += (x0 > w0) ? 4 : 0;
+  //c += (y0 > w0) ? 2 : 0;
+  //c += (z0 > w0) ? 1 : 0;
+  //c <<= 2;
+  //int i1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
+  //int i2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
+  //int i3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
+  //int j1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
+  //int j2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
+  //int j3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
+  //int k1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
+  //int k2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
+  //int k3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
+  //int l1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
+  //int l2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
+  //int l3 = SIMPLEX_4D[c] >= 1 ? 1 : 0;
+
+  FN_DECIMAL x1 = x0 - i1 + G4;
+  FN_DECIMAL y1 = y0 - j1 + G4;
+  FN_DECIMAL z1 = z0 - k1 + G4;
+  FN_DECIMAL w1 = w0 - l1 + G4;
+  FN_DECIMAL x2 = x0 - i2 + 2 * G4;
+  FN_DECIMAL y2 = y0 - j2 + 2 * G4;
+  FN_DECIMAL z2 = z0 - k2 + 2 * G4;
+  FN_DECIMAL w2 = w0 - l2 + 2 * G4;
+  FN_DECIMAL x3 = x0 - i3 + 3 * G4;
+  FN_DECIMAL y3 = y0 - j3 + 3 * G4;
+  FN_DECIMAL z3 = z0 - k3 + 3 * G4;
+  FN_DECIMAL w3 = w0 - l3 + 3 * G4;
+  FN_DECIMAL x4 = x0 - 1 + 4 * G4;
+  FN_DECIMAL y4 = y0 - 1 + 4 * G4;
+  FN_DECIMAL z4 = z0 - 1 + 4 * G4;
+  FN_DECIMAL w4 = w0 - 1 + 4 * G4;
+
+  t = FN_DECIMAL(0.6) - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+  if (t < 0) n0 = 0;
+  else {
+    t *= t;
+    n0 = t * t * GradCoord4D(offset, i, j, k, l, x0, y0, z0, w0);
+  }
+  t = FN_DECIMAL(0.6) - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
+  if (t < 0) n1 = 0;
+  else {
+    t *= t;
+    n1 = t * t * GradCoord4D(offset, i + i1, j + j1, k + k1, l + l1, x1, y1, z1, w1);
+  }
+  t = FN_DECIMAL(0.6) - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
+  if (t < 0) n2 = 0;
+  else {
+    t *= t;
+    n2 = t * t * GradCoord4D(offset, i + i2, j + j2, k + k2, l + l2, x2, y2, z2, w2);
+  }
+  t = FN_DECIMAL(0.6) - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
+  if (t < 0) n3 = 0;
+  else {
+    t *= t;
+    n3 = t * t * GradCoord4D(offset, i + i3, j + j3, k + k3, l + l3, x3, y3, z3, w3);
+  }
+  t = FN_DECIMAL(0.6) - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
+  if (t < 0) n4 = 0;
+  else {
+    t *= t;
+    n4 = t * t * GradCoord4D(offset, i + 1, j + 1, k + 1, l + 1, x4, y4, z4, w4);
+  }
+
+  return 27 * (n0 + n1 + n2 + n3 + n4);
 }
 
 // Cubic Noise
