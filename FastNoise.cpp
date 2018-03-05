@@ -1364,7 +1364,7 @@ FN_DECIMAL FastNoise::SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIM
   if (x0 > z0) rankx++; else rankz++;
   if (x0 > w0) rankx++; else rankw++;
   if (y0 > z0) ranky++; else rankz++;
-  if (y0 > w0) ranky++; else rankz++;
+  if (y0 > w0) ranky++; else rankw++;
   if (z0 > w0) rankz++; else rankw++;
 
   int i1 = rankx >= 3 ? 1 : 0;
