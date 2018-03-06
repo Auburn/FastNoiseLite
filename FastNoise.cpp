@@ -1334,18 +1334,6 @@ FN_DECIMAL FastNoise::GetSimplex(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DE
 	return SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
 }
 
-static const unsigned char SIMPLEX_4D[] =
-{
-	0,1,2,3,0,1,3,2,0,0,0,0,0,2,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,0,
-	0,2,1,3,0,0,0,0,0,3,1,2,0,3,2,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,2,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	1,2,0,3,0,0,0,0,1,3,0,2,0,0,0,0,0,0,0,0,0,0,0,0,2,3,0,1,2,3,1,0,
-	1,0,2,3,1,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0,3,1,0,0,0,0,2,1,3,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	2,0,1,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,1,2,3,0,2,1,0,0,0,0,3,1,2,0,
-	2,1,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,2,0,0,0,0,3,2,0,1,3,2,1,0
-};
-
 static const FN_DECIMAL F4 = (sqrt(FN_DECIMAL(5)) - 1) / 4;
 static const FN_DECIMAL G4 = (5 - sqrt(FN_DECIMAL(5))) / 20;
 
@@ -1367,26 +1355,32 @@ FN_DECIMAL FastNoise::SingleSimplex(unsigned char offset, FN_DECIMAL x, FN_DECIM
 	FN_DECIMAL z0 = z - Z0;
 	FN_DECIMAL w0 = w - W0;
 
-	int c = (x0 > y0) ? 32 : 0;
-	c += (x0 > z0) ? 16 : 0;
-	c += (y0 > z0) ? 8 : 0;
-	c += (x0 > w0) ? 4 : 0;
-	c += (y0 > w0) ? 2 : 0;
-	c += (z0 > w0) ? 1 : 0;
-	c <<= 2;
+	int rankx = 0;
+	int ranky = 0;
+	int rankz = 0;
+	int rankw = 0;
 
-	int i1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
-	int i2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
-	int i3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
-	int j1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
-	int j2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
-	int j3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
-	int k1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
-	int k2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
-	int k3 = SIMPLEX_4D[c++] >= 1 ? 1 : 0;
-	int l1 = SIMPLEX_4D[c] >= 3 ? 1 : 0;
-	int l2 = SIMPLEX_4D[c] >= 2 ? 1 : 0;
-	int l3 = SIMPLEX_4D[c] >= 1 ? 1 : 0;
+	if (x0 > y0) rankx++; else ranky++;
+	if (x0 > z0) rankx++; else rankz++;
+	if (x0 > w0) rankx++; else rankw++;
+	if (y0 > z0) ranky++; else rankz++;
+	if (y0 > w0) ranky++; else rankw++;
+	if (z0 > w0) rankz++; else rankw++;
+
+	int i1 = rankx >= 3 ? 1 : 0;
+	int j1 = ranky >= 3 ? 1 : 0;
+	int k1 = rankz >= 3 ? 1 : 0;
+	int l1 = rankw >= 3 ? 1 : 0;
+
+	int i2 = rankx >= 2 ? 1 : 0;
+	int j2 = ranky >= 2 ? 1 : 0;
+	int k2 = rankz >= 2 ? 1 : 0;
+	int l2 = rankw >= 2 ? 1 : 0;
+
+	int i3 = rankx >= 1 ? 1 : 0;
+	int j3 = ranky >= 1 ? 1 : 0;
+	int k3 = rankz >= 1 ? 1 : 0;
+	int l3 = rankw >= 1 ? 1 : 0;
 
 	FN_DECIMAL x1 = x0 - i1 + G4;
 	FN_DECIMAL y1 = y0 - j1 + G4;
