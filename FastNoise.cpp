@@ -205,7 +205,7 @@ void FastNoise::SetSeed(int seed)
 
 	for (int j = 0; j < 256; j++)
 	{
-        int rng = (int)(gen() % (256 - j));
+		int rng = (int)(gen() % (256 - j));
 		int k = rng + j;
 		int l = m_perm[j];
 		m_perm[j] = m_perm[j + 256] = m_perm[k];
@@ -333,25 +333,25 @@ FN_DECIMAL FastNoise::GetNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECI
 	x *= m_frequency;
 	y *= m_frequency;
 	z *= m_frequency;
-    // for now, simplex is only useful 4d fractal noise, so just use that
+	// for now, simplex is only useful 4d fractal noise, so just use that
 
-    switch (m_noiseType)
+	switch (m_noiseType)
 	{
-    case Simplex:
-        return SingleSimplex(0, x, y, z, w);
-    case SimplexFractal:
-    	switch (m_fractalType)
-    	{
-    	case FBM:
-    		return SingleSimplexFractalFBM(x, y, z, w);
-    	case Billow:
-    		return SingleSimplexFractalBillow(x, y, z, w);
-    	case RigidMulti:
-    		return SingleSimplexFractalRigidMulti(x, y, z, w);
-    	default:
-    		return 0;
-    	}
-    default:
+	case Simplex:
+		return SingleSimplex(0, x, y, z, w);
+	case SimplexFractal:
+		switch (m_fractalType)
+		{
+		case FBM:
+			return SingleSimplexFractalFBM(x, y, z, w);
+		case Billow:
+			return SingleSimplexFractalBillow(x, y, z, w);
+		case RigidMulti:
+			return SingleSimplexFractalRigidMulti(x, y, z, w);
+		default:
+			return 0;
+		}
+	default:
 		return 0;
 	}
 }
@@ -1022,7 +1022,7 @@ FN_DECIMAL FastNoise::GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z
 	x *= m_frequency;
 	y *= m_frequency;
 	z *= m_frequency;
-    w *= m_frequency;
+	w *= m_frequency;
 
 	switch (m_fractalType)
 	{
@@ -1058,7 +1058,7 @@ FN_DECIMAL FastNoise::GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z
 
 FN_DECIMAL FastNoise::SingleSimplexFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
 {
-    FN_DECIMAL sum = SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
+	FN_DECIMAL sum = SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
 	FN_DECIMAL amp = 1;
 	int i = 0;
 
