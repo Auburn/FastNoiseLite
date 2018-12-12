@@ -328,6 +328,34 @@ FN_DECIMAL FastNoise::GradCoord4D(unsigned char offset, int x, int y, int z, int
 	return xd*GRAD_4D[lutPos] + yd*GRAD_4D[lutPos + 1] + zd*GRAD_4D[lutPos + 2] + wd*GRAD_4D[lutPos + 3];
 }
 
+FN_DECIMAL FastNoise::GetNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+	x *= m_frequency;
+	y *= m_frequency;
+	z *= m_frequency;
+    // for now, simplex is only useful 4d fractal noise, so just use that
+
+    switch (m_noiseType)
+	{
+    case Simplex:
+        return SingleSimplex(0, x, y, z, w);
+    case SimplexFractal:
+    	switch (m_fractalType)
+    	{
+    	case FBM:
+    		return SingleSimplexFractalFBM(x, y, z, w);
+    	case Billow:
+    		return SingleSimplexFractalBillow(x, y, z, w);
+    	case RigidMulti:
+    		return SingleSimplexFractalRigidMulti(x, y, z, w);
+    	default:
+    		return 0;
+    	}
+    default:
+		return 0;
+	}
+}
+
 FN_DECIMAL FastNoise::GetNoise(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) const
 {
 	x *= m_frequency;
@@ -469,9 +497,9 @@ FN_DECIMAL FastNoise::GetNoise(FN_DECIMAL x, FN_DECIMAL y) const
 		{
 		case FBM:
 			return SingleCubicFractalFBM(x, y);
-		case Billow:	 
+		case Billow:
 			return SingleCubicFractalBillow(x, y);
-		case RigidMulti: 
+		case RigidMulti:
 			return SingleCubicFractalRigidMulti(x, y);
 		}
 	}
@@ -989,6 +1017,26 @@ FN_DECIMAL FastNoise::SinglePerlin(unsigned char offset, FN_DECIMAL x, FN_DECIMA
 
 // Simplex Noise
 
+FN_DECIMAL FastNoise::GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+	x *= m_frequency;
+	y *= m_frequency;
+	z *= m_frequency;
+    w *= m_frequency;
+
+	switch (m_fractalType)
+	{
+	case FBM:
+		return SingleSimplexFractalFBM(x, y, z, w);
+	case Billow:
+		return SingleSimplexFractalBillow(x, y, z, w);
+	case RigidMulti:
+		return SingleSimplexFractalRigidMulti(x, y, z, w);
+	default:
+		return 0;
+	}
+}
+
 FN_DECIMAL FastNoise::GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) const
 {
 	x *= m_frequency;
@@ -1006,6 +1054,67 @@ FN_DECIMAL FastNoise::GetSimplexFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z
 	default:
 		return 0;
 	}
+}
+
+FN_DECIMAL FastNoise::SingleSimplexFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+    FN_DECIMAL sum = SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency);
+	FN_DECIMAL amp = 1;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+		w *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += SingleSimplex(m_perm[i], x, y, z, w) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+
+FN_DECIMAL FastNoise::SingleSimplexFractalBillow(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+	FN_DECIMAL sum = FastAbs(SingleSimplex(0, x * m_frequency, y * m_frequency, z * m_frequency, w * m_frequency)) * 2 - 1;
+	FN_DECIMAL amp = 1;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+		w *= m_lacunarity;
+
+		amp *= m_gain;
+		sum += (FastAbs(SingleSimplex(m_perm[i], x, y, z, w)) * 2 - 1) * amp;
+	}
+
+	return sum * m_fractalBounding;
+}
+
+FN_DECIMAL FastNoise::SingleSimplexFractalRigidMulti(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z, FN_DECIMAL w) const
+{
+	FN_DECIMAL sum = 1 - FastAbs(SingleSimplex(0, x, y, z, w));
+	FN_DECIMAL amp = 1;
+	int i = 0;
+
+	while (++i < m_octaves)
+	{
+		x *= m_lacunarity;
+		y *= m_lacunarity;
+		z *= m_lacunarity;
+		w *= m_lacunarity;
+
+		amp *= m_gain;
+		sum -= (1 - FastAbs(SingleSimplex(m_perm[i], x, y, z, w))) * amp;
+	}
+
+	return sum;
 }
 
 FN_DECIMAL FastNoise::SingleSimplexFractalFBM(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) const
@@ -1444,9 +1553,9 @@ FN_DECIMAL FastNoise::GetCubicFractal(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) 
 	{
 	case FBM:
 		return SingleCubicFractalFBM(x, y, z);
-	case Billow:	 
+	case Billow:
 		return SingleCubicFractalBillow(x, y, z);
-	case RigidMulti: 
+	case RigidMulti:
 		return SingleCubicFractalRigidMulti(x, y, z);
 	default:
 		return 0;
@@ -1575,9 +1684,9 @@ FN_DECIMAL FastNoise::GetCubicFractal(FN_DECIMAL x, FN_DECIMAL y) const
 	{
 	case FBM:
 		return SingleCubicFractalFBM(x, y);
-	case Billow:	 
+	case Billow:
 		return SingleCubicFractalBillow(x, y);
-	case RigidMulti: 
+	case RigidMulti:
 		return SingleCubicFractalRigidMulti(x, y);
 	default:
 		return 0;
@@ -1828,7 +1937,7 @@ FN_DECIMAL FastNoise::SingleCellular2Edge(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL
 
 					for (int i = m_cellularDistanceIndex1; i > 0; i--)
 						distance[i] = fmax(fmin(distance[i], newDistance), distance[i - 1]);
-					distance[0] = fmin(distance[0], newDistance); 
+					distance[0] = fmin(distance[0], newDistance);
 				}
 			}
 		}
@@ -1934,7 +2043,7 @@ FN_DECIMAL FastNoise::SingleCellular(FN_DECIMAL x, FN_DECIMAL y) const
 
 				FN_DECIMAL vecX = xi - x + CELL_2D_X[lutPos] * m_cellularJitter;
 				FN_DECIMAL vecY = yi - y + CELL_2D_Y[lutPos] * m_cellularJitter;
-															
+
 				FN_DECIMAL newDistance = vecX * vecX + vecY * vecY;
 
 				if (newDistance < distance)
