@@ -6,3 +6,4 @@
 !/build
 !build_library.bash
 !Makefile
+!.gitignore
