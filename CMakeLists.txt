@@ -11,7 +11,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -Wextra
         -pedantic
         -Wno-implicit-fallthrough
-        -Wno-unused-parameter)
+        -Wno-unused-parameter
+        -Wno-unused-function)
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES
