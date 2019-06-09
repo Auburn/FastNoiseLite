@@ -6,13 +6,15 @@ set(SOURCES FastNoise.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 
-target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall
-        -Wextra
-        -pedantic
-        -Wno-implicit-fallthrough
-        -Wno-unused-parameter
-        -Wno-unused-function)
+if (!WIN32)
+	target_compile_options(${PROJECT_NAME} PRIVATE
+			-Wall
+			-Wextra
+			-pedantic
+			-Wno-implicit-fallthrough
+			-Wno-unused-parameter
+			-Wno-unused-function)
+endif()
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES
