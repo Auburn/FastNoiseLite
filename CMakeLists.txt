@@ -6,7 +6,7 @@ set(SOURCES FastNoise.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 
-if (!WIN32)
+if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
 	target_compile_options(${PROJECT_NAME} PRIVATE
 			-Wall
 			-Wextra
