@@ -2,19 +2,20 @@ cmake_minimum_required(VERSION 3.13)
 
 project(FastNoise)
 
-set(SOURCES FastNoise.cpp)
+add_library(${PROJECT_NAME} FastNoise.cpp)
 
-add_library(${PROJECT_NAME} ${SOURCES})
-
-if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
-	target_compile_options(${PROJECT_NAME} PRIVATE
-			-Wall
-			-Wextra
-			-pedantic
-			-Wno-implicit-fallthrough
-			-Wno-unused-parameter
-			-Wno-unused-function)
-endif()
+target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:
+        -Wall
+        -Wextra
+        -pedantic
+        -Wno-implicit-fallthrough
+        -Wno-unused-parameter
+        -Wno-unused-function>
+        $<$<CXX_COMPILER_ID:MSVC>:
+        /W4
+        /w14640>
+        )
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES
