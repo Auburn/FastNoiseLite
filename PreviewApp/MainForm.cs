@@ -638,7 +638,8 @@ namespace FastNoiseLite
         private void OnUIUpdate(object sender, EventArgs e)
         {
             // 3D contorls
-            UpButton.Enabled = DownButton.Enabled = (Is3D.Checked == true);
+            var is3d = Is3D.Checked == true;
+            UpButton.Enabled = DownButton.Enabled = is3d;
 
             // Interpolation
             if (NoiseType.SelectedKey.Contains("Value") ||
@@ -655,7 +656,9 @@ namespace FastNoiseLite
 
             if (perturbVis)
             {
-                ExtraInfo.Text = "Visualisation of gradient perturb:\r\nHue = X offset, Brightness = Y offset";
+                if (is3d)
+                    ExtraInfo.Text = "Visualisation of gradient perturb:\r\nRed = X offset, Green = Y offset, Blue = Z offset";
+                else ExtraInfo.Text = "Visualisation of gradient perturb:\r\nHue = X offset, Brightness = Y offset";
             }
             else ExtraInfo.Text = "";
 
