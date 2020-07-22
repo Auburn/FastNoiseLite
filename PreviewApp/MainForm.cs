@@ -31,7 +31,7 @@ namespace FastNoiseLite
         private DropDown CellularReturnType;
         private NumericStepper CellularDistance2Index0;
         private NumericStepper CellularDistance2Index1;
-        private TextBox CellularJitter;
+        private NumericStepper CellularJitter;
 
         private NumericStepper GPAmplitude;
         private NumericStepper GPFrequency;
@@ -257,8 +257,8 @@ namespace FastNoiseLite
                     }
 
                     // Jitter
-                    CellularJitter = new TextBox() { Text = "0.45" };
-                    CellularJitter.TextChanged += Generate;
+                    CellularJitter = new NumericStepper() { Value = 0.45, DecimalPlaces = 2 };
+                    CellularJitter.ValueChanged += Generate;
                     AddToTableWithLabel(table, CellularJitter, "Jitter:");
                 }
 
@@ -393,11 +393,8 @@ namespace FastNoiseLite
 
             fNoise.SetCellularDistanceFunction((Old.FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
             fNoise.SetCellularReturnType((Old.FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
-
             fNoise.SetCellularDistance2Indicies((int)CellularDistance2Index0.Value, (int)CellularDistance2Index1.Value);
-
-            try { fNoise.SetCellularJitter(Convert.ToSingle(CellularJitter.Text)); }
-            catch (Exception ex) { MessageBox.Show("Cellular jitter: " + ex.ToString()); }
+            fNoise.SetCellularJitter((float) CellularJitter.Value);
 
             Old.FastNoise lookupNoise = new Old.FastNoise();
             lookupNoise.SetFrequency(0.2f);
