@@ -12,7 +12,8 @@ namespace FastNoiseLite
         private Button UpButton;
         private Button DownButton;
 
-        private DropDown PreviewSize;
+        private NumericStepper PreviewWidth;
+        private NumericStepper PreviewHeight;
         private CheckBox Invert;
         private CheckBox Is3D;
         private DropDown GradientPerturb;
@@ -105,19 +106,22 @@ namespace FastNoiseLite
                 {
                     // Preview size dropdown
                     {
-                        PreviewSize = new DropDown();
-                        PreviewSize.Items.Add("256");
-                        PreviewSize.Items.Add("512");
-                        PreviewSize.Items.Add("768");
-                        PreviewSize.Items.Add("1024");
-                        PreviewSize.SelectedIndex = 2;
-                        PreviewSize.SelectedIndexChanged += Generate;
-                        AddToTableWithLabel(table, PreviewSize, "Preview Size:");
+                        var stack = new StackLayout();
+                        stack.Orientation = Orientation.Horizontal;
+                        stack.Spacing = 2;
+                        PreviewWidth = new NumericStepper { Value = 768 };
+                        // PreviewWidth.ValueChanged += Generate;
+                        stack.Items.Add(new StackLayoutItem(PreviewWidth));
+                        PreviewHeight = new NumericStepper { Value = 768 };
+                        // PreviewHeight.ValueChanged += Generate;
+                        stack.Items.Add(new StackLayoutItem(PreviewHeight));
+
+                        AddToTableWithLabel(table, stack, "Preview Size:");
                     }
 
                     // Invert
                     Invert = new CheckBox();
-                    Invert.CheckedChanged += Generate;
+                    // Invert.CheckedChanged += Generate;
                     AddToTableWithLabel(table, Invert, "Invert:");
 
                     // 3D
@@ -132,7 +136,7 @@ namespace FastNoiseLite
                         GradientPerturb.Items.Add("True");
                         GradientPerturb.Items.Add("True - Fractal");
                         GradientPerturb.SelectedIndex = 0;
-                        GradientPerturb.SelectedIndexChanged += Generate;
+                        // GradientPerturb.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, GradientPerturb, "Gradient Perturb:");
                     }
                 }
@@ -157,12 +161,12 @@ namespace FastNoiseLite
 
                     // Seed
                     Seed = new NumericStepper { Value = 1337 };
-                    Seed.ValueChanged += Generate; // TODO: This is super laggy. Need to maybe look for enter key, or leave focus?
+                    // Seed.ValueChanged += Generate; // TODO: This is super laggy. Need to maybe look for enter key, or leave focus?
                     AddToTableWithLabel(table, Seed, "Seed:");
 
                     // Frequency
                     Frequency = new NumericStepper { Value = 0.02, DecimalPlaces = 2 };
-                    Frequency.ValueChanged += Generate;
+                    // Frequency.ValueChanged += Generate;
                     AddToTableWithLabel(table, Frequency, "Frequency:");
 
                     // Interpolation
@@ -172,7 +176,7 @@ namespace FastNoiseLite
                             Interpolation.Items.Add(FormatReadable(name));
                         }
                         Interpolation.SelectedIndex = (int)Old.FastNoise.Interp.Quintic;
-                        Interpolation.SelectedIndexChanged += Generate;
+                        // Interpolation.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, Interpolation, "Interpolation:");
                     }
                 }
@@ -188,23 +192,23 @@ namespace FastNoiseLite
                             FractalType.Items.Add(FormatReadable(name));
                         }
                         FractalType.SelectedIndex = (int)Old.FastNoise.FractalType.FBM;
-                        FractalType.SelectedIndexChanged += Generate;
+                        // FractalType.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, FractalType, "Type:");
                     }
 
                     // Octaves
                     FractalOctaves = new NumericStepper { Value = 5 };
-                    FractalOctaves.ValueChanged += Generate;
+                    // FractalOctaves.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalOctaves, "Octaves:");
 
                     // Lacunarity
                     FractalLacunarity = new NumericStepper { Value = 2.0, DecimalPlaces = 2 };
-                    FractalLacunarity.ValueChanged += Generate;
+                    // FractalLacunarity.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalLacunarity, "Lacunarity:");
 
                     // Gain
                     FractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2 };
-                    FractalGain.ValueChanged += Generate;
+                    // FractalGain.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalGain, "Gain:");
                 }
 
@@ -230,7 +234,7 @@ namespace FastNoiseLite
                             CellularReturnType.Items.Add(FormatReadable(name));
                         }
                         CellularReturnType.SelectedIndex = (int)Old.FastNoise.CellularReturnType.CellValue;
-                        CellularReturnType.SelectedIndexChanged += Generate;
+                        // CellularReturnType.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, CellularReturnType, "Return Type:");
                     }
 
@@ -238,14 +242,15 @@ namespace FastNoiseLite
                     {
                         // Create elements
                         CellularDistance2Index0 = new NumericStepper() { Value = 0 };
-                        CellularDistance2Index0.ValueChanged += Generate;
+                        // CellularDistance2Index0.ValueChanged += Generate;
                         CellularDistance2Index1 = new NumericStepper() { Value = 1 };
-                        CellularDistance2Index1.ValueChanged += Generate;
+                        // CellularDistance2Index1.ValueChanged += Generate;
 
                         // Contain them
                         var stack = new StackLayout()
                         {
                             Orientation = Orientation.Horizontal,
+                            Spacing = 2,
                             Items = {
                                 CellularDistance2Index0,
                                 CellularDistance2Index1
@@ -258,7 +263,7 @@ namespace FastNoiseLite
 
                     // Jitter
                     CellularJitter = new NumericStepper() { Value = 0.45, DecimalPlaces = 2 };
-                    CellularJitter.ValueChanged += Generate;
+                    // CellularJitter.ValueChanged += Generate;
                     AddToTableWithLabel(table, CellularJitter, "Jitter:");
                 }
 
@@ -268,12 +273,12 @@ namespace FastNoiseLite
                 {
                     // Amplitude
                     GPAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2 };
-                    GPAmplitude.ValueChanged += Generate;
+                    // GPAmplitude.ValueChanged += Generate;
                     AddToTableWithLabel(table, GPAmplitude, "Amplitude:");
 
                     // Frequency
                     GPFrequency = new NumericStepper { Value = 0.01, DecimalPlaces = 2 };
-                    GPFrequency.ValueChanged += Generate;
+                    // GPFrequency.ValueChanged += Generate;
                     AddToTableWithLabel(table, GPFrequency, "Frequency:");
                 }
 
@@ -284,6 +289,7 @@ namespace FastNoiseLite
                 {
                     var stack = new StackLayout();
                     stack.Orientation = Orientation.Horizontal;
+                    stack.Spacing = 5;
 
                     var save = new Button { Text = "Save" };
                     save.Click += Save;
@@ -364,6 +370,9 @@ namespace FastNoiseLite
 
             // Ensure UI state is valid then it generates
             OnUIUpdate(null, null);
+
+            // Temp while on ui doesnt do this
+            Generate(null, null);
         }
 
         private void Generate(object sender, EventArgs e)
@@ -374,9 +383,8 @@ namespace FastNoiseLite
 
             perturbNoise.SetFrequency(0.015f);
 
-            int size = 512;
-            try { size = Convert.ToInt32(PreviewSize.SelectedKey); }
-            catch (Exception ex) { MessageBox.Show("Size error: " + ex.ToString()); }
+            int w = (int) PreviewWidth.Value;
+            int h = (int) PreviewHeight.Value;
 
             fNoise.SetNoiseType((Old.FastNoise.NoiseType)NoiseType.SelectedIndex);
             fNoise.SetInterp((Old.FastNoise.Interp)Interpolation.SelectedIndex);
@@ -401,14 +409,15 @@ namespace FastNoiseLite
             lookupNoise.SetNoiseType(Old.FastNoise.NoiseType.Simplex);
             fNoise.SetCellularNoiseLookup(lookupNoise);
 
-            var bitmap = new FastBitmap(size, size);
+            var bitmap = new FastBitmap(w, h);
             float noise;
             float minN = 99999;
             float maxN = -99999;
             float avg = 0;
 
             bool get3d = Is3D.Checked == true; // Stupid!
-            int halfSize = size / 2;
+            int halfWidth = w / 2;
+            int halfHeight = h / 2;
             bool fractal = NoiseType.SelectedKey.Contains("Fractal");
 
             // Timer
@@ -417,18 +426,18 @@ namespace FastNoiseLite
             int index = 0;
             if (!NoiseType.SelectedKey.Contains("Perturb"))
             {
-                var noiseValues = new float[size * size];
+                var noiseValues = new float[w * h];
                 int warpIndex = GradientPerturb.SelectedIndex;
 
                 sw.Start();
                 if (get3d)
                 {
-                    for (var x = 0; x < size; x++)
+                    for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < size; y++)
+                        for (var y = 0; y < h; y++)
                         {
-                            float xf = (float)(x - halfSize);
-                            float yf = (float)(y - halfSize);
+                            float xf = (float)(x - halfWidth);
+                            float yf = (float)(y - halfHeight);
                             float zf = (float)(zPos);
 
                             switch (warpIndex)
@@ -451,12 +460,12 @@ namespace FastNoiseLite
                 }
                 else
                 {
-                    for (var x = 0; x < size; x++)
+                    for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < size; y++)
+                        for (var y = 0; y < h; y++)
                         {
-                            float xf = (float)(x - halfSize);
-                            float yf = (float)(y - halfSize);
+                            float xf = (float)(x - halfWidth);
+                            float yf = (float)(y - halfHeight);
 
                             switch (warpIndex)
                             {
@@ -482,9 +491,9 @@ namespace FastNoiseLite
                 index = 0;
                 float scale = 255 / (maxN - minN);
 
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < w; x++)
                 {
-                    for (var y = 0; y < size; y++)
+                    for (var y = 0; y < h; y++)
                     {
                         noise = noiseValues[index++];
 
@@ -498,14 +507,14 @@ namespace FastNoiseLite
             }
             else
             {
-                var noiseValues = new float[size * size * 3];
+                var noiseValues = new float[w * h * 3];
 
                 sw.Start();
                 if (get3d)
                 {
-                    for (var x = 0; x < size; x++)
+                    for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < size; y++)
+                        for (var y = 0; y < h; y++)
                         {
                             float xf = (float)x;
                             float yf = (float)y;
@@ -531,9 +540,9 @@ namespace FastNoiseLite
                 }
                 else
                 {
-                    for (var x = 0; x < size; x++)
+                    for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < size; y++)
+                        for (var y = 0; y < h; y++)
                         {
                             float xf = (float)x;
                             float yf = (float)y;
@@ -563,9 +572,9 @@ namespace FastNoiseLite
                 index = 0;
                 float scale = 255 / (maxN - minN);
 
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < w; x++)
                 {
-                    for (var y = 0; y < size; y++)
+                    for (var y = 0; y < h; y++)
                     {
                         byte red;
                         byte green;
@@ -582,14 +591,14 @@ namespace FastNoiseLite
                             var vx = (noiseValues[index++] - minN);
                             var vy = (noiseValues[index++] - minN);
 
-                            byte h = (byte)(vx * scale);
-                            byte v = (byte)(vy * scale);
+                            byte H = (byte)(vx * scale);
+                            byte V = (byte)(vy * scale);
 
                             // https://discordapp.com/channels/703636892901441577/703638416335568926/735228970231922800
-                            //byte h = (byte) (Math.Atan2(vx, vy) * (127.5 * Math.PI) + 127.5);
-                            //byte v = (byte) Math.Sqrt(vx * vx + vy * vy);
+                            //byte H = (byte) (Math.Atan2(vx, vy) * (127.5 * Math.PI) + 127.5);
+                            //byte V = (byte) Math.Sqrt(vx * vx + vy * vy);
 
-                            HsvToRgb(h, 255, v, out red, out green, out blue);
+                            HsvToRgb(H, 255, V, out red, out green, out blue);
                         }
 
                         if (Invert.Checked == true)
@@ -682,7 +691,8 @@ namespace FastNoiseLite
             GPAmplitude.Enabled = gp;
             GPFrequency.Enabled = gp;
 
-            Generate(null, null);
+            // TODO: Reenable once lag is fixed
+            // Generate(null, null);
         }
 
         private void Save(object sender, EventArgs e)
