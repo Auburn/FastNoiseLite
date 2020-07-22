@@ -2,21 +2,23 @@
  * C Header-Only FastNoise Lite Implementation.
  */
 
-#include <math.h>
+// Config
+//#define FN_USE_DOUBLE
 
-// Types
-#define FN_DECIMAL float
+#include <math.h>
+#include <stdint.h>
 
 // So that VS code doesnt hide my work :(
 #define FN_IMPL
 
-// Enums
-typedef enum {
-    FN_INTERP_LINEAR,
-    FN_INTERP_HERMITE,
-    FN_INTERP_QUINTIC
-} fn_interp;
+// Typedefs
+#if defined(FN_USE_DOUBLE)
+typedef double FN_DECIMAL;
+#else
+typedef float FN_DECIMAL;
+#endif
 
+// Enums
 typedef enum {
     FN_NOISE_VALUE,
     FN_NOISE_VALUE_CUBIC,
@@ -55,7 +57,6 @@ typedef enum {
 typedef struct fn_state {
     int seed;
     FN_DECIMAL frequency;
-    fn_interp interpolation;
     fn_noise_type noise_type;
 
     int octaves;
@@ -63,22 +64,35 @@ typedef struct fn_state {
     FN_DECIMAL gain;
     fn_fractal_type fractal_type;
     
-    fn_cellular_distance_func cellularDistanceFunc;
-    fn_cellular_return_type cellularReturnType;
-    FN_DECIMAL cellularJitterMod;
-    struct fn_state *cellularLookupState;
+    fn_cellular_distance_func cellular_distance_func;
+    fn_cellular_return_type cellular_return_type;
+    FN_DECIMAL cellular_jitter_mod;
+    struct fn_state *cellular_lookup_state;
+
+    FN_DECIMAL domain_warp_amp;
 
     // Calculated in the necessary set calls, or in validate state.
     FN_DECIMAL _fractalBounding;
+
+    int _lastOctaves;
+    FN_DECIMAL _lastGain;
 } fn_state;
 
+// Creates a state with default values set
+fn_state fnCreateState();
+fn_state fnCreateState(int seed);
+
 // Note for HLSL, instead of using pointers, use the inout input modifier.
-// Call after every state change.
+// Call after creating a state manually. Also after changing octaves or gain.
 void fnValidateState(fn_state *state);
 
 // Simple function for getting the noise
 FN_DECIMAL fnGetNoise(fn_state *state, FN_DECIMAL x, FN_DECIMAL y);
 FN_DECIMAL fnGetNoise(fn_state *state, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z);
+
+// Domain warp
+void fnDomainWarp(fn_state *state, FN_DECIMAL *x, FN_DECIMAL *y);
+void fnDomainWarp(fn_state *state, FN_DECIMAL *x, FN_DECIMAL *y, FN_DECIMAL *z);
 
 #if defined(FN_IMPL)
 
@@ -106,13 +120,10 @@ static int _fnFastRound(FN_DECIMAL f) { return (f >= 0) ? (int)(f + 0.5f) : (int
 
 static FN_DECIMAL _fnLerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL t) { return a + t * (b - a); }
 
-// TODO: Check this with Auburn
-static FN_DECIMAL _fnInterpHermite(FN_DECIMAL t) { return t * t * (3 - 2 * t); }
-
 static FN_DECIMAL _fnInterpQuintic(FN_DECIMAL t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
 static FN_DECIMAL _fnCubicLerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL c, FN_DECIMAL d, FN_DECIMAL t) {
-    float p = (d - c) - (a - b);
+    FN_DECIMAL p = (d - c) - (a - b);
     return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
 }
 
@@ -140,14 +151,14 @@ static int _fnHash(int seed, int xPrimed, int yPrimed, int zPrimed) {
     return hash;
 }
 
-static float _fnValCoord(int seed, int xPrimed, int yPrimed) {
+static FN_DECIMAL _fnValCoord(int seed, int xPrimed, int yPrimed) {
     int hash = seed ^ xPrimed ^ yPrimed;
 
     hash *= 0x27d4eb2d;
     return hash / 2147483648.0f;
 }
 
-static float _fnValCoord(int seed, int xPrimed, int yPrimed, int zPrimed) {
+static FN_DECIMAL _fnValCoord(int seed, int xPrimed, int yPrimed, int zPrimed) {
     int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
     hash *= 0x27d4eb2d;
@@ -208,18 +219,17 @@ static FN_DECIMAL _fnGradCoord(int seed, int xPrimed, int yPrimed, int zPrimed, 
 // White Noise
 
 static int _fnFloatCast2Int(FN_DECIMAL f) {
-    // TODO: Test
-    long i = *(long*)(void*)&f;
+    int64_t i = *(int64_t*)(void*)&f;
     return (int)(i ^ (i >> 32));
 }
 
-static float _fnSingleWhiteNoise(int seed, FN_DECIMAL x, FN_DECIMAL y) {
+static FN_DECIMAL _fnSingleWhiteNoise(int seed, FN_DECIMAL x, FN_DECIMAL y) {
     int xi = _fnFloatCast2Int(x) * PRIME_X;
     int yi = _fnFloatCast2Int(y) * PRIME_Y;
     return _fnValCoord(seed, xi, yi);
 }
 
-static float _fnSingleWhiteNoise(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
+static FN_DECIMAL _fnSingleWhiteNoise(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
     int xi = _fnFloatCast2Int(x) * PRIME_X;
     int yi = _fnFloatCast2Int(y) * PRIME_Y;
     int zi = _fnFloatCast2Int(z) * PRIME_Z;
@@ -228,26 +238,12 @@ static float _fnSingleWhiteNoise(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMA
 
 // Value noise
 
-static FN_DECIMAL _fnSingleValue(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y) {
+static FN_DECIMAL _fnSingleValue(int seed, FN_DECIMAL x, FN_DECIMAL y) {
     int x0 = _fnFastFloor(x);
     int y0 = _fnFastFloor(y);
-
-    FN_DECIMAL xs, ys;
-    switch (state->interpolation) {
-        default:
-        case FN_INTERP_LINEAR:
-            xs = x - x0;
-            ys = y - y0;
-            break;
-        case FN_INTERP_HERMITE:
-            xs = _fnInterpHermite((FN_DECIMAL)(x - x0));
-            ys = _fnInterpHermite((FN_DECIMAL)(y - y0));
-            break;
-        case FN_INTERP_QUINTIC:
-            xs = _fnInterpQuintic((FN_DECIMAL)(x - x0));
-            ys = _fnInterpQuintic((FN_DECIMAL)(y - y0));
-            break;
-    }
+    
+    FN_DECIMAL xs = _fnInterpQuintic((FN_DECIMAL)(x - x0));
+    FN_DECIMAL ys = _fnInterpQuintic((FN_DECIMAL)(y - y0));
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
@@ -260,30 +256,14 @@ static FN_DECIMAL _fnSingleValue(fn_state *state, int seed, FN_DECIMAL x, FN_DEC
     return _fnLerp(xf0, xf1, ys);
 }
 
-static FN_DECIMAL _fnSingleValue(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
+static FN_DECIMAL _fnSingleValue(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
     int x0 = _fnFastFloor(x);
     int y0 = _fnFastFloor(y);
     int z0 = _fnFastFloor(z);
 
-    FN_DECIMAL xs, ys, zs;
-    switch (state->interpolation) {
-        default:
-        case FN_INTERP_LINEAR:
-            xs = x - x0;
-            ys = y - y0;
-            zs = z - z0;
-            break;
-        case FN_INTERP_HERMITE:
-            xs = _fnInterpHermite((FN_DECIMAL)(x - x0));
-            ys = _fnInterpHermite((FN_DECIMAL)(y - y0));
-            zs = _fnInterpHermite((FN_DECIMAL)(z - z0));
-            break;
-        case FN_INTERP_QUINTIC:
-            xs = _fnInterpQuintic((FN_DECIMAL)(x - x0));
-            ys = _fnInterpQuintic((FN_DECIMAL)(y - y0));
-            zs = _fnInterpQuintic((FN_DECIMAL)(z - z0));
-            break;
-    }
+    FN_DECIMAL xs = _fnInterpQuintic((FN_DECIMAL)(x - x0));
+    FN_DECIMAL ys = _fnInterpQuintic((FN_DECIMAL)(y - y0));
+    FN_DECIMAL zs = _fnInterpQuintic((FN_DECIMAL)(z - z0));
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
@@ -292,20 +272,99 @@ static FN_DECIMAL _fnSingleValue(fn_state *state, int seed, FN_DECIMAL x, FN_DEC
     int y1 = y0 + PRIME_Y;
     int z1 = z0 + PRIME_Z;
 
-    float xf00 = _fnLerp(_fnValCoord(seed, x0, y0, z0), _fnValCoord(seed, x1, y0, z0), xs);
-    float xf10 = _fnLerp(_fnValCoord(seed, x0, y1, z0), _fnValCoord(seed, x1, y1, z0), xs);
-    float xf01 = _fnLerp(_fnValCoord(seed, x0, y0, z1), _fnValCoord(seed, x1, y0, z1), xs);
-    float xf11 = _fnLerp(_fnValCoord(seed, x0, y1, z1), _fnValCoord(seed, x1, y1, z1), xs);
+    FN_DECIMAL xf00 = _fnLerp(_fnValCoord(seed, x0, y0, z0), _fnValCoord(seed, x1, y0, z0), xs);
+    FN_DECIMAL xf10 = _fnLerp(_fnValCoord(seed, x0, y1, z0), _fnValCoord(seed, x1, y1, z0), xs);
+    FN_DECIMAL xf01 = _fnLerp(_fnValCoord(seed, x0, y0, z1), _fnValCoord(seed, x1, y0, z1), xs);
+    FN_DECIMAL xf11 = _fnLerp(_fnValCoord(seed, x0, y1, z1), _fnValCoord(seed, x1, y1, z1), xs);
         
-    float yf0 = _fnLerp(xf00, xf10, ys);
-    float yf1 = _fnLerp(xf01, xf11, ys);
+    FN_DECIMAL yf0 = _fnLerp(xf00, xf10, ys);
+    FN_DECIMAL yf1 = _fnLerp(xf01, xf11, ys);
 
     return _fnLerp(yf0, yf1, zs);
 }
 
+// Value Cubic
+
+static const FN_DECIMAL CUBIC_2D_BOUNDING = 1 / (FN_DECIMAL)(1.5 * 1.5);
+
+static FN_DECIMAL _fnSingleValueCubic(int seed, FN_DECIMAL x, FN_DECIMAL y) {
+    int x1 = _fnFastFloor(x);
+    int y1 = _fnFastFloor(y);
+
+    int x0 = x1 - 1;
+    int y0 = y1 - 1;
+    int x2 = x1 + 1;
+    int y2 = y1 + 1;
+    int x3 = x1 + 2;
+    int y3 = y1 + 2;
+
+    FN_DECIMAL xs = x - (FN_DECIMAL) x1;
+    FN_DECIMAL ys = y - (FN_DECIMAL) y1;
+
+    return _fnCubicLerp(
+               _fnCubicLerp(_fnValCoord(seed, x0, y0), _fnValCoord(seed, x1, y0), _fnValCoord(seed, x2, y0), _fnValCoord(seed, x3, y0),
+                   xs),
+               _fnCubicLerp(_fnValCoord(seed, x0, y1), _fnValCoord(seed, x1, y1), _fnValCoord(seed, x2, y1), _fnValCoord(seed, x3, y1),
+                   xs),
+               _fnCubicLerp(_fnValCoord(seed, x0, y2), _fnValCoord(seed, x1, y2), _fnValCoord(seed, x2, y2), _fnValCoord(seed, x3, y2),
+                   xs),
+               _fnCubicLerp(_fnValCoord(seed, x0, y3), _fnValCoord(seed, x1, y3), _fnValCoord(seed, x2, y3), _fnValCoord(seed, x3, y3),
+                   xs),
+               ys) * CUBIC_2D_BOUNDING;
+}
+
+static const FN_DECIMAL CUBIC_3D_BOUNDING = 1 / (FN_DECIMAL) (1.5 * 1.5 * 1.5);
+
+static FN_DECIMAL _fnSingleValueCubic(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
+    int x1 = _fnFastFloor(x);
+    int y1 = _fnFastFloor(y);
+    int z1 = _fnFastFloor(z);
+
+    int x0 = x1 - 1;
+    int y0 = y1 - 1;
+    int z0 = z1 - 1;
+    int x2 = x1 + 1;
+    int y2 = y1 + 1;
+    int z2 = z1 + 1;
+    int x3 = x1 + 2;
+    int y3 = y1 + 2;
+    int z3 = z1 + 2;
+
+    FN_DECIMAL xs = x - (FN_DECIMAL)x1;
+    FN_DECIMAL ys = y - (FN_DECIMAL)y1;
+    FN_DECIMAL zs = z - (FN_DECIMAL)z1;
+
+    return _fnCubicLerp(
+            _fnCubicLerp(
+            _fnCubicLerp(_fnValCoord(seed, x0, y0, z0), _fnValCoord(seed, x1, y0, z0), _fnValCoord(seed, x2, y0, z0), _fnValCoord(seed, x3, y0, z0), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y1, z0), _fnValCoord(seed, x1, y1, z0), _fnValCoord(seed, x2, y1, z0), _fnValCoord(seed, x3, y1, z0), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y2, z0), _fnValCoord(seed, x1, y2, z0), _fnValCoord(seed, x2, y2, z0), _fnValCoord(seed, x3, y2, z0), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y3, z0), _fnValCoord(seed, x1, y3, z0), _fnValCoord(seed, x2, y3, z0), _fnValCoord(seed, x3, y3, z0), xs),
+                ys),
+            _fnCubicLerp(
+            _fnCubicLerp(_fnValCoord(seed, x0, y0, z1), _fnValCoord(seed, x1, y0, z1), _fnValCoord(seed, x2, y0, z1), _fnValCoord(seed, x3, y0, z1), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y1, z1), _fnValCoord(seed, x1, y1, z1), _fnValCoord(seed, x2, y1, z1), _fnValCoord(seed, x3, y1, z1), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y2, z1), _fnValCoord(seed, x1, y2, z1), _fnValCoord(seed, x2, y2, z1), _fnValCoord(seed, x3, y2, z1), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y3, z1), _fnValCoord(seed, x1, y3, z1), _fnValCoord(seed, x2, y3, z1), _fnValCoord(seed, x3, y3, z1), xs),
+                ys),
+            _fnCubicLerp(
+            _fnCubicLerp(_fnValCoord(seed, x0, y0, z2), _fnValCoord(seed, x1, y0, z2), _fnValCoord(seed, x2, y0, z2), _fnValCoord(seed, x3, y0, z2), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y1, z2), _fnValCoord(seed, x1, y1, z2), _fnValCoord(seed, x2, y1, z2), _fnValCoord(seed, x3, y1, z2), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y2, z2), _fnValCoord(seed, x1, y2, z2), _fnValCoord(seed, x2, y2, z2), _fnValCoord(seed, x3, y2, z2), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y3, z2), _fnValCoord(seed, x1, y3, z2), _fnValCoord(seed, x2, y3, z2), _fnValCoord(seed, x3, y3, z2), xs),
+                ys),
+            _fnCubicLerp(
+            _fnCubicLerp(_fnValCoord(seed, x0, y0, z3), _fnValCoord(seed, x1, y0, z3), _fnValCoord(seed, x2, y0, z3), _fnValCoord(seed, x3, y0, z3), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y1, z3), _fnValCoord(seed, x1, y1, z3), _fnValCoord(seed, x2, y1, z3), _fnValCoord(seed, x3, y1, z3), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y2, z3), _fnValCoord(seed, x1, y2, z3), _fnValCoord(seed, x2, y2, z3), _fnValCoord(seed, x3, y2, z3), xs),
+            _fnCubicLerp(_fnValCoord(seed, x0, y3, z3), _fnValCoord(seed, x1, y3, z3), _fnValCoord(seed, x2, y3, z3), _fnValCoord(seed, x3, y3, z3), xs),
+                ys),
+            zs) * CUBIC_3D_BOUNDING;
+}
+
 // Perlin Noise
 
-static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y) {
+static FN_DECIMAL _fnSinglePerlin(int seed, FN_DECIMAL x, FN_DECIMAL y) {
     int x0 = _fnFastFloor(x);
     int y0 = _fnFastFloor(y);
 
@@ -314,22 +373,8 @@ static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL
     FN_DECIMAL xd1 = xd0 - 1;
     FN_DECIMAL yd1 = yd0 - 1;
 
-    FN_DECIMAL xs, ys;
-    switch (state->interpolation) {
-        default:
-        case FN_INTERP_LINEAR:
-            xs = xd0;
-            ys = yd0;
-            break;
-        case FN_INTERP_HERMITE:
-            xs = _fnInterpHermite(xd0);
-            ys = _fnInterpHermite(yd0);
-            break;
-        case FN_INTERP_QUINTIC:
-            xs = _fnInterpQuintic(xd0);
-            ys = _fnInterpQuintic(yd0);
-            break;
-    }
+    FN_DECIMAL xs = _fnInterpQuintic(xd0);
+    FN_DECIMAL ys = _fnInterpQuintic(yd0);
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
@@ -342,7 +387,7 @@ static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL
     return _fnLerp(xf0, xf1, ys) * (FN_DECIMAL) 0.579106986522674560546875f;
 }
 
-static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
+static FN_DECIMAL _fnSinglePerlin(int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
     int x0 = _fnFastFloor(x);
     int y0 = _fnFastFloor(y);
     int z0 = _fnFastFloor(z);
@@ -354,25 +399,9 @@ static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL
     FN_DECIMAL yd1 = yd0 - 1;
     FN_DECIMAL zd1 = zd0 - 1;
 
-    FN_DECIMAL xs, ys, zs;
-    switch (state->interpolation) {
-        default:
-        case FN_INTERP_LINEAR:
-            xs = xd0;
-            ys = yd0;
-            zs = zd0;
-            break;
-        case FN_INTERP_HERMITE:
-            xs = _fnInterpHermite(xd0);
-            ys = _fnInterpHermite(yd0);
-            zs = _fnInterpHermite(yd0);
-            break;
-        case FN_INTERP_QUINTIC:
-            xs = _fnInterpQuintic(xd0);
-            ys = _fnInterpQuintic(yd0);
-            zs = _fnInterpQuintic(zd0);
-            break;
-    }
+    FN_DECIMAL xs = _fnInterpQuintic(xd0);
+    FN_DECIMAL ys = _fnInterpQuintic(yd0);
+    FN_DECIMAL zs = _fnInterpQuintic(zd0);
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
@@ -396,18 +425,17 @@ static float _fnSinglePerlin(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL
 // 2D Gen functions
 // ====================
 
-// DEV NOTE: When porting to HLSL, have an overload for an array of states, when cellular lookup is required, we look for an adjacent state
-
+// DEV NOTE (if noiselookup stays): When porting to HLSL, have an overload for an array of states, when cellular lookup is required, we look for an adjacent state
 static FN_DECIMAL _fnGenNoiseSingle(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y) {
     switch (state->noise_type) {
         case FN_NOISE_VALUE:
-            return _fnSingleValue(state, seed, x, y);
-        // case FN_NOISE_VALUE_CUBIC:
-        //     return _fnSingleValueCubic(state, seed, x, y);
+            return _fnSingleValue(seed, x, y);
+        case FN_NOISE_VALUE_CUBIC:
+            return _fnSingleValueCubic(seed, x, y);
         case FN_NOISE_PERLIN:
-            return _fnSinglePerlin(state, seed, x, y);
+            return _fnSinglePerlin(seed, x, y);
         // case FN_NOISE_SIMPLEX:
-        //     return _fnSingleSimplex(state, seed, x, y);
+        //     return _fnSingleSimplex(seed, x, y);
         // case FN_NOISE_OPENSIMPLEX2F:
         //     return 0; // TODO
         // case FN_NOISE_CELLULAR:
@@ -474,13 +502,13 @@ static FN_DECIMAL _fnGenFractalRidged(fn_state *state, FN_DECIMAL x, FN_DECIMAL 
 static FN_DECIMAL _fnGenNoiseSingle(fn_state *state, int seed, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z) {
     switch (state->noise_type) {
         case FN_NOISE_VALUE:
-            return _fnSingleValue(state, seed, x, y, z);
-        // case FN_NOISE_VALUE_CUBIC:
-        //     return _fnSingleValueCubic(state, seed, x, y, z);
+            return _fnSingleValue(seed, x, y, z);
+        case FN_NOISE_VALUE_CUBIC:
+            return _fnSingleValueCubic(seed, x, y, z);
         case FN_NOISE_PERLIN:
-            return _fnSinglePerlin(state, seed, x, y, z);
+            return _fnSinglePerlin(seed, x, y, z);
         // case FN_NOISE_SIMPLEX:
-        //     return _fnSingleSimplex(state, seed, x, y, z);
+        //     return _fnSingleSimplex(seed, x, y, z);
         // case FN_NOISE_OPENSIMPLEX2F:
         //     return 0; // TODO
         // case FN_NOISE_CELLULAR:
@@ -547,6 +575,27 @@ static FN_DECIMAL _fnGenFractalRidged(fn_state *state, FN_DECIMAL x, FN_DECIMAL 
 // Public API
 // ====================
 
+fn_state fnCreateState() {
+    return fnCreateState(1337);
+}
+
+fn_state fnCreateState(int seed) {
+    fn_state newState;
+    newState.seed = seed;
+    newState.frequency = (FN_DECIMAL) 0.01;
+    newState.noise_type = FN_NOISE_SIMPLEX;
+    newState.fractal_type = FN_FRACTAL_NONE;
+    newState.octaves = 3;
+    newState.lacunarity = (FN_DECIMAL) 2.0;
+    newState.gain = (FN_DECIMAL) 0.5;
+    newState.cellular_distance_func = FN_CELLULAR_DIST_EUCLIDEAN;
+    newState.cellular_return_type = FN_CELLULAR_RET_CELLVALUE;
+    newState.cellular_lookup_state = 0;
+    newState.cellular_jitter_mod = (FN_DECIMAL) 0.45;
+    fnValidateState(&newState);
+    return newState;
+}
+
 void fnValidateState(fn_state *state) { _fnCalculateFractalBounding(state); }
 
 FN_DECIMAL fnGetNoise(fn_state *state, FN_DECIMAL x, FN_DECIMAL y) {
@@ -585,6 +634,14 @@ FN_DECIMAL fnGetNoise(fn_state *state, FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
         default:
             return 0;
     }
+}
+
+void fnDomainWarp(fn_state *state, FN_DECIMAL *x, FN_DECIMAL *y) {
+
+}
+
+void fnDomainWarp(fn_state *state, FN_DECIMAL *x, FN_DECIMAL *y, FN_DECIMAL *z) {
+
 }
 
 #endif
