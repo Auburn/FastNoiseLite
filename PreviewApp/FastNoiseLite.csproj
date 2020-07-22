@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.5.2"/>
+    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.2"/>
+  </ItemGroup>
+  <ItemGroup>
+    <!--<Compile Include="..\CSharp\FastNoise.cs" Link="FastNoise.cs" />-->
+  </ItemGroup>
+</Project>
