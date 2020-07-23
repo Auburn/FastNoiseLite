@@ -26,16 +26,17 @@
 
 using System;
 
-
+// Switch between using floats or doubles for input position
 using FNfloat = System.Single;
 //using FNfloat = System.Double;
 
 public class FastNoise
 {
     public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular, WhiteNoise };
-    public enum FractalType { None, FBm, Billow, Rigded };
+    public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndpendant };
     public enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
+    public enum DomainWarpType { Gradient, Simplex };
 
     private int mSeed = 1337;
     private float mFrequency = 0.01f;
@@ -52,6 +53,7 @@ public class FastNoise
     private CellularReturnType mCellularReturnType = CellularReturnType.CellValue;
     private float mCellularJitterModifier = 1.0f;
 
+    private DomainWarpType mDomainWarpType = DomainWarpType.Simplex;
     private float mDomainWarpAmp = 1.0f;
 
     public FastNoise(int seed = 1337)
@@ -70,7 +72,6 @@ public class FastNoise
     // Sets frequency for all noise types
     // Default: 0.01
     public void SetFrequency(float frequency) { mFrequency = frequency; }
-
 
     // Sets noise return type of GetNoise(...)
     // Default: Simplex
@@ -103,14 +104,17 @@ public class FastNoise
     // Default: Euclidean
     public void SetCellularReturnType(CellularReturnType cellularReturnType) { mCellularReturnType = cellularReturnType; }
 
-
     // Sets the maximum distance a cellular point can move from it's grid position
     // Setting this high will make artifacts more common
     // Default: 1.0
     public void SetCellularJitter(float cellularJitter) { mCellularJitterModifier = cellularJitter; }
 
 
-    // Sets the maximum warp distance from original location when using DomainWarp{Fractal}(...)
+    // Sets the warp algorithm when using DomainWarp(...)
+    // Default: Simplex
+    public void SetDomainWarpType(DomainWarpType domainWarpType) { mDomainWarpType = domainWarpType; }
+
+    // Sets the maximum warp distance from original location when using DomainWarp(...)
     // Default: 1.0
     public void SetDomainWarpAmp(float gradientPerturbAmp) { mDomainWarpAmp = gradientPerturbAmp; }
 
@@ -228,6 +232,8 @@ public class FastNoise
 
     private static float Lerp(float a, float b, float t) { return a + t * (b - a); }
 
+    private static float InterpHermite(float t) { return t * t * (3 - 2 * t); }
+
     private static float InterpQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
     private static float CubicLerp(float a, float b, float c, float d, float t)
@@ -275,7 +281,7 @@ public class FastNoise
     {
         int hash = seed ^ xPrimed ^ yPrimed;
 
-        hash *= 0x27d4eb2d;
+        hash *= hash * 0x27d4eb2d;
         return hash / 2147483648.0f;
     }
 
@@ -283,7 +289,7 @@ public class FastNoise
     {
         int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
-        hash *= 0x27d4eb2d;
+        hash *= hash * 0x27d4eb2d;
         return hash / 2147483648.0f;
     }
 
@@ -309,7 +315,7 @@ public class FastNoise
 
         switch (mFractalType)
         {
-            case FractalType.None:
+            default:
                 return GenNoiseSingle(mSeed, x, y);
             case FractalType.FBm:
                 return GenFractalFBm(x, y);
@@ -317,8 +323,6 @@ public class FastNoise
                 return GenFractalBillow(x, y);
             case FractalType.Rigded:
                 return GenFractalRidged(x, y);
-            default:
-                return 0;
         }
     }
 
@@ -330,7 +334,7 @@ public class FastNoise
 
         switch (mFractalType)
         {
-            case FractalType.None:
+            default:
                 return GenNoiseSingle(mSeed, x, y, z);
             case FractalType.FBm:
                 return GenFractalFBm(x, y, z);
@@ -338,8 +342,6 @@ public class FastNoise
                 return GenFractalBillow(x, y, z);
             case FractalType.Rigded:
                 return GenFractalRidged(x, y, z);
-            default:
-                return 0;
         }
     }
 
@@ -1130,89 +1132,179 @@ public class FastNoise
     }
 
 
-    /*
-    public void GradientPerturb(ref FN_DECIMAL x, ref FN_DECIMAL y, ref FN_DECIMAL z)
+    // Domain Warp   
+
+    public void DomainWarp(ref FNfloat x, ref FNfloat y)
     {
-        SingleGradientPerturb(mSeed, mDomainWarpAmp, mFrequency, ref x, ref y, ref z);
+        switch (mFractalType)
+        {
+            default:
+                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, ref x, ref y);
+                break;
+            case FractalType.DomainWarpProgressive:
+                DomainWarpFractalProgressive(ref x, ref y);
+                break;
+            case FractalType.DomainWarpIndpendant:
+                break;
+        }
     }
 
-    public void GradientPerturbFractal(ref FN_DECIMAL x, ref FN_DECIMAL y, ref FN_DECIMAL z)
+    public void DomainWarp(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        switch (mFractalType)
+        {
+            default:
+                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, ref x, ref y, ref z);
+                break;
+            case FractalType.DomainWarpProgressive:
+                DomainWarpFractalProgressive(ref x, ref y, ref z);
+                break;
+            case FractalType.DomainWarpIndpendant:
+                break;
+        }
+    }
+
+    private void DoSingleDomainWarp(int seed, float amp, float freq, ref FNfloat x, ref FNfloat y)
+    {
+        switch (mDomainWarpType)
+        {
+            case DomainWarpType.Gradient:
+                SingleDomainWarpGradient(seed, amp, freq, ref x, ref y);
+                break;
+            case DomainWarpType.Simplex:
+                break;
+        }
+    }
+
+    private void DoSingleDomainWarp(int seed, float amp, float freq, ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        switch (mDomainWarpType)
+        {
+            case DomainWarpType.Gradient:
+                SingleDomainWarpGradient(seed, amp, freq, ref x, ref y, ref z);
+                break;
+            case DomainWarpType.Simplex:
+                break;
+        }
+    }
+
+
+    // Domain Warp Fractal Progressive
+
+    private void DomainWarpFractalProgressive(ref FNfloat x, ref FNfloat y)
     {
         int seed = mSeed;
-        FN_DECIMAL amp = mDomainWarpAmp * mFractalBounding;
-        FN_DECIMAL freq = mFrequency;
+        float amp = mDomainWarpAmp * mFractalBounding;
+        float freq = mFrequency;
 
-        SingleGradientPerturb(seed, amp, mFrequency, ref x, ref y, ref z);
+        DoSingleDomainWarp(seed, amp, freq, ref x, ref y);
 
         for (int i = 1; i < mOctaves; i++)
         {
             freq *= mLacunarity;
             amp *= mGain;
-            SingleGradientPerturb(++seed, amp, freq, ref x, ref y, ref z);
+            DoSingleDomainWarp(++seed, amp, freq, ref x, ref y);
+        }
+    }
+    private void DomainWarpFractalProgressive(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        int seed = mSeed;
+        float amp = mDomainWarpAmp * mFractalBounding;
+        float freq = mFrequency;
+
+        DoSingleDomainWarp(seed, amp, freq, ref x, ref y, ref z);
+
+        for (int i = 1; i < mOctaves; i++)
+        {
+            freq *= mLacunarity;
+            amp *= mGain;
+            DoSingleDomainWarp(++seed, amp, freq, ref x, ref y, ref z);
         }
     }
 
-    private void SingleGradientPerturb(int seed, FN_DECIMAL perturbAmp, FN_DECIMAL frequency, ref FN_DECIMAL x, ref FN_DECIMAL y, ref FN_DECIMAL z)
+
+    // Domain Warp Gradient
+
+    private void SingleDomainWarpGradient(int seed, float perturbAmp, float frequency, ref FNfloat x, ref FNfloat y)
     {
-        FN_DECIMAL xf = x * frequency;
-        FN_DECIMAL yf = y * frequency;
-        FN_DECIMAL zf = z * frequency;
+        FNfloat xf = x * frequency;
+        FNfloat yf = y * frequency;
+
+        int x0 = FastFloor(xf);
+        int y0 = FastFloor(yf);
+
+        float xs = InterpHermite((float)(xf - x0));
+        float ys = InterpHermite((float)(yf - y0));
+
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+
+        Float2 vec0 = Float2.CellularOffsets[Hash(seed, x0, y0) & 255];
+        Float2 vec1 = Float2.CellularOffsets[Hash(seed, x1, y0) & 255];
+
+        float lx0x = Lerp(vec0.x, vec1.x, xs);
+        float ly0x = Lerp(vec0.y, vec1.y, xs);
+
+        vec0 = Float2.CellularOffsets[Hash(seed, x0, y1) & 255];
+        vec1 = Float2.CellularOffsets[Hash(seed, x1, y1) & 255];
+
+        float lx1x = Lerp(vec0.x, vec1.x, xs);
+        float ly1x = Lerp(vec0.y, vec1.y, xs);
+
+        x += Lerp(lx0x, lx1x, ys) * perturbAmp;
+        y += Lerp(ly0x, ly1x, ys) * perturbAmp;
+    }
+
+    private void SingleDomainWarpGradient(int seed, float perturbAmp, float frequency, ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        FNfloat xf = x * frequency;
+        FNfloat yf = y * frequency;
+        FNfloat zf = z * frequency;
 
         int x0 = FastFloor(xf);
         int y0 = FastFloor(yf);
         int z0 = FastFloor(zf);
-        int x1 = x0 + 1;
-        int y1 = y0 + 1;
-        int z1 = z0 + 1;
 
-        FN_DECIMAL xs, ys, zs;
-        switch (m_interp)
-        {
-            default:
-            case Interp.Linear:
-                xs = xf - x0;
-                ys = yf - y0;
-                zs = zf - z0;
-                break;
-            case Interp.Hermite:
-                xs = InterpHermiteFunc(xf - x0);
-                ys = InterpHermiteFunc(yf - y0);
-                zs = InterpHermiteFunc(zf - z0);
-                break;
-            case Interp.Quintic:
-                xs = InterpQuinticFunc(xf - x0);
-                ys = InterpQuinticFunc(yf - y0);
-                zs = InterpQuinticFunc(zf - z0);
-                break;
-        }
+        float xs = InterpHermite((float)(xf - x0));
+        float ys = InterpHermite((float)(yf - y0));
+        float zs = InterpHermite((float)(zf - z0));
 
-        Float3 vec0 = CELL_3D[Hash(seed, x0, y0, z0) & 255];
-        Float3 vec1 = CELL_3D[Hash(seed, x1, y0, z0) & 255];
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        z0 *= PrimeZ;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+        int z1 = z0 + PrimeZ;
 
-        FN_DECIMAL lx0x = Lerp(vec0.x, vec1.x, xs);
-        FN_DECIMAL ly0x = Lerp(vec0.y, vec1.y, xs);
-        FN_DECIMAL lz0x = Lerp(vec0.z, vec1.z, xs);
+        Float3 vec0 = Float3.CellularOffsets[Hash(seed, x0, y0, z0) & 255];
+        Float3 vec1 = Float3.CellularOffsets[Hash(seed, x1, y0, z0) & 255];
 
-        vec0 = CELL_3D[Hash(seed, x0, y1, z0) & 255];
-        vec1 = CELL_3D[Hash(seed, x1, y1, z0) & 255];
+        float lx0x = Lerp(vec0.x, vec1.x, xs);
+        float ly0x = Lerp(vec0.y, vec1.y, xs);
+        float lz0x = Lerp(vec0.z, vec1.z, xs);
 
-        FN_DECIMAL lx1x = Lerp(vec0.x, vec1.x, xs);
-        FN_DECIMAL ly1x = Lerp(vec0.y, vec1.y, xs);
-        FN_DECIMAL lz1x = Lerp(vec0.z, vec1.z, xs);
+        vec0 = Float3.CellularOffsets[Hash(seed, x0, y1, z0) & 255];
+        vec1 = Float3.CellularOffsets[Hash(seed, x1, y1, z0) & 255];
 
-        FN_DECIMAL lx0y = Lerp(lx0x, lx1x, ys);
-        FN_DECIMAL ly0y = Lerp(ly0x, ly1x, ys);
-        FN_DECIMAL lz0y = Lerp(lz0x, lz1x, ys);
+        float lx1x = Lerp(vec0.x, vec1.x, xs);
+        float ly1x = Lerp(vec0.y, vec1.y, xs);
+        float lz1x = Lerp(vec0.z, vec1.z, xs);
+        
+        float lx0y = Lerp(lx0x, lx1x, ys);
+        float ly0y = Lerp(ly0x, ly1x, ys);
+        float lz0y = Lerp(lz0x, lz1x, ys);
 
-        vec0 = CELL_3D[Hash(seed, x0, y0, z1) & 255];
-        vec1 = CELL_3D[Hash(seed, x1, y0, z1) & 255];
+        vec0 = Float3.CellularOffsets[Hash(seed, x0, y0, z1) & 255];
+        vec1 = Float3.CellularOffsets[Hash(seed, x1, y0, z1) & 255];
 
         lx0x = Lerp(vec0.x, vec1.x, xs);
         ly0x = Lerp(vec0.y, vec1.y, xs);
         lz0x = Lerp(vec0.z, vec1.z, xs);
 
-        vec0 = CELL_3D[Hash(seed, x0, y1, z1) & 255];
-        vec1 = CELL_3D[Hash(seed, x1, y1, z1) & 255];
+        vec0 = Float3.CellularOffsets[Hash(seed, x0, y1, z1) & 255];
+        vec1 = Float3.CellularOffsets[Hash(seed, x1, y1, z1) & 255];
 
         lx1x = Lerp(vec0.x, vec1.x, xs);
         ly1x = Lerp(vec0.y, vec1.y, xs);
@@ -1222,70 +1314,5 @@ public class FastNoise
         y += Lerp(ly0y, Lerp(ly0x, ly1x, ys), zs) * perturbAmp;
         z += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * perturbAmp;
     }
-
-    public void GradientPerturb(ref FN_DECIMAL x, ref FN_DECIMAL y)
-    {
-        SingleGradientPerturb(mSeed, mDomainWarpAmp, mFrequency, ref x, ref y);
-    }
-
-    public void GradientPerturbFractal(ref FN_DECIMAL x, ref FN_DECIMAL y)
-    {
-        int seed = mSeed;
-        FN_DECIMAL amp = mDomainWarpAmp * mFractalBounding;
-        FN_DECIMAL freq = mFrequency;
-
-        SingleGradientPerturb(seed, amp, mFrequency, ref x, ref y);
-
-        for (int i = 1; i < mOctaves; i++)
-        {
-            freq *= mLacunarity;
-            amp *= mGain;
-            SingleGradientPerturb(++seed, amp, freq, ref x, ref y);
-        }
-    }
-
-    private void SingleGradientPerturb(int seed, FN_DECIMAL perturbAmp, FN_DECIMAL frequency, ref FN_DECIMAL x, ref FN_DECIMAL y)
-    {
-        FN_DECIMAL xf = x * frequency;
-        FN_DECIMAL yf = y * frequency;
-
-        int x0 = FastFloor(xf);
-        int y0 = FastFloor(yf);
-        int x1 = x0 + 1;
-        int y1 = y0 + 1;
-
-        FN_DECIMAL xs, ys;
-        switch (m_interp)
-        {
-            default:
-            case Interp.Linear:
-                xs = xf - x0;
-                ys = yf - y0;
-                break;
-            case Interp.Hermite:
-                xs = InterpHermiteFunc(xf - x0);
-                ys = InterpHermiteFunc(yf - y0);
-                break;
-            case Interp.Quintic:
-                xs = InterpQuinticFunc(xf - x0);
-                ys = InterpQuinticFunc(yf - y0);
-                break;
-        }
-
-        Float2 vec0 = CELL_2D[Hash(seed, x0, y0) & 255];
-        Float2 vec1 = CELL_2D[Hash(seed, x1, y0) & 255];
-
-        FN_DECIMAL lx0x = Lerp(vec0.x, vec1.x, xs);
-        FN_DECIMAL ly0x = Lerp(vec0.y, vec1.y, xs);
-
-        vec0 = CELL_2D[Hash(seed, x0, y1) & 255];
-        vec1 = CELL_2D[Hash(seed, x1, y1) & 255];
-
-        FN_DECIMAL lx1x = Lerp(vec0.x, vec1.x, xs);
-        FN_DECIMAL ly1x = Lerp(vec0.y, vec1.y, xs);
-
-        x += Lerp(lx0x, lx1x, ys) * perturbAmp;
-        y += Lerp(ly0x, ly1x, ys) * perturbAmp;
-    }*/
 
 }
