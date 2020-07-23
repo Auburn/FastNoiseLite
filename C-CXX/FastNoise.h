@@ -13,9 +13,6 @@ extern "C" {
 #include <stdint.h>
 #include <float.h>
 
-// So that VS code doesnt hide my work :(
-#define FN_IMPL
-
 // Typedefs
 #if defined(FN_USE_DOUBLE)
 typedef double FNfloat;
@@ -1338,8 +1335,6 @@ fn_state fnCreateState(int seed) {
     newState.domain_warp_type = FN_DOMAIN_WARP_GRADIENT;
     return newState;
 }
-
-void fnValidateState(fn_state *state) { _fnCalculateFractalBounding(state); }
 
 FNfloat fnGetNoise2D(fn_state *state, FNfloat x, FNfloat y) {
     x *= state->frequency;
