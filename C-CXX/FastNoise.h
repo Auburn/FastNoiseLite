@@ -116,11 +116,13 @@ static FNfloat _fnCalculateFractalBounding(fn_state *state) {
 // Utilities
 // ====================
 
-//#define FAST_FLOOR(f) (f >= 0 ? (int) f : (int) (f) - 1;)
-
 static inline int _fnFastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
 
 static inline int _fnFastRound(FNfloat f) { return (f >= 0) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+
+static inline FNfloat _fnFastMin(FNfloat x, FNfloat y) { return x < y ? x : y; }
+
+static inline FNfloat _fnFastMax(FNfloat x, FNfloat y) { return x > y ? x : y; }
 
 static inline FNfloat _fnLerp(FNfloat a, FNfloat b, FNfloat t) { return a + t * (b - a); }
 
@@ -133,16 +135,12 @@ static inline FNfloat _fnCubicLerp(FNfloat a, FNfloat b, FNfloat c, FNfloat d, F
     return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
 }
 
-static inline FNfloat _fnFastMin(FNfloat x, FNfloat y) { return x < y ? x : y; }
-
-static inline FNfloat _fnFastMax(FNfloat x, FNfloat y) { return x > y ? x : y; }
-
 // ====================
 // ABS Optimization
 // ====================
 
 #if defined(FN_USE_DOUBLE)
-#define NF_ABS absf
+#define FN_ABS fabs
 #else
 #define FN_ABS fabsf
 #endif
@@ -648,12 +646,9 @@ static FNfloat _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
     FNfloat y0 = (FNfloat)(y - (j - t));
 
     int i1, j1;
-    if (x0 > y0)
-    {
+    if (x0 > y0) {
         i1 = -1; j1 = 0;
-    }
-    else
-    {
+    } else {
         i1 = 0; j1 = -1;
     }
 
@@ -672,24 +667,21 @@ static FNfloat _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
 
     FNfloat a = 0.5f - x0 * x0 - y0 * y0;
     if (a < 0) n0 = 0;
-    else
-    {
+    else {
         a *= a;
         n0 = a * a * _fnGradCoord2D(seed, i, j, x0, y0);
     }
 
     FNfloat b = 0.5f - x1 * x1 - y1 * y1;
     if (b < 0) n1 = 0;
-    else
-    {
+    else {
         b *= b;
         n1 = b * b * _fnGradCoord2D(seed, i + i1, j + j1, x1, y1);
     }
 
     FNfloat c = 0.5f - x2 * x2 - y2 * y2;
     if (c < 0) n2 = 0;
-    else
-    {
+    else {
         c *= c;
         n2 = c * c * _fnGradCoord2D(seed, i + PRIME_X, j + PRIME_Y, x2, y2);
     }
@@ -865,10 +857,120 @@ static FNfloat _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat
             break;
     }
 
-    switch (state->cellular_return_type)
-    {
+    switch (state->cellular_return_type) {
         case FN_CELLULAR_RET_CELLVALUE:
             return closestHash / (FNfloat) 2147483648.0;
+        case FN_CELLULAR_RET_DISTANCE:
+            return distance0;
+        case FN_CELLULAR_RET_DISTANCE2:
+            return distance1;
+        case FN_CELLULAR_RET_DISTANCE2ADD:
+            return distance1 + distance0;
+        case FN_CELLULAR_RET_DISTANCE2SUB:
+            return distance1 - distance0;
+        case FN_CELLULAR_RET_DISTANCE2MUL:
+            return distance1 * distance0;
+        case FN_CELLULAR_RET_DISTANCE2DIV:
+            return distance0 / distance1;
+        default:
+            return 0;
+    }
+}
+
+static FNfloat _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y, FNfloat z) {
+    int xr = _fnFastRound(x);
+    int yr = _fnFastRound(y);
+    int zr = _fnFastRound(z);
+
+    FNfloat distance0 = FN_FLOAT_MAX;
+    FNfloat distance1 = FN_FLOAT_MAX;
+    int closestHash = 0;
+
+    FNfloat cellularJitter = 0.45f * state->cellular_jitter_mod;
+
+    switch (state->cellular_distance_func) {
+        case FN_CELLULAR_DIST_EUCLIDEAN:
+            for (int xi = xr - 1; xi <= xr + 1; xi++) {
+                for (int yi = yr - 1; yi <= yr + 1; yi++) {
+                    for (int zi = zr - 1; zi <= zr + 1; zi++) {
+                        int hash = _fnHash3D(seed, xi * PRIME_X, yi * PRIME_Y, zi * PRIME_Z);
+                        int idx = hash & 255;
+                        FNfloat vecx = CELLULAR_OFFSETS_3D_X[idx];
+                        FNfloat vecy = CELLULAR_OFFSETS_3D_Y[idx];
+                        FNfloat vecz = CELLULAR_OFFSETS_3D_Z[idx];
+
+                        float vecX = (float)(xi - x) + vecx * cellularJitter;
+                        float vecY = (float)(yi - y) + vecy * cellularJitter;
+                        float vecZ = (float)(zi - z) + vecz * cellularJitter;
+
+                        FNfloat newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
+
+                        distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
+                        if (newDistance < distance0) {
+                            distance0 = newDistance;
+                            closestHash = hash;
+                        }
+                    }
+                }
+            }
+            break;
+        case FN_CELLULAR_DIST_MANHATTAN:
+            for (int xi = xr - 1; xi <= xr + 1; xi++) {
+                for (int yi = yr - 1; yi <= yr + 1; yi++) {
+                    for (int zi = zr - 1; zi <= zr + 1; zi++) {
+                        int hash = _fnHash3D(seed, xi * PRIME_X, yi * PRIME_Y, zi * PRIME_Z);
+                        int idx = hash & 255;
+                        FNfloat vecx = CELLULAR_OFFSETS_3D_X[idx];
+                        FNfloat vecy = CELLULAR_OFFSETS_3D_Y[idx];
+                        FNfloat vecz = CELLULAR_OFFSETS_3D_Z[idx];
+
+                        float vecX = (float)(xi - x) + vecx * cellularJitter;
+                        float vecY = (float)(yi - y) + vecy * cellularJitter;
+                        float vecZ = (float)(zi - z) + vecz * cellularJitter;
+
+                        float newDistance = FN_ABS(vecX) + FN_ABS(vecY) + FN_ABS(vecZ);
+
+                        distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
+                        if (newDistance < distance0) {
+                            distance0 = newDistance;
+                            closestHash = hash;
+                        }
+                    }
+                }
+            }
+            break;
+        case FN_CELLULAR_DIST_NATURAL:
+            for (int xi = xr - 1; xi <= xr + 1; xi++) {
+                for (int yi = yr - 1; yi <= yr + 1; yi++) {
+                    for (int zi = zr - 1; zi <= zr + 1; zi++) {
+                        int hash = _fnHash3D(seed, xi * PRIME_X, yi * PRIME_Y, zi * PRIME_Z);
+                        int idx = hash & 255;
+                        FNfloat vecx = CELLULAR_OFFSETS_3D_X[idx];
+                        FNfloat vecy = CELLULAR_OFFSETS_3D_Y[idx];
+                        FNfloat vecz = CELLULAR_OFFSETS_3D_Z[idx];
+
+                        float vecX = (float)(xi - x) + vecx * cellularJitter;
+                        float vecY = (float)(yi - y) + vecy * cellularJitter;
+                        float vecZ = (float)(zi - z) + vecz * cellularJitter;
+                            
+                        float newDistance = (FN_ABS(vecX) + FN_ABS(vecY) + FN_ABS(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
+
+                        distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
+                        if (newDistance < distance0) {
+                            distance0 = newDistance;
+                            closestHash = hash;
+                        }
+                    }
+                }
+            }
+            break;
+        default:
+            break;
+    }
+
+    switch (state->cellular_return_type) {
+        case FN_CELLULAR_RET_CELLVALUE:
+            return closestHash / 2147483648.0f;
         case FN_CELLULAR_RET_DISTANCE:
             return distance0;
         case FN_CELLULAR_RET_DISTANCE2:
@@ -976,10 +1078,10 @@ static FNfloat _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat
             return _fnSingleSimplex3D(seed, x, y, z);
         // case FN_NOISE_OPENSIMPLEX2F:
         //     return 0; // TODO
-        // case FN_NOISE_CELLULAR:
-        //     return _fnSingleCellular3D(state, seed, x, y, z);
-        // case FN_NOISE_WHITENOISE:
-        //     return _fnSingleWhiteNoise3D(seed, x, y, z);
+        case FN_NOISE_CELLULAR:
+            return _fnSingleCellular3D(state, seed, x, y, z);
+        case FN_NOISE_WHITENOISE:
+            return _fnSingleWhiteNoise3D(seed, x, y, z);
         default:
             return 0;
     }
@@ -1190,13 +1292,12 @@ static void _fnDoSingleDomainWarp3D(fn_state *state, int seed, FNfloat amp, FNfl
 
 static void _fnDomainWarpFractalProgressive2D(fn_state *state, FNfloat *x, FNfloat *y) {
     int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+    FNfloat amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
+    FNfloat freq = state->frequency;
 
     _fnDoSingleDomainWarp2D(state, seed, amp, freq, x, y);
 
-    for (int i = 1; i < state->octaves; i++)
-    {
+    for (int i = 1; i < state->octaves; i++) {
         freq *= state->lacunarity;
         amp *= state->gain;
         _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, x, y);
@@ -1205,13 +1306,12 @@ static void _fnDomainWarpFractalProgressive2D(fn_state *state, FNfloat *x, FNflo
 
 static void _fnDomainWarpFractalProgressive3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
     int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+    FNfloat amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
+    FNfloat freq = state->frequency;
 
     _fnDoSingleDomainWarp3D(state, seed, amp, freq, x, y, z);
 
-    for (int i = 1; i < state->octaves; i++)
-    {
+    for (int i = 1; i < state->octaves; i++) {
         freq *= state->lacunarity;
         amp *= state->gain;
         _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, x, y, z);
