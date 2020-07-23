@@ -16,12 +16,11 @@ namespace FastNoiseLite
         private NumericStepper PreviewHeight;
         private CheckBox Invert;
         private CheckBox Is3D;
-        private DropDown GradientPerturb;
+        private CheckBox VisualiseDomainWarp;
 
         private DropDown NoiseType;
         private NumericStepper Seed;
         private NumericStepper Frequency;
-        private DropDown Interpolation;
 
         private DropDown FractalType;
         private NumericStepper FractalOctaves;
@@ -30,17 +29,16 @@ namespace FastNoiseLite
 
         private DropDown CellularDistanceFunction;
         private DropDown CellularReturnType;
-        private NumericStepper CellularDistance2Index0;
-        private NumericStepper CellularDistance2Index1;
         private NumericStepper CellularJitter;
 
-        private NumericStepper GPAmplitude;
-        private NumericStepper GPFrequency;
+        private DropDown DomainWarp;
+        private DropDown DomainWarpFractal;
+        private NumericStepper DomainWarpAmplitude;
+        private NumericStepper DomainWarpFrequency;
 
-        public Bitmap Bitmap;
+        private Bitmap Bitmap;
         private ImageView Image;
-
-        private float zPos = 0;
+        private int[] ImageData;
 
         private Label Time;
         private Label Min;
@@ -48,12 +46,16 @@ namespace FastNoiseLite
         private Label Mean;
         private Label ExtraInfo;
 
+        private float zPos = 0;
+
         public MainForm()
         {
             // Sets the client (inner) size of the window for your content
             ClientSize = new Size(1050, 820);
 
             Title = "FastNoise Lite GUI";
+
+            ImageData = new int[1];
 
             // Create main layout, makes controls and result appear side by side
             var mainLayout = new StackLayout();
@@ -110,10 +112,10 @@ namespace FastNoiseLite
                         stack.Orientation = Orientation.Horizontal;
                         stack.Spacing = 2;
                         PreviewWidth = new NumericStepper { Value = 768 };
-                        // PreviewWidth.ValueChanged += Generate;
+                        PreviewWidth.ValueChanged += Generate;
                         stack.Items.Add(new StackLayoutItem(PreviewWidth));
                         PreviewHeight = new NumericStepper { Value = 768 };
-                        // PreviewHeight.ValueChanged += Generate;
+                        PreviewHeight.ValueChanged += Generate;
                         stack.Items.Add(new StackLayoutItem(PreviewHeight));
 
                         AddToTableWithLabel(table, stack, "Preview Size:");
@@ -121,7 +123,7 @@ namespace FastNoiseLite
 
                     // Invert
                     Invert = new CheckBox();
-                    // Invert.CheckedChanged += Generate;
+                    Invert.CheckedChanged += Generate;
                     AddToTableWithLabel(table, Invert, "Invert:");
 
                     // 3D
@@ -129,16 +131,10 @@ namespace FastNoiseLite
                     Is3D.CheckedChanged += OnUIUpdate;
                     AddToTableWithLabel(table, Is3D, "3D:");
 
-                    // Gradient Perturb Dropdown
-                    {
-                        GradientPerturb = new DropDown();
-                        GradientPerturb.Items.Add("False");
-                        GradientPerturb.Items.Add("True");
-                        GradientPerturb.Items.Add("True - Fractal");
-                        GradientPerturb.SelectedIndex = 0;
-                        // GradientPerturb.SelectedIndexChanged += Generate;
-                        AddToTableWithLabel(table, GradientPerturb, "Gradient Perturb:");
-                    }
+                    // Visualise Domain Warp
+                    VisualiseDomainWarp = new CheckBox();
+                    VisualiseDomainWarp.CheckedChanged += OnUIUpdate;
+                    AddToTableWithLabel(table, VisualiseDomainWarp, "Visualise Domain Warp:");
                 }
 
                 // TODO: Work out how to make this bold
@@ -149,36 +145,24 @@ namespace FastNoiseLite
                     // Noise Type
                     {
                         NoiseType = new DropDown();
-                        foreach (var name in Enum.GetNames(typeof(Old.FastNoise.NoiseType))) {
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.NoiseType)))
+                        {
                             NoiseType.Items.Add(FormatReadable(name));
                         }
-                        NoiseType.Items.Add("Gradient Perturb");
-                        NoiseType.Items.Add("Gradient Perturb Fractal");
-                        NoiseType.SelectedIndex = (int)Old.FastNoise.NoiseType.SimplexFractal;
+                        NoiseType.SelectedIndex = (int)FastNoise.NoiseType.Simplex;
                         NoiseType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, NoiseType, "Noise Type:");
                     }
 
                     // Seed
                     Seed = new NumericStepper { Value = 1337 };
-                    // Seed.ValueChanged += Generate; // TODO: This is super laggy. Need to maybe look for enter key, or leave focus?
+                    Seed.ValueChanged += Generate; // TODO: This is super laggy. Need to maybe look for enter key, or leave focus?
                     AddToTableWithLabel(table, Seed, "Seed:");
 
                     // Frequency
                     Frequency = new NumericStepper { Value = 0.02, DecimalPlaces = 2 };
-                    // Frequency.ValueChanged += Generate;
+                    Frequency.ValueChanged += Generate;
                     AddToTableWithLabel(table, Frequency, "Frequency:");
-
-                    // Interpolation
-                    {
-                        Interpolation = new DropDown();
-                        foreach (var name in Enum.GetNames(typeof(Old.FastNoise.Interp))) {
-                            Interpolation.Items.Add(FormatReadable(name));
-                        }
-                        Interpolation.SelectedIndex = (int)Old.FastNoise.Interp.Quintic;
-                        // Interpolation.SelectedIndexChanged += Generate;
-                        AddToTableWithLabel(table, Interpolation, "Interpolation:");
-                    }
                 }
 
                 // Add fractal label
@@ -188,27 +172,29 @@ namespace FastNoiseLite
                     // Fractal type
                     {
                         FractalType = new DropDown();
-                        foreach (var name in Enum.GetNames(typeof(Old.FastNoise.FractalType))) {
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.FractalType)))
+                        {
+                            if (name.StartsWith("DomainWarp")) break;
                             FractalType.Items.Add(FormatReadable(name));
                         }
-                        FractalType.SelectedIndex = (int)Old.FastNoise.FractalType.FBM;
-                        // FractalType.SelectedIndexChanged += Generate;
+                        FractalType.SelectedIndex = (int)FastNoise.FractalType.FBm;
+                        FractalType.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, FractalType, "Type:");
                     }
 
                     // Octaves
                     FractalOctaves = new NumericStepper { Value = 5 };
-                    // FractalOctaves.ValueChanged += Generate;
+                    FractalOctaves.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalOctaves, "Octaves:");
 
                     // Lacunarity
                     FractalLacunarity = new NumericStepper { Value = 2.0, DecimalPlaces = 2 };
-                    // FractalLacunarity.ValueChanged += Generate;
+                    FractalLacunarity.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalLacunarity, "Lacunarity:");
 
                     // Gain
                     FractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2 };
-                    // FractalGain.ValueChanged += Generate;
+                    FractalGain.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalGain, "Gain:");
                 }
 
@@ -219,10 +205,11 @@ namespace FastNoiseLite
                     // Distance Function
                     {
                         CellularDistanceFunction = new DropDown();
-                        foreach (var name in Enum.GetNames(typeof(Old.FastNoise.CellularDistanceFunction))) {
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.CellularDistanceFunction)))
+                        {
                             CellularDistanceFunction.Items.Add(FormatReadable(name));
                         }
-                        CellularDistanceFunction.SelectedIndex = (int)Old.FastNoise.CellularDistanceFunction.Euclidean;
+                        CellularDistanceFunction.SelectedIndex = (int)FastNoise.CellularDistanceFunction.Euclidean;
                         CellularDistanceFunction.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, CellularDistanceFunction, "Distance Function:");
                     }
@@ -230,56 +217,61 @@ namespace FastNoiseLite
                     // Return Type
                     {
                         CellularReturnType = new DropDown();
-                        foreach (var name in Enum.GetNames(typeof(Old.FastNoise.CellularReturnType))) {
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.CellularReturnType)))
+                        {
                             CellularReturnType.Items.Add(FormatReadable(name));
                         }
-                        CellularReturnType.SelectedIndex = (int)Old.FastNoise.CellularReturnType.CellValue;
-                        // CellularReturnType.SelectedIndexChanged += Generate;
+                        CellularReturnType.SelectedIndex = (int)FastNoise.CellularReturnType.CellValue;
+                        CellularReturnType.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, CellularReturnType, "Return Type:");
                     }
 
-                    // Distance2 Indices
-                    {
-                        // Create elements
-                        CellularDistance2Index0 = new NumericStepper() { Value = 0 };
-                        // CellularDistance2Index0.ValueChanged += Generate;
-                        CellularDistance2Index1 = new NumericStepper() { Value = 1 };
-                        // CellularDistance2Index1.ValueChanged += Generate;
-
-                        // Contain them
-                        var stack = new StackLayout()
-                        {
-                            Orientation = Orientation.Horizontal,
-                            Spacing = 2,
-                            Items = {
-                                CellularDistance2Index0,
-                                CellularDistance2Index1
-                            }
-                        };
-
-                        // Add to table
-                        AddToTableWithLabel(table, stack, "Distance2 Indices:");
-                    }
-
                     // Jitter
-                    CellularJitter = new NumericStepper() { Value = 0.45, DecimalPlaces = 2 };
-                    // CellularJitter.ValueChanged += Generate;
+                    CellularJitter = new NumericStepper() { Value = 1.0, DecimalPlaces = 2 };
+                    CellularJitter.ValueChanged += Generate;
                     AddToTableWithLabel(table, CellularJitter, "Jitter:");
                 }
 
                 // Add fractal label
-                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Gradient Perturb:" } } });
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp:" } } });
 
                 {
+                    // Domain Warp Dropdown
+                    {
+                        DomainWarp = new DropDown();
+                        DomainWarp.Items.Add("None");
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.DomainWarpType)))
+                        {
+                            DomainWarp.Items.Add(FormatReadable(name));
+                        }
+                        DomainWarp.SelectedIndex = 0;
+                        DomainWarp.SelectedIndexChanged += OnUIUpdate;
+                        AddToTableWithLabel(table, DomainWarp, "Type:");
+                    }
+
+                    // Domain Warp Fractal Dropdown
+                    {
+                        DomainWarpFractal = new DropDown();
+                        DomainWarpFractal.Items.Add("None");
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.FractalType)))
+                        {
+                            if (!name.StartsWith("DomainWarp")) continue;
+                            DomainWarpFractal.Items.Add(FormatReadable(name), name);
+                        }
+                        DomainWarpFractal.SelectedIndex = 0;
+                        DomainWarpFractal.SelectedIndexChanged += Generate;
+                        AddToTableWithLabel(table, DomainWarpFractal, "Fractal Type:");
+                    }
+
                     // Amplitude
-                    GPAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2 };
-                    // GPAmplitude.ValueChanged += Generate;
-                    AddToTableWithLabel(table, GPAmplitude, "Amplitude:");
+                    DomainWarpAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2 };
+                    DomainWarpAmplitude.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
 
                     // Frequency
-                    GPFrequency = new NumericStepper { Value = 0.01, DecimalPlaces = 2 };
-                    // GPFrequency.ValueChanged += Generate;
-                    AddToTableWithLabel(table, GPFrequency, "Frequency:");
+                    DomainWarpFrequency = new NumericStepper { Value = 0.01, DecimalPlaces = 2 };
+                    DomainWarpFrequency.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
                 }
 
                 // Add table to the controls panel
@@ -370,139 +362,107 @@ namespace FastNoiseLite
 
             // Ensure UI state is valid then it generates
             OnUIUpdate(null, null);
-
-            // Temp while on ui doesnt do this
-            Generate(null, null);
         }
 
         private void Generate(object sender, EventArgs e)
         {
             // Create noise generators
-            var fNoise = new Old.FastNoise();
-            var perturbNoise = new Old.FastNoise();
+            var genNoise = new FastNoise();
+            var warpNoise = new FastNoise();
 
-            perturbNoise.SetFrequency(0.015f);
+            int w = (int)PreviewWidth.Value;
+            int h = (int)PreviewHeight.Value;
 
-            int w = (int) PreviewWidth.Value;
-            int h = (int) PreviewHeight.Value;
+            genNoise.SetNoiseType((FastNoise.NoiseType)NoiseType.SelectedIndex);
+            genNoise.SetSeed((int)Seed.Value);
+            genNoise.SetFrequency((float)Frequency.Value);
+            genNoise.SetFractalType((FastNoise.FractalType)FractalType.SelectedIndex);
+            genNoise.SetFractalOctaves((int)FractalOctaves.Value);
+            genNoise.SetFractalLacunarity((float)FractalLacunarity.Value);
+            genNoise.SetFractalGain((float)FractalGain.Value);
+            genNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
 
-            fNoise.SetNoiseType((Old.FastNoise.NoiseType)NoiseType.SelectedIndex);
-            fNoise.SetInterp((Old.FastNoise.Interp)Interpolation.SelectedIndex);
-            fNoise.SetSeed((int)Seed.Value);
-            fNoise.SetFrequency((float) Frequency.Value);
-            fNoise.SetFractalType((Old.FastNoise.FractalType)FractalType.SelectedIndex);
-            fNoise.SetFractalOctaves((int)FractalOctaves.Value);
-            fNoise.SetFractalLacunarity((float) FractalLacunarity.Value);
-            fNoise.SetFractalGain((float) FractalGain.Value);
-            fNoise.SetGradientPerturbAmp((float) GPAmplitude.Value);
+            genNoise.SetCellularDistanceFunction((FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
+            genNoise.SetCellularReturnType((FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
+            genNoise.SetCellularJitter((float)CellularJitter.Value);
 
-            perturbNoise.SetGradientPerturbAmp((float) GPAmplitude.Value);
-            perturbNoise.SetFrequency((float) GPFrequency.Value);
+            warpNoise.SetDomainWarpType((FastNoise.DomainWarpType)DomainWarp.SelectedIndex - 1);
+            warpNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
+            warpNoise.SetFrequency((float)DomainWarpFrequency.Value);
+            warpNoise.SetFractalType((FastNoise.FractalType)Enum.Parse(typeof(FastNoise.FractalType), DomainWarpFractal.SelectedKey));
 
-            fNoise.SetCellularDistanceFunction((Old.FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
-            fNoise.SetCellularReturnType((Old.FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
-            fNoise.SetCellularDistance2Indicies((int)CellularDistance2Index0.Value, (int)CellularDistance2Index1.Value);
-            fNoise.SetCellularJitter((float) CellularJitter.Value);
+            if (ImageData.Length != w * h)
+            {
+                ImageData = new int[w * h];
+            }
 
-            Old.FastNoise lookupNoise = new Old.FastNoise();
-            lookupNoise.SetFrequency(0.2f);
-            lookupNoise.SetNoiseType(Old.FastNoise.NoiseType.Simplex);
-            fNoise.SetCellularNoiseLookup(lookupNoise);
-
-            var bitmap = new FastBitmap(w, h);
             float noise;
-            float minN = 99999;
-            float maxN = -99999;
+            float minN = float.MaxValue;
+            float maxN = float.MinValue;
             float avg = 0;
 
             bool get3d = Is3D.Checked == true; // Stupid!
-            int halfWidth = w / 2;
-            int halfHeight = h / 2;
-            bool fractal = NoiseType.SelectedKey.Contains("Fractal");
+            bool invert = Invert.Checked == true;
+
+            float halfWidth = w / 2.0f;
+            float halfHeight = h / 2.0f;
 
             // Timer
             Stopwatch sw = new Stopwatch();
 
             int index = 0;
-            if (!NoiseType.SelectedKey.Contains("Perturb"))
+            if (VisualiseDomainWarp.Checked != true)
             {
                 var noiseValues = new float[w * h];
-                int warpIndex = GradientPerturb.SelectedIndex;
+                bool warp = DomainWarp.SelectedIndex > 0;
 
                 sw.Start();
-                if (get3d)
+                for (var y = 0; y < h; y++)
                 {
                     for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < h; y++)
+                        float xf = (float)(x - halfWidth);
+                        float yf = (float)(y - halfHeight);
+                        float zf = zPos;
+
+
+                        if (get3d)
                         {
-                            float xf = (float)(x - halfWidth);
-                            float yf = (float)(y - halfHeight);
-                            float zf = (float)(zPos);
+                            if (warp)
+                                warpNoise.DomainWarp(ref xf, ref yf, ref zf);
 
-                            switch (warpIndex)
-                            {
-                                case 1:
-                                    perturbNoise.GradientPerturb(ref xf, ref yf, ref zf);
-                                    break;
-                                case 2:
-                                    perturbNoise.GradientPerturbFractal(ref xf, ref yf, ref zf);
-                                    break;
-                            }
-
-                            noise = fNoise.GetNoise(xf, yf, zf);
-                            avg += noise;
-                            maxN = Math.Max(maxN, noise);
-                            minN = Math.Min(minN, noise);
-                            noiseValues[index++] = noise;
+                            noise = genNoise.GetNoise(xf, yf, zf);
                         }
-                    }
-                }
-                else
-                {
-                    for (var x = 0; x < w; x++)
-                    {
-                        for (var y = 0; y < h; y++)
+                        else
                         {
-                            float xf = (float)(x - halfWidth);
-                            float yf = (float)(y - halfHeight);
+                            if (warp)
+                                warpNoise.DomainWarp(ref xf, ref yf);
 
-                            switch (warpIndex)
-                            {
-                                case 1:
-                                    perturbNoise.GradientPerturb(ref xf, ref yf);
-                                    break;
-                                case 2:
-                                    perturbNoise.GradientPerturbFractal(ref xf, ref yf);
-                                    break;
-                            }
-
-                            noise = fNoise.GetNoise(xf, yf);
-                            avg += noise;
-                            maxN = Math.Max(maxN, noise);
-                            minN = Math.Min(minN, noise);
-                            noiseValues[index++] = noise;
+                            noise = genNoise.GetNoise(xf, yf);
                         }
+
+                        avg += noise;
+                        maxN = Math.Max(maxN, noise);
+                        minN = Math.Min(minN, noise);
+                        noiseValues[index++] = noise;
                     }
                 }
                 sw.Stop();
 
                 avg /= index - 1;
-                index = 0;
                 float scale = 255 / (maxN - minN);
 
-                for (var x = 0; x < w; x++)
+                for (var i = 0; i < noiseValues.Length; i++)
                 {
-                    for (var y = 0; y < h; y++)
-                    {
-                        noise = noiseValues[index++];
+                    int value = (int)MathF.Round(Math.Max(0, Math.Min(255, (noiseValues[i] - minN) * scale)));
 
-                        byte value = (byte)Math.Max(0, Math.Min(255, (noise - minN) * scale));
-                        if (Invert.Checked == true)
-                            value = (byte)(255 - value);
+                    if (invert)
+                        value = 255 - value;
 
-                        bitmap.SetPixel(x, y, Color.FromArgb(value, value, value));
-                    }
+                    ImageData[i] = value;
+                    ImageData[i] |= value << 8;
+                    ImageData[i] |= value << 16;
+                    ImageData[i] |= 255 << 24;
                 }
             }
             else
@@ -510,56 +470,36 @@ namespace FastNoiseLite
                 var noiseValues = new float[w * h * 3];
 
                 sw.Start();
-                if (get3d)
+                for (var y = 0; y < h; y++)
                 {
                     for (var x = 0; x < w; x++)
                     {
-                        for (var y = 0; y < h; y++)
+                        float xf = (float)x;
+                        float yf = (float)y;
+                        float zf = (float)zPos;
+                        
+                        if (get3d)
+                            warpNoise.DomainWarp(ref xf, ref yf, ref zf);                        
+                        else
+                            warpNoise.DomainWarp(ref xf, ref yf);
+
+                        xf -= x;
+                        yf -= y;
+                        zf -= zPos;
+
+                        avg += xf + yf;
+                        maxN = Math.Max(maxN, Math.Max(xf, yf));
+                        minN = Math.Min(minN, Math.Min(xf, yf));
+
+                        noiseValues[index++] = xf;
+                        noiseValues[index++] = yf;
+
+                        if (get3d)
                         {
-                            float xf = (float)x;
-                            float yf = (float)y;
-                            float zf = (float)zPos;
-
-                            if (fractal)
-                                fNoise.GradientPerturbFractal(ref xf, ref yf, ref zf);
-                            else fNoise.GradientPerturb(ref xf, ref yf, ref zf);
-
-                            xf -= x;
-                            yf -= y;
-                            zf -= zPos;
-
-                            avg += xf + yf + zf;
-                            maxN = Math.Max(maxN, Math.Max(Math.Max(xf, yf), zf));
-                            minN = Math.Min(minN, Math.Min(Math.Min(xf, yf), zf));
-
-                            noiseValues[index++] = xf;
-                            noiseValues[index++] = yf;
+                            avg += zf;
+                            maxN = Math.Max(maxN, zf);
+                            minN = Math.Min(minN, zf);
                             noiseValues[index++] = zf;
-                        }
-                    }
-                }
-                else
-                {
-                    for (var x = 0; x < w; x++)
-                    {
-                        for (var y = 0; y < h; y++)
-                        {
-                            float xf = (float)x;
-                            float yf = (float)y;
-
-                            if (fractal)
-                                fNoise.GradientPerturbFractal(ref xf, ref yf);
-                            else fNoise.GradientPerturb(ref xf, ref yf);
-
-                            xf -= x;
-                            yf -= y;
-
-                            avg += xf + yf;
-                            maxN = Math.Max(maxN, Math.Max(xf, yf));
-                            minN = Math.Min(minN, Math.Min(xf, yf));
-
-                            noiseValues[index++] = xf;
-                            noiseValues[index++] = yf;
                         }
                     }
                 }
@@ -572,49 +512,49 @@ namespace FastNoiseLite
                 index = 0;
                 float scale = 255 / (maxN - minN);
 
-                for (var x = 0; x < w; x++)
+                for (var i = 0; i < ImageData.Length; i++)
                 {
-                    for (var y = 0; y < h; y++)
+                    byte red;
+                    byte green;
+                    byte blue;
+
+                    if (get3d)
                     {
-                        byte red;
-                        byte green;
-                        byte blue;
-
-                        if (get3d)
-                        {
-                            red = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
-                            green = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
-                            blue = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
-                        }
-                        else
-                        {
-                            var vx = (noiseValues[index++] - minN);
-                            var vy = (noiseValues[index++] - minN);
-
-                            byte H = (byte)(vx * scale);
-                            byte V = (byte)(vy * scale);
-
-                            // https://discordapp.com/channels/703636892901441577/703638416335568926/735228970231922800
-                            //byte H = (byte) (Math.Atan2(vx, vy) * (127.5 * Math.PI) + 127.5);
-                            //byte V = (byte) Math.Sqrt(vx * vx + vy * vy);
-
-                            HsvToRgb(H, 255, V, out red, out green, out blue);
-                        }
-
-                        if (Invert.Checked == true)
-                        {
-                            red = (byte)(255 - red);
-                            green = (byte)(255 - green);
-                            blue = (byte)(255 - blue);
-                        }
-
-                        bitmap.SetPixel(x, y, Color.FromArgb(red, green, blue));
+                        red = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
+                        green = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
+                        blue = (byte)Math.Max(0, Math.Min(255, (noiseValues[index++] - minN) * scale));
                     }
+                    else
+                    {
+                        var vx = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
+                        var vy = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
+
+                        //byte H = (byte)(vx * scale);
+                        //byte V = (byte)(vy * scale);
+
+                        // https://discordapp.com/channels/703636892901441577/703638416335568926/735228970231922800
+                        byte H = (byte)(MathF.Atan2(vy, vx) * (127.5 / Math.PI) + 127.5);
+                        byte V = (byte)Math.Min(MathF.Sqrt(vx * vx + vy * vy) * 255 * 2, 255);
+
+                        HsvToRgb(H, 255, V, out red, out green, out blue);
+                    }
+
+                    if (Invert.Checked == true)
+                    {
+                        red = (byte)(255 - red);
+                        green = (byte)(255 - green);
+                        blue = (byte)(255 - blue);
+                    }
+
+                    ImageData[i] = red;
+                    ImageData[i] |= green << 8;
+                    ImageData[i] |= blue << 16;
+                    ImageData[i] |= 255 << 24;
                 }
             }
 
             // Set image
-            Bitmap = bitmap.CreateBitmap();
+            Bitmap = new Bitmap(w, h, PixelFormat.Format32bppRgba, ImageData);
             Image.Image = Bitmap;
 
             // Set info labels
@@ -628,7 +568,7 @@ namespace FastNoiseLite
         {
             try
             {
-                zPos += ((float) Frequency.Value) * 100.0f;
+                zPos += ((float)Frequency.Value) * 100.0f;
                 Generate(null, null);
             }
             catch (Exception ex) { MessageBox.Show("Frequency error: " + ex.ToString()); }
@@ -638,7 +578,7 @@ namespace FastNoiseLite
         {
             try
             {
-                zPos -= ((float) Frequency.Value) * 100.0f;
+                zPos -= ((float)Frequency.Value) * 100.0f;
                 Generate(null, null);
             }
             catch (Exception ex) { MessageBox.Show("Frequency error: " + ex.ToString()); }
@@ -650,30 +590,20 @@ namespace FastNoiseLite
             var is3d = Is3D.Checked == true;
             UpButton.Enabled = DownButton.Enabled = is3d;
 
-            // Interpolation
-            if (NoiseType.SelectedKey.Contains("Value") ||
-               NoiseType.SelectedKey.Contains("Perlin") ||
-               NoiseType.SelectedKey.Contains("Perturb"))
-            {
-                Interpolation.Enabled = true;
-            }
-            else Interpolation.Enabled = false;
-
             // Warp
             var perturbVis = NoiseType.SelectedKey.Contains("Perturb");
-            GradientPerturb.Enabled = !perturbVis;
+            DomainWarp.Enabled = !perturbVis;
 
             if (perturbVis)
             {
                 if (is3d)
-                    ExtraInfo.Text = "Visualisation of gradient perturb:\r\nRed = X offset, Green = Y offset, Blue = Z offset";
-                else ExtraInfo.Text = "Visualisation of gradient perturb:\r\nHue = X offset, Brightness = Y offset";
+                    ExtraInfo.Text = "Visualisation of domain warp:\r\nRed = X offset, Green = Y offset, Blue = Z offset";
+                else ExtraInfo.Text = "Visualisation of domain warp:\r\nHue = X offset, Brightness = Y offset";
             }
             else ExtraInfo.Text = "";
 
             // Fractal options
-            var fractal = NoiseType.SelectedKey.Contains("Fractal");
-            FractalType.Enabled = fractal & !perturbVis;
+            var fractal = FractalType.SelectedIndex > 0;
             FractalOctaves.Enabled = fractal;
             FractalLacunarity.Enabled = fractal;
             FractalGain.Enabled = fractal;
@@ -682,17 +612,15 @@ namespace FastNoiseLite
             var cellular = NoiseType.SelectedKey.Contains("Cellular");
             CellularDistanceFunction.Enabled = cellular;
             CellularReturnType.Enabled = cellular;
-            CellularDistance2Index0.Enabled = cellular;
-            CellularDistance2Index1.Enabled = cellular;
             CellularJitter.Enabled = cellular;
 
             // Gradient Perturb
-            var gp = GradientPerturb.SelectedIndex > 0;
-            GPAmplitude.Enabled = gp;
-            GPFrequency.Enabled = gp;
+            var warp = DomainWarp.SelectedIndex > 0;
+            DomainWarpAmplitude.Enabled = warp;
+            DomainWarpFrequency.Enabled = warp;
 
             // TODO: Reenable once lag is fixed
-            // Generate(null, null);
+            Generate(null, null);
         }
 
         private void Save(object sender, EventArgs e)
@@ -718,8 +646,9 @@ namespace FastNoiseLite
             });
         }
 
-        private string FormatReadable(string enumName) {
-            return Regex.Replace(enumName, "(\\B[A-Z0-9])", " $1");
+        private string FormatReadable(string enumName)
+        {
+            return Regex.Replace(enumName, "([a-z])([A-Z0-9])", "$1 $2");
         }
 
         void HsvToRgb(byte h, byte s, byte v, out byte r, out byte g, out byte b)
