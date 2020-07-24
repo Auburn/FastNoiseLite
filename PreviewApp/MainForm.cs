@@ -209,7 +209,7 @@ namespace FastNoiseLite
                         {
                             CellularDistanceFunction.Items.Add(FormatReadable(name));
                         }
-                        CellularDistanceFunction.SelectedIndex = (int)FastNoise.CellularDistanceFunction.Euclidean;
+                        CellularDistanceFunction.SelectedIndex = (int)FastNoise.CellularDistanceFunction.EuclideanSq;
                         CellularDistanceFunction.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, CellularDistanceFunction, "Distance Function:");
                     }
