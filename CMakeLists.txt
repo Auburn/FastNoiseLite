@@ -4,7 +4,8 @@ project(FastNoise VERSION 0.1.0 LANGUAGES CXX)
 
 add_library(fastnoise
 	src/FastNoise.cpp
-	src/FastNoise.h
+
+	include/FastNoise.h
 )
 
 target_include_directories(fastnoise
