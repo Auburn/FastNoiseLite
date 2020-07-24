@@ -905,14 +905,20 @@ public class FastNoise
 
         float cellularJitter = 0.5f * mCellularJitterModifier;
 
+        int xPrimed = (xr - 1) * PrimeX;
+        int yPrimedBase = (yr - 1) * PrimeY;
+
         switch (mCellularDistanceFunction)
         {
+            default:
             case CellularDistanceFunction.Euclidean:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xi * PrimeX, yi * PrimeY) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
 
                         float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
                         float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
@@ -925,16 +931,19 @@ public class FastNoise
                             distance0 = newDistance;
                             closestHash = hash;
                         }
-
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xi * PrimeX, yi * PrimeY) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
 
                         float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
                         float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
@@ -947,16 +956,19 @@ public class FastNoise
                             distance0 = newDistance;
                             closestHash = hash;
                         }
-
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xi * PrimeX, yi * PrimeY) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
 
                         float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
                         float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
@@ -969,10 +981,10 @@ public class FastNoise
                             distance0 = newDistance;
                             closestHash = hash;
                         }
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
-                break;
-            default:
                 break;
         }
 
@@ -1009,16 +1021,24 @@ public class FastNoise
 
         float cellularJitter = 0.45f * mCellularJitterModifier;
 
+        int xPrimed = (xr - 1) * PrimeX;
+        int yPrimedBase = (yr - 1) * PrimeY;
+        int zPrimedBase = (zr - 1) * PrimeZ;
+
         switch (mCellularDistanceFunction)
         {
             case CellularDistanceFunction.Euclidean:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
+                        int zPrimed = zPrimedBase;
+
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xi * PrimeX, yi * PrimeY, zi * PrimeZ) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
                             float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
                             float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
@@ -1032,18 +1052,25 @@ public class FastNoise
                                 distance0 = newDistance;
                                 closestHash = hash;
                             }
+                            zPrimed += PrimeZ;
                         }
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
+                        int zPrimed = zPrimedBase;
+
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xi * PrimeX, yi * PrimeY, zi * PrimeZ) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
                             float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
                             float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
@@ -1057,18 +1084,25 @@ public class FastNoise
                                 distance0 = newDistance;
                                 closestHash = hash;
                             }
+                            zPrimed += PrimeZ;
                         }
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
+                    int yPrimed = yPrimedBase;
+
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
+                        int zPrimed = zPrimedBase;
+
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xi * PrimeX, yi * PrimeY, zi * PrimeZ) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
                             float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
                             float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
@@ -1082,8 +1116,11 @@ public class FastNoise
                                 distance0 = newDistance;
                                 closestHash = hash;
                             }
+                            zPrimed += PrimeZ;
                         }
+                        yPrimed += PrimeY;
                     }
+                    xPrimed += PrimeX;
                 }
                 break;
             default:
