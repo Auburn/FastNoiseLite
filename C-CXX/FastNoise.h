@@ -1,8 +1,28 @@
-/*
- * C Header-Only FastNoise Lite Implementation.
- */
+// FastNoise.h
+//
+// MIT License
+//
+// Copyright(c) 2020 Jordan Peck, Reece Mackie
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
-// Config
+// Uncomment to use doubles for inputs
 //#define FN_USE_DOUBLE
 
 #if defined(__cplusplus)
@@ -92,6 +112,10 @@ float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z);
 void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y);
 void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z);
 
+// ====================
+// Below this line is the implementation
+// ====================
+
 #if defined(FN_IMPL)
 
 // ====================
@@ -156,6 +180,7 @@ static inline float _fnInvSqrt(float a) {
     return a;
 }
 
+// NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
 static inline float _fnFastSqrt(float a) {
     return a * _fnInvSqrt(a);
 }
@@ -308,6 +333,7 @@ static inline int _fnFloatCast2Int(FNfloat f) {
         FNfloat f;
     } u;
     u.f = f;
+
     return (int)(u.i ^ (u.i >> 32));
 }
 
