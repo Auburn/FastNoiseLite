@@ -5,8 +5,17 @@ using Eto.Drawing;
 using Eto.Forms;
 
 namespace FastNoiseLite
-{
-    public class MainForm : Form
+{   
+    class Program
+    {
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            new Application().Run(new FastNoiseGUI());
+        }
+    }
+
+    public class FastNoiseGUI : Form
     {
         private Button GenerateButton;
         private Button UpButton;
@@ -48,7 +57,7 @@ namespace FastNoiseLite
 
         private float zPos = 0;
 
-        public MainForm()
+        public FastNoiseGUI()
         {
             // Sets the client (inner) size of the window for your content
             ClientSize = new Size(1050, 820);
