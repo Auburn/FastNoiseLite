@@ -131,9 +131,7 @@ static inline float _fnFastMax(float x, float y) { return x > y ? x : y; }
 
 static inline float _fnFastAbs(float f) { return f < 0 ? -f : f; }
 
-static inline float _fnFastSqrt(float a) {
-    return sqrt(a);
-}
+static inline float _fnFastSqrt(float a) { return sqrt(a); }
 
 static inline int _fnFastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
 
