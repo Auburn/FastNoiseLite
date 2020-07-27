@@ -32,7 +32,7 @@ using FNfloat = System.Single;
 
 public class FastNoise
 {
-    public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular, WhiteNoise };
+    public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular };
     public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Natural };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
@@ -120,7 +120,8 @@ public class FastNoise
 
     private const float Root2 = 1.4142135623730950488f;
 
-    private static readonly float[] Gradients2D = {
+    private static readonly float[] Gradients2D = 
+    {
         1 + Root2, 1, -1 - Root2, 1, 1 + Root2, -1, -1 - Root2, -1,
         1, 1 + Root2, 1, -1 - Root2, -1, 1 + Root2, -1, -1 - Root2
     };
@@ -161,7 +162,8 @@ public class FastNoise
         0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
     };
 
-    private static readonly float[] Gradients3D = {
+    private static readonly float[] Gradients3D = 
+    {
         1, 1, 0, 0, -1, 1, 0, 0,  1,-1, 0, 0, -1,-1, 0, 0,
         1, 0, 1, 0, -1, 0, 1, 0,  1, 0,-1, 0, -1, 0,-1, 0,
         0, 1, 1, 0,  0,-1, 1, 0,  0, 1,-1, 0,  0,-1,-1, 0,
@@ -205,9 +207,17 @@ public class FastNoise
     };
 
 
-    private static int FastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
+    private static float FastMin(float a, float b) { return a < b ? a : b; }
 
-    private static int FastRound(FNfloat f) { return (f >= 0) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+    private static float FastMax(float a, float b) { return a > b ? a : b; }
+
+    private static float FastAbs(float f) { return f < 0 ? -f : f; }
+
+    private static float FastSqrt(float f) { return (float)Math.Sqrt(f); }
+
+    private static int FastFloor(FNfloat f) { return f >= 0 ? (int)f : (int)f - 1; }
+
+    private static int FastRound(FNfloat f) { return f >= 0 ? (int)(f + 0.5f) : (int)(f - 0.5f); }
 
     private static float Lerp(float a, float b, float t) { return a + t * (b - a); }
 
@@ -348,8 +358,6 @@ public class FastNoise
                 return SingleSimplex(seed, x, y);
             case NoiseType.Cellular:
                 return SingleCellular(seed, x, y);
-            case NoiseType.WhiteNoise:
-                return SingleWhiteNoise(seed, x, y);
             default:
                 return 0;
         }
@@ -369,8 +377,6 @@ public class FastNoise
                 return SingleSimplex(seed, x, y, z);
             case NoiseType.Cellular:
                 return SingleCellular(seed, x, y, z);
-            case NoiseType.WhiteNoise:
-                return SingleWhiteNoise(seed, x, y, z);
             default:
                 return 0;
         }
@@ -422,7 +428,7 @@ public class FastNoise
     private float GenFractalBillow(FNfloat x, FNfloat y)
     {
         int seed = mSeed;
-        float sum = Math.Abs(GenNoiseSingle(seed, x, y)) * 2 - 1;
+        float sum = FastAbs(GenNoiseSingle(seed, x, y)) * 2 - 1;
         float amp = 1.0f;
 
         for (int i = 1; i < mOctaves; i++)
@@ -431,7 +437,7 @@ public class FastNoise
             y *= mLacunarity;
 
             amp *= mGain;
-            sum += (Math.Abs(GenNoiseSingle(++seed, x, y)) * 2 - 1) * amp;
+            sum += (FastAbs(GenNoiseSingle(++seed, x, y)) * 2 - 1) * amp;
         }
 
         return sum * mFractalBounding;
@@ -440,7 +446,7 @@ public class FastNoise
     private float GenFractalBillow(FNfloat x, FNfloat y, FNfloat z)
     {
         int seed = mSeed;
-        float sum = Math.Abs(GenNoiseSingle(seed, x, y, z)) * 2 - 1;
+        float sum = FastAbs(GenNoiseSingle(seed, x, y, z)) * 2 - 1;
         float amp = 1.0f;
 
         for (int i = 1; i < mOctaves; i++)
@@ -450,7 +456,7 @@ public class FastNoise
             z *= mLacunarity;
 
             amp *= mGain;
-            sum += (Math.Abs(GenNoiseSingle(++seed, x, y, z)) * 2 - 1) * amp;
+            sum += (FastAbs(GenNoiseSingle(++seed, x, y, z)) * 2 - 1) * amp;
         }
 
         return sum * mFractalBounding;
@@ -462,7 +468,7 @@ public class FastNoise
     private float GenFractalRidged(FNfloat x, FNfloat y)
     {
         int seed = mSeed;
-        float sum = 1 - Math.Abs(GenNoiseSingle(seed, x, y));
+        float sum = 1 - FastAbs(GenNoiseSingle(seed, x, y));
         float amp = 1;
 
         for (int i = 1; i < mOctaves; i++)
@@ -471,7 +477,7 @@ public class FastNoise
             y *= mLacunarity;
 
             amp *= mGain;
-            sum -= (1 - Math.Abs(GenNoiseSingle(++seed, x, y))) * amp;
+            sum -= (1 - FastAbs(GenNoiseSingle(++seed, x, y))) * amp;
         }
 
         return sum;
@@ -480,7 +486,7 @@ public class FastNoise
     private float GenFractalRidged(FNfloat x, FNfloat y, FNfloat z)
     {
         int seed = mSeed;
-        float sum = 1 - Math.Abs(GenNoiseSingle(seed, x, y, z));
+        float sum = 1 - FastAbs(GenNoiseSingle(seed, x, y, z));
         float amp = 1;
 
         for (int i = 1; i < mOctaves; i++)
@@ -490,41 +496,10 @@ public class FastNoise
             z *= mLacunarity;
 
             amp *= mGain;
-            sum -= (1 - Math.Abs(GenNoiseSingle(++seed, x, y, z))) * amp;
+            sum -= (1 - FastAbs(GenNoiseSingle(++seed, x, y, z))) * amp;
         }
 
         return sum;
-    }
-
-
-    // White Noise
-    private int FloatCast2Int(float f)
-    {
-        return BitConverter.SingleToInt32Bits(f);
-    }
-
-    private int FloatCast2Int(double f)
-    {
-        var i = BitConverter.DoubleToInt64Bits(f);
-
-        return (int)(i ^ (i >> 32));
-    }
-
-    public float SingleWhiteNoise(int seed, FNfloat x, FNfloat y)
-    {
-        int xi = FloatCast2Int(x) * PrimeX;
-        int yi = FloatCast2Int(y) * PrimeY;
-
-        return ValCoord(seed, xi, yi);
-    }
-
-    public float SingleWhiteNoise(int seed, FNfloat x, FNfloat y, FNfloat z)
-    {
-        int xi = FloatCast2Int(x) * PrimeX;
-        int yi = FloatCast2Int(y) * PrimeY;
-        int zi = FloatCast2Int(z) * PrimeZ;
-
-        return ValCoord(seed, xi, yi, zi);
     }
 
 
@@ -933,7 +908,7 @@ public class FastNoise
 
                         float newDistance = vecX * vecX + vecY * vecY;
 
-                        distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                        distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0)
                         {
                             distance0 = newDistance;
@@ -956,9 +931,9 @@ public class FastNoise
                         float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
                         float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
 
-                        float newDistance = Math.Abs(vecX) + Math.Abs(vecY);
+                        float newDistance = FastAbs(vecX) + FastAbs(vecY);
 
-                        distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                        distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0)
                         {
                             distance0 = newDistance;
@@ -981,9 +956,9 @@ public class FastNoise
                         float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
                         float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
 
-                        float newDistance = (Math.Abs(vecX) + Math.Abs(vecY)) + (vecX * vecX + vecY * vecY);
+                        float newDistance = (FastAbs(vecX) + FastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
-                        distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                        distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0)
                         {
                             distance0 = newDistance;
@@ -998,11 +973,11 @@ public class FastNoise
 
         if (mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType >= CellularReturnType.Distance)
         {
-            distance0 = MathF.Sqrt(distance0);
+            distance0 = FastSqrt(distance0);
 
             if (mCellularReturnType >= CellularReturnType.Distance2)
             {
-                distance1 = MathF.Sqrt(distance1);
+                distance1 = FastSqrt(distance1);
             }
         }
 
@@ -1065,7 +1040,7 @@ public class FastNoise
 
                             float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
-                            distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                            distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                             if (newDistance < distance0)
                             {
                                 distance0 = newDistance;
@@ -1095,9 +1070,9 @@ public class FastNoise
                             float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
                             float vecZ = (float)(zi - z) + RandVecs3D[hash | 2] * cellularJitter;
 
-                            float newDistance = Math.Abs(vecX) + Math.Abs(vecY) + Math.Abs(vecZ);
+                            float newDistance = FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ);
 
-                            distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                            distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                             if (newDistance < distance0)
                             {
                                 distance0 = newDistance;
@@ -1127,9 +1102,9 @@ public class FastNoise
                             float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
                             float vecZ = (float)(zi - z) + RandVecs3D[hash | 2] * cellularJitter;
 
-                            float newDistance = (Math.Abs(vecX) + Math.Abs(vecY) + Math.Abs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
+                            float newDistance = (FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
-                            distance1 = Math.Max(Math.Min(distance1, newDistance), distance0);
+                            distance1 = FastMax(FastMin(distance1, newDistance), distance0);
                             if (newDistance < distance0)
                             {
                                 distance0 = newDistance;
@@ -1148,11 +1123,11 @@ public class FastNoise
 
         if( mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType >= CellularReturnType.Distance )
         {
-            distance0 = MathF.Sqrt(distance0);
+            distance0 = FastSqrt(distance0);
 
             if( mCellularReturnType >= CellularReturnType.Distance2)
             { 
-                distance1 = MathF.Sqrt(distance1);
+                distance1 = FastSqrt(distance1);
             }
         }
 
