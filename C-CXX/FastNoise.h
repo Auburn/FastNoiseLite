@@ -47,8 +47,7 @@ typedef enum {
     FN_NOISE_PERLIN,
     FN_NOISE_SIMPLEX,
     FN_NOISE_OPENSIMPLEX2F,
-    FN_NOISE_CELLULAR,
-    FN_NOISE_WHITENOISE
+    FN_NOISE_CELLULAR
 } fn_noise_type;
 
 typedef enum {
@@ -116,6 +115,8 @@ void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z);
 // Below this line is the implementation
 // ====================
 
+#define FN_IMPL
+
 #if defined(FN_IMPL)
 
 // ====================
@@ -136,24 +137,11 @@ static float _fnCalculateFractalBounding(fn_state *state) {
 // Utilities
 // ====================
 
-static inline int _fnFastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
-
-static inline int _fnFastRound(FNfloat f) { return (f >= 0) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
-
 static inline float _fnFastMin(float x, float y) { return x < y ? x : y; }
 
 static inline float _fnFastMax(float x, float y) { return x > y ? x : y; }
 
-static inline float _fnLerp(float a, float b, float t) { return a + t * (b - a); }
-
-static inline float _fnInterpHermite(float t) { return t * t * (3 - 2 * t); }
-
-static inline float _fnInterpQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-
-static inline float _fnCubicLerp(float a, float b, float c, float d, float t) {
-    float p = (d - c) - (a - b);
-    return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
-}
+static inline float _fnFastAbs(float f) { return f < 0 ? -f : f; }
 
 static inline float _fnCasti32Tof32(int i) {
     union {
@@ -183,6 +171,21 @@ static inline float _fnInvSqrt(float a) {
 // NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
 static inline float _fnFastSqrt(float a) {
     return a * _fnInvSqrt(a);
+}
+
+static inline int _fnFastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
+
+static inline int _fnFastRound(FNfloat f) { return (f >= 0) ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+
+static inline float _fnLerp(float a, float b, float t) { return a + t * (b - a); }
+
+static inline float _fnInterpHermite(float t) { return t * t * (3 - 2 * t); }
+
+static inline float _fnInterpQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+
+static inline float _fnCubicLerp(float a, float b, float c, float d, float t) {
+    float p = (d - c) - (a - b);
+    return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
 }
 
 // ====================
@@ -327,31 +330,6 @@ static const float RAND_VECS_3D[] = {
 // ====================
 // Noise functions
 // ====================
-
-// White Noise
-
-static inline int _fnFloatCast2Int(FNfloat f) {
-    union {
-        uint64_t i;
-        FNfloat f;
-    } u;
-    u.f = f;
-
-    return (int)(u.i ^ (u.i >> 32));
-}
-
-static float _fnSingleWhiteNoise2D(int seed, FNfloat x, FNfloat y) {
-    int xi = _fnFloatCast2Int(x) * PRIME_X;
-    int yi = _fnFloatCast2Int(y) * PRIME_Y;
-    return _fnValCoord2D(seed, xi, yi);
-}
-
-static float _fnSingleWhiteNoise3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
-    int xi = _fnFloatCast2Int(x) * PRIME_X;
-    int yi = _fnFloatCast2Int(y) * PRIME_Y;
-    int zi = _fnFloatCast2Int(z) * PRIME_Z;
-    return _fnValCoord3D(seed, xi, yi, zi);
-}
 
 // Value noise
 
@@ -739,7 +717,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                     float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
                     float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
 
-                    float newDistance = fabsf(vecX) + fabsf(vecY);
+                    float newDistance = _fnFastAbs(vecX) + _fnFastAbs(vecY);
 
                     distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                     if (newDistance < distance0) {
@@ -760,7 +738,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                     float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
                     float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
 
-                    float newDistance = (fabsf(vecX) + fabsf(vecY)) + (vecX * vecX + vecY * vecY);
+                    float newDistance = (_fnFastAbs(vecX) + _fnFastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
                     distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                     if (newDistance < distance0) {
@@ -860,7 +838,7 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                         float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
                         float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
 
-                        float newDistance = fabsf(vecX) + fabsf(vecY) + fabsf(vecZ);
+                        float newDistance = _fnFastAbs(vecX) + _fnFastAbs(vecY) + _fnFastAbs(vecZ);
 
                         distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0) {
@@ -888,7 +866,7 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                         float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
                         float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
                             
-                        float newDistance = (fabsf(vecX) + fabsf(vecY) + fabsf(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
+                        float newDistance = (_fnFastAbs(vecX) + _fnFastAbs(vecY) + _fnFastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
                         distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0) {
@@ -948,8 +926,6 @@ static float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y
         //     return 0; // TODO
         case FN_NOISE_CELLULAR:
             return _fnSingleCellular2D(state, seed, x, y);
-        case FN_NOISE_WHITENOISE:
-            return _fnSingleWhiteNoise2D(seed, x, y);
         default:
             return 0;
     }
@@ -973,7 +949,7 @@ static float _fnGenFractalFBM2D(fn_state *state, FNfloat x, FNfloat y) {
 
 static float _fnGenFractalBillow2D(fn_state *state, FNfloat x, FNfloat y) {
     int seed = state->seed;
-    float sum = fabsf(_fnGenNoiseSingle2D(state, seed, x, y)) * 2 - 1;
+    float sum = _fnFastAbs(_fnGenNoiseSingle2D(state, seed, x, y)) * 2 - 1;
     float amp = 1.0f;
 
     for (int i = 1; i < state->octaves; i++) {
@@ -981,7 +957,7 @@ static float _fnGenFractalBillow2D(fn_state *state, FNfloat x, FNfloat y) {
         y *= state->lacunarity;
 
         amp *= state->gain;
-        sum += (fabsf(_fnGenNoiseSingle2D(state, ++seed, x, y)) * 2 - 1) * amp;
+        sum += (_fnFastAbs(_fnGenNoiseSingle2D(state, ++seed, x, y)) * 2 - 1) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
@@ -989,7 +965,7 @@ static float _fnGenFractalBillow2D(fn_state *state, FNfloat x, FNfloat y) {
 
 static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
     int seed = state->seed;
-    float sum = 1 - fabsf(_fnGenNoiseSingle2D(state, seed, x, y));
+    float sum = 1 - _fnFastAbs(_fnGenNoiseSingle2D(state, seed, x, y));
     float amp = 1.0f;
 
     for (int i = 1; i < state->octaves; i++) {
@@ -997,7 +973,7 @@ static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
         y *= state->lacunarity;
 
         amp *= state->gain;
-        sum -= (1 - fabsf(_fnGenNoiseSingle2D(state, ++seed, x, y))) * amp;
+        sum -= (1 - _fnFastAbs(_fnGenNoiseSingle2D(state, ++seed, x, y))) * amp;
     }
 
     return sum;
@@ -1021,8 +997,6 @@ static float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat y
         //     return 0; // TODO
         case FN_NOISE_CELLULAR:
             return _fnSingleCellular3D(state, seed, x, y, z);
-        case FN_NOISE_WHITENOISE:
-            return _fnSingleWhiteNoise3D(seed, x, y, z);
         default:
             return 0;
     }
@@ -1047,7 +1021,7 @@ static float _fnGenFractalFBM3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z
 
 static float _fnGenFractalBillow3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     int seed = state->seed;
-    float sum = fabsf(_fnGenNoiseSingle3D(state, seed, x, y, z)) * 2 - 1;
+    float sum = _fnFastAbs(_fnGenNoiseSingle3D(state, seed, x, y, z)) * 2 - 1;
     float amp = 1.0f;
 
     for (int i = 1; i < state->octaves; i++) {
@@ -1056,7 +1030,7 @@ static float _fnGenFractalBillow3D(fn_state *state, FNfloat x, FNfloat y, FNfloa
         z *= state->lacunarity;
 
         amp *= state->gain;
-        sum += (fabsf(_fnGenNoiseSingle3D(state, ++seed, x, y, z)) * 2 - 1) * amp;
+        sum += (_fnFastAbs(_fnGenNoiseSingle3D(state, ++seed, x, y, z)) * 2 - 1) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
@@ -1064,7 +1038,7 @@ static float _fnGenFractalBillow3D(fn_state *state, FNfloat x, FNfloat y, FNfloa
 
 static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     int seed = state->seed;
-    float sum = 1 - fabsf(_fnGenNoiseSingle3D(state, seed, x, y, z));
+    float sum = 1 - _fnFastAbs(_fnGenNoiseSingle3D(state, seed, x, y, z));
     float amp = 1.0;
 
     for (int i = 1; i < state->octaves; i++) {
@@ -1073,7 +1047,7 @@ static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloa
         z *= state->lacunarity;
 
         amp *= state->gain;
-        sum -= (1 - fabsf(_fnGenNoiseSingle3D(state, ++seed, x, y, z))) * amp;
+        sum -= (1 - _fnFastAbs(_fnGenNoiseSingle3D(state, ++seed, x, y, z))) * amp;
     }
 
     return sum;

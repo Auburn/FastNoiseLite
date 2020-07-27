@@ -14,8 +14,7 @@ namespace FastNoise {
         Perlin = FN_NOISE_PERLIN,
         Simplex = FN_NOISE_SIMPLEX,
         OpenSimplex2f = FN_NOISE_OPENSIMPLEX2F,
-        Cellular = FN_NOISE_CELLULAR,
-        WhiteNoise = FN_NOISE_WHITENOISE
+        Cellular = FN_NOISE_CELLULAR
     };
 
     enum class FractalType {
