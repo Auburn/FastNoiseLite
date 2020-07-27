@@ -1,4 +1,4 @@
-// FastNoise.h
+// FastNoise.compute
 //
 // MIT License
 //
@@ -25,14 +25,6 @@
 // Uncomment to use doubles for inputs
 //#define FN_USE_DOUBLE
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-#include <math.h>
-#include <stdint.h>
-#include <float.h>
-
 // Typedefs
 #if defined(FN_USE_DOUBLE)
 typedef double FNfloat;
@@ -40,50 +32,50 @@ typedef double FNfloat;
 typedef float FNfloat;
 #endif
 
-// Enums
-typedef enum {
-    FN_NOISE_VALUE,
-    FN_NOISE_VALUE_CUBIC,
-    FN_NOISE_PERLIN,
-    FN_NOISE_SIMPLEX,
-    FN_NOISE_OPENSIMPLEX2F,
-    FN_NOISE_CELLULAR,
-    FN_NOISE_WHITENOISE
-} fn_noise_type;
+// Min and max, from https://github.com/Unity-Technologies/FPSSample/blob/master/Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl
+#define FLT_MIN         1.175494351e-38 // Minimum representable positive floating-point number
+#define FLT_MAX         3.402823466e+38 // Maximum representable floating-point number
 
-typedef enum {
-    FN_FRACTAL_NONE,
-    FN_FRACTAL_FBM,
-    FN_FRACTAL_BILLOW,
-    FN_FRACTAL_RIDGED,
-    FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE,
-    FN_FRACTAL_DOMAIN_WARP_INDEPENDENT
-} fn_fractal_type;
+// Noise Type
+#define FN_NOISE_VALUE 0
+#define FN_NOISE_VALUE_CUBIC 1
+#define FN_NOISE_PERLIN 2
+#define FN_NOISE_SIMPLEX 3
+#define FN_NOISE_OPENSIMPLEX2F 4
+#define FN_NOISE_CELLULAR 5
+#define FN_NOISE_WHITENOISE 6
+typedef int fn_noise_type;
 
-typedef enum {
-    FN_CELLULAR_DIST_EUCLIDEAN,
-    FN_CELLULAR_DIST_EUCLIDEANSQ,
-    FN_CELLULAR_DIST_MANHATTAN,
-    FN_CELLULAR_DIST_NATURAL
-} fn_cellular_distance_func;
+// Fractal types
+#define FN_FRACTAL_NONE 0
+#define FN_FRACTAL_FBM 1
+#define FN_FRACTAL_BILLOW 2
+#define FN_FRACTAL_RIDGED 3
+#define FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE 4
+#define FN_FRACTAL_DOMAIN_WARP_INDEPENDENT 5
+typedef int fn_fractal_type;
 
-typedef enum {
-    FN_CELLULAR_RET_CELLVALUE,
-    FN_CELLULAR_RET_DISTANCE,
-    FN_CELLULAR_RET_DISTANCE2,
-    FN_CELLULAR_RET_DISTANCE2ADD,
-    FN_CELLULAR_RET_DISTANCE2SUB,
-    FN_CELLULAR_RET_DISTANCE2MUL,
-    FN_CELLULAR_RET_DISTANCE2DIV,
-} fn_cellular_return_type;
+#define FN_CELLULAR_DIST_EUCLIDEAN 0
+#define FN_CELLULAR_DIST_EUCLIDEANSQ 1
+#define FN_CELLULAR_DIST_MANHATTAN 2
+#define FN_CELLULAR_DIST_NATURAL 3
+typedef int fn_cellular_distance_func;
 
-typedef enum {
-    FN_DOMAIN_WARP_GRADIENT,
-    FN_DOMAIN_WARP_SIMPLEX
-} fn_domain_warp_type;
+#define FN_CELLULAR_RET_CELLVALUE 0
+#define FN_CELLULAR_RET_DISTANCE 1
+#define FN_CELLULAR_RET_DISTANCE2 2
+#define FN_CELLULAR_RET_DISTANCE2ADD 3
+#define FN_CELLULAR_RET_DISTANCE2SUB 4
+#define FN_CELLULAR_RET_DISTANCE2MUL 5
+#define FN_CELLULAR_RET_DISTANCE2DIV 6
+typedef int fn_cellular_return_type;
+
+#define FN_DOMAIN_WARP_GRADIENT 0
+#define FN_DOMAIN_WARP_SIMPLEX 1
+typedef int fn_domain_warp_type;
 
 // State struct
-typedef struct fn_state {
+struct fn_state {
     int seed;
     float frequency;
     fn_noise_type noise_type;
@@ -99,35 +91,33 @@ typedef struct fn_state {
 
     fn_domain_warp_type domain_warp_type;
     float domain_warp_amp;
-} fn_state;
+};
 
 // Creates a state with default values set
 fn_state fnCreateState(int seed = 1337);
 
 // Simple function for getting the noise
-float fnGetNoise2D(fn_state *state, FNfloat x, FNfloat y);
-float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z);
+float fnGetNoise2D(fn_state state, FNfloat x, FNfloat y);
+float fnGetNoise3D(fn_state state, FNfloat x, FNfloat y, FNfloat z);
 
 // Domain warp
-void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y);
-void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z);
+void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y);
+void fnDomainWarp3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z);
 
 // ====================
 // Below this line is the implementation
 // ====================
 
-#if defined(FN_IMPL)
-
 // ====================
 // Private API
 // ====================
 
-static float _fnCalculateFractalBounding(fn_state *state) {
-    float amp = state->gain;
+static float _fnCalculateFractalBounding(fn_state state) {
+    float amp = state.gain;
     float ampFractal = 1.0f;
-    for (int i = 1; i < state->octaves; i++) {
+    for (int i = 1; i < state.octaves; i++) {
         ampFractal += amp;
-        amp *= state->gain;
+        amp *= state.gain;
     }
     return 1.0f / ampFractal;
 }
@@ -155,7 +145,7 @@ static inline float _fnCubicLerp(float a, float b, float c, float d, float t) {
     return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
 }
 
-static inline float _fnCasti32Tof32(int i) {
+/*static inline float _fnCasti32Tof32(int i) {
     union {
         float f;
         int32_t i;
@@ -181,9 +171,9 @@ static inline float _fnInvSqrt(float a) {
 }
 
 // NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
-static inline float _fnFastSqrt(float a) {
+static inline float sqrt(float a) {
     return a * _fnInvSqrt(a);
-}
+}*/
 
 // ====================
 // Hashing
@@ -224,7 +214,6 @@ static inline float _fnValCoord3D(int seed, int xPrimed, int yPrimed, int zPrime
     hash ^= hash << 19;
     return hash / 2147483648.0f;
 }
-
 
 static const float ROOT2 = 1.4142135623730950488f;
 
@@ -331,13 +320,11 @@ static const float RAND_VECS_3D[] = {
 // White Noise
 
 static inline int _fnFloatCast2Int(FNfloat f) {
-    union {
-        uint64_t i;
-        FNfloat f;
-    } u;
-    u.f = f;
+    uint low;
+    uint high;
+    asuint(f, low, high);
 
-    return (int)(u.i ^ (u.i >> 32));
+    return (int)(low ^ (high >> 32));
 }
 
 static float _fnSingleWhiteNoise2D(int seed, FNfloat x, FNfloat y) {
@@ -691,7 +678,7 @@ static float _fnSingleSimplex3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
 
 // Cellular Noise
 
-static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y) {
+static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y) {
     int xr = _fnFastRound(x);
     int yr = _fnFastRound(y);
 
@@ -699,15 +686,15 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
     float distance1 = FLT_MAX;
     int closestHash = 0;
 
-    float cellularJitter = 0.5f * state->cellular_jitter_mod;
+    float cellularJitter = 0.5f * state.cellular_jitter_mod;
 
     int xPrimed = (xr - 1) * PRIME_X;
     int yPrimedBase = (yr - 1) * PRIME_Y;
 
-    switch (state->cellular_distance_func) {
+    switch (state.cellular_distance_func) {
         default:
         case FN_CELLULAR_DIST_EUCLIDEAN:
-        case FN_CELLULAR_DIST_EUCLIDEANSQ:
+        case FN_CELLULAR_DIST_EUCLIDEANSQ: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
@@ -729,7 +716,8 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_MANHATTAN:
+        }
+        case FN_CELLULAR_DIST_MANHATTAN: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
@@ -739,7 +727,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                     float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
                     float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
 
-                    float newDistance = fabsf(vecX) + fabsf(vecY);
+                    float newDistance = abs(vecX) + abs(vecY);
 
                     distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                     if (newDistance < distance0) {
@@ -751,7 +739,8 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_NATURAL:
+        }
+        case FN_CELLULAR_DIST_NATURAL: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
@@ -760,7 +749,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                     float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
                     float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
 
-                    float newDistance = (fabsf(vecX) + fabsf(vecY)) + (vecX * vecX + vecY * vecY);
+                    float newDistance = (abs(vecX) + abs(vecY)) + (vecX * vecX + vecY * vecY);
 
                     distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                     if (newDistance < distance0) {
@@ -772,15 +761,16 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
+        }
     }
 
-    if (state->cellular_distance_func == FN_CELLULAR_DIST_EUCLIDEAN && state->cellular_return_type >= FN_CELLULAR_RET_DISTANCE) {
-        distance0 = _fnFastSqrt(distance0);
-        if (state->cellular_return_type >= FN_CELLULAR_RET_DISTANCE2)
-            distance1 = _fnFastSqrt(distance1);
+    if (state.cellular_distance_func == FN_CELLULAR_DIST_EUCLIDEAN && state.cellular_return_type >= FN_CELLULAR_RET_DISTANCE) {
+        distance0 = sqrt(distance0);
+        if (state.cellular_return_type >= FN_CELLULAR_RET_DISTANCE2)
+            distance1 = sqrt(distance1);
     }
 
-    switch (state->cellular_return_type) {
+    switch (state.cellular_return_type) {
         case FN_CELLULAR_RET_CELLVALUE:
             return closestHash / 2147483648.0f;
         case FN_CELLULAR_RET_DISTANCE:
@@ -800,7 +790,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
     }
 }
 
-static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y, FNfloat z) {
+static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y, FNfloat z) {
     int xr = _fnFastRound(x);
     int yr = _fnFastRound(y);
     int zr = _fnFastRound(z);
@@ -809,16 +799,16 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
     float distance1 = FLT_MAX;
     int closestHash = 0;
 
-    float cellularJitter = 0.45f * state->cellular_jitter_mod;
+    float cellularJitter = 0.45f * state.cellular_jitter_mod;
 
     int xPrimed = (xr - 1) * PRIME_X;
     int yPrimedBase = (yr - 1) * PRIME_Y;
     int zPrimedBase = (zr - 1) * PRIME_Z;
 
-    switch (state->cellular_distance_func) {
+    switch (state.cellular_distance_func) {
         default:
         case FN_CELLULAR_DIST_EUCLIDEAN:
-        case FN_CELLULAR_DIST_EUCLIDEANSQ:
+        case FN_CELLULAR_DIST_EUCLIDEANSQ: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
@@ -846,7 +836,8 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_MANHATTAN:
+        }
+        case FN_CELLULAR_DIST_MANHATTAN: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
@@ -860,7 +851,7 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                         float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
                         float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
 
-                        float newDistance = fabsf(vecX) + fabsf(vecY) + fabsf(vecZ);
+                        float newDistance = abs(vecX) + abs(vecY) + abs(vecZ);
 
                         distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0) {
@@ -874,7 +865,8 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_NATURAL:
+        }
+        case FN_CELLULAR_DIST_NATURAL: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
@@ -888,7 +880,7 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                         float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
                         float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
                             
-                        float newDistance = (fabsf(vecX) + fabsf(vecY) + fabsf(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
+                        float newDistance = (abs(vecX) + abs(vecY) + abs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
                         distance1 = _fnFastMax(_fnFastMin(distance1, newDistance), distance0);
                         if (newDistance < distance0) {
@@ -902,15 +894,16 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
+        }
     }
 
-    if (state->cellular_distance_func == FN_CELLULAR_DIST_EUCLIDEAN && state->cellular_return_type >= FN_CELLULAR_RET_DISTANCE) {
-        distance0 = _fnFastSqrt(distance0);
-        if (state->cellular_return_type >= FN_CELLULAR_RET_DISTANCE2)
-            distance1 = _fnFastSqrt(distance1);
+    if (state.cellular_distance_func == FN_CELLULAR_DIST_EUCLIDEAN && state.cellular_return_type >= FN_CELLULAR_RET_DISTANCE) {
+        distance0 = sqrt(distance0);
+        if (state.cellular_return_type >= FN_CELLULAR_RET_DISTANCE2)
+            distance1 = sqrt(distance1);
     }
 
-    switch (state->cellular_return_type) {
+    switch (state.cellular_return_type) {
         case FN_CELLULAR_RET_CELLVALUE:
             return closestHash / 2147483648.0f;
         case FN_CELLULAR_RET_DISTANCE:
@@ -934,8 +927,8 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
 // 2D Gen functions
 // ====================
 
-static float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y) {
-    switch (state->noise_type) {
+static float _fnGenNoiseSingle2D(fn_state state, int seed, FNfloat x, FNfloat y) {
+    switch (state.noise_type) {
         case FN_NOISE_VALUE:
             return _fnSingleValue2D(seed, x, y);
         case FN_NOISE_VALUE_CUBIC:
@@ -944,8 +937,8 @@ static float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y
             return _fnSinglePerlin2D(seed, x, y);
         case FN_NOISE_SIMPLEX:
             return _fnSingleSimplex2D(seed, x, y);
-        // case FN_NOISE_OPENSIMPLEX2F:
-        //     return 0; // TODO
+        case FN_NOISE_OPENSIMPLEX2F:
+            return 0; // TODO
         case FN_NOISE_CELLULAR:
             return _fnSingleCellular2D(state, seed, x, y);
         case FN_NOISE_WHITENOISE:
@@ -955,49 +948,49 @@ static float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y
     }
 }
 
-static float _fnGenFractalFBM2D(fn_state *state, FNfloat x, FNfloat y) {
-    int seed = state->seed;
+static float _fnGenFractalFBM2D(fn_state state, FNfloat x, FNfloat y) {
+    int seed = state.seed;
     float sum = _fnGenNoiseSingle2D(state, seed, x, y);
     float amp = 1.0f;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
 
-        amp *= state->gain;
+        amp *= state.gain;
         sum += _fnGenNoiseSingle2D(state, ++seed, x, y) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
 }
 
-static float _fnGenFractalBillow2D(fn_state *state, FNfloat x, FNfloat y) {
-    int seed = state->seed;
-    float sum = fabsf(_fnGenNoiseSingle2D(state, seed, x, y)) * 2 - 1;
+static float _fnGenFractalBillow2D(fn_state state, FNfloat x, FNfloat y) {
+    int seed = state.seed;
+    float sum = abs(_fnGenNoiseSingle2D(state, seed, x, y)) * 2 - 1;
     float amp = 1.0f;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
 
-        amp *= state->gain;
-        sum += (fabsf(_fnGenNoiseSingle2D(state, ++seed, x, y)) * 2 - 1) * amp;
+        amp *= state.gain;
+        sum += (abs(_fnGenNoiseSingle2D(state, ++seed, x, y)) * 2 - 1) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
 }
 
-static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
-    int seed = state->seed;
-    float sum = 1 - fabsf(_fnGenNoiseSingle2D(state, seed, x, y));
+static float _fnGenFractalRidged2D(fn_state state, FNfloat x, FNfloat y) {
+    int seed = state.seed;
+    float sum = 1 - abs(_fnGenNoiseSingle2D(state, seed, x, y));
     float amp = 1.0f;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
 
-        amp *= state->gain;
-        sum -= (1 - fabsf(_fnGenNoiseSingle2D(state, ++seed, x, y))) * amp;
+        amp *= state.gain;
+        sum -= (1 - abs(_fnGenNoiseSingle2D(state, ++seed, x, y))) * amp;
     }
 
     return sum;
@@ -1007,8 +1000,8 @@ static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
 // 3D Gen functions
 // ====================
 
-static float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat y, FNfloat z) {
-    switch (state->noise_type) {
+static float _fnGenNoiseSingle3D(fn_state state, int seed, FNfloat x, FNfloat y, FNfloat z) {
+    switch (state.noise_type) {
         case FN_NOISE_VALUE:
             return _fnSingleValue3D(seed, x, y, z);
         case FN_NOISE_VALUE_CUBIC:
@@ -1028,52 +1021,52 @@ static float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat y
     }
 }
 
-static float _fnGenFractalFBM3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
-    int seed = state->seed;
+static float _fnGenFractalFBM3D(fn_state state, FNfloat x, FNfloat y, FNfloat z) {
+    int seed = state.seed;
     float sum = _fnGenNoiseSingle3D(state, seed, x, y, z);
     float amp = 1.0f;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
-        z *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
+        z *= state.lacunarity;
 
-        amp *= state->gain;
+        amp *= state.gain;
         sum += _fnGenNoiseSingle3D(state, ++seed, x, y, z) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
 }
 
-static float _fnGenFractalBillow3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
-    int seed = state->seed;
-    float sum = fabsf(_fnGenNoiseSingle3D(state, seed, x, y, z)) * 2 - 1;
+static float _fnGenFractalBillow3D(fn_state state, FNfloat x, FNfloat y, FNfloat z) {
+    int seed = state.seed;
+    float sum = abs(_fnGenNoiseSingle3D(state, seed, x, y, z)) * 2 - 1;
     float amp = 1.0f;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
-        z *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
+        z *= state.lacunarity;
 
-        amp *= state->gain;
-        sum += (fabsf(_fnGenNoiseSingle3D(state, ++seed, x, y, z)) * 2 - 1) * amp;
+        amp *= state.gain;
+        sum += (abs(_fnGenNoiseSingle3D(state, ++seed, x, y, z)) * 2 - 1) * amp;
     }
 
     return sum * _fnCalculateFractalBounding(state);
 }
 
-static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
-    int seed = state->seed;
-    float sum = 1 - fabsf(_fnGenNoiseSingle3D(state, seed, x, y, z));
+static float _fnGenFractalRidged3D(fn_state state, FNfloat x, FNfloat y, FNfloat z) {
+    int seed = state.seed;
+    float sum = 1 - abs(_fnGenNoiseSingle3D(state, seed, x, y, z));
     float amp = 1.0;
 
-    for (int i = 1; i < state->octaves; i++) {
-        x *= state->lacunarity;
-        y *= state->lacunarity;
-        z *= state->lacunarity;
+    for (int i = 1; i < state.octaves; i++) {
+        x *= state.lacunarity;
+        y *= state.lacunarity;
+        z *= state.lacunarity;
 
-        amp *= state->gain;
-        sum -= (1 - fabsf(_fnGenNoiseSingle3D(state, ++seed, x, y, z))) * amp;
+        amp *= state.gain;
+        sum -= (1 - abs(_fnGenNoiseSingle3D(state, ++seed, x, y, z))) * amp;
     }
 
     return sum;
@@ -1085,7 +1078,7 @@ static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloa
 
 // Domain Warp Gradient
 
-static void _fnSingleDomainWarpGradient2D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xp, FNfloat *yp) {
+static void _fnSingleDomainWarpGradient2D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, out FNfloat xp, out FNfloat yp) {
     FNfloat xf = x * frequency;
     FNfloat yf = y * frequency;
 
@@ -1112,11 +1105,11 @@ static void _fnSingleDomainWarpGradient2D(int seed, float perturbAmp, float freq
     float lx1x = _fnLerp(RAND_VECS_2D[idx0], RAND_VECS_2D[idx1], xs);
     float ly1x = _fnLerp(RAND_VECS_2D[idx0 | 1], RAND_VECS_2D[idx1 | 1], xs);
 
-    *xp += _fnLerp(lx0x, lx1x, ys) * perturbAmp;
-    *yp += _fnLerp(ly0x, ly1x, ys) * perturbAmp;
+    xp += _fnLerp(lx0x, lx1x, ys) * perturbAmp;
+    yp += _fnLerp(ly0x, ly1x, ys) * perturbAmp;
 }
 
-static void _fnSingleDomainWarpGradient3D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, FNfloat *xp, FNfloat *yp, FNfloat *zp) {
+static void _fnSingleDomainWarpGradient3D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, out FNfloat xp, out FNfloat yp, out FNfloat zp) {
     FNfloat xf = x * frequency;
     FNfloat yf = y * frequency;
     FNfloat zf = z * frequency;
@@ -1168,15 +1161,15 @@ static void _fnSingleDomainWarpGradient3D(int seed, float perturbAmp, float freq
     ly1x = _fnLerp(RAND_VECS_3D[idx0 | 1], RAND_VECS_3D[idx1 | 1], xs);
     lz1x = _fnLerp(RAND_VECS_3D[idx0 | 2], RAND_VECS_3D[idx1 | 2], xs);
 
-    *xp += _fnLerp(lx0y, _fnLerp(lx0x, lx1x, ys), zs) * perturbAmp;
-    *yp += _fnLerp(ly0y, _fnLerp(ly0x, ly1x, ys), zs) * perturbAmp;
-    *zp += _fnLerp(lz0y, _fnLerp(lz0x, lz1x, ys), zs) * perturbAmp;
+    xp += _fnLerp(lx0y, _fnLerp(lx0x, lx1x, ys), zs) * perturbAmp;
+    yp += _fnLerp(ly0y, _fnLerp(ly0x, ly1x, ys), zs) * perturbAmp;
+    zp += _fnLerp(lz0y, _fnLerp(lz0x, lz1x, ys), zs) * perturbAmp;
 }
 
 // Perform domain warp
 
-static void _fnDoSingleDomainWarp2D(fn_state *state, int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat *xp, FNfloat *yp) {
-    switch (state->domain_warp_type) {
+static void _fnDoSingleDomainWarp2D(fn_state state, int seed, float amp, float freq, FNfloat x, FNfloat y, out FNfloat xp, out FNfloat yp) {
+    switch (state.domain_warp_type) {
         case FN_DOMAIN_WARP_GRADIENT:
             _fnSingleDomainWarpGradient2D(seed, amp, freq, x, y, xp, yp);
             break;
@@ -1185,8 +1178,8 @@ static void _fnDoSingleDomainWarp2D(fn_state *state, int seed, float amp, float 
     }
 }
 
-static void _fnDoSingleDomainWarp3D(fn_state *state, int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat z, FNfloat *xp, FNfloat *yp, FNfloat *zp) {
-    switch (state->domain_warp_type) {
+static void _fnDoSingleDomainWarp3D(fn_state state, int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat z, out FNfloat xp, out FNfloat yp, out FNfloat zp) {
+    switch (state.domain_warp_type) {
         case FN_DOMAIN_WARP_GRADIENT:
             _fnSingleDomainWarpGradient3D(seed, amp, freq, x, y, z, xp, yp, zp);
             break;
@@ -1197,67 +1190,67 @@ static void _fnDoSingleDomainWarp3D(fn_state *state, int seed, float amp, float 
 
 // Domain Warp Fractal Progressive
 
-static void _fnDomainWarpFractalProgressive2D(fn_state *state, FNfloat *x, FNfloat *y) {
-    int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+static void _fnDomainWarpFractalProgressive2D(fn_state state, inout FNfloat x, inout FNfloat y) {
+    int seed = state.seed;
+    float amp = state.domain_warp_amp * _fnCalculateFractalBounding(state);
+    float freq = state.frequency;
 
-    _fnDoSingleDomainWarp2D(state, seed, amp, freq, *x, *y, x, y);
+    _fnDoSingleDomainWarp2D(state, seed, amp, freq, x, y, x, y);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
-        amp *= state->gain;
-        _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, *x, *y, x, y);
+    for (int i = 1; i < state.octaves; i++) {
+        freq *= state.lacunarity;
+        amp *= state.gain;
+        _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, x, y, x, y);
     }
 }
 
-static void _fnDomainWarpFractalProgressive3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
-    int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+static void _fnDomainWarpFractalProgressive3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z) {
+    int seed = state.seed;
+    float amp = state.domain_warp_amp * _fnCalculateFractalBounding(state);
+    float freq = state.frequency;
 
-    _fnDoSingleDomainWarp3D(state, seed, amp, freq, *x, *y, *z, x, y, z);
+    _fnDoSingleDomainWarp3D(state, seed, amp, freq, x, y, z, x, y, z);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
-        amp *= state->gain;
-        _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, *x, *y, *z, x, y, z);
+    for (int i = 1; i < state.octaves; i++) {
+        freq *= state.lacunarity;
+        amp *= state.gain;
+        _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, x, y, z, x, y, z);
     }
 }
 
 // Domain Warp Fractal Independent
 
-static void _fnDomainWarpFractalIndependent2D(fn_state *state, FNfloat *x, FNfloat *y) {
-    FNfloat xs = *x;
-    FNfloat ys = *y;
+static void _fnDomainWarpFractalIndependent2D(fn_state state, inout FNfloat x, inout FNfloat y) {
+    FNfloat xs = x;
+    FNfloat ys = y;
 
-    int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+    int seed = state.seed;
+    float amp = state.domain_warp_amp * _fnCalculateFractalBounding(state);
+    float freq = state.frequency;
 
     _fnDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
-        amp *= state->gain;
+    for (int i = 1; i < state.octaves; i++) {
+        freq *= state.lacunarity;
+        amp *= state.gain;
         _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, xs, ys, x, y);
     }
 }
 
-static void _fnDomainWarpFractalIndependent3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
-    FNfloat xs = *x;
-    FNfloat ys = *y;
-    FNfloat zs = *z;
+static void _fnDomainWarpFractalIndependent3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z) {
+    FNfloat xs = x;
+    FNfloat ys = y;
+    FNfloat zs = z;
 
-    int seed = state->seed;
-    float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
-    float freq = state->frequency;
+    int seed = state.seed;
+    float amp = state.domain_warp_amp * _fnCalculateFractalBounding(state);
+    float freq = state.frequency;
 
     _fnDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
-        amp *= state->gain;
+    for (int i = 1; i < state.octaves; i++) {
+        freq *= state.lacunarity;
+        amp *= state.gain;
         _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, xs, ys, zs, x, y, z);
     }
 }
@@ -1278,18 +1271,18 @@ fn_state fnCreateState(int seed) {
     newState.cellular_distance_func = FN_CELLULAR_DIST_EUCLIDEANSQ;
     newState.cellular_return_type = FN_CELLULAR_RET_CELLVALUE;
     newState.cellular_jitter_mod = 1.0f;
-    newState.domain_warp_amp = 30.0f;
-    newState.domain_warp_type = FN_DOMAIN_WARP_GRADIENT;
+    newState.domain_warp_type = FN_DOMAIN_WARP_SIMPLEX;
+    newState.domain_warp_amp = 1.0f;
     return newState;
 }
 
-float fnGetNoise2D(fn_state *state, FNfloat x, FNfloat y) {
-    x *= state->frequency;
-    y *= state->frequency;
+float fnGetNoise2D(fn_state state, FNfloat x, FNfloat y) {
+    x *= state.frequency;
+    y *= state.frequency;
 
-    switch (state->fractal_type) {
+    switch (state.fractal_type) {
         default:
-            return _fnGenNoiseSingle2D(state, state->seed, x, y);
+            return _fnGenNoiseSingle2D(state, state.seed, x, y);
         case FN_FRACTAL_FBM:
             return _fnGenFractalFBM2D(state, x, y);
         case FN_FRACTAL_BILLOW:
@@ -1299,15 +1292,15 @@ float fnGetNoise2D(fn_state *state, FNfloat x, FNfloat y) {
     }
 }
 
-float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
-    x *= state->frequency;
-    y *= state->frequency;
-    z *= state->frequency;
+float fnGetNoise3D(fn_state state, FNfloat x, FNfloat y, FNfloat z) {
+    x *= state.frequency;
+    y *= state.frequency;
+    z *= state.frequency;
 
     // Select a noise type
-    switch (state->fractal_type) {
+    switch (state.fractal_type) {
         default:
-            return _fnGenNoiseSingle3D(state, state->seed, x, y, z);
+            return _fnGenNoiseSingle3D(state, state.seed, x, y, z);
         case FN_FRACTAL_FBM:
             return _fnGenFractalFBM3D(state, x, y, z);
         case FN_FRACTAL_BILLOW:
@@ -1317,10 +1310,10 @@ float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     }
 }
 
-void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y) {
-    switch (state->fractal_type) {
+void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y) {
+    switch (state.fractal_type) {
         default:
-            _fnDoSingleDomainWarp2D(state, state->seed, state->domain_warp_amp, state->frequency, *x, *y, x, y);
+            _fnDoSingleDomainWarp2D(state, state.seed, state.domain_warp_amp, state.frequency, x, y, x, y);
             break;
         case FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
             _fnDomainWarpFractalProgressive2D(state, x, y);
@@ -1331,10 +1324,10 @@ void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y) {
     }
 }
 
-void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
-    switch (state->fractal_type) {
+void fnDomainWarp3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z) {
+    switch (state.fractal_type) {
         default:
-            _fnDoSingleDomainWarp3D(state, state->seed, state->domain_warp_amp, state->frequency, *x, *y, *z, x, y, z);
+            _fnDoSingleDomainWarp3D(state, state.seed, state.domain_warp_amp, state.frequency, x, y, z, x, y, z);
             break;
         case FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
             _fnDomainWarpFractalProgressive3D(state, x, y, z);
@@ -1344,9 +1337,3 @@ void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
             break;
     }
 }
-
-#endif
-
-#if defined(__cplusplus)
-}
-#endif

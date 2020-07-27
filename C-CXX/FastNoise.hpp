@@ -24,11 +24,12 @@ namespace FastNoise {
         Billow = FN_FRACTAL_BILLOW,
         Ridged = FN_FRACTAL_RIDGED,
         DomainWarpProgressive = FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE,
-        DomainWarpIndependant = FN_FRACTAL_DOMAIN_WARP_INDEPENDANT
+        DomainWarpIndependent = FN_FRACTAL_DOMAIN_WARP_INDEPENDENT
     };
 
     enum class CellularDistanceFunc {
         Euclidean = FN_CELLULAR_DIST_EUCLIDEAN,
+        EuclideanSq = FN_CELLULAR_DIST_EUCLIDEANSQ,
         Manhattan = FN_CELLULAR_DIST_MANHATTAN,
         Natural = FN_CELLULAR_DIST_NATURAL
     };
@@ -50,62 +51,32 @@ namespace FastNoise {
 
     class FastNoise {
         public:
-            FastNoise();
-            FastNoise(int seed);
+            FastNoise() { state = fnCreateState(); }
+            FastNoise(int seed) { state = fnCreateState(seed); }
 
-            int getSeed();
-            void setSeed(int seed);
-            void setFrequency(FNfloat frequency);
-            void setNoiseType(NoiseType type);
+            int getSeed() { return state.seed; };
+            void setSeed(int seed) { state.seed = seed; }
+            void setFrequency(FNfloat frequency) { state.frequency = frequency; }
+            void setNoiseType(NoiseType type) { state.noise_type = (fn_noise_type) type; }
 
-            void setFractalOctaves(int octaves);
-            void setFractalLacunarity(FNfloat lacunarity);
-            void setFractalGain(FNfloat gain);
-            void setFractalType(FractalType type);
+            void setFractalOctaves(int octaves) { state.octaves = octaves; }
+            void setFractalLacunarity(FNfloat lacunarity) { state.lacunarity = lacunarity; }
+            void setFractalGain(FNfloat gain) { state.gain = gain; }
+            void setFractalType(FractalType type) { state.fractal_type = (fn_fractal_type) type; }
 
-            void setCellularDistanceFunction(CellularDistanceFunc func);
-            void setCellularReturnType(CellularReturnType type);
-            void setCellularJitter(FNfloat jitter);
+            void setCellularDistanceFunction(CellularDistanceFunc func) { state.cellular_distance_func = (fn_cellular_distance_func) func; }
+            void setCellularReturnType(CellularReturnType type) { state.cellular_return_type = (fn_cellular_return_type) type; }
+            void setCellularJitter(FNfloat jitter) { state.cellular_jitter_mod = jitter; }
 
-            void setDomainWarpType(DomainWarpType type);
-            void setDomainWarpAmp(FNfloat gradientPerturbAmp);
+            void setDomainWarpType(DomainWarpType type) { state.domain_warp_type = (fn_domain_warp_type) type; }
+            void setDomainWarpAmp(FNfloat gradientPerturbAmp) { state.domain_warp_amp = gradientPerturbAmp; }
 
-            FNfloat getNoise(FNfloat x, FNfloat y);
-            FNfloat getNoise(FNfloat x, FNfloat y, FNfloat z);
+            FNfloat getNoise(FNfloat x, FNfloat y) { return fnGetNoise2D(&state, x, y); }
+            FNfloat getNoise(FNfloat x, FNfloat y, FNfloat z) { return fnGetNoise3D(&state, x, y, z); }
 
-            void domainWarp(FNfloat *x, FNfloat *y);
-            void domainWarp(FNfloat *x, FNfloat *y, FNfloat *z);
+            void domainWarp(FNfloat *x, FNfloat *y) { fnDomainWarp2D(&state, x, y); }
+            void domainWarp(FNfloat *x, FNfloat *y, FNfloat *z) { fnDomainWarp3D(&state, x, y, z); }
         private:
             fn_state state;
     };
-
-#if defined(FN_IMPL)
-
-FastNoise::FastNoise() { state = fnCreateState(1337); }
-FastNoise::FastNoise(int seed) { state = fnCreateState(seed); }
-
-int FastNoise::getSeed() { return state.seed; }
-void FastNoise::setSeed(int seed) { state.seed = seed; }
-void FastNoise::setFrequency(FNfloat frequency) { state.frequency = frequency; }
-void FastNoise::setNoiseType(NoiseType type) { state.noise_type = (fn_noise_type) type; }
-
-void FastNoise::setFractalOctaves(int octaves) { state.octaves = octaves; }
-void FastNoise::setFractalLacunarity(FNfloat lacunarity) { state.lacunarity = lacunarity; }
-void FastNoise::setFractalGain(FNfloat gain) { state.gain = gain; }
-void FastNoise::setFractalType(FractalType type) { state.fractal_type = (fn_fractal_type) type; }
-
-void FastNoise::setCellularDistanceFunction(CellularDistanceFunc func) { state.cellular_distance_func = (fn_cellular_distance_func) func; }
-void FastNoise::setCellularReturnType(CellularReturnType type) { state.cellular_return_type = (fn_cellular_return_type) type; }
-void FastNoise::setCellularJitter(FNfloat jitter) { state.cellular_jitter_mod = jitter; }
-
-void FastNoise::setDomainWarpType(DomainWarpType type) { state.domain_warp_type = (fn_domain_warp_type) type; }
-void FastNoise::setDomainWarpAmp(FNfloat gradientPerturbAmp) { state.domain_warp_amp = gradientPerturbAmp; }
-
-FNfloat FastNoise::getNoise(FNfloat x, FNfloat y) { return fnGetNoise2D(&state, x, y); }
-FNfloat FastNoise::getNoise(FNfloat x, FNfloat y, FNfloat z) { return fnGetNoise3D(&state, x, y, z); }
-
-void FastNoise::domainWarp(FNfloat *x, FNfloat *y) { return fnDomainWarp2D(&state, x, y); }
-void FastNoise::domainWarp(FNfloat *x, FNfloat *y, FNfloat *z) { return fnDomainWarp3D(&state, x, y, z); }
-
-#endif
 }
