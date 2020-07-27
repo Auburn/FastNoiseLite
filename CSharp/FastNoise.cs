@@ -34,7 +34,7 @@ public class FastNoise
 {
     public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular };
     public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndependent };
-    public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Natural };
+    public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Hybrid };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
     public enum DomainWarpType { Gradient, Simplex };
 
@@ -944,7 +944,7 @@ public class FastNoise
                     xPrimed += PrimeX;
                 }
                 break;
-            case CellularDistanceFunction.Natural:
+            case CellularDistanceFunction.Hybrid:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
                     int yPrimed = yPrimedBase;
@@ -1085,7 +1085,7 @@ public class FastNoise
                     xPrimed += PrimeX;
                 }
                 break;
-            case CellularDistanceFunction.Natural:
+            case CellularDistanceFunction.Hybrid:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
                 {
                     int yPrimed = yPrimedBase;
