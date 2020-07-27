@@ -33,7 +33,7 @@ using FNfloat = System.Single;
 public class FastNoise
 {
     public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular, WhiteNoise };
-    public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndependant };
+    public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Natural };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
     public enum DomainWarpType { Gradient, Simplex };
@@ -234,9 +234,9 @@ public class FastNoise
     }
 
     // Hashing
-    private const int PrimeX = 0x165667b1;
-    private const int PrimeY = 0x45d9f3b;
-    private const int PrimeZ = 6971;
+    private const int PrimeX = 501125321;
+    private const int PrimeY = 1136930381;
+    private const int PrimeZ = 1720413743;
 
     private static int Hash(int seed, int xPrimed, int yPrimed)
     {
@@ -260,7 +260,8 @@ public class FastNoise
     {
         int hash = seed ^ xPrimed ^ yPrimed;
 
-        hash *= hash * 0x27d4eb2d;
+        hash *= 0x27d4eb2d;
+        hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
 
@@ -268,7 +269,8 @@ public class FastNoise
     {
         int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
-        hash *= hash * 0x27d4eb2d;
+        hash *= 0x27d4eb2d;
+        hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
 
@@ -496,7 +498,12 @@ public class FastNoise
 
 
     // White Noise
-    private int FloatCast2Int(FNfloat f)
+    private int FloatCast2Int(float f)
+    {
+        return BitConverter.SingleToInt32Bits(f);
+    }
+
+    private int FloatCast2Int(double f)
     {
         var i = BitConverter.DoubleToInt64Bits(f);
 
@@ -824,8 +831,8 @@ public class FastNoise
         int y0 = y1 - PrimeY;
         int x2 = x1 + PrimeX;
         int y2 = y1 + PrimeY;
-        int x3 = x1 + PrimeX * 2;
-        int y3 = y1 + PrimeY * 2;
+        int x3 = x1 + unchecked(PrimeX * 2);
+        int y3 = y1 + unchecked(PrimeY * 2);
 
         return CubicLerp(
             CubicLerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), ValCoord(seed, x2, y0), ValCoord(seed, x3, y0),
@@ -859,9 +866,9 @@ public class FastNoise
         int x2 = x1 + PrimeX;
         int y2 = y1 + PrimeY;
         int z2 = z1 + PrimeZ;
-        int x3 = x1 + PrimeX * 2;
-        int y3 = y1 + PrimeY * 2;
-        int z3 = z1 + PrimeZ * 2;
+        int x3 = x1 + unchecked(PrimeX * 2);
+        int y3 = y1 + unchecked(PrimeY * 2);
+        int z3 = z1 + unchecked(PrimeZ * 2);
 
 
         return CubicLerp(
@@ -1183,8 +1190,8 @@ public class FastNoise
             case FractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y);
                 break;
-            case FractalType.DomainWarpIndependant:
-                DomainWarpFractalIndependant(ref x, ref y);
+            case FractalType.DomainWarpIndependent:
+                DomainWarpFractalIndependent(ref x, ref y);
                 break;
         }
     }
@@ -1199,8 +1206,8 @@ public class FastNoise
             case FractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y, ref z);
                 break;
-            case FractalType.DomainWarpIndependant:
-                DomainWarpFractalIndependant(ref x, ref y, ref z);
+            case FractalType.DomainWarpIndependent:
+                DomainWarpFractalIndependent(ref x, ref y, ref z);
                 break;
         }
     }
@@ -1238,35 +1245,36 @@ public class FastNoise
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
-        DoSingleDomainWarp(seed, amp, freq, x, y, ref x, ref y);
-
-        for (int i = 1; i < mOctaves; i++)
+        for (int i = 0; i < mOctaves; i++)
         {
-            freq *= mLacunarity;
+            DoSingleDomainWarp(seed, amp, freq, x, y, ref x, ref y);
+
+            seed++;
             amp *= mGain;
-            DoSingleDomainWarp(++seed, amp, freq, x, y, ref x, ref y);
+            freq *= mLacunarity;
         }
     }
+
     private void DomainWarpFractalProgressive(ref FNfloat x, ref FNfloat y, ref FNfloat z)
     {
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
-        DoSingleDomainWarp(seed, amp, freq, x, y, z, ref x, ref y, ref z);
-
-        for (int i = 1; i < mOctaves; i++)
+        for (int i = 0; i < mOctaves; i++)
         {
-            freq *= mLacunarity;
+            DoSingleDomainWarp(seed, amp, freq, x, y, z, ref x, ref y, ref z);
+
+            seed++;
             amp *= mGain;
-            DoSingleDomainWarp(++seed, amp, freq, x, y, z, ref x, ref y, ref z);
+            freq *= mLacunarity;
         }
     }
 
 
     // Domain Warp Fractal Independant
 
-    private void DomainWarpFractalIndependant(ref FNfloat x, ref FNfloat y)
+    private void DomainWarpFractalIndependent(ref FNfloat x, ref FNfloat y)
     {
         FNfloat xs = x;
         FNfloat ys = y;
@@ -1275,16 +1283,17 @@ public class FastNoise
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
-        DoSingleDomainWarp(seed, amp, freq, xs, ys, ref x, ref y);
-
-        for (int i = 1; i < mOctaves; i++)
+        for (int i = 0; i < mOctaves; i++)
         {
-            freq *= mLacunarity;
+            DoSingleDomainWarp(seed, amp, freq, xs, ys, ref x, ref y);
+
+            seed++;
             amp *= mGain;
-            DoSingleDomainWarp(++seed, amp, freq, xs, ys, ref x, ref y);
+            freq *= mLacunarity;
         }
     }
-    private void DomainWarpFractalIndependant(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+
+    private void DomainWarpFractalIndependent(ref FNfloat x, ref FNfloat y, ref FNfloat z)
     {
         FNfloat xs = x;
         FNfloat ys = y;
@@ -1294,13 +1303,13 @@ public class FastNoise
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
-        DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, ref x, ref y, ref z);
-
-        for (int i = 1; i < mOctaves; i++)
+        for (int i = 0; i < mOctaves; i++)
         {
-            freq *= mLacunarity;
+            DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, ref x, ref y, ref z);
+
+            seed++;
             amp *= mGain;
-            DoSingleDomainWarp(++seed, amp, freq, xs, ys, zs, ref x, ref y, ref z);
+            freq *= mLacunarity;
         }
     }
 
