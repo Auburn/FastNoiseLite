@@ -57,7 +57,7 @@ typedef int fn_fractal_type;
 #define FN_CELLULAR_DIST_EUCLIDEAN 0
 #define FN_CELLULAR_DIST_EUCLIDEANSQ 1
 #define FN_CELLULAR_DIST_MANHATTAN 2
-#define FN_CELLULAR_DIST_NATURAL 3
+#define FN_CELLULAR_DIST_HYBRID 3
 typedef int fn_cellular_distance_func;
 
 #define FN_CELLULAR_RET_CELLVALUE 0
@@ -690,7 +690,7 @@ static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y)
             }
             break;
         }
-        case FN_CELLULAR_DIST_NATURAL: {
+        case FN_CELLULAR_DIST_HYBRID: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
@@ -816,7 +816,7 @@ static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y,
             }
             break;
         }
-        case FN_CELLULAR_DIST_NATURAL: {
+        case FN_CELLULAR_DIST_HYBRID: {
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 

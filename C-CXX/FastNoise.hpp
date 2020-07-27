@@ -32,7 +32,7 @@ class FastNoise {
             Euclidean = FN_CELLULAR_DIST_EUCLIDEAN,
             EuclideanSq = FN_CELLULAR_DIST_EUCLIDEANSQ,
             Manhattan = FN_CELLULAR_DIST_MANHATTAN,
-            Natural = FN_CELLULAR_DIST_NATURAL
+            Hybrid = FN_CELLULAR_DIST_HYBRID
         };
 
         enum class CellularReturnType {

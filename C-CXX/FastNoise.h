@@ -63,7 +63,7 @@ typedef enum {
     FN_CELLULAR_DIST_EUCLIDEAN,
     FN_CELLULAR_DIST_EUCLIDEANSQ,
     FN_CELLULAR_DIST_MANHATTAN,
-    FN_CELLULAR_DIST_NATURAL
+    FN_CELLULAR_DIST_HYBRID
 } fn_cellular_distance_func;
 
 typedef enum {
@@ -729,7 +729,7 @@ static float _fnSingleCellular2D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_NATURAL:
+        case FN_CELLULAR_DIST_HYBRID:
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
@@ -852,7 +852,7 @@ static float _fnSingleCellular3D(fn_state *state, int seed, FNfloat x, FNfloat y
                 xPrimed += PRIME_X;
             }
             break;
-        case FN_CELLULAR_DIST_NATURAL:
+        case FN_CELLULAR_DIST_HYBRID:
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
 
