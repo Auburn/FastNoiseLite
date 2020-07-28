@@ -78,6 +78,8 @@ namespace FastNoiseLite
             var controlPanel = new StackLayout();
             controlPanel.Orientation = Orientation.Vertical;
             controlPanel.Spacing = 5;
+                        
+            Font bold = new Font(new Label().Font.Family, new Label().Font.Size, FontStyle.Bold);
 
             {
                 // Generate, Up, Down
@@ -146,7 +148,7 @@ namespace FastNoiseLite
                 }
 
                 // TODO: Work out how to make this bold
-                table.Rows.Add(new TableRow { Cells = { new Label { Text = "General:" } } });
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "General:", Font = bold } } });
 
                 // General properties
                 {
@@ -174,7 +176,7 @@ namespace FastNoiseLite
                 }
 
                 // Add fractal label
-                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Fractal:" } } });
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Fractal:", Font = bold } } });
 
                 {
                     // Fractal type
@@ -207,7 +209,7 @@ namespace FastNoiseLite
                 }
 
                 // Add fractal label
-                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Cellular:" } } });
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Cellular:", Font = bold } } });
 
                 {
                     // Distance Function
@@ -241,7 +243,7 @@ namespace FastNoiseLite
                 }
 
                 // Add fractal label
-                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp:" } } });
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp:", Font = bold } } });
 
                 {
                     // Domain Warp Dropdown
@@ -650,7 +652,7 @@ namespace FastNoiseLite
             parent.Rows.Add(new TableRow
             {
                 Cells = {
-                    new TableCell(new Label { Text = label}),
+                    new TableCell(new Label { Text = label }),
                     new TableCell(me)
                 }
             });
