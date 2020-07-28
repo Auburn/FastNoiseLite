@@ -266,18 +266,16 @@ public class FastNoise
 
     private static float ValCoord(int seed, int xPrimed, int yPrimed)
     {
-        int hash = seed ^ xPrimed ^ yPrimed;
+        int hash = Hash(seed, xPrimed, yPrimed);
 
-        hash *= 0x27d4eb2d;
         hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
 
     private static float ValCoord(int seed, int xPrimed, int yPrimed, int zPrimed)
     {
-        int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
+        int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
 
-        hash *= 0x27d4eb2d;
         hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
