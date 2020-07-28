@@ -657,7 +657,7 @@ namespace FastNoiseLite
 
         private string FormatReadable(string enumName)
         {
-            return Regex.Replace(enumName, "([a-z])([A-Z0-9])", "$1 $2");
+            return Regex.Replace(Regex.Replace(enumName, "([a-z])([A-Z0-9])", "$1 $2"), "([a-z0-9])([A-Z][a-z])", "$1 $2");
         }
 
         void HsvToRgb(byte h, byte s, byte v, out byte r, out byte g, out byte b)

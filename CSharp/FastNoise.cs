@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Windows.Interop;
 
 // Switch between using floats or doubles for input position
 using FNfloat = System.Single;
@@ -32,11 +33,11 @@ using FNfloat = System.Single;
 
 public class FastNoise
 {
-    public enum NoiseType { Value, ValueCubic, Perlin, Simplex, OpenSimplex2f, Cellular };
-    public enum FractalType { None, FBm, Billow, Rigded, DomainWarpProgressive, DomainWarpIndependent };
+    public enum NoiseType { Simplex, OpenSimplex2, OpenSimplex2S, Cellular, Perlin, ValueCubic, Value };
+    public enum FractalType { None, FBm, Billow, Ridged, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Hybrid };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
-    public enum DomainWarpType { Gradient, Simplex };
+    public enum DomainWarpType { OpenSimplex2, OpenSimplex2Reduced, Basic };
 
     private int mSeed = 1337;
     private float mFrequency = 0.01f;
@@ -53,7 +54,7 @@ public class FastNoise
     private CellularReturnType mCellularReturnType = CellularReturnType.CellValue;
     private float mCellularJitterModifier = 1.0f;
 
-    private DomainWarpType mDomainWarpType = DomainWarpType.Simplex;
+    private DomainWarpType mDomainWarpType = DomainWarpType.OpenSimplex2;
     private float mDomainWarpAmp = 1.0f;
 
     public FastNoise(int seed = 1337)
@@ -120,7 +121,7 @@ public class FastNoise
 
     private const float Root2 = 1.4142135623730950488f;
 
-    private static readonly float[] Gradients2D = 
+    private static readonly float[] Gradients2D =
     {
         1 + Root2, 1, -1 - Root2, 1, 1 + Root2, -1, -1 - Root2, -1,
         1, 1 + Root2, 1, -1 - Root2, -1, 1 + Root2, -1, -1 - Root2
@@ -162,7 +163,7 @@ public class FastNoise
         0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
     };
 
-    private static readonly float[] Gradients3D = 
+    private static readonly float[] Gradients3D =
     {
         1, 1, 0, 0, -1, 1, 0, 0,  1,-1, 0, 0, -1,-1, 0, 0,
         1, 0, 1, 0, -1, 0, 1, 0,  1, 0,-1, 0, -1, 0,-1, 0,
@@ -305,6 +306,59 @@ public class FastNoise
         return xd * xg + yd * yg + zd * zg;
     }
 
+    private static void GradCoordOut(int seed, int xPrimed, int yPrimed, float xd, float yd, out float xo, out float yo)
+    {
+        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
+
+        xo = RandVecs2D[hash];
+        yo = RandVecs2D[hash | 1];
+    }
+
+    private static void GradCoordOut(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, out float xo, out float yo, out float zo)
+    {
+        int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+
+        xo = RandVecs3D[hash];
+        yo = RandVecs3D[hash | 1];
+        zo = RandVecs3D[hash | 2];
+    }
+
+    private static void GradCoordDual(int seed, int xPrimed, int yPrimed, float xd, float yd, out float xo, out float yo)
+    {
+        int hash = Hash(seed, xPrimed, yPrimed);
+        int index1 = hash & (7 << 1);
+        int index2 = (hash >> 3) & (255 << 1);
+
+        float xg = Gradients2D[index1];
+        float yg = Gradients2D[index1 | 1];
+        float value = xd * xg + yd * yg;
+
+        float xgo = RandVecs2D[index2];
+        float ygo = RandVecs2D[index2 | 1];
+
+        xo = value * xgo;
+        yo = value * ygo;
+    }
+
+    private static void GradCoordDual(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, out float xo, out float yo, out float zo)
+    {
+        int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+        int index1 = hash & (15 << 2);
+        int index2 = (hash >> 6) & (255 << 2);
+
+        float xg = Gradients3D[index1];
+        float yg = Gradients3D[index1 | 1];
+        float zg = Gradients3D[index1 | 2];
+        float value = xd * xg + yd * yg + zd * zg;
+
+        float xgo = RandVecs3D[index2];
+        float ygo = RandVecs3D[index2 | 1];
+        float zgo = RandVecs3D[index2 | 2];
+
+        xo = value * xgo;
+        yo = value * ygo;
+        zo = value * zgo;
+    }
 
     public float GetNoise(FNfloat x, FNfloat y)
     {
@@ -319,7 +373,7 @@ public class FastNoise
                 return GenFractalFBm(x, y);
             case FractalType.Billow:
                 return GenFractalBillow(x, y);
-            case FractalType.Rigded:
+            case FractalType.Ridged:
                 return GenFractalRidged(x, y);
         }
     }
@@ -338,7 +392,7 @@ public class FastNoise
                 return GenFractalFBm(x, y, z);
             case FractalType.Billow:
                 return GenFractalBillow(x, y, z);
-            case FractalType.Rigded:
+            case FractalType.Ridged:
                 return GenFractalRidged(x, y, z);
         }
     }
@@ -1121,12 +1175,12 @@ public class FastNoise
                 break;
         }
 
-        if( mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType >= CellularReturnType.Distance )
+        if (mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType >= CellularReturnType.Distance)
         {
             distance0 = FastSqrt(distance0);
 
-            if( mCellularReturnType >= CellularReturnType.Distance2)
-            { 
+            if (mCellularReturnType >= CellularReturnType.Distance2)
+            {
                 distance1 = FastSqrt(distance1);
             }
         }
@@ -1191,10 +1245,14 @@ public class FastNoise
     {
         switch (mDomainWarpType)
         {
-            case DomainWarpType.Gradient:
-                SingleDomainWarpGradient(seed, amp, freq, x, y, ref xr, ref yr);
+            case DomainWarpType.OpenSimplex2:
+                SingleDomainWarpSimplexGradient(seed, amp, freq, x, y, ref xr, ref yr, true);
                 break;
-            case DomainWarpType.Simplex:
+            case DomainWarpType.OpenSimplex2Reduced:
+                SingleDomainWarpSimplexGradient(seed, amp, freq, x, y, ref xr, ref yr, false);
+                break;
+            case DomainWarpType.Basic:
+                SingleDomainWarpGradient(seed, amp, freq, x, y, ref xr, ref yr);
                 break;
         }
     }
@@ -1203,10 +1261,14 @@ public class FastNoise
     {
         switch (mDomainWarpType)
         {
-            case DomainWarpType.Gradient:
-                SingleDomainWarpGradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr);
+            case DomainWarpType.OpenSimplex2:
+                SingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr, true);
                 break;
-            case DomainWarpType.Simplex:
+            case DomainWarpType.OpenSimplex2Reduced:
+                SingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr, false);
+                break;
+            case DomainWarpType.Basic:
+                SingleDomainWarpGradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr);
                 break;
         }
     }
@@ -1248,7 +1310,6 @@ public class FastNoise
 
 
     // Domain Warp Fractal Independant
-
     private void DomainWarpFractalIndependent(ref FNfloat x, ref FNfloat y)
     {
         FNfloat xs = x;
@@ -1289,7 +1350,7 @@ public class FastNoise
     }
 
 
-    // Domain Warp Gradient
+    // Domain Warp Basic Gradient
 
     private void SingleDomainWarpGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr)
     {
@@ -1381,4 +1442,194 @@ public class FastNoise
         zr += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * perturbAmp;
     }
 
+
+    // Domain Warp Simplex (optional Basic or Dual Gradient)
+
+    private void SingleDomainWarpSimplexGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool dualGradient)
+    {
+        const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
+        const FNfloat F2 = (FNfloat)0.5 * (SQRT3 - 1);
+        const FNfloat G2 = (3 - SQRT3) / (FNfloat)6.0;
+
+        x *= frequency;
+        y *= frequency;
+
+        FNfloat t = (x + y) * F2;
+        int i = FastFloor(x + t);
+        int j = FastFloor(y + t);
+
+        t = (i + j) * G2;
+        float x0 = (float)(x - (i - t));
+        float y0 = (float)(y - (j - t));
+
+        int i1, j1;
+        if (x0 > y0)
+        {
+            i1 = -1; j1 = 0;
+        }
+        else
+        {
+            i1 = 0; j1 = -1;
+        }
+
+        float x1 = x0 + i1 + (float)G2;
+        float y1 = y0 + j1 + (float)G2;
+        float x2 = x0 - 1 + 2 * (float)G2;
+        float y2 = y0 - 1 + 2 * (float)G2;
+
+        i *= PrimeX;
+        j *= PrimeY;
+
+        i1 &= PrimeX;
+        j1 &= PrimeY;
+
+        float vx, vy;
+        vx = vy = 0;
+
+        float a = 0.5f - x0 * x0 - y0 * y0;
+        if (a > 0)
+        {
+            a *= a; a *= a;
+            float xo, yo;
+            if (dualGradient)
+                GradCoordDual(seed, i, j, x0, y0, out xo, out yo);
+            else
+                GradCoordOut(seed, i, j, x0, y0, out xo, out yo);
+            vx += a * xo;
+            vy += a * yo;
+        }
+
+        float b = 0.5f - x1 * x1 - y1 * y1;
+        if (b > 0)
+        {
+            b *= b; b *= b;
+            float xo, yo;
+            if (dualGradient)
+                GradCoordDual(seed, i + i1, j + j1, x1, y1, out xo, out yo);
+            else
+                GradCoordOut(seed, i + i1, j + j1, x1, y1, out xo, out yo);
+            vx += b * xo;
+            vy += b * yo;
+        }
+
+        float c = 0.5f - x2 * x2 - y2 * y2;
+        if (c > 0)
+        {
+            c *= c; c *= c;
+            float xo, yo;
+            if (dualGradient)
+                GradCoordDual(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
+            else
+                GradCoordOut(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
+            vx += c * xo;
+            vy += c * yo;
+        }
+
+        perturbAmp *= dualGradient ? 38.283687591552734375f : 16.0f;
+        xr += vx * perturbAmp;
+        yr += vy * perturbAmp;
+    }
+
+    private void SingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr, bool dualGradient)
+    {
+        const FNfloat R3 = (2.0f / 3.0f);
+
+        x *= frequency;
+        y *= frequency;
+        z *= frequency;
+
+        FNfloat r = (x + y + z) * R3; // Rotate
+        x = r - x; y = r - y; z = r - z;
+
+        int i = FastRound(x);
+        int j = FastRound(y);
+        int k = FastRound(z);
+        float x0 = x - i;
+        float y0 = y - j;
+        float z0 = z - k;
+
+        i *= PrimeX;
+        j *= PrimeY;
+        k *= PrimeZ;
+
+        float vx, vy, vz;
+        vx = vy = vz = 0;
+
+        for (int l = 0; l < 2; l++)
+        {
+            float a = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
+            if (a > 0)
+            {
+                a *= a; a *= a;
+                float xo, yo, zo;
+                if (dualGradient)
+                    GradCoordDual(seed, i, j, k, x0, y0, z0, out xo, out yo, out zo);
+                else
+                    GradCoordOut(seed, i, j, k, x0, y0, z0, out xo, out yo, out zo);
+                vx += a * xo;
+                vy += a * yo;
+                vz += a * zo;
+            }
+
+            bool xPositive = x0 >= 0;
+            bool yPositive = y0 >= 0;
+            bool zPositive = z0 >= 0;
+
+            int i1 = i;
+            int j1 = j;
+            int k1 = k;
+            float x1 = x0;
+            float y1 = y0;
+            float z1 = z0;
+            float ax0 = FastAbs(x0);
+            float ay0 = FastAbs(y0);
+            float az0 = FastAbs(z0);
+            if (ax0 >= ay0 && ax0 >= az0)
+            {
+                i1 += xPositive ? PrimeX : -PrimeX;
+                x1 += xPositive ? -1 : 1;
+            }
+            else if (ay0 > ax0 && ay0 >= az0)
+            {
+                j1 += yPositive ? PrimeY : -PrimeY;
+                y1 += yPositive ? -1 : 1;
+            }
+            else
+            {
+                k1 += zPositive ? PrimeZ : -PrimeZ;
+                z1 += zPositive ? -1 : 1;
+            }
+
+            float b = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
+            if (b > 0)
+            {
+                b *= b; b *= b;
+                float xo, yo, zo;
+                if (dualGradient)
+                    GradCoordDual(seed, i1, j1, k1, x1, y1, z1, out xo, out yo, out zo);
+                else
+                    GradCoordOut(seed, i1, j1, k1, x1, y1, z1, out xo, out yo, out zo);
+                vx += b * xo;
+                vy += b * yo;
+                vz += b * zo;
+            }
+
+            if (l == 1) break;
+
+            i -= xPositive ? 0 : PrimeX;
+            j -= yPositive ? 0 : PrimeY;
+            k -= zPositive ? 0 : PrimeZ;
+
+            x0 += xPositive ? -0.5f : 0.5f;
+            y0 += yPositive ? -0.5f : 0.5f;
+            z0 += zPositive ? -0.5f : 0.5f;
+
+            seed += 1293373;
+        }
+
+        perturbAmp *= dualGradient ? 32.69428253173828125f : 7.71604938271605f;
+        xr += vx * perturbAmp;
+        yr += vy * perturbAmp;
+        zr += vz * perturbAmp;
+    }
 }
