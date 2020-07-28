@@ -160,7 +160,6 @@ static inline int _fnHash2D(int seed, int xPrimed, int yPrimed) {
     int hash = seed ^ xPrimed ^ yPrimed;
 
     hash *= 0x27d4eb2d;
-    hash ^= hash >> 15;
     return hash;
 }
 
@@ -168,22 +167,17 @@ static inline int _fnHash3D(int seed, int xPrimed, int yPrimed, int zPrimed) {
     int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
     hash *= 0x27d4eb2d;
-    hash ^= hash >> 15;
     return hash;
 }
 
 static inline float _fnValCoord2D(int seed, int xPrimed, int yPrimed) {
-    int hash = seed ^ xPrimed ^ yPrimed;
-
-    hash *= 0x27d4eb2d;
+    int hash = _fnHash2D(seed, xPrimed, yPrimed);
     hash ^= hash << 19;
     return hash / 2147483648.0f;
 }
 
 static inline float _fnValCoord3D(int seed, int xPrimed, int yPrimed, int zPrimed) {
-    int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
-
-    hash *= 0x27d4eb2d;
+    int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
     hash ^= hash << 19;
     return hash / 2147483648.0f;
 }
@@ -196,7 +190,9 @@ static const float GRADIENTS_2D[] = {
 };
 
 static inline float _fnGradCoord2D(int seed, int xPrimed, int yPrimed, float xd, float yd) {
-    int hash = _fnHash2D(seed, xPrimed, yPrimed) & (7 << 1);
+    int hash = _fnHash2D(seed, xPrimed, yPrimed);
+    hash ^= hash >> 15;
+    hash &= 7 << 1;
     return xd * GRADIENTS_2D[hash] + yd * GRADIENTS_2D[hash | 1];
 }
 
@@ -208,7 +204,9 @@ static const float GRADIENTS_3D[] = {
 };
 
 static inline float _fnGradCoord3D(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd) {
-    int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (15 << 2);
+    int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
+    hash ^= hash >> 15;
+    hash &= 15 << 2;
     return xd * GRADIENTS_3D[hash] + yd * GRADIENTS_3D[hash | 1] + zd * GRADIENTS_3D[hash | 2];
 }
 
@@ -649,10 +647,11 @@ static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y)
                 int yPrimed = yPrimedBase;
 
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
-                    int hash = _fnHash2D(seed, xPrimed, yPrimed) & (255 << 1);
+                    int hash = _fnHash2D(seed, xPrimed, yPrimed);
+                    int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
-                    float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
+                    float vecX = (float)(xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                     float newDistance = vecX * vecX + vecY * vecY;
 
@@ -672,10 +671,11 @@ static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y)
                 int yPrimed = yPrimedBase;
 
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
-                    int hash = _fnHash2D(seed, xPrimed, yPrimed) & (255 << 1);
+                    int hash = _fnHash2D(seed, xPrimed, yPrimed);
+                    int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
-                    float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
+                    float vecX = (float)(xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                     float newDistance = _fnFastAbs(vecX) + _fnFastAbs(vecY);
 
@@ -694,10 +694,11 @@ static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y)
             for (int xi = xr - 1; xi <= xr + 1; xi++) {
                 int yPrimed = yPrimedBase;
                 for (int yi = yr - 1; yi <= yr + 1; yi++) {
-                    int hash = _fnHash2D(seed, xPrimed, yPrimed) & (255 << 1);
+                    int hash = _fnHash2D(seed, xPrimed, yPrimed);
+                    int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RAND_VECS_2D[hash] * cellularJitter;
-                    float vecY = (float)(yi - y) + RAND_VECS_2D[hash | 1] * cellularJitter;
+                    float vecX = (float)(xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                     float newDistance = (_fnFastAbs(vecX) + _fnFastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
@@ -766,11 +767,12 @@ static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y,
                     int zPrimed = zPrimedBase;
 
                     for (int zi = zr - 1; zi <= zr + 1; zi++) {
-                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
+                        int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RAND_VECS_3D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
-                        float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
+                        float vecX = (float)(xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
 
                         float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
@@ -795,11 +797,12 @@ static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y,
                     int zPrimed = zPrimedBase;
 
                     for (int zi = zr - 1; zi <= zr + 1; zi++) {
-                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
+                        int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RAND_VECS_3D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
-                        float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
+                        float vecX = (float)(xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
 
                         float newDistance = _fnFastAbs(vecX) + _fnFastAbs(vecY) + _fnFastAbs(vecZ);
 
@@ -824,11 +827,12 @@ static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y,
                     int zPrimed = zPrimedBase;
 
                     for (int zi = zr - 1; zi <= zr + 1; zi++) {
-                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                        int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
+                        int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RAND_VECS_3D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RAND_VECS_3D[hash | 1] * cellularJitter;
-                        float vecZ = (float)(zi - z) + RAND_VECS_3D[hash | 2] * cellularJitter;
+                        float vecX = (float)(xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
                             
                         float newDistance = (_fnFastAbs(vecX) + _fnFastAbs(vecY) + _fnFastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
