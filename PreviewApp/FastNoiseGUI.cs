@@ -158,7 +158,7 @@ namespace FastNoiseLite
                         {
                             NoiseType.Items.Add(FormatReadable(name));
                         }
-                        NoiseType.SelectedIndex = (int)FastNoise.NoiseType.Simplex;
+                        NoiseType.SelectedIndex = (int)FastNoise.NoiseType.OpenSimplex2;
                         NoiseType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, NoiseType, "Noise Type:");
                     }

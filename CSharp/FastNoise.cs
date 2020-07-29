@@ -25,6 +25,8 @@
 //
 
 using System;
+using System.Runtime.CompilerServices;
+using System.Windows.Diagnostics;
 using System.Windows.Interop;
 
 // Switch between using floats or doubles for input position
@@ -33,15 +35,15 @@ using FNfloat = System.Single;
 
 public class FastNoise
 {
-    public enum NoiseType { Simplex, OpenSimplex2, OpenSimplex2S, Cellular, Perlin, ValueCubic, Value };
+    public enum NoiseType { Simplex, OpenSimplex2/*, OpenSimplex2S*/, Cellular, Perlin, ValueCubic, Value };
     public enum FractalType { None, FBm, Billow, Ridged, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Hybrid };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
-    public enum DomainWarpType { OpenSimplex2, OpenSimplex2Reduced, Basic };
+    public enum DomainWarpType { OpenSimplex2, OpenSimplex2Reduced, BasicGrid };
 
     private int mSeed = 1337;
     private float mFrequency = 0.01f;
-    private NoiseType mNoiseType = NoiseType.Simplex;
+    private NoiseType mNoiseType = NoiseType.OpenSimplex2;
 
     private FractalType mFractalType = FractalType.None;
     private int mOctaves = 3;
@@ -402,16 +404,20 @@ public class FastNoise
     {
         switch (mNoiseType)
         {
-            case NoiseType.Value:
-                return SingleValue(seed, x, y);
-            case NoiseType.ValueCubic:
-                return SingleValueCubic(seed, x, y);
-            case NoiseType.Perlin:
-                return SinglePerlin(seed, x, y);
             case NoiseType.Simplex:
                 return SingleSimplex(seed, x, y);
+            case NoiseType.OpenSimplex2:
+                // 2D case doesn't need a different algorithm.
+                // TODO improve Simplex 2D gradient table, or use improved table for OpenSimplex2 case like in FastNoise2.
+                return SingleSimplex(seed, x, y); 
             case NoiseType.Cellular:
                 return SingleCellular(seed, x, y);
+            case NoiseType.Perlin:
+                return SinglePerlin(seed, x, y);
+            case NoiseType.ValueCubic:
+                return SingleValueCubic(seed, x, y);
+            case NoiseType.Value:
+                return SingleValue(seed, x, y);
             default:
                 return 0;
         }
@@ -421,16 +427,18 @@ public class FastNoise
     {
         switch (mNoiseType)
         {
-            case NoiseType.Value:
-                return SingleValue(seed, x, y, z);
-            case NoiseType.ValueCubic:
-                return SingleValueCubic(seed, x, y, z);
-            case NoiseType.Perlin:
-                return SinglePerlin(seed, x, y, z);
             case NoiseType.Simplex:
                 return SingleSimplex(seed, x, y, z);
+            case NoiseType.OpenSimplex2:
+                return SingleOpenSimplex2(seed, x, y, z);
             case NoiseType.Cellular:
                 return SingleCellular(seed, x, y, z);
+            case NoiseType.Perlin:
+                return SinglePerlin(seed, x, y, z);
+            case NoiseType.ValueCubic:
+                return SingleValueCubic(seed, x, y, z);
+            case NoiseType.Value:
+                return SingleValue(seed, x, y, z);
             default:
                 return 0;
         }
@@ -554,118 +562,6 @@ public class FastNoise
         }
 
         return sum;
-    }
-
-
-    // Value Noise
-
-    private float SingleValue(int seed, FNfloat x, FNfloat y)
-    {
-        int x0 = FastFloor(x);
-        int y0 = FastFloor(y);
-
-        float xs = InterpQuintic((float)(x - x0));
-        float ys = InterpQuintic((float)(y - y0));
-
-        x0 *= PrimeX;
-        y0 *= PrimeY;
-        int x1 = x0 + PrimeX;
-        int y1 = y0 + PrimeY;
-
-        float xf0 = Lerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), xs);
-        float xf1 = Lerp(ValCoord(seed, x0, y1), ValCoord(seed, x1, y1), xs);
-
-        return Lerp(xf0, xf1, ys);
-    }
-
-    private float SingleValue(int seed, FNfloat x, FNfloat y, FNfloat z)
-    {
-        int x0 = FastFloor(x);
-        int y0 = FastFloor(y);
-        int z0 = FastFloor(z);
-
-        float xs = InterpQuintic((float)(x - x0));
-        float ys = InterpQuintic((float)(y - y0));
-        float zs = InterpQuintic((float)(z - z0));
-
-        x0 *= PrimeX;
-        y0 *= PrimeY;
-        z0 *= PrimeZ;
-        int x1 = x0 + PrimeX;
-        int y1 = y0 + PrimeY;
-        int z1 = z0 + PrimeZ;
-
-        float xf00 = Lerp(ValCoord(seed, x0, y0, z0), ValCoord(seed, x1, y0, z0), xs);
-        float xf10 = Lerp(ValCoord(seed, x0, y1, z0), ValCoord(seed, x1, y1, z0), xs);
-        float xf01 = Lerp(ValCoord(seed, x0, y0, z1), ValCoord(seed, x1, y0, z1), xs);
-        float xf11 = Lerp(ValCoord(seed, x0, y1, z1), ValCoord(seed, x1, y1, z1), xs);
-
-        float yf0 = Lerp(xf00, xf10, ys);
-        float yf1 = Lerp(xf01, xf11, ys);
-
-        return Lerp(yf0, yf1, zs);
-    }
-
-
-    // Perlin Noise
-
-    private float SinglePerlin(int seed, FNfloat x, FNfloat y)
-    {
-        int x0 = FastFloor(x);
-        int y0 = FastFloor(y);
-
-        float xd0 = (float)(x - x0);
-        float yd0 = (float)(y - y0);
-        float xd1 = xd0 - 1;
-        float yd1 = yd0 - 1;
-
-        float xs = InterpQuintic(xd0);
-        float ys = InterpQuintic(yd0);
-
-        x0 *= PrimeX;
-        y0 *= PrimeY;
-        int x1 = x0 + PrimeX;
-        int y1 = y0 + PrimeY;
-
-        float xf0 = Lerp(GradCoord(seed, x0, y0, xd0, yd0), GradCoord(seed, x1, y0, xd1, yd0), xs);
-        float xf1 = Lerp(GradCoord(seed, x0, y1, xd0, yd1), GradCoord(seed, x1, y1, xd1, yd1), xs);
-
-        return Lerp(xf0, xf1, ys) * 0.579106986522674560546875f;
-    }
-
-    private float SinglePerlin(int seed, FNfloat x, FNfloat y, FNfloat z)
-    {
-        int x0 = FastFloor(x);
-        int y0 = FastFloor(y);
-        int z0 = FastFloor(z);
-
-        float xd0 = (float)(x - x0);
-        float yd0 = (float)(y - y0);
-        float zd0 = (float)(z - z0);
-        float xd1 = xd0 - 1;
-        float yd1 = yd0 - 1;
-        float zd1 = zd0 - 1;
-
-        float xs = InterpQuintic(xd0);
-        float ys = InterpQuintic(yd0);
-        float zs = InterpQuintic(zd0);
-
-        x0 *= PrimeX;
-        y0 *= PrimeY;
-        z0 *= PrimeZ;
-        int x1 = x0 + PrimeX;
-        int y1 = y0 + PrimeY;
-        int z1 = z0 + PrimeZ;
-
-        float xf00 = Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0), GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
-        float xf10 = Lerp(GradCoord(seed, x0, y1, z0, xd0, yd1, zd0), GradCoord(seed, x1, y1, z0, xd1, yd1, zd0), xs);
-        float xf01 = Lerp(GradCoord(seed, x0, y0, z1, xd0, yd0, zd1), GradCoord(seed, x1, y0, z1, xd1, yd0, zd1), xs);
-        float xf11 = Lerp(GradCoord(seed, x0, y1, z1, xd0, yd1, zd1), GradCoord(seed, x1, y1, z1, xd1, yd1, zd1), xs);
-
-        float yf0 = Lerp(xf00, xf10, ys);
-        float yf1 = Lerp(xf01, xf11, ys);
-
-        return Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
     }
 
 
@@ -844,89 +740,101 @@ public class FastNoise
     }
 
 
-    // Cubic Noise
+    // OpenSimplex2 Noise
 
-    private float SingleValueCubic(int seed, FNfloat x, FNfloat y)
+    private float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
-        int x1 = FastFloor(x);
-        int y1 = FastFloor(y);
+        const FNfloat R3 = (2.0f / 3.0f);
 
-        float xs = (float)(x - x1);
-        float ys = (float)(y - y1);
+        FNfloat r = (x + y + z) * R3; // Rotation, not skew
+        x = r - x; y = r - y; z = r - z;
 
-        x1 *= PrimeX;
-        y1 *= PrimeY;
-        int x0 = x1 - PrimeX;
-        int y0 = y1 - PrimeY;
-        int x2 = x1 + PrimeX;
-        int y2 = y1 + PrimeY;
-        int x3 = x1 + unchecked(PrimeX * 2);
-        int y3 = y1 + unchecked(PrimeY * 2);
+        int i = FastRound(x);
+        int j = FastRound(y);
+        int k = FastRound(z);
+        float x0 = x - i;
+        float y0 = y - j;
+        float z0 = z - k;
 
-        return CubicLerp(
-            CubicLerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), ValCoord(seed, x2, y0), ValCoord(seed, x3, y0),
-            xs),
-            CubicLerp(ValCoord(seed, x0, y1), ValCoord(seed, x1, y1), ValCoord(seed, x2, y1), ValCoord(seed, x3, y1),
-            xs),
-            CubicLerp(ValCoord(seed, x0, y2), ValCoord(seed, x1, y2), ValCoord(seed, x2, y2), ValCoord(seed, x3, y2),
-            xs),
-            CubicLerp(ValCoord(seed, x0, y3), ValCoord(seed, x1, y3), ValCoord(seed, x2, y3), ValCoord(seed, x3, y3),
-            xs),
-            ys) * (1 / (1.5f * 1.5f));
+        int xNSign = (int)(-x0 - 1.0f) | 1;
+        int yNSign = (int)(-y0 - 1.0f) | 1;
+        int zNSign = (int)(-z0 - 1.0f) | 1;
+
+        float ax0 = xNSign * -x0;
+        float ay0 = yNSign * -y0;
+        float az0 = zNSign * -z0;
+
+        i *= PrimeX;
+        j *= PrimeY;
+        k *= PrimeZ;
+
+        float value = 0;
+
+        float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
+        for (int l = 0; /* l < 2 */; l++)
+        {
+            if (a > 0)
+            {
+                value += (a * a) * (a * a) * GradCoord(seed, i, j, k, x0, y0, z0);
+            }
+
+            float b = a + 1;
+            int i1 = i;
+            int j1 = j;
+            int k1 = k;
+            float x1 = x0;
+            float y1 = y0;
+            float z1 = z0;
+            if (ax0 >= ay0 && ax0 >= az0)
+            {
+                x1 += xNSign;
+                b -= xNSign * 2 * x1;
+                i1 += xNSign * -PrimeX;
+            }
+            else if (ay0 > ax0 && ay0 >= az0)
+            {
+                y1 += yNSign;
+                b -= yNSign * 2 * y1;
+                j1 += yNSign * -PrimeY;
+            }
+            else
+            {
+                z1 += zNSign;
+                b -= zNSign * 2 * z1;
+                k1 += zNSign * -PrimeZ;
+            }
+
+            if (b > 0)
+            {
+                value += (b * b) * (b * b) * GradCoord(seed, i1, j1, k1, x1, y1, z1);
+            }
+
+            if (l == 1) break;
+
+            ax0 = 0.5f - ax0;
+            ay0 = 0.5f - ay0;
+            az0 = 0.5f - az0;
+
+            x0 = xNSign * ax0;
+            y0 = yNSign * ay0;
+            z0 = zNSign * az0;
+
+            a += (0.75f - ax0) - (ay0 + az0);
+
+            i += (xNSign >> 1) & PrimeX;
+            j += (yNSign >> 1) & PrimeY;
+            k += (zNSign >> 1) & PrimeZ;
+
+            xNSign = -xNSign;
+            yNSign = -yNSign;
+            zNSign = -zNSign;
+
+            seed += 1293373;
+        }
+
+        return value * 32.69428253173828125f;
     }
 
-    private float SingleValueCubic(int seed, FNfloat x, FNfloat y, FNfloat z)
-    {
-        int x1 = FastFloor(x);
-        int y1 = FastFloor(y);
-        int z1 = FastFloor(z);
-
-        float xs = (float)(x - x1);
-        float ys = (float)(y - y1);
-        float zs = (float)(z - z1);
-
-        x1 *= PrimeX;
-        y1 *= PrimeY;
-        z1 *= PrimeZ;
-
-        int x0 = x1 - PrimeX;
-        int y0 = y1 - PrimeY;
-        int z0 = z1 - PrimeZ;
-        int x2 = x1 + PrimeX;
-        int y2 = y1 + PrimeY;
-        int z2 = z1 + PrimeZ;
-        int x3 = x1 + unchecked(PrimeX * 2);
-        int y3 = y1 + unchecked(PrimeY * 2);
-        int z3 = z1 + unchecked(PrimeZ * 2);
-
-
-        return CubicLerp(
-            CubicLerp(
-            CubicLerp(ValCoord(seed, x0, y0, z0), ValCoord(seed, x1, y0, z0), ValCoord(seed, x2, y0, z0), ValCoord(seed, x3, y0, z0), xs),
-            CubicLerp(ValCoord(seed, x0, y1, z0), ValCoord(seed, x1, y1, z0), ValCoord(seed, x2, y1, z0), ValCoord(seed, x3, y1, z0), xs),
-            CubicLerp(ValCoord(seed, x0, y2, z0), ValCoord(seed, x1, y2, z0), ValCoord(seed, x2, y2, z0), ValCoord(seed, x3, y2, z0), xs),
-            CubicLerp(ValCoord(seed, x0, y3, z0), ValCoord(seed, x1, y3, z0), ValCoord(seed, x2, y3, z0), ValCoord(seed, x3, y3, z0), xs),
-            ys),
-            CubicLerp(
-            CubicLerp(ValCoord(seed, x0, y0, z1), ValCoord(seed, x1, y0, z1), ValCoord(seed, x2, y0, z1), ValCoord(seed, x3, y0, z1), xs),
-            CubicLerp(ValCoord(seed, x0, y1, z1), ValCoord(seed, x1, y1, z1), ValCoord(seed, x2, y1, z1), ValCoord(seed, x3, y1, z1), xs),
-            CubicLerp(ValCoord(seed, x0, y2, z1), ValCoord(seed, x1, y2, z1), ValCoord(seed, x2, y2, z1), ValCoord(seed, x3, y2, z1), xs),
-            CubicLerp(ValCoord(seed, x0, y3, z1), ValCoord(seed, x1, y3, z1), ValCoord(seed, x2, y3, z1), ValCoord(seed, x3, y3, z1), xs),
-            ys),
-            CubicLerp(
-            CubicLerp(ValCoord(seed, x0, y0, z2), ValCoord(seed, x1, y0, z2), ValCoord(seed, x2, y0, z2), ValCoord(seed, x3, y0, z2), xs),
-            CubicLerp(ValCoord(seed, x0, y1, z2), ValCoord(seed, x1, y1, z2), ValCoord(seed, x2, y1, z2), ValCoord(seed, x3, y1, z2), xs),
-            CubicLerp(ValCoord(seed, x0, y2, z2), ValCoord(seed, x1, y2, z2), ValCoord(seed, x2, y2, z2), ValCoord(seed, x3, y2, z2), xs),
-            CubicLerp(ValCoord(seed, x0, y3, z2), ValCoord(seed, x1, y3, z2), ValCoord(seed, x2, y3, z2), ValCoord(seed, x3, y3, z2), xs),
-            ys),
-            CubicLerp(
-            CubicLerp(ValCoord(seed, x0, y0, z3), ValCoord(seed, x1, y0, z3), ValCoord(seed, x2, y0, z3), ValCoord(seed, x3, y0, z3), xs),
-            CubicLerp(ValCoord(seed, x0, y1, z3), ValCoord(seed, x1, y1, z3), ValCoord(seed, x2, y1, z3), ValCoord(seed, x3, y1, z3), xs),
-            CubicLerp(ValCoord(seed, x0, y2, z3), ValCoord(seed, x1, y2, z3), ValCoord(seed, x2, y2, z3), ValCoord(seed, x3, y2, z3), xs),
-            CubicLerp(ValCoord(seed, x0, y3, z3), ValCoord(seed, x1, y3, z3), ValCoord(seed, x2, y3, z3), ValCoord(seed, x3, y3, z3), xs),
-            ys),
-            zs) * (1 / (1.5f * 1.5f * 1.5f));
-    }
 
     // Cellular Noise
 
@@ -1207,6 +1115,203 @@ public class FastNoise
     }
 
 
+    // Perlin Noise
+
+    private float SinglePerlin(int seed, FNfloat x, FNfloat y)
+    {
+        int x0 = FastFloor(x);
+        int y0 = FastFloor(y);
+
+        float xd0 = (float)(x - x0);
+        float yd0 = (float)(y - y0);
+        float xd1 = xd0 - 1;
+        float yd1 = yd0 - 1;
+
+        float xs = InterpQuintic(xd0);
+        float ys = InterpQuintic(yd0);
+
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+
+        float xf0 = Lerp(GradCoord(seed, x0, y0, xd0, yd0), GradCoord(seed, x1, y0, xd1, yd0), xs);
+        float xf1 = Lerp(GradCoord(seed, x0, y1, xd0, yd1), GradCoord(seed, x1, y1, xd1, yd1), xs);
+
+        return Lerp(xf0, xf1, ys) * 0.579106986522674560546875f;
+    }
+
+    private float SinglePerlin(int seed, FNfloat x, FNfloat y, FNfloat z)
+    {
+        int x0 = FastFloor(x);
+        int y0 = FastFloor(y);
+        int z0 = FastFloor(z);
+
+        float xd0 = (float)(x - x0);
+        float yd0 = (float)(y - y0);
+        float zd0 = (float)(z - z0);
+        float xd1 = xd0 - 1;
+        float yd1 = yd0 - 1;
+        float zd1 = zd0 - 1;
+
+        float xs = InterpQuintic(xd0);
+        float ys = InterpQuintic(yd0);
+        float zs = InterpQuintic(zd0);
+
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        z0 *= PrimeZ;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+        int z1 = z0 + PrimeZ;
+
+        float xf00 = Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0), GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
+        float xf10 = Lerp(GradCoord(seed, x0, y1, z0, xd0, yd1, zd0), GradCoord(seed, x1, y1, z0, xd1, yd1, zd0), xs);
+        float xf01 = Lerp(GradCoord(seed, x0, y0, z1, xd0, yd0, zd1), GradCoord(seed, x1, y0, z1, xd1, yd0, zd1), xs);
+        float xf11 = Lerp(GradCoord(seed, x0, y1, z1, xd0, yd1, zd1), GradCoord(seed, x1, y1, z1, xd1, yd1, zd1), xs);
+
+        float yf0 = Lerp(xf00, xf10, ys);
+        float yf1 = Lerp(xf01, xf11, ys);
+
+        return Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
+    }
+
+
+    // Value Cubic Noise
+
+    private float SingleValueCubic(int seed, FNfloat x, FNfloat y)
+    {
+        int x1 = FastFloor(x);
+        int y1 = FastFloor(y);
+
+        float xs = (float)(x - x1);
+        float ys = (float)(y - y1);
+
+        x1 *= PrimeX;
+        y1 *= PrimeY;
+        int x0 = x1 - PrimeX;
+        int y0 = y1 - PrimeY;
+        int x2 = x1 + PrimeX;
+        int y2 = y1 + PrimeY;
+        int x3 = x1 + unchecked(PrimeX * 2);
+        int y3 = y1 + unchecked(PrimeY * 2);
+
+        return CubicLerp(
+            CubicLerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), ValCoord(seed, x2, y0), ValCoord(seed, x3, y0),
+            xs),
+            CubicLerp(ValCoord(seed, x0, y1), ValCoord(seed, x1, y1), ValCoord(seed, x2, y1), ValCoord(seed, x3, y1),
+            xs),
+            CubicLerp(ValCoord(seed, x0, y2), ValCoord(seed, x1, y2), ValCoord(seed, x2, y2), ValCoord(seed, x3, y2),
+            xs),
+            CubicLerp(ValCoord(seed, x0, y3), ValCoord(seed, x1, y3), ValCoord(seed, x2, y3), ValCoord(seed, x3, y3),
+            xs),
+            ys) * (1 / (1.5f * 1.5f));
+    }
+
+    private float SingleValueCubic(int seed, FNfloat x, FNfloat y, FNfloat z)
+    {
+        int x1 = FastFloor(x);
+        int y1 = FastFloor(y);
+        int z1 = FastFloor(z);
+
+        float xs = (float)(x - x1);
+        float ys = (float)(y - y1);
+        float zs = (float)(z - z1);
+
+        x1 *= PrimeX;
+        y1 *= PrimeY;
+        z1 *= PrimeZ;
+
+        int x0 = x1 - PrimeX;
+        int y0 = y1 - PrimeY;
+        int z0 = z1 - PrimeZ;
+        int x2 = x1 + PrimeX;
+        int y2 = y1 + PrimeY;
+        int z2 = z1 + PrimeZ;
+        int x3 = x1 + unchecked(PrimeX * 2);
+        int y3 = y1 + unchecked(PrimeY * 2);
+        int z3 = z1 + unchecked(PrimeZ * 2);
+
+
+        return CubicLerp(
+            CubicLerp(
+            CubicLerp(ValCoord(seed, x0, y0, z0), ValCoord(seed, x1, y0, z0), ValCoord(seed, x2, y0, z0), ValCoord(seed, x3, y0, z0), xs),
+            CubicLerp(ValCoord(seed, x0, y1, z0), ValCoord(seed, x1, y1, z0), ValCoord(seed, x2, y1, z0), ValCoord(seed, x3, y1, z0), xs),
+            CubicLerp(ValCoord(seed, x0, y2, z0), ValCoord(seed, x1, y2, z0), ValCoord(seed, x2, y2, z0), ValCoord(seed, x3, y2, z0), xs),
+            CubicLerp(ValCoord(seed, x0, y3, z0), ValCoord(seed, x1, y3, z0), ValCoord(seed, x2, y3, z0), ValCoord(seed, x3, y3, z0), xs),
+            ys),
+            CubicLerp(
+            CubicLerp(ValCoord(seed, x0, y0, z1), ValCoord(seed, x1, y0, z1), ValCoord(seed, x2, y0, z1), ValCoord(seed, x3, y0, z1), xs),
+            CubicLerp(ValCoord(seed, x0, y1, z1), ValCoord(seed, x1, y1, z1), ValCoord(seed, x2, y1, z1), ValCoord(seed, x3, y1, z1), xs),
+            CubicLerp(ValCoord(seed, x0, y2, z1), ValCoord(seed, x1, y2, z1), ValCoord(seed, x2, y2, z1), ValCoord(seed, x3, y2, z1), xs),
+            CubicLerp(ValCoord(seed, x0, y3, z1), ValCoord(seed, x1, y3, z1), ValCoord(seed, x2, y3, z1), ValCoord(seed, x3, y3, z1), xs),
+            ys),
+            CubicLerp(
+            CubicLerp(ValCoord(seed, x0, y0, z2), ValCoord(seed, x1, y0, z2), ValCoord(seed, x2, y0, z2), ValCoord(seed, x3, y0, z2), xs),
+            CubicLerp(ValCoord(seed, x0, y1, z2), ValCoord(seed, x1, y1, z2), ValCoord(seed, x2, y1, z2), ValCoord(seed, x3, y1, z2), xs),
+            CubicLerp(ValCoord(seed, x0, y2, z2), ValCoord(seed, x1, y2, z2), ValCoord(seed, x2, y2, z2), ValCoord(seed, x3, y2, z2), xs),
+            CubicLerp(ValCoord(seed, x0, y3, z2), ValCoord(seed, x1, y3, z2), ValCoord(seed, x2, y3, z2), ValCoord(seed, x3, y3, z2), xs),
+            ys),
+            CubicLerp(
+            CubicLerp(ValCoord(seed, x0, y0, z3), ValCoord(seed, x1, y0, z3), ValCoord(seed, x2, y0, z3), ValCoord(seed, x3, y0, z3), xs),
+            CubicLerp(ValCoord(seed, x0, y1, z3), ValCoord(seed, x1, y1, z3), ValCoord(seed, x2, y1, z3), ValCoord(seed, x3, y1, z3), xs),
+            CubicLerp(ValCoord(seed, x0, y2, z3), ValCoord(seed, x1, y2, z3), ValCoord(seed, x2, y2, z3), ValCoord(seed, x3, y2, z3), xs),
+            CubicLerp(ValCoord(seed, x0, y3, z3), ValCoord(seed, x1, y3, z3), ValCoord(seed, x2, y3, z3), ValCoord(seed, x3, y3, z3), xs),
+            ys),
+            zs) * (1 / (1.5f * 1.5f * 1.5f));
+    }
+
+
+    // Value Noise
+
+    private float SingleValue(int seed, FNfloat x, FNfloat y)
+    {
+        int x0 = FastFloor(x);
+        int y0 = FastFloor(y);
+
+        float xs = InterpQuintic((float)(x - x0));
+        float ys = InterpQuintic((float)(y - y0));
+
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+
+        float xf0 = Lerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), xs);
+        float xf1 = Lerp(ValCoord(seed, x0, y1), ValCoord(seed, x1, y1), xs);
+
+        return Lerp(xf0, xf1, ys);
+    }
+
+    private float SingleValue(int seed, FNfloat x, FNfloat y, FNfloat z)
+    {
+        int x0 = FastFloor(x);
+        int y0 = FastFloor(y);
+        int z0 = FastFloor(z);
+
+        float xs = InterpQuintic((float)(x - x0));
+        float ys = InterpQuintic((float)(y - y0));
+        float zs = InterpQuintic((float)(z - z0));
+
+        x0 *= PrimeX;
+        y0 *= PrimeY;
+        z0 *= PrimeZ;
+        int x1 = x0 + PrimeX;
+        int y1 = y0 + PrimeY;
+        int z1 = z0 + PrimeZ;
+
+        float xf00 = Lerp(ValCoord(seed, x0, y0, z0), ValCoord(seed, x1, y0, z0), xs);
+        float xf10 = Lerp(ValCoord(seed, x0, y1, z0), ValCoord(seed, x1, y1, z0), xs);
+        float xf01 = Lerp(ValCoord(seed, x0, y0, z1), ValCoord(seed, x1, y0, z1), xs);
+        float xf11 = Lerp(ValCoord(seed, x0, y1, z1), ValCoord(seed, x1, y1, z1), xs);
+
+        float yf0 = Lerp(xf00, xf10, ys);
+        float yf1 = Lerp(xf01, xf11, ys);
+
+        return Lerp(yf0, yf1, zs);
+    }
+
+
     // Domain Warp   
 
     public void DomainWarp(ref FNfloat x, ref FNfloat y)
@@ -1246,13 +1351,13 @@ public class FastNoise
         switch (mDomainWarpType)
         {
             case DomainWarpType.OpenSimplex2:
-                SingleDomainWarpSimplexGradient(seed, amp, freq, x, y, ref xr, ref yr, true);
-                break;
-            case DomainWarpType.OpenSimplex2Reduced:
                 SingleDomainWarpSimplexGradient(seed, amp, freq, x, y, ref xr, ref yr, false);
                 break;
-            case DomainWarpType.Basic:
-                SingleDomainWarpGradient(seed, amp, freq, x, y, ref xr, ref yr);
+            case DomainWarpType.OpenSimplex2Reduced:
+                SingleDomainWarpSimplexGradient(seed, amp, freq, x, y, ref xr, ref yr, true);
+                break;
+            case DomainWarpType.BasicGrid:
+                SingleDomainWarpBasicGrid(seed, amp, freq, x, y, ref xr, ref yr);
                 break;
         }
     }
@@ -1262,13 +1367,13 @@ public class FastNoise
         switch (mDomainWarpType)
         {
             case DomainWarpType.OpenSimplex2:
-                SingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr, true);
-                break;
-            case DomainWarpType.OpenSimplex2Reduced:
                 SingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr, false);
                 break;
-            case DomainWarpType.Basic:
-                SingleDomainWarpGradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr);
+            case DomainWarpType.OpenSimplex2Reduced:
+                SingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr, true);
+                break;
+            case DomainWarpType.BasicGrid:
+                SingleDomainWarpBasicGrid(seed, amp, freq, x, y, z, ref xr, ref yr, ref zr);
                 break;
         }
     }
@@ -1350,9 +1455,9 @@ public class FastNoise
     }
 
 
-    // Domain Warp Basic Gradient
+    // Domain Warp Basic Grid
 
-    private void SingleDomainWarpGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr)
+    private void SingleDomainWarpBasicGrid(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr)
     {
         FNfloat xf = x * frequency;
         FNfloat yf = y * frequency;
@@ -1384,7 +1489,7 @@ public class FastNoise
         yr += Lerp(ly0x, ly1x, ys) * perturbAmp;
     }
 
-    private void SingleDomainWarpGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr)
+    private void SingleDomainWarpBasicGrid(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr)
     {
         FNfloat xf = x * frequency;
         FNfloat yf = y * frequency;
@@ -1443,9 +1548,9 @@ public class FastNoise
     }
 
 
-    // Domain Warp Simplex (optional Basic or Dual Gradient)
+    // Domain Warp Simplex
 
-    private void SingleDomainWarpSimplexGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool dualGradient)
+    private void SingleDomainWarpSimplexGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
         const FNfloat F2 = (FNfloat)0.5 * (SQRT3 - 1);
@@ -1491,10 +1596,10 @@ public class FastNoise
         {
             a *= a; a *= a;
             float xo, yo;
-            if (dualGradient)
-                GradCoordDual(seed, i, j, x0, y0, out xo, out yo);
-            else
+            if (outGradOnly)
                 GradCoordOut(seed, i, j, x0, y0, out xo, out yo);
+            else
+                GradCoordDual(seed, i, j, x0, y0, out xo, out yo);
             vx += a * xo;
             vy += a * yo;
         }
@@ -1504,10 +1609,10 @@ public class FastNoise
         {
             b *= b; b *= b;
             float xo, yo;
-            if (dualGradient)
-                GradCoordDual(seed, i + i1, j + j1, x1, y1, out xo, out yo);
-            else
+            if (outGradOnly)
                 GradCoordOut(seed, i + i1, j + j1, x1, y1, out xo, out yo);
+            else
+                GradCoordDual(seed, i + i1, j + j1, x1, y1, out xo, out yo);
             vx += b * xo;
             vy += b * yo;
         }
@@ -1517,20 +1622,20 @@ public class FastNoise
         {
             c *= c; c *= c;
             float xo, yo;
-            if (dualGradient)
-                GradCoordDual(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
-            else
+            if (outGradOnly)
                 GradCoordOut(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
+            else
+                GradCoordDual(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
             vx += c * xo;
             vy += c * yo;
         }
 
-        perturbAmp *= dualGradient ? 38.283687591552734375f : 16.0f;
+        perturbAmp *= outGradOnly ? 16.0f : 38.283687591552734375f;
         xr += vx * perturbAmp;
         yr += vy * perturbAmp;
     }
 
-    private void SingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr, bool dualGradient)
+    private void SingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr, bool outGradOnly)
     {
         const FNfloat R3 = (2.0f / 3.0f);
 
@@ -1538,7 +1643,7 @@ public class FastNoise
         y *= frequency;
         z *= frequency;
 
-        FNfloat r = (x + y + z) * R3; // Rotate
+        FNfloat r = (x + y + z) * R3; // Rotation, not skew
         x = r - x; y = r - y; z = r - z;
 
         int i = FastRound(x);
@@ -1548,6 +1653,14 @@ public class FastNoise
         float y0 = y - j;
         float z0 = z - k;
 
+        int xNSign = (int)(-x0 - 1.0f) | 1;
+        int yNSign = (int)(-y0 - 1.0f) | 1;
+        int zNSign = (int)(-z0 - 1.0f) | 1;
+
+        float ax0 = xNSign * -x0;
+        float ay0 = yNSign * -y0;
+        float az0 = zNSign * -z0;
+
         i *= PrimeX;
         j *= PrimeY;
         k *= PrimeZ;
@@ -1555,79 +1668,85 @@ public class FastNoise
         float vx, vy, vz;
         vx = vy = vz = 0;
 
-        for (int l = 0; l < 2; l++)
+        float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
+        for (int l = 0; /* l < 2 */; l++)
         {
-            float a = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
             if (a > 0)
             {
-                a *= a; a *= a;
+                float aaaa = (a * a) * (a * a);
                 float xo, yo, zo;
-                if (dualGradient)
-                    GradCoordDual(seed, i, j, k, x0, y0, z0, out xo, out yo, out zo);
-                else
+                if (outGradOnly)
                     GradCoordOut(seed, i, j, k, x0, y0, z0, out xo, out yo, out zo);
-                vx += a * xo;
-                vy += a * yo;
-                vz += a * zo;
+                else
+                    GradCoordDual(seed, i, j, k, x0, y0, z0, out xo, out yo, out zo);
+                vx += aaaa * xo;
+                vy += aaaa * yo;
+                vz += aaaa * zo;
             }
 
-            bool xPositive = x0 >= 0;
-            bool yPositive = y0 >= 0;
-            bool zPositive = z0 >= 0;
-
+            float b = a + 1;
             int i1 = i;
             int j1 = j;
             int k1 = k;
             float x1 = x0;
             float y1 = y0;
             float z1 = z0;
-            float ax0 = FastAbs(x0);
-            float ay0 = FastAbs(y0);
-            float az0 = FastAbs(z0);
             if (ax0 >= ay0 && ax0 >= az0)
             {
-                i1 += xPositive ? PrimeX : -PrimeX;
-                x1 += xPositive ? -1 : 1;
+                x1 += xNSign;
+                b -= xNSign * 2 * x1;
+                i1 += xNSign * -PrimeX;
             }
             else if (ay0 > ax0 && ay0 >= az0)
             {
-                j1 += yPositive ? PrimeY : -PrimeY;
-                y1 += yPositive ? -1 : 1;
+                y1 += yNSign;
+                b -= yNSign * 2 * y1;
+                j1 += yNSign * -PrimeY;
             }
             else
             {
-                k1 += zPositive ? PrimeZ : -PrimeZ;
-                z1 += zPositive ? -1 : 1;
+                z1 += zNSign;
+                b -= zNSign * 2 * z1;
+                k1 += zNSign * -PrimeZ;
             }
 
-            float b = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
             if (b > 0)
             {
-                b *= b; b *= b;
+                float bbbb = (b * b) * (b * b);
                 float xo, yo, zo;
-                if (dualGradient)
-                    GradCoordDual(seed, i1, j1, k1, x1, y1, z1, out xo, out yo, out zo);
-                else
+                if (outGradOnly)
                     GradCoordOut(seed, i1, j1, k1, x1, y1, z1, out xo, out yo, out zo);
-                vx += b * xo;
-                vy += b * yo;
-                vz += b * zo;
+                else
+                    GradCoordDual(seed, i1, j1, k1, x1, y1, z1, out xo, out yo, out zo);
+                vx += bbbb * xo;
+                vy += bbbb * yo;
+                vz += bbbb * zo;
             }
 
             if (l == 1) break;
 
-            i -= xPositive ? 0 : PrimeX;
-            j -= yPositive ? 0 : PrimeY;
-            k -= zPositive ? 0 : PrimeZ;
+            ax0 = 0.5f - ax0;
+            ay0 = 0.5f - ay0;
+            az0 = 0.5f - az0;
 
-            x0 += xPositive ? -0.5f : 0.5f;
-            y0 += yPositive ? -0.5f : 0.5f;
-            z0 += zPositive ? -0.5f : 0.5f;
+            x0 = xNSign * ax0;
+            y0 = yNSign * ay0;
+            z0 = zNSign * az0;
+
+            a += (0.75f - ax0) - (ay0 + az0);
+
+            i += (xNSign >> 1) & PrimeX;
+            j += (yNSign >> 1) & PrimeY;
+            k += (zNSign >> 1) & PrimeZ;
+
+            xNSign = -xNSign;
+            yNSign = -yNSign;
+            zNSign = -zNSign;
 
             seed += 1293373;
         }
 
-        perturbAmp *= dualGradient ? 32.69428253173828125f : 7.71604938271605f;
+        perturbAmp *= outGradOnly ? 7.71604938271605f : 32.69428253173828125f;
         xr += vx * perturbAmp;
         yr += vy * perturbAmp;
         zr += vz * perturbAmp;
