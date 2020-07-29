@@ -256,7 +256,6 @@ public class FastNoise
         int hash = seed ^ xPrimed ^ yPrimed;
 
         hash *= 0x27d4eb2d;
-        hash ^= hash >> 15;
         return hash;
     }
 
@@ -265,31 +264,30 @@ public class FastNoise
         int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
         hash *= 0x27d4eb2d;
-        hash ^= hash >> 15;
         return hash;
     }
 
     private static float ValCoord(int seed, int xPrimed, int yPrimed)
     {
-        int hash = seed ^ xPrimed ^ yPrimed;
+        int hash = Hash(seed, xPrimed, yPrimed);
 
-        hash *= 0x27d4eb2d;
         hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
 
     private static float ValCoord(int seed, int xPrimed, int yPrimed, int zPrimed)
     {
-        int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
+        int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
 
-        hash *= 0x27d4eb2d;
         hash ^= hash << 19;
         return hash / 2147483648.0f;
     }
 
     private static float GradCoord(int seed, int xPrimed, int yPrimed, float xd, float yd)
     {
-        int hash = Hash(seed, xPrimed, yPrimed) & (7 << 1);
+        int hash = Hash(seed, xPrimed, yPrimed);
+        hash ^= hash >> 15;
+        hash &= 7 << 1;
 
         float xg = Gradients2D[hash];
         float yg = Gradients2D[hash | 1];
@@ -299,7 +297,9 @@ public class FastNoise
 
     private static float GradCoord(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd)
     {
-        int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (15 << 2);
+        int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+        hash ^= hash >> 15;
+        hash &= 15 << 2;
 
         float xg = Gradients3D[hash];
         float yg = Gradients3D[hash | 1];
@@ -863,10 +863,11 @@ public class FastNoise
 
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed);
+                        int idx = hash & (255 << 1);
 
-                        float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                         float newDistance = vecX * vecX + vecY * vecY;
 
@@ -888,10 +889,11 @@ public class FastNoise
 
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed);
+                        int idx = hash & (255 << 1);
 
-                        float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                         float newDistance = FastAbs(vecX) + FastAbs(vecY);
 
@@ -913,10 +915,11 @@ public class FastNoise
 
                     for (int yi = yr - 1; yi <= yr + 1; yi++)
                     {
-                        int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
+                        int hash = Hash(seed, xPrimed, yPrimed);
+                        int idx = hash & (255 << 1);
 
-                        float vecX = (float)(xi - x) + RandVecs2D[hash] * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs2D[hash | 1] * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                         float newDistance = (FastAbs(vecX) + FastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
@@ -994,11 +997,12 @@ public class FastNoise
 
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+                            int idx = hash & (255 << 2);
 
-                            float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
-                            float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
-                            float vecZ = (float)(zi - z) + RandVecs3D[hash | 2] * cellularJitter;
+                            float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                            float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                            float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                             float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
@@ -1026,11 +1030,12 @@ public class FastNoise
 
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+                            int idx = hash & (255 << 2);
 
-                            float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
-                            float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
-                            float vecZ = (float)(zi - z) + RandVecs3D[hash | 2] * cellularJitter;
+                            float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                            float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                            float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                             float newDistance = FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ);
 
@@ -1058,11 +1063,12 @@ public class FastNoise
 
                         for (int zi = zr - 1; zi <= zr + 1; zi++)
                         {
-                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
+                            int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+                            int idx = hash & (255 << 2);
 
-                            float vecX = (float)(xi - x) + RandVecs3D[hash] * cellularJitter;
-                            float vecY = (float)(yi - y) + RandVecs3D[hash | 1] * cellularJitter;
-                            float vecZ = (float)(zi - z) + RandVecs3D[hash | 2] * cellularJitter;
+                            float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                            float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                            float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                             float newDistance = (FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
