@@ -2,24 +2,25 @@
 
 # FastNoise (Lite)
 
-FastNoise Lite is a **portable** open source noise generation library with the same collection of different noise algorithms as the original. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality. FastNoise Lite will make it easier for ports to different languages to be made.
+FastNoise Lite is a **portable** open source noise generation library with a similar collection of different noise algorithms to the original. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality. FastNoise Lite will make it easier for ports to different languages to be made.
 
 FastNoise Lite is a work in progress.
 
 This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise.
 
-I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
+I have now also created [FastNoise2](https://github.com/Auburn/FastNoise2), successor to [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
 
 ### Features
 
-- Value Noise 2D, 3D
-- Perlin Noise 2D, 3D
-- Simplex Noise 2D, 3D, 4D
-- Cubic Noise 2D, 3D
-- Gradient Perturb 2D, 3D
-- Multiple fractal options for all of the above
+- Simplex Noise 2D, 3D
+- OpenSimplex2 Noise 2D, 3D
 - Cellular (Voronoi) Noise 2D, 3D
-- White Noise 2D, 3D, 4D
+- Perlin Noise 2D, 3D
+- Value (Cubic) Noise 2D, 3D
+- Value Noise 2D, 3D
+- OpenSimplex2-based Domain Warp 2D, 3D
+- Basic Grid Gradient Domain Warp 2D, 3D
+- Multiple fractal options for all of the above
 - Supports floats or doubles
 
 ### Wiki
@@ -28,15 +29,20 @@ Usage and documentation available in wiki
 
 [Wiki Link](https://github.com/Auburns/FastNoise/wiki)
 
+<!-- TODO: Some of these could be removed soon -->
 ### Related repositories
 
+ - [FastNoise2](https://github.com/Auburn/FastNoise2)
  - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
  - [FastNoise Java](https://github.com/Auburns/FastNoise_Java)
  - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
  - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
  - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
 
-Credit to [CubicNoise](https://github.com/jobtalle/CubicNoise) for the cubic noise algorithm
+Credits:
+
+ - [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
+ - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
 
 ## FastNoise Preview App
 
@@ -48,6 +54,7 @@ Download links can be found in the [Releases Section](https://github.com/Auburns
 ![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
 
 
+<!-- TODO: Update metrics for FastNoiseLite -->
 # Performance Comparisons
 
 Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
@@ -57,14 +64,13 @@ Timings below are x1000 ns to generate 32x32x32 points of noise on a single thre
 - CPU: Intel Xeon Skylake @ 2.0Ghz
 - Compiler: Intel 17.0 x64
 
-| Noise Type  | FastNoise | FastNoiseSIMD AVX2 | LibNoise | FastNoise 2D |
-|-------------|-----------|--------------------|----------|--------------|
-| White Noise | 141       | 9                  |          | 111          |
-| Value       | 642       | 152                |          | 361          |
-| Perlin      | 1002      | 324                | 1368     | 473          |
-| Simplex     | 1194      | 294                |          | 883          |
-| Cellular    | 2979      | 1283               | 58125    | 1074         |
-| Cubic       | 2979      | 952                |          | 858          |
+| Noise Type    | FastNoise | FastNoiseSIMD AVX2 | LibNoise | FastNoise 2D |
+|---------------|-----------|--------------------|----------|--------------|
+| Simplex       | 1194      | 294                |          | 883          |
+| Cellular      | 2979      | 1283               | 58125    | 1074         |
+| Perlin        | 1002      | 324                | 1368     | 473          |
+| Value (Cubic) | 2979      | 952                |          | 858          |
+| Value         | 642       | 152                |          | 361          |
 
 Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
 
@@ -86,11 +92,7 @@ Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSI
 
 ![Value Noise](http://i.imgur.com/X2lbFZR.png)
 
-## White Noise
-
-![White Noise](http://i.imgur.com/QIlYvyQ.png)
-
-## Gradient Perturb
+## Basic Grid Gradient Perturb
 
 ![Gradient Perturb](http://i.imgur.com/gOjc1u1.png)
 
