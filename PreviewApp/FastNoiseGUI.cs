@@ -279,7 +279,7 @@ namespace FastNoiseLite
                     AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
 
                     // Frequency
-                    DomainWarpFrequency = new NumericStepper { Value = 0.01, DecimalPlaces = 3, Increment = 0.005 };
+                    DomainWarpFrequency = new NumericStepper { Value = 0.005, DecimalPlaces = 3, Increment = 0.005 };
                     DomainWarpFrequency.ValueChanged += Generate;
                     AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
                 }
