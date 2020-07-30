@@ -164,7 +164,7 @@ namespace FastNoiseLite
                         {
                             NoiseType.Items.Add(FormatReadable(name));
                         }
-                        NoiseType.SelectedIndex = (int)FastNoise.NoiseType.Simplex;
+                        NoiseType.SelectedIndex = (int)FastNoise.NoiseType.OpenSimplex2;
                         NoiseType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, NoiseType, "Noise Type:");
                     }
@@ -294,7 +294,7 @@ namespace FastNoiseLite
                     AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
 
                     // Frequency
-                    DomainWarpFrequency = new NumericStepper { Value = 0.01, DecimalPlaces = 3, Increment = 0.005 };
+                    DomainWarpFrequency = new NumericStepper { Value = 0.005, DecimalPlaces = 3, Increment = 0.005 };
                     DomainWarpFrequency.ValueChanged += Generate;
                     AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
                 }
@@ -677,7 +677,7 @@ namespace FastNoiseLite
 
         private string FormatReadable(string enumName)
         {
-            return Regex.Replace(enumName, "([a-z])([A-Z0-9])", "$1 $2");
+            return Regex.Replace(Regex.Replace(enumName, "([a-z])([A-Z0-9])", "$1 $2"), "([a-z0-9])([A-Z][a-z])", "$1 $2");
         }
     }
 }
