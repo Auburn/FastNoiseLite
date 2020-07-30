@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Eto.Drawing;
 using Eto.Forms;
-using Eto.Wpf.Forms;
+
+// Switch between using floats or doubles for input position
+using FNfloat = System.Single;
+//using FNfloat = System.Double;
 
 namespace FastNoiseLite
 {   
@@ -36,6 +39,8 @@ namespace FastNoiseLite
         private NumericStepper FractalOctaves;
         private NumericStepper FractalLacunarity;
         private NumericStepper FractalGain;
+        private NumericStepper FractalWeightedStrength;
+        private NumericStepper FractalPingPongStrength;
 
         private DropDown CellularDistanceFunction;
         private DropDown CellularReturnType;
@@ -206,6 +211,16 @@ namespace FastNoiseLite
                     FractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2, Increment = 0.1 };
                     FractalGain.ValueChanged += Generate;
                     AddToTableWithLabel(table, FractalGain, "Gain:");
+
+                    // Weighted Strength
+                    FractalWeightedStrength = new NumericStepper { Value = 0.0, DecimalPlaces = 2, Increment = 0.1 };
+                    FractalWeightedStrength.ValueChanged += Generate;
+                    AddToTableWithLabel(table, FractalWeightedStrength, "Weighted Strength:");
+
+                    // Ping Pong Strength
+                    FractalPingPongStrength = new NumericStepper { Value = 2.0, DecimalPlaces = 2, Increment = 0.1 };
+                    FractalPingPongStrength.ValueChanged += Generate;
+                    AddToTableWithLabel(table, FractalPingPongStrength, "Ping Pong Strength:");
                 }
 
                 // Add fractal label
@@ -231,7 +246,7 @@ namespace FastNoiseLite
                         {
                             CellularReturnType.Items.Add(FormatReadable(name));
                         }
-                        CellularReturnType.SelectedIndex = (int)FastNoise.CellularReturnType.CellValue;
+                        CellularReturnType.SelectedIndex = (int)FastNoise.CellularReturnType.Distance;
                         CellularReturnType.SelectedIndexChanged += Generate;
                         AddToTableWithLabel(table, CellularReturnType, "Return Type:");
                     }
@@ -395,6 +410,8 @@ namespace FastNoiseLite
             genNoise.SetFractalOctaves((int)FractalOctaves.Value);
             genNoise.SetFractalLacunarity((float)FractalLacunarity.Value);
             genNoise.SetFractalGain((float)FractalGain.Value);
+            genNoise.SetFractalWeightedStrength((float)FractalWeightedStrength.Value);
+            genNoise.SetFractalPingPongStrength((float)FractalPingPongStrength.Value);
 
             genNoise.SetCellularDistanceFunction((FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
             genNoise.SetCellularReturnType((FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
@@ -433,9 +450,9 @@ namespace FastNoiseLite
                 {
                     for (var x = -w / 2; x < w / 2; x++)
                     {
-                        float xf = x;
-                        float yf = y;
-                        float zf = zPos;
+                        FNfloat xf = x;
+                        FNfloat yf = y;
+                        FNfloat zf = zPos;
 
 
                         if (get3d)
@@ -489,9 +506,9 @@ namespace FastNoiseLite
                 {
                     for (var x = -w / 2; x < w / 2; x++)
                     {
-                        float xf = (float)x;
-                        float yf = (float)y;
-                        float zf = (float)zPos;
+                        FNfloat xf = x;
+                        FNfloat yf = y;
+                        FNfloat zf = zPos;
                         
                         if (get3d)
                             warpNoise.DomainWarp(ref xf, ref yf, ref zf);                        
@@ -502,19 +519,19 @@ namespace FastNoiseLite
                         yf -= y;
                         zf -= zPos;
 
-                        avg += xf + yf;
-                        maxN = Math.Max(maxN, Math.Max(xf, yf));
-                        minN = Math.Min(minN, Math.Min(xf, yf));
+                        avg += (float)(xf + yf);
+                        maxN = Math.Max(maxN, (float)Math.Max(xf, yf));
+                        minN = Math.Min(minN, (float)Math.Min(xf, yf));
 
-                        noiseValues[index++] = xf;
-                        noiseValues[index++] = yf;
+                        noiseValues[index++] = (float)xf;
+                        noiseValues[index++] = (float)yf;
 
                         if (get3d)
                         {
-                            avg += zf;
-                            maxN = Math.Max(maxN, zf);
-                            minN = Math.Min(minN, zf);
-                            noiseValues[index++] = zf;
+                            avg += (float)zf;
+                            maxN = Math.Max(maxN, (float)zf);
+                            minN = Math.Min(minN, (float)zf);
+                            noiseValues[index++] = (float)zf;
                         }
                     }
                 }
@@ -652,7 +669,7 @@ namespace FastNoiseLite
             parent.Rows.Add(new TableRow
             {
                 Cells = {
-                    new TableCell(new Label { Text = label }),
+                    new TableCell(new Label { Text = label, TextAlignment = TextAlignment.Right }),
                     new TableCell(me)
                 }
             });
