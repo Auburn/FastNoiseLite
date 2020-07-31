@@ -1372,6 +1372,7 @@ public class FastNoise
 
     // Domain Warp   
 
+    [MethodImpl(OPTIMISE)]
     public void DomainWarp(ref FNfloat x, ref FNfloat y)
     {
         switch (mFractalType)
@@ -1388,6 +1389,7 @@ public class FastNoise
         }
     }
 
+    [MethodImpl(OPTIMISE)]
     public void DomainWarp(ref FNfloat x, ref FNfloat y, ref FNfloat z)
     {
         switch (mFractalType)
