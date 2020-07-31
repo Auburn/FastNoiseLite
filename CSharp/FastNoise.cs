@@ -344,6 +344,7 @@ public class FastNoise
         return xd * xg + yd * yg + zd * zg;
     }
 
+    [MethodImpl(INLINE)]
     private static void GradCoordOut(int seed, int xPrimed, int yPrimed, float xd, float yd, out float xo, out float yo)
     {
         int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
@@ -352,6 +353,7 @@ public class FastNoise
         yo = RandVecs2D[hash | 1];
     }
 
+    [MethodImpl(INLINE)]
     private static void GradCoordOut(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, out float xo, out float yo, out float zo)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
@@ -361,6 +363,7 @@ public class FastNoise
         zo = RandVecs3D[hash | 2];
     }
 
+    [MethodImpl(INLINE)]
     private static void GradCoordDual(int seed, int xPrimed, int yPrimed, float xd, float yd, out float xo, out float yo)
     {
         int hash = Hash(seed, xPrimed, yPrimed);
@@ -378,6 +381,7 @@ public class FastNoise
         yo = value * ygo;
     }
 
+    [MethodImpl(INLINE)]
     private static void GradCoordDual(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, out float xo, out float yo, out float zo)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
@@ -397,6 +401,9 @@ public class FastNoise
         yo = value * ygo;
         zo = value * zgo;
     }
+
+
+    // Noise generator selectors
 
     [MethodImpl(OPTIMISE)]
     public float GetNoise(FNfloat x, FNfloat y)
@@ -797,9 +804,9 @@ public class FastNoise
         int i = FastRound(x);
         int j = FastRound(y);
         int k = FastRound(z);
-        float x0 = x - i;
-        float y0 = y - j;
-        float z0 = z - k;
+        float x0 = (float)x - i;
+        float y0 = (float)y - j;
+        float z0 = (float)z - k;
 
         int xNSign = (int)(-x0 - 1.0f) | 1;
         int yNSign = (int)(-y0 - 1.0f) | 1;
@@ -816,7 +823,7 @@ public class FastNoise
         float value = 0;
 
         float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-        for (int l = 0; /* l < 2 */; l++)
+        for (int l = 0; l < 2; l++)
         {
             if (a > 0)
             {
@@ -1604,8 +1611,8 @@ public class FastNoise
     private void SingleDomainWarpSimplexGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat F2 = (FNfloat)0.5 * (SQRT3 - 1);
-        const FNfloat G2 = (3 - SQRT3) / (FNfloat)6.0;
+        const FNfloat F2 = 0.5f * (SQRT3 - 1);
+        const FNfloat G2 = (3 - SQRT3) / 6;
 
         x *= frequency;
         y *= frequency;
@@ -1618,20 +1625,14 @@ public class FastNoise
         float x0 = (float)(x - (i - t));
         float y0 = (float)(y - (j - t));
 
-        int i1, j1;
-        if (x0 > y0)
-        {
-            i1 = -1; j1 = 0;
-        }
-        else
-        {
-            i1 = 0; j1 = -1;
-        }
+        float y0_1 = y0 - 1;
+        int i1 = (int)(y0_1 - x0);
+        int j1 = ~i1;
 
         float x1 = x0 + i1 + (float)G2;
         float y1 = y0 + j1 + (float)G2;
         float x2 = x0 - 1 + 2 * (float)G2;
-        float y2 = y0 - 1 + 2 * (float)G2;
+        float y2 = y0_1 + 2 * (float)G2;
 
         i *= PrimeX;
         j *= PrimeY;
@@ -1688,7 +1689,7 @@ public class FastNoise
 
     private void SingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr, bool outGradOnly)
     {
-        const FNfloat R3 = (2.0f / 3.0f);
+        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
 
         x *= frequency;
         y *= frequency;
@@ -1700,9 +1701,9 @@ public class FastNoise
         int i = FastRound(x);
         int j = FastRound(y);
         int k = FastRound(z);
-        float x0 = x - i;
-        float y0 = y - j;
-        float z0 = z - k;
+        float x0 = (float)x - i;
+        float y0 = (float)y - j;
+        float z0 = (float)z - k;
 
         int xNSign = (int)(-x0 - 1.0f) | 1;
         int yNSign = (int)(-y0 - 1.0f) | 1;
@@ -1720,7 +1721,7 @@ public class FastNoise
         vx = vy = vz = 0;
 
         float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-        for (int l = 0; /* l < 2 */; l++)
+        for (int l = 0; l < 2; l++)
         {
             if (a > 0)
             {
