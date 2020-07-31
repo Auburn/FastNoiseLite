@@ -803,9 +803,9 @@ public class FastNoise
         int i = FastRound(x);
         int j = FastRound(y);
         int k = FastRound(z);
-        float x0 = (float)x - i;
-        float y0 = (float)y - j;
-        float z0 = (float)z - k;
+        float x0 = (float)(x - i);
+        float y0 = (float)(y - j);
+        float z0 = (float)(z - k);
 
         int xNSign = (int)(-x0 - 1.0f) | 1;
         int yNSign = (int)(-y0 - 1.0f) | 1;
