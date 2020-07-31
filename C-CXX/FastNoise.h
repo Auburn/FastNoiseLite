@@ -291,7 +291,7 @@ static const float RAND_VECS_2D[] = {
     0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
 };
 
-static inline void _fnGradCoordOut2D(int seed, int xPrimed, int yPrimed, float xd, float yd, float *xo, float *yo) {
+static inline void _fnGradCoordOut2D(int seed, int xPrimed, int yPrimed, float *xo, float *yo) {
     int hash = _fnHash2D(seed, xPrimed, yPrimed) & (255 << 1);
 
     *xo = RAND_VECS_2D[hash];
@@ -349,7 +349,7 @@ static const float RAND_VECS_3D[] = {
     -0.7870349638f, 0.03447489231f, 0.6159443543f, 0, -0.2015596421f, 0.6859872284f, 0.6991389226f, 0, -0.08581082512f, -0.10920836f, -0.9903080513f, 0, 0.5532693395f, 0.7325250401f, -0.396610771f, 0, -0.1842489331f, -0.9777375055f, -0.1004076743f, 0, 0.0775473789f, -0.9111505856f, 0.4047110257f, 0, 0.1399838409f, 0.7601631212f, -0.6344734459f, 0, 0.4484419361f, -0.845289248f, 0.2904925424f, 0
 };
 
-static inline void _fnGradCoordOut3D(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, float *xo, float *yo, float *zo) {
+static inline void _fnGradCoordOut3D(int seed, int xPrimed, int yPrimed, int zPrimed, float *xo, float *yo, float *zo) {
     int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
     *xo = RAND_VECS_3D[hash];
@@ -572,15 +572,15 @@ static float _fnSingleOpenSimplex23D(int seed, FNfloat x, FNfloat y, FNfloat z) 
         if (ax0 >= ay0 && ax0 >= az0) {
             x1 += xNSign;
             b -= xNSign * 2 * x1;
-            i1 += xNSign * -PRIME_X;
+            i1 -= xNSign * PRIME_X;
         } else if (ay0 > ax0 && ay0 >= az0) {
             y1 += yNSign;
             b -= yNSign * 2 * y1;
-            j1 += yNSign * -PRIME_Y;
+            j1 -= yNSign * PRIME_Y;
         } else  {
             z1 += zNSign;
             b -= zNSign * 2 * z1;
-            k1 += zNSign * -PRIME_Z;
+            k1 -= zNSign * PRIME_Z;
         }
 
         if (b > 0) {
@@ -1076,7 +1076,7 @@ static inline float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FN
 static float _fnGenFractalFBM2D(fn_state *state, FNfloat x, FNfloat y) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnGenNoiseSingle2D(state, seed++, x, y);
@@ -1088,13 +1088,13 @@ static float _fnGenFractalFBM2D(fn_state *state, FNfloat x, FNfloat y) {
         amp *= state->gain;
     }
 
-    return sum * _fnCalculateFractalBounding(state);
+    return sum;
 }
 
 static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnFastAbs(_fnGenNoiseSingle2D(state, seed++, x, y));
@@ -1106,13 +1106,13 @@ static float _fnGenFractalRidged2D(fn_state *state, FNfloat x, FNfloat y) {
         amp *= state->gain;
     }
 
-    return sum * _fnCalculateFractalBounding(state);
+    return sum;
 }
 
 static float _fnGenFractalPingPong2D(fn_state *state, FNfloat x, FNfloat y) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnPingPong((_fnGenNoiseSingle2D(state, seed++, x, y) + 1) * state->ping_pong_strength);
@@ -1124,7 +1124,7 @@ static float _fnGenFractalPingPong2D(fn_state *state, FNfloat x, FNfloat y) {
         amp *= state->gain;
     }
 
-    return sum * _fnCalculateFractalBounding(state);
+    return sum;
 }
 
 // ====================
@@ -1153,7 +1153,7 @@ static inline float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FN
 static float _fnGenFractalFBM3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnGenNoiseSingle3D(state, seed++, x, y, z);
@@ -1172,7 +1172,7 @@ static float _fnGenFractalFBM3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z
 static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnFastAbs(_fnGenNoiseSingle3D(state, seed++, x, y, z));
@@ -1185,13 +1185,13 @@ static float _fnGenFractalRidged3D(fn_state *state, FNfloat x, FNfloat y, FNfloa
         amp *= state->gain;
     }
 
-    return sum * _fnCalculateFractalBounding(state);
+    return sum;
 }
 
 static float _fnGenFractalPingPong3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
     int seed = state->seed;
     float sum = 0;
-    float amp = 1;
+    float amp = _fnCalculateFractalBounding(state);
 
     for (int i = 0; i < state->octaves; i++) {
         float noise = _fnPingPong((_fnGenNoiseSingle3D(state, seed++, x, y, z) + 1) * state->ping_pong_strength);
@@ -1213,7 +1213,7 @@ static float _fnGenFractalPingPong3D(fn_state *state, FNfloat x, FNfloat y, FNfl
 
 // Domain Warp Basic Grid
 
-static void _fnSingleDomainWarpBasicGrid2D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xp, FNfloat *yp) {
+static void _fnSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xp, FNfloat *yp) {
     FNfloat xf = x * frequency;
     FNfloat yf = y * frequency;
 
@@ -1240,11 +1240,11 @@ static void _fnSingleDomainWarpBasicGrid2D(int seed, float perturbAmp, float fre
     float lx1x = _fnLerp(RAND_VECS_2D[idx0], RAND_VECS_2D[idx1], xs);
     float ly1x = _fnLerp(RAND_VECS_2D[idx0 | 1], RAND_VECS_2D[idx1 | 1], xs);
 
-    *xp += _fnLerp(lx0x, lx1x, ys) * perturbAmp;
-    *yp += _fnLerp(ly0x, ly1x, ys) * perturbAmp;
+    *xp += _fnLerp(lx0x, lx1x, ys) * warpAmp;
+    *yp += _fnLerp(ly0x, ly1x, ys) * warpAmp;
 }
 
-static void _fnSingleDomainWarpBasicGrid3D(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, FNfloat *xp, FNfloat *yp, FNfloat *zp) {
+static void _fnSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, FNfloat *xp, FNfloat *yp, FNfloat *zp) {
     FNfloat xf = x * frequency;
     FNfloat yf = y * frequency;
     FNfloat zf = z * frequency;
@@ -1296,14 +1296,14 @@ static void _fnSingleDomainWarpBasicGrid3D(int seed, float perturbAmp, float fre
     ly1x = _fnLerp(RAND_VECS_3D[idx0 | 1], RAND_VECS_3D[idx1 | 1], xs);
     lz1x = _fnLerp(RAND_VECS_3D[idx0 | 2], RAND_VECS_3D[idx1 | 2], xs);
 
-    *xp += _fnLerp(lx0y, _fnLerp(lx0x, lx1x, ys), zs) * perturbAmp;
-    *yp += _fnLerp(ly0y, _fnLerp(ly0x, ly1x, ys), zs) * perturbAmp;
-    *zp += _fnLerp(lz0y, _fnLerp(lz0x, lz1x, ys), zs) * perturbAmp;
+    *xp += _fnLerp(lx0y, _fnLerp(lx0x, lx1x, ys), zs) * warpAmp;
+    *yp += _fnLerp(ly0y, _fnLerp(ly0x, ly1x, ys), zs) * warpAmp;
+    *zp += _fnLerp(lz0y, _fnLerp(lz0x, lz1x, ys), zs) * warpAmp;
 }
 
 // Domain Warp Simplex
 
-static void _fnSingleDomainWarpSimplexGradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xr, FNfloat *yr, bool outGradOnly) {
+static void _fnSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xr, FNfloat *yr, bool outGradOnly) {
     const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
     const FNfloat F2 = 0.5f * (SQRT3 - 1);
     const FNfloat G2 = (3 - SQRT3) / 6;
@@ -1343,7 +1343,7 @@ static void _fnSingleDomainWarpSimplexGradient(int seed, float perturbAmp, float
         a *= a; a *= a;
         float xo, yo;
         if (outGradOnly)
-            _fnGradCoordOut2D(seed, i, j, x0, y0, &xo, &yo);
+            _fnGradCoordOut2D(seed, i, j, &xo, &yo);
         else
             _fnGradCoordDual2D(seed, i, j, x0, y0, &xo, &yo);
         vx += a * xo;
@@ -1356,7 +1356,7 @@ static void _fnSingleDomainWarpSimplexGradient(int seed, float perturbAmp, float
         b *= b; b *= b;
         float xo, yo;
         if (outGradOnly)
-            _fnGradCoordOut2D(seed, i + i1, j + j1, x1, y1, &xo, &yo);
+            _fnGradCoordOut2D(seed, i + i1, j + j1, &xo, &yo);
         else
             _fnGradCoordDual2D(seed, i + i1, j + j1, x1, y1, &xo, &yo);
         vx += b * xo;
@@ -1369,19 +1369,18 @@ static void _fnSingleDomainWarpSimplexGradient(int seed, float perturbAmp, float
         c *= c; c *= c;
         float xo, yo;
         if (outGradOnly)
-            _fnGradCoordOut2D(seed, i + PRIME_X, j + PRIME_Y, x2, y2, &xo, &yo);
+            _fnGradCoordOut2D(seed, i + PRIME_X, j + PRIME_Y, &xo, &yo);
         else
             _fnGradCoordDual2D(seed, i + PRIME_X, j + PRIME_Y, x2, y2, &xo, &yo);
         vx += c * xo;
         vy += c * yo;
     }
 
-    perturbAmp *= outGradOnly ? 16.0f : 38.283687591552734375f;
-    *xr += vx * perturbAmp;
-    *yr += vy * perturbAmp;
+    *xr += vx * warpAmp;
+    *yr += vy * warpAmp;
 }
 
-static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, FNfloat *xr, FNfloat *yr, FNfloat *zr, bool outGradOnly) {
+static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, FNfloat *xr, FNfloat *yr, FNfloat *zr, bool outGradOnly) {
     const FNfloat R3 = (FNfloat)(2.0 / 3.0);
 
     x *= frequency;
@@ -1419,7 +1418,7 @@ static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, 
             float aaaa = (a * a) * (a * a);
             float xo, yo, zo;
             if (outGradOnly)
-                _fnGradCoordOut3D(seed, i, j, k, x0, y0, z0, &xo, &yo, &zo);
+                _fnGradCoordOut3D(seed, i, j, k, &xo, &yo, &zo);
             else
                 _fnGradCoordDual3D(seed, i, j, k, x0, y0, z0, &xo, &yo, &zo);
             vx += aaaa * xo;
@@ -1437,22 +1436,22 @@ static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, 
         if (ax0 >= ay0 && ax0 >= az0) {
             x1 += xNSign;
             b -= xNSign * 2 * x1;
-            i1 += xNSign * -PRIME_X;
+            i1 -= xNSign * PRIME_X;
         } else if (ay0 > ax0 && ay0 >= az0) {
             y1 += yNSign;
             b -= yNSign * 2 * y1;
-            j1 += yNSign * -PRIME_Y;
+            j1 -= yNSign * PRIME_Y;
         } else {
             z1 += zNSign;
             b -= zNSign * 2 * z1;
-            k1 += zNSign * -PRIME_Z;
+            k1 -= zNSign * PRIME_Z;
         }
 
         if (b > 0) {
             float bbbb = (b * b) * (b * b);
             float xo, yo, zo;
             if (outGradOnly)
-                _fnGradCoordOut3D(seed, i1, j1, k1, x1, y1, z1, &xo, &yo, &zo);
+                _fnGradCoordOut3D(seed, i1, j1, k1, &xo, &yo, &zo);
             else
                 _fnGradCoordDual3D(seed, i1, j1, k1, x1, y1, z1, &xo, &yo, &zo);
             vx += bbbb * xo;
@@ -1483,10 +1482,9 @@ static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, 
         seed += 1293373;
     }
 
-    perturbAmp *= outGradOnly ? 7.71604938271605f : 32.69428253173828125f;
-    *xr += vx * perturbAmp;
-    *yr += vy * perturbAmp;
-    *zr += vz * perturbAmp;
+    *xr += vx * warpAmp;
+    *yr += vy * warpAmp;
+    *zr += vz * warpAmp;
 }
 
 // Perform domain warp
@@ -1494,10 +1492,10 @@ static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float perturbAmp, 
 static inline void _fnDoSingleDomainWarp2D(fn_state *state, int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat *xp, FNfloat *yp) {
     switch (state->domain_warp_type) {
         case FN_DOMAIN_WARP_OPENSIMPLEX2:
-            _fnSingleDomainWarpSimplexGradient(seed, amp, freq, x, y, xp, yp, false);
+            _fnSingleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375f, freq, x, y, xp, yp, false);
             break;
         case FN_DOMAIN_WARP_OPENSIMPLEX2REDUCED:
-            _fnSingleDomainWarpSimplexGradient(seed, amp, freq, x, y, xp, yp, true);
+            _fnSingleDomainWarpSimplexGradient(seed, amp * 16.0f, freq, x, y, xp, yp, true);
             break;
         case FN_DOMAIN_WARP_BASICGRID:
             _fnSingleDomainWarpBasicGrid2D(seed, amp, freq, x, y, xp, yp);
@@ -1508,10 +1506,10 @@ static inline void _fnDoSingleDomainWarp2D(fn_state *state, int seed, float amp,
 static inline void _fnDoSingleDomainWarp3D(fn_state *state, int seed, float amp, float freq, FNfloat x, FNfloat y, FNfloat z, FNfloat *xp, FNfloat *yp, FNfloat *zp) {
     switch (state->domain_warp_type) {
         case FN_DOMAIN_WARP_OPENSIMPLEX2:
-            _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, xp, yp, zp, false);
+            _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125f, freq, x, y, z, xp, yp, zp, false);
             break;
         case FN_DOMAIN_WARP_OPENSIMPLEX2REDUCED:
-            _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp, freq, x, y, z, xp, yp, zp, true);
+            _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp * 7.71604938271605f, freq, x, y, z, xp, yp, zp, true);
             break;
         case FN_DOMAIN_WARP_BASICGRID:
             _fnSingleDomainWarpBasicGrid3D(seed, amp, freq, x, y, z, xp, yp, zp);
