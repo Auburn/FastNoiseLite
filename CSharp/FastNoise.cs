@@ -795,7 +795,7 @@ public class FastNoise
 
     private float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
-        const FNfloat R3 = (2.0f / 3.0f);
+        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
 
         FNfloat r = (x + y + z) * R3; // Rotation, not skew
         x = r - x; y = r - y; z = r - z;
@@ -1327,8 +1327,8 @@ public class FastNoise
         int x0 = FastFloor(x);
         int y0 = FastFloor(y);
 
-        float xs = InterpQuintic((float)(x - x0));
-        float ys = InterpQuintic((float)(y - y0));
+        float xs = InterpHermite((float)(x - x0));
+        float ys = InterpHermite((float)(y - y0));
 
         x0 *= PrimeX;
         y0 *= PrimeY;
@@ -1347,9 +1347,9 @@ public class FastNoise
         int y0 = FastFloor(y);
         int z0 = FastFloor(z);
 
-        float xs = InterpQuintic((float)(x - x0));
-        float ys = InterpQuintic((float)(y - y0));
-        float zs = InterpQuintic((float)(z - z0));
+        float xs = InterpHermite((float)(x - x0));
+        float ys = InterpHermite((float)(y - y0));
+        float zs = InterpHermite((float)(z - z0));
 
         x0 *= PrimeX;
         y0 *= PrimeY;
