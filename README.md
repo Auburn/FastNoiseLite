@@ -2,9 +2,9 @@
 
 # FastNoise (Lite)
 
-FastNoise Lite is a work in progress.
+**FastNoise Lite is a work in progress**
 
-FastNoise Lite is a **portable** open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
+FastNoise Lite is a portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
 This project is an evolution of the original FastNoise library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. 
 
