@@ -119,8 +119,6 @@ void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z);
 // Below this line is the implementation
 // ====================
 
-#define FN_IMPL
-
 #if defined(FN_IMPL)
 
 // ====================
@@ -528,7 +526,7 @@ static float _fnSingleSimplex3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
 // OpenSimplex 2 Noise
 
 static float _fnSingleOpenSimplex23D(int seed, FNfloat x, FNfloat y, FNfloat z) {
-    const FNfloat R3 = (2.0f / 3.0f);
+    const FNfloat R3 = (FNfloat)(2.0 / 3.0);
 
     FNfloat r = (x + y + z) * R3; // Rotation, not skew
     x = r - x; y = r - y; z = r - z;
@@ -536,9 +534,9 @@ static float _fnSingleOpenSimplex23D(int seed, FNfloat x, FNfloat y, FNfloat z) 
     int i = _fnFastRound(x);
     int j = _fnFastRound(y);
     int k = _fnFastRound(z);
-    float x0 = (float)x - i;
-    float y0 = (float)y - j;
-    float z0 = (float)z - k;
+    float x0 = (float)(x - i);
+    float y0 = (float)(y - j);
+    float z0 = (float)(z - k);
 
     int xNSign = (int)(-x0 - 1.0f) | 1;
     int yNSign = (int)(-y0 - 1.0f) | 1;
@@ -1007,8 +1005,8 @@ static FNfloat _fnSingleValue2D(int seed, FNfloat x, FNfloat y) {
     int x0 = _fnFastFloor(x);
     int y0 = _fnFastFloor(y);
     
-    float xs = _fnInterpQuintic((float)(x - x0));
-    float ys = _fnInterpQuintic((float)(y - y0));
+    float xs = _fnInterpHermite((float)(x - x0));
+    float ys = _fnInterpHermite((float)(y - y0));
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
@@ -1026,9 +1024,9 @@ static float _fnSingleValue3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
     int y0 = _fnFastFloor(y);
     int z0 = _fnFastFloor(z);
 
-    float xs = _fnInterpQuintic((float)(x - x0));
-    float ys = _fnInterpQuintic((float)(y - y0));
-    float zs = _fnInterpQuintic((float)(z - z0));
+    float xs = _fnInterpHermite((float)(x - x0));
+    float ys = _fnInterpHermite((float)(y - y0));
+    float zs = _fnInterpHermite((float)(z - z0));
 
     x0 *= PRIME_X;
     y0 *= PRIME_Y;
