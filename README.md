@@ -2,47 +2,33 @@
 
 # FastNoise (Lite)
 
-FastNoise Lite is a **portable** open source noise generation library with a similar collection of different noise algorithms to the original. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality. FastNoise Lite will make it easier for ports to different languages to be made.
-
 FastNoise Lite is a work in progress.
 
-This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise.
+FastNoise Lite is a **portable** open source noise generation library with a large selection of noise algorithms. This library is focused on high performance while avoiding platform/langauge specifc features in order to allow easy ports to as many possible langauges.
 
-I have now also created [FastNoise2](https://github.com/Auburn/FastNoise2), successor to [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
+This project is an evolution of the original FastNoise library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. 
+
+If you are looking for a more extensive noise generation library consider using [FastNoise2](https://github.com/Auburn/FastNoise2). It provides large performance gains thanks to SIMD and uses a node graph structure to allow huge amounts of flexibilty and configuration.
 
 ### Features
 
-- Simplex Noise 2D, 3D
-- OpenSimplex2 Noise 2D, 3D
-- Cellular (Voronoi) Noise 2D, 3D
-- Perlin Noise 2D, 3D
-- Value (Cubic) Noise 2D, 3D
-- Value Noise 2D, 3D
-- OpenSimplex2-based Domain Warp 2D, 3D
-- Basic Grid Gradient Domain Warp 2D, 3D
+- 2D & 3D
+- Simplex Noise
+- OpenSimplex2 Noise
+- Cellular (Voronoi) Noise
+- Perlin Noise
+- Value Noise
+- Value Cubic Noise
+- OpenSimplex2-based Domain Warp
+- Basic Grid Gradient Domain Warp
 - Multiple fractal options for all of the above
 - Supports floats or doubles
 
-### Wiki
+### Credits:
 
-Usage and documentation available in wiki
-
-[Wiki Link](https://github.com/Auburns/FastNoise/wiki)
-
-<!-- TODO: Some of these could be removed soon -->
-### Related repositories
-
- - [FastNoise2](https://github.com/Auburn/FastNoise2)
- - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
- - [FastNoise Java](https://github.com/Auburns/FastNoise_Java)
- - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
- - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
- - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
-
-Credits:
-
- - [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
- - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
+- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
+- [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
+- [@Rover656](https://github.com/Rover656) for creating the preview GUI
 
 ## FastNoise Preview App
 
