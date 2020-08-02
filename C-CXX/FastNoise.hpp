@@ -11,19 +11,20 @@
 class FastNoise {
     public:
         enum class NoiseType {
-            Value = FN_NOISE_VALUE,
-            ValueCubic = FN_NOISE_VALUE_CUBIC,
-            Perlin = FN_NOISE_PERLIN,
             Simplex = FN_NOISE_SIMPLEX,
-            OpenSimplex2f = FN_NOISE_OPENSIMPLEX2F,
-            Cellular = FN_NOISE_CELLULAR
+            OpenSimplex2 = FN_NOISE_OPENSIMPLEX2,
+            /* OpenSimplex2S = FN_NOISE_OPENSIMPLEX2S, */
+            Cellular = FN_NOISE_CELLULAR,
+            Perlin = FN_NOISE_PERLIN,
+            ValueCubic = FN_NOISE_VALUE_CUBIC,
+            Value = FN_NOISE_VALUE
         };
 
         enum class FractalType {
             None = FN_FRACTAL_NONE,
             FBM = FN_FRACTAL_FBM,
-            Billow = FN_FRACTAL_BILLOW,
             Ridged = FN_FRACTAL_RIDGED,
+            PingPong = FN_FRACTAL_PINGPONG,
             DomainWarpProgressive = FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE,
             DomainWarpIndependent = FN_FRACTAL_DOMAIN_WARP_INDEPENDENT
         };
@@ -46,8 +47,9 @@ class FastNoise {
         };
 
         enum class DomainWarpType {
-            Gradient = FN_DOMAIN_WARP_GRADIENT,
-            Simplex = FN_DOMAIN_WARP_SIMPLEX
+            OpenSimplex2 = FN_DOMAIN_WARP_OPENSIMPLEX2,
+            OpenSimplex2Reduced = FN_DOMAIN_WARP_OPENSIMPLEX2_REDUCED,
+            BasicGrid = FN_DOMAIN_WARP_BASICGRID
         };
 
         FastNoise() { state = fnCreateState(); }
@@ -58,10 +60,12 @@ class FastNoise {
         void setFrequency(FNfloat frequency) { state.frequency = frequency; }
         void setNoiseType(NoiseType type) { state.noise_type = (fn_noise_type) type; }
 
+        void setFractalType(FractalType type) { state.fractal_type = (fn_fractal_type) type; }
         void setFractalOctaves(int octaves) { state.octaves = octaves; }
         void setFractalLacunarity(FNfloat lacunarity) { state.lacunarity = lacunarity; }
         void setFractalGain(FNfloat gain) { state.gain = gain; }
-        void setFractalType(FractalType type) { state.fractal_type = (fn_fractal_type) type; }
+        void setFractalWeightedStrength(float weightedStrength) { state.weighted_strength = weightedStrength; }
+        void setFractalPingPongStrength(float pingPongStrength) { state.ping_pong_strength = pingPongStrength; }
 
         void setCellularDistanceFunction(CellularDistanceFunc func) { state.cellular_distance_func = (fn_cellular_distance_func) func; }
         void setCellularReturnType(CellularReturnType type) { state.cellular_return_type = (fn_cellular_return_type) type; }

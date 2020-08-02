@@ -79,7 +79,7 @@ typedef enum {
 
 typedef enum {
     FN_DOMAIN_WARP_OPENSIMPLEX2,
-    FN_DOMAIN_WARP_OPENSIMPLEX2REDUCED,
+    FN_DOMAIN_WARP_OPENSIMPLEX2_REDUCED,
     FN_DOMAIN_WARP_BASICGRID
 } fn_domain_warp_type;
 
@@ -1492,7 +1492,7 @@ static inline void _fnDoSingleDomainWarp2D(fn_state *state, int seed, float amp,
         case FN_DOMAIN_WARP_OPENSIMPLEX2:
             _fnSingleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375f, freq, x, y, xp, yp, false);
             break;
-        case FN_DOMAIN_WARP_OPENSIMPLEX2REDUCED:
+        case FN_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
             _fnSingleDomainWarpSimplexGradient(seed, amp * 16.0f, freq, x, y, xp, yp, true);
             break;
         case FN_DOMAIN_WARP_BASICGRID:
@@ -1506,7 +1506,7 @@ static inline void _fnDoSingleDomainWarp3D(fn_state *state, int seed, float amp,
         case FN_DOMAIN_WARP_OPENSIMPLEX2:
             _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125f, freq, x, y, z, xp, yp, zp, false);
             break;
-        case FN_DOMAIN_WARP_OPENSIMPLEX2REDUCED:
+        case FN_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
             _fnSingleDomainWarpOpenSimplex2Gradient(seed, amp * 7.71604938271605f, freq, x, y, z, xp, yp, zp, true);
             break;
         case FN_DOMAIN_WARP_BASICGRID:
@@ -1522,12 +1522,12 @@ static void _fnDomainWarpFractalProgressive2D(fn_state *state, FNfloat *x, FNflo
     float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
     float freq = state->frequency;
 
-    _fnDoSingleDomainWarp2D(state, seed, amp, freq, *x, *y, x, y);
+    for (int i = 0; i < state->octaves; i++) {
+        _fnDoSingleDomainWarp2D(state, seed, amp, freq, *x, *y, x, y);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
+        seed++;
         amp *= state->gain;
-        _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, *x, *y, x, y);
+        freq *= state->lacunarity;
     }
 }
 
@@ -1536,12 +1536,12 @@ static void _fnDomainWarpFractalProgressive3D(fn_state *state, FNfloat *x, FNflo
     float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
     float freq = state->frequency;
 
-    _fnDoSingleDomainWarp3D(state, seed, amp, freq, *x, *y, *z, x, y, z);
+    for (int i = 0; i < state->octaves; i++) {
+        _fnDoSingleDomainWarp3D(state, seed, amp, freq, *x, *y, *z, x, y, z);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
+        seed++;
         amp *= state->gain;
-        _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, *x, *y, *z, x, y, z);
+        freq *= state->lacunarity;
     }
 }
 
@@ -1555,12 +1555,12 @@ static void _fnDomainWarpFractalIndependent2D(fn_state *state, FNfloat *x, FNflo
     float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
     float freq = state->frequency;
 
-    _fnDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y);
+    for (int i = 0; i < state->octaves; i++) {
+        _fnDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
+        seed++;
         amp *= state->gain;
-        _fnDoSingleDomainWarp2D(state, ++seed, amp, freq, xs, ys, x, y);
+        freq *= state->lacunarity;
     }
 }
 
@@ -1573,12 +1573,12 @@ static void _fnDomainWarpFractalIndependent3D(fn_state *state, FNfloat *x, FNflo
     float amp = state->domain_warp_amp * _fnCalculateFractalBounding(state);
     float freq = state->frequency;
 
-    _fnDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z);
+    for (int i = 0; i < state->octaves; i++) {
+        _fnDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z);
 
-    for (int i = 1; i < state->octaves; i++) {
-        freq *= state->lacunarity;
+        seed++;
         amp *= state->gain;
-        _fnDoSingleDomainWarp3D(state, ++seed, amp, freq, xs, ys, zs, x, y, z);
+        freq *= state->lacunarity;
     }
 }
 
