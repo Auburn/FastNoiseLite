@@ -53,7 +53,7 @@ public class FastNoise
     private float mWeightedStrength = 0.0f;
     private float mPingPongStength = 2.0f;
 
-    private float mFractalBounding;
+    private float mFractalBounding = 1 / 1.75f;
 
     private CellularDistanceFunction mCellularDistanceFunction = CellularDistanceFunction.EuclideanSq;
     private CellularReturnType mCellularReturnType = CellularReturnType.Distance;
@@ -62,76 +62,236 @@ public class FastNoise
     private DomainWarpType mDomainWarpType = DomainWarpType.OpenSimplex2;
     private float mDomainWarpAmp = 1.0f;
 
+    /// <summary>
+    /// Create new FastNoise object with optional seed
+    /// </summary>
     public FastNoise(int seed = 1337)
     {
-        mSeed = seed;
-        CalculateFractalBounding();
+        SetSeed(seed);
     }
 
-    // Returns the seed used by this object
-    public int GetSeed() { return mSeed; }
-
-    // Sets seed used for all noise types
-    // Default: 1337
+    /// <summary>
+    /// Sets seed used for all noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: 1337
+    /// </remarks>
     public void SetSeed(int seed) { mSeed = seed; }
 
-    // Sets frequency for all noise types
-    // Default: 0.01
+    /// <summary>
+    /// Sets frequency for all noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: 0.01
+    /// </remarks>
     public void SetFrequency(float frequency) { mFrequency = frequency; }
 
-    // Sets noise return type of GetNoise(...)
-    // Default: Simplex
+    /// <summary>
+    /// Sets noise algorithm used for GetNoise(...)
+    /// </summary>
+    /// <remarks>
+    /// Default: OpenSimplex2
+    /// </remarks>
     public void SetNoiseType(NoiseType noiseType) { mNoiseType = noiseType; }
 
 
-    // Sets method for combining octaves in all fractal noise types
-    // Default: None
+    /// <summary>
+    /// Sets method for combining octaves in all fractal noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: None
+    /// Note: FractalType.DomainWarp... only affects DomainWarp(...)
+    /// </remarks>
     public void SetFractalType(FractalType fractalType) { mFractalType = fractalType; }
 
-    // Sets octave count for all fractal noise types
-    // Default: 3
+    /// <summary>
+    /// Sets octave count for all fractal noise types 
+    /// </summary>
+    /// <remarks>
+    /// Default: 3
+    /// </remarks>
     public void SetFractalOctaves(int octaves) { mOctaves = octaves; CalculateFractalBounding(); }
 
-    // Sets octave lacunarity for all fractal noise types
-    // Default: 2.0
+    /// <summary>
+    /// Sets octave lacunarity for all fractal noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: 2.0
+    /// </remarks>
     public void SetFractalLacunarity(float lacunarity) { mLacunarity = lacunarity; }
 
-    // Sets octave gain for all fractal noise types
-    // Default: 0.5
+    /// <summary>
+    /// Sets octave gain for all fractal noise types
+    /// </summary>
+    /// <remarks>
+    /// Default: 0.5
+    /// </remarks>
     public void SetFractalGain(float gain) { mGain = gain; CalculateFractalBounding(); }
 
-    // Sets octave weighting for all fratal types
-    // Note: Keep between 0 - 1 to maintain -1 - 1 output bounding
-    // Default: 0.0
+    /// <summary>
+    /// Sets octave weighting for all none DomainWarp fratal types
+    /// </summary>
+    /// <remarks>
+    /// Default: 0.0
+    /// Note: Keep between 0...1 to maintain -1...1 output bounding
+    /// </remarks>
     public void SetFractalWeightedStrength(float weightedStrength) { mWeightedStrength = weightedStrength; }
 
-    // Sets strength of the fractal ping pong effect
-    // Default: 2.0
+    /// <summary>
+    /// Sets strength of the fractal ping pong effect
+    /// </summary>
+    /// <remarks>
+    /// Default: 2.0
+    /// </remarks>
     public void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStength = pingPongStrength; }
 
 
-    // Sets return type from cellular noise calculations
-    // Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
-    // Default: Distance
+    /// <summary>
+    /// Sets distance function used in cellular noise calculations
+    /// </summary>
+    /// <remarks>
+    /// Default: Distance
+    /// </remarks>
     public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { mCellularDistanceFunction = cellularDistanceFunction; }
 
-    // Sets distance function used in cellular noise calculations
-    // Default: EuclideanSq
+    /// <summary>
+    /// Sets return type from cellular noise calculations
+    /// </summary>
+    /// <remarks>
+    /// Default: EuclideanSq
+    /// </remarks>
     public void SetCellularReturnType(CellularReturnType cellularReturnType) { mCellularReturnType = cellularReturnType; }
 
-    // Sets the maximum distance a cellular point can move from it's grid position
-    // Setting this higher than 1 will cause artifacts
-    // Default: 1.0
+    /// <summary>
+    /// Sets the maximum distance a cellular point can move from it's grid position
+    /// </summary>
+    /// <remarks>
+    /// Default: 1.0
+    /// Note: Setting this higher than 1 will cause artifacts
+    /// </remarks> 
     public void SetCellularJitter(float cellularJitter) { mCellularJitterModifier = cellularJitter; }
 
 
-    // Sets the warp algorithm when using DomainWarp(...)
-    // Default: Simplex
+    /// <summary>
+    /// Sets the warp algorithm when using DomainWarp(...)
+    /// </summary>
+    /// <remarks>
+    /// Default: OpenSimplex2
+    /// </remarks>
     public void SetDomainWarpType(DomainWarpType domainWarpType) { mDomainWarpType = domainWarpType; }
 
-    // Sets the maximum warp distance from original location when using DomainWarp(...)
-    // Default: 1.0
-    public void SetDomainWarpAmp(float gradientPerturbAmp) { mDomainWarpAmp = gradientPerturbAmp; }
+
+    /// <summary>
+    /// Sets the maximum warp distance from original position when using DomainWarp(...)
+    /// </summary>
+    /// <remarks>
+    /// Default: 1.0
+    /// </remarks>
+    public void SetDomainWarpAmp(float domainWarpAmp) { mDomainWarpAmp = domainWarpAmp; }
+
+
+    /// <summary>
+    /// 2D noise at given position using current settings
+    /// </summary>
+    /// <returns>
+    /// Noise output bounded between -1...1
+    /// </returns>
+    [MethodImpl(OPTIMISE)]
+    public float GetNoise(FNfloat x, FNfloat y)
+    {
+        x *= mFrequency;
+        y *= mFrequency;
+
+        switch (mFractalType)
+        {
+            default:
+                return GenNoiseSingle(mSeed, x, y);
+            case FractalType.FBm:
+                return GenFractalFBm(x, y);
+            case FractalType.Ridged:
+                return GenFractalRidged(x, y);
+            case FractalType.PingPong:
+                return GenFractalPingPong(x, y);
+        }
+    }
+
+    /// <summary>
+    /// 3D noise at given position using current settings
+    /// </summary>
+    /// <returns>
+    /// Noise output bounded between -1...1
+    /// </returns>
+    [MethodImpl(OPTIMISE)]
+    public float GetNoise(FNfloat x, FNfloat y, FNfloat z)
+    {
+        x *= mFrequency;
+        y *= mFrequency;
+        z *= mFrequency;
+
+        switch (mFractalType)
+        {
+            default:
+                return GenNoiseSingle(mSeed, x, y, z);
+            case FractalType.FBm:
+                return GenFractalFBm(x, y, z);
+            case FractalType.Ridged:
+                return GenFractalRidged(x, y, z);
+            case FractalType.PingPong:
+                return GenFractalPingPong(x, y, z);
+        }
+    }
+
+
+    /// <summary>
+    /// 2D warps the input position using current domain warp settings
+    /// </summary>
+    /// <example>
+    /// Example usage with GetNoise
+    /// <code>DomainWarp(ref x, ref y)
+    /// noise = GetNoise(x, y)</code>
+    /// </example>
+    [MethodImpl(OPTIMISE)]
+    public void DomainWarp(ref FNfloat x, ref FNfloat y)
+    {
+        switch (mFractalType)
+        {
+            default:
+                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, ref x, ref y);
+                break;
+            case FractalType.DomainWarpProgressive:
+                DomainWarpFractalProgressive(ref x, ref y);
+                break;
+            case FractalType.DomainWarpIndependent:
+                DomainWarpFractalIndependent(ref x, ref y);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 3D warps the input position using current domain warp settings
+    /// </summary>
+    /// <example>
+    /// Example usage with GetNoise
+    /// <code>DomainWarp(ref x, ref y, ref z)
+    /// noise = GetNoise(x, y, z)</code>
+    /// </example>
+    [MethodImpl(OPTIMISE)]
+    public void DomainWarp(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        switch (mFractalType)
+        {
+            default:
+                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, z, ref x, ref y, ref z);
+                break;
+            case FractalType.DomainWarpProgressive:
+                DomainWarpFractalProgressive(ref x, ref y, ref z);
+                break;
+            case FractalType.DomainWarpIndependent:
+                DomainWarpFractalIndependent(ref x, ref y, ref z);
+                break;
+        }
+    }
+
 
     private const float Root2 = 1.4142135623730950488f;
 
@@ -257,7 +417,7 @@ public class FastNoise
     }
 
     [MethodImpl(INLINE)]
-    public static float PingPong(float t)
+    private static float PingPong(float t)
     {
         t -= (int)(t * 0.5f) * 2;
         return t < 1 ? t : 2 - t;
@@ -304,8 +464,9 @@ public class FastNoise
     {
         int hash = Hash(seed, xPrimed, yPrimed);
 
+        hash *= hash;
         hash ^= hash << 19;
-        return hash / 2147483648.0f;
+        return hash * (1 / 2147483648.0f);
     }
 
     [MethodImpl(INLINE)]
@@ -313,8 +474,9 @@ public class FastNoise
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
 
+        hash *= hash;
         hash ^= hash << 19;
-        return hash / 2147483648.0f;
+        return hash * (1 / 2147483648.0f);
     }
 
     [MethodImpl(INLINE)]
@@ -403,47 +565,7 @@ public class FastNoise
     }
 
 
-    // Noise generator selectors
-
-    [MethodImpl(OPTIMISE)]
-    public float GetNoise(FNfloat x, FNfloat y)
-    {
-        x *= mFrequency;
-        y *= mFrequency;
-
-        switch (mFractalType)
-        {
-            default:
-                return GenNoiseSingle(mSeed, x, y);
-            case FractalType.FBm:
-                return GenFractalFBm(x, y);
-            case FractalType.Ridged:
-                return GenFractalRidged(x, y);
-            case FractalType.PingPong:
-                return GenFractalPingPong(x, y);
-        }
-    }
-
-    [MethodImpl(OPTIMISE)]
-    public float GetNoise(FNfloat x, FNfloat y, FNfloat z)
-    {
-        x *= mFrequency;
-        y *= mFrequency;
-        z *= mFrequency;
-
-        switch (mFractalType)
-        {
-            default:
-                return GenNoiseSingle(mSeed, x, y, z);
-            case FractalType.FBm:
-                return GenFractalFBm(x, y, z);
-            case FractalType.Ridged:
-                return GenFractalRidged(x, y, z);
-            case FractalType.PingPong:
-                return GenFractalPingPong(x, y, z);
-        }
-    }
-
+    // Generic noise gen
 
     private float GenNoiseSingle(int seed, FNfloat x, FNfloat y)
     {
@@ -755,7 +877,7 @@ public class FastNoise
 
         float n0, n1, n2, n3;
 
-        float a = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
+        float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
         if (a < 0) n0 = 0;
         else
         {
@@ -763,7 +885,7 @@ public class FastNoise
             n0 = a * a * GradCoord(seed, i, j, k, x0, y0, z0);
         }
 
-        float b = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
+        float b = (0.6f - x1 * x1) - (y1 * y1 + z1 * z1);
         if (b < 0) n1 = 0;
         else
         {
@@ -771,7 +893,7 @@ public class FastNoise
             n1 = b * b * GradCoord(seed, i + i1, j + j1, k + k1, x1, y1, z1);
         }
 
-        float c = 0.6f - x2 * x2 - y2 * y2 - z2 * z2;
+        float c = (0.6f - x2 * x2) - (y2 * y2 + z2 * z2);
         if (c < 0) n2 = 0;
         else
         {
@@ -779,7 +901,7 @@ public class FastNoise
             n2 = c * c * GradCoord(seed, i + i2, j + j2, k + k2, x2, y2, z2);
         }
 
-        float d = 0.6f - x3 * x3 - y3 * y3 - z3 * z3;
+        float d = (0.6f - x3 * x3) - (y3 * y3 + z3 * z3);
         if (d < 0) n3 = 0;
         else
         {
@@ -1001,7 +1123,7 @@ public class FastNoise
         switch (mCellularReturnType)
         {
             case CellularReturnType.CellValue:
-                return closestHash / 2147483648.0f;
+                return closestHash * (1 / 2147483648.0f);
             case CellularReturnType.Distance:
                 return distance0 - 1;
             case CellularReturnType.Distance2:
@@ -1154,7 +1276,7 @@ public class FastNoise
         switch (mCellularReturnType)
         {
             case CellularReturnType.CellValue:
-                return closestHash / 2147483648.0f;
+                return closestHash * (1 / 2147483648.0f);
             case CellularReturnType.Distance:
                 return distance0 - 1;
             case CellularReturnType.Distance2:
@@ -1370,41 +1492,7 @@ public class FastNoise
     }
 
 
-    // Domain Warp   
-
-    [MethodImpl(OPTIMISE)]
-    public void DomainWarp(ref FNfloat x, ref FNfloat y)
-    {
-        switch (mFractalType)
-        {
-            default:
-                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, ref x, ref y);
-                break;
-            case FractalType.DomainWarpProgressive:
-                DomainWarpFractalProgressive(ref x, ref y);
-                break;
-            case FractalType.DomainWarpIndependent:
-                DomainWarpFractalIndependent(ref x, ref y);
-                break;
-        }
-    }
-
-    [MethodImpl(OPTIMISE)]
-    public void DomainWarp(ref FNfloat x, ref FNfloat y, ref FNfloat z)
-    {
-        switch (mFractalType)
-        {
-            default:
-                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, z, ref x, ref y, ref z);
-                break;
-            case FractalType.DomainWarpProgressive:
-                DomainWarpFractalProgressive(ref x, ref y, ref z);
-                break;
-            case FractalType.DomainWarpIndependent:
-                DomainWarpFractalIndependent(ref x, ref y, ref z);
-                break;
-        }
-    }
+    // Domain Warp
 
     private void DoSingleDomainWarp(int seed, float amp, float freq, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr)
     {
