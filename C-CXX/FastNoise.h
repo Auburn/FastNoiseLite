@@ -22,8 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Uncomment to use doubles for inputs
-//#define FN_USE_DOUBLE
+// Switch between using floats or doubles for input position
+typedef float FNfloat;
+//typedef double FNfloat;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -32,13 +33,6 @@ extern "C" {
 #include <math.h>
 #include <stdint.h>
 #include <float.h>
-
-// Typedefs
-#if defined(FN_USE_DOUBLE)
-typedef double FNfloat;
-#else
-typedef float FNfloat;
-#endif
 
 // Enums
 typedef enum {
@@ -83,36 +77,134 @@ typedef enum {
     FN_DOMAIN_WARP_BASICGRID
 } fn_domain_warp_type;
 
-// State struct
+/**
+ * Structure containing entire noise system state.
+ * @note Must only be created using fnCreateState(optional: seed). To ensure defaults are set.
+ */
 typedef struct fn_state {
+    /**
+     * Seed used for all noise types.
+     * @remark Default: 1337
+     */
     int seed;
+
+    /**
+     * The frequency for all noise types.
+     * @remark Default: 0.01
+     */
     float frequency;
+
+    /**
+     * The noise algorithm to be used by GetNoise(...).
+     * @remark Default: FN_NOISE_OPENSIMPLEX2
+     */
     fn_noise_type noise_type;
 
+    /**
+     * The method used for combining octaves for all fractal noise types.
+     * @remark Default: None
+     * @remark FN_FRACTAL_DOMAIN_WARP_... only effects fnDomainWarp...
+     */
     fn_fractal_type fractal_type;
+
+    /**
+     * The octave count for all fractal noise types.
+     * @remark Default: 3
+     */
     int octaves;
+
+    /**
+     * The octave lacunarity for all fractal noise types.
+     * @remark Default: 2.0
+     */
     float lacunarity;
+
+    /**
+     * The octave gain for all fractal noise types.
+     * @remark Default: 0.5
+     */
     float gain;
+
+    /**
+     * The octave weighting for all none Domaain Warp fractal types.
+     * @remark Default: 0.0
+     * @remark 
+     */
     float weighted_strength;
+
+    /**
+     * The strength of the fractal ping pong effect.
+     * @remark Default: 2.0
+     */
     float ping_pong_strength;
     
+    /**
+     * The distance function used in cellular noise calculations.
+     * @remark Default: FN_CELLULAR_FUNC_DISTANCE
+     */
     fn_cellular_distance_func cellular_distance_func;
+
+    /**
+     * The cellular return type from cellular noise calculations.
+     * @remark Default: FN_CELLULAR_RET_EUCLIEANSQ
+     */
     fn_cellular_return_type cellular_return_type;
+
+    /**
+     * The maximum distance a cellular point can move from it's grid position.
+     * @remark Default: 1.0
+     * @note Setting this higher than 1 will cause artifacts.
+     */
     float cellular_jitter_mod;
 
+    /**
+     * The warp algorithm when using fnDomainWarp...
+     * @remark Default: OpenSimplex2
+     */
     fn_domain_warp_type domain_warp_type;
+
+    /**
+     * The maximum warp distance from original position when using fnDomainWarp...
+     * @remark Default: 1.0
+     */
     float domain_warp_amp;
 } fn_state;
 
 // Creates a state with default values set
 fn_state fnCreateState(int seed = 1337);
 
-// Simple function for getting the noise
+/**
+ * 2D noise at given position using the state settings
+ * @returns Noise output bounded between -1 and 1.
+ */
 float fnGetNoise2D(fn_state *state, FNfloat x, FNfloat y);
+
+/**
+ * 3D noise at given position using the state settings
+ * @returns Noise output bounded between -1 and 1.
+ */
 float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z);
 
-// Domain warp
+/**
+ * 2D warps the input position using current domain warp settings.
+ * 
+ * Example usage with fnGetNoise2D:
+ * ```
+ * fnDomainWarp2D(&state, &x, &y);
+ * noise = fnGetNoise2D(&state, x, y);
+ * ```
+ */
 void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y);
+
+/**
+ * 3D warps the input position using current domain warp settings.
+ * 
+ * Example usage with fnGetNoise3D:
+ * ```
+ * fnDomainWarp3D(&state, &x, &y, &z);
+ * noise = fnGetNoise3D(&state, x, y, z);
+ * ```
+ */
 void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z);
 
 // ====================

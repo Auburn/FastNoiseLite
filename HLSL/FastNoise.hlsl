@@ -22,15 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Uncomment to use doubles for inputs
-//#define FN_USE_DOUBLE
-
-// Typedefs
-#if defined(FN_USE_DOUBLE)
-typedef double FNfloat;
-#else
+// Switch between using floats or doubles for input position
 typedef float FNfloat;
-#endif
+//typedef double FNfloat;
 
 // Min and max, from https://github.com/Unity-Technologies/FPSSample/blob/master/Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl
 #define FLT_MIN         1.175494351e-38 // Minimum representable positive floating-point number
