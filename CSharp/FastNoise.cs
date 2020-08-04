@@ -26,8 +26,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
-using System.Xml;
 
 // Switch between using floats or doubles for input position
 using FNfloat = System.Single;
@@ -847,7 +845,7 @@ public class FastNoise
             n2 = c * c * GradCoord(seed, i + PrimeX, j + PrimeY, x2, y2);
         }
 
-        return (n0 + n1 + n2) * 38.283687591552734375f;
+        return (n0 + n1 + n2) * 99.83685446303647f;
     }
 
     private float SingleSimplex(int seed, FNfloat x, FNfloat y, FNfloat z)
@@ -1122,7 +1120,7 @@ public class FastNoise
             value += (a3 * a3) * (a3 * a3) * GradCoord(seed, i + (ndi3 & (PrimeX << 1)), j1 + (dj3 & (-PrimeY << 1)), x3, y3);
         }
 
-        return value;
+        return value * 18.24196194486065f;
     }
 
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y, FNfloat z)
@@ -1318,7 +1316,7 @@ public class FastNoise
             }
         }
 
-        return value * 0.964921414852142333984375f;
+        return value * 9.22768415759705f;
     }
 
 
@@ -1630,7 +1628,7 @@ public class FastNoise
         float xf0 = Lerp(GradCoord(seed, x0, y0, xd0, yd0), GradCoord(seed, x1, y0, xd1, yd0), xs);
         float xf1 = Lerp(GradCoord(seed, x0, y1, xd0, yd1), GradCoord(seed, x1, y1, xd1, yd1), xs);
 
-        return Lerp(xf0, xf1, ys) * 0.579106986522674560546875f;
+        return Lerp(xf0, xf1, ys) * 1.4247691104677813f;
     }
 
     private float SinglePerlin(int seed, FNfloat x, FNfloat y, FNfloat z)
