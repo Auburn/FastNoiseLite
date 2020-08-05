@@ -172,14 +172,16 @@ static inline int _fnHash3D(int seed, int xPrimed, int yPrimed, int zPrimed) {
 
 static inline float _fnValCoord2D(int seed, int xPrimed, int yPrimed) {
     int hash = _fnHash2D(seed, xPrimed, yPrimed);
+    hash *= hash;
     hash ^= hash << 19;
-    return hash / 2147483648.0f;
+    return hash * (1 / 2147483648.0f);
 }
 
 static inline float _fnValCoord3D(int seed, int xPrimed, int yPrimed, int zPrimed) {
     int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
+    hash *= hash;
     hash ^= hash << 19;
-    return hash / 2147483648.0f;
+    return hash * (1 / 2147483648.0f);
 }
 
 static const float ROOT2 = 1.4142135623730950488f;
@@ -448,28 +450,28 @@ static float _fnSingleSimplex3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
 
     float n0, n1, n2, n3;
 
-    float a = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
+    float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
     if (a < 0) n0 = 0;
     else {
         a *= a;
         n0 = a * a * _fnGradCoord3D(seed, i, j, k, x0, y0, z0);
     }
 
-    float b = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
+    float b = (0.6f - x1 * x1) - (y1 * y1 + z1 * z1);
     if (b < 0) n1 = 0;
     else {
         b *= b;
         n1 = b * b * _fnGradCoord3D(seed, i + i1, j + j1, k + k1, x1, y1, z1);
     }
 
-    float c = 0.6f - x2 * x2 - y2 * y2 - z2 * z2;
+    float c = (0.6f - x2 * x2) - (y2 * y2 + z2 * z2);
     if (c < 0) n2 = 0;
     else {
         c *= c;
         n2 = c * c * _fnGradCoord3D(seed, i + i2, j + j2, k + k2, x2, y2, z2);
     }
 
-    float d = 0.6f - x3 * x3 - y3 * y3 - z3 * z3;
+    float d = (0.6f - x3 * x3) - (y3 * y3 + z3 * z3);
     if (d < 0) n3 = 0;
     else {
         d *= d;
@@ -666,7 +668,7 @@ static float _fnSingleCellular2D(fn_state state, int seed, FNfloat x, FNfloat y)
 
     switch (state.cellular_return_type) {
         case FN_CELLULAR_RET_CELLVALUE:
-            return closestHash / 2147483648.0f;
+            return closestHash * (1 / 2147483648.0f);
         case FN_CELLULAR_RET_DISTANCE:
             return distance0 - 1;
         case FN_CELLULAR_RET_DISTANCE2:
@@ -802,7 +804,7 @@ static float _fnSingleCellular3D(fn_state state, int seed, FNfloat x, FNfloat y,
 
     switch (state.cellular_return_type) {
         case FN_CELLULAR_RET_CELLVALUE:
-            return closestHash / 2147483648.0f;
+            return closestHash * (1 / 2147483648.0f);
         case FN_CELLULAR_RET_DISTANCE:
             return distance0 - 1;
         case FN_CELLULAR_RET_DISTANCE2:
