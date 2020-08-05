@@ -32,6 +32,7 @@ namespace FastNoiseLite
         private CheckBox VisualiseDomainWarp;
 
         private DropDown NoiseType;
+        private DropDown RotationType3D;
         private NumericStepper Seed;
         private NumericStepper Frequency;
 
@@ -167,6 +168,17 @@ namespace FastNoiseLite
                         NoiseType.SelectedIndex = (int)FastNoise.NoiseType.OpenSimplex2;
                         NoiseType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, NoiseType, "Noise Type:");
+                    }
+                    // Rotation Type 3D
+                    {
+                        RotationType3D = new DropDown();
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.RotationType3D)))
+                        {
+                            RotationType3D.Items.Add(FormatReadable(name));
+                        }
+                        RotationType3D.SelectedIndex = (int)FastNoise.RotationType3D.None;
+                        RotationType3D.SelectedIndexChanged += OnUIUpdate;
+                        AddToTableWithLabel(table, RotationType3D, "Rotation Type 3D:");
                     }
 
                     // Seed
@@ -404,6 +416,8 @@ namespace FastNoiseLite
             }
 
             genNoise.SetNoiseType((FastNoise.NoiseType)NoiseType.SelectedIndex);
+            genNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex);
+            warpNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex); // TODO
             genNoise.SetSeed((int)Seed.Value);
             genNoise.SetFrequency((float)Frequency.Value);
             genNoise.SetFractalType((FastNoise.FractalType)FractalType.SelectedIndex);

@@ -24,8 +24,10 @@
 //
 //
 
+using FastNoiseLite;
 using System;
 using System.Runtime.CompilerServices;
+using System.Windows.Xps;
 
 // Switch between using floats or doubles for input position
 using FNfloat = System.Single;
@@ -37,6 +39,7 @@ public class FastNoise
     private const short OPTIMISE = 512; // MethodImplOptions.AggressiveOptimization;
 
     public enum NoiseType { Simplex, OpenSimplex2, OpenSimplex2S, Cellular, Perlin, ValueCubic, Value };
+    public enum RotationType3D { None, ImproveXYPlanes, ImproveXZPlanes };
     public enum FractalType { None, FBm, Ridged, PingPong, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Hybrid };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
@@ -45,6 +48,7 @@ public class FastNoise
     private int mSeed = 1337;
     private float mFrequency = 0.01f;
     private NoiseType mNoiseType = NoiseType.OpenSimplex2;
+    private RotationType3D mRotationType3D = RotationType3D.None;
 
     private FractalType mFractalType = FractalType.None;
     private int mOctaves = 3;
@@ -94,6 +98,9 @@ public class FastNoise
     /// </remarks>
     public void SetNoiseType(NoiseType noiseType) { mNoiseType = noiseType; }
 
+    // Sets noise rotation for 3D
+    // Default: OpenSimplex2
+    public void SetRotationType3D(RotationType3D rotationType3D) { mRotationType3D = rotationType3D; }
 
     /// <summary>
     /// Sets method for combining octaves in all fractal noise types
@@ -199,8 +206,7 @@ public class FastNoise
     [MethodImpl(OPTIMISE)]
     public float GetNoise(FNfloat x, FNfloat y)
     {
-        x *= mFrequency;
-        y *= mFrequency;
+        TransformCoordinate(ref x, ref y);
 
         switch (mFractalType)
         {
@@ -224,9 +230,7 @@ public class FastNoise
     [MethodImpl(OPTIMISE)]
     public float GetNoise(FNfloat x, FNfloat y, FNfloat z)
     {
-        x *= mFrequency;
-        y *= mFrequency;
-        z *= mFrequency;
+        TransformCoordinate(ref x, ref y, ref z);
 
         switch (mFractalType)
         {
@@ -612,10 +616,8 @@ public class FastNoise
         switch (mNoiseType)
         {
             case NoiseType.Simplex:
-                return SingleSimplex(seed, x, y);
             case NoiseType.OpenSimplex2:
-                // 2D case doesn't need a different algorithm.
-                // TODO improve Simplex 2D gradient table, or use improved table for OpenSimplex2 case like in FastNoise2.
+                // 2D OpenSimplex2 case doesn't need a different algorithm.
                 return SingleSimplex(seed, x, y);
             case NoiseType.OpenSimplex2S:
                 return SingleOpenSimplex2S(seed, x, y);
@@ -652,6 +654,132 @@ public class FastNoise
                 return SingleValue(seed, x, y, z);
             default:
                 return 0;
+        }
+    }
+
+
+    // Noise Coordinate Transforms (frequency, and possible skew or rotation)
+
+    [MethodImpl(INLINE)]
+    private void TransformCoordinate(ref FNfloat x, ref FNfloat y)
+    {
+        x *= mFrequency;
+        y *= mFrequency;
+
+        switch (mNoiseType)
+        {
+            case NoiseType.Simplex:
+            case NoiseType.OpenSimplex2:
+            case NoiseType.OpenSimplex2S:
+                const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
+                const FNfloat F2 = 0.5f * (SQRT3 - 1);
+                FNfloat t = (x + y) * F2;
+                x += t; y += t;
+                break;
+            default:
+                break;
+        }
+    }
+
+    [MethodImpl(INLINE)]
+    private void TransformCoordinate(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        x *= mFrequency;
+        y *= mFrequency;
+        z *= mFrequency;
+
+        switch (mRotationType3D)
+        {
+            case RotationType3D.ImproveXYPlanes:
+                {
+                    FNfloat xy = x + y;
+                    FNfloat s2 = xy * -(FNfloat)0.211324865405187;
+                    z *= (FNfloat)0.577350269189626;
+                    x += s2 - z; y = y + s2 - z;
+                    z += xy * (FNfloat)0.577350269189626;
+                }
+                break;
+            case RotationType3D.ImproveXZPlanes:
+                {
+                    FNfloat xz = x + z;
+                    FNfloat s2 = xz * -(FNfloat)0.211324865405187;
+                    y *= (FNfloat)0.577350269189626;
+                    x += s2 - y; z += s2 - y;
+                    y += xz * (FNfloat)0.577350269189626;
+                }
+                break;
+            default:
+                switch (mNoiseType)
+                {
+                    case NoiseType.OpenSimplex2:
+                    case NoiseType.OpenSimplex2S:
+                        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                        FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                        x = r - x; y = r - y; z = r - z;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        }
+    }
+
+
+    // Domain Warp Coordinate Transforms
+
+    [MethodImpl(INLINE)]
+    private void TransformDomainWarpCoordinate(ref FNfloat x, ref FNfloat y)
+    {
+        switch (mDomainWarpType)
+        {
+            case DomainWarpType.OpenSimplex2:
+            case DomainWarpType.OpenSimplex2Reduced:
+                const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
+                const FNfloat F2 = 0.5f * (SQRT3 - 1);
+                FNfloat t = (x + y) * F2;
+                x += t; y += t;
+                break;
+            default:
+                break;
+        }
+    }
+
+    [MethodImpl(INLINE)]
+    private void TransformDomainWarpCoordinate(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        switch (mRotationType3D)
+        {
+            case RotationType3D.ImproveXYPlanes:
+                {
+                    FNfloat xy = x + y;
+                    FNfloat s2 = xy * -(FNfloat)0.211324865405187;
+                    z *= (FNfloat)0.577350269189626;
+                    x += s2 - z; y = y + s2 - z;
+                    z += xy * (FNfloat)0.577350269189626;
+                }
+                break;
+            case RotationType3D.ImproveXZPlanes:
+                {
+                    FNfloat xz = x + z;
+                    FNfloat s2 = xz * -(FNfloat)0.211324865405187;
+                    y *= (FNfloat)0.577350269189626;
+                    x += s2 - y; z += s2 - y;
+                    y += xz * (FNfloat)0.577350269189626;
+                }
+                break;
+            default:
+                switch (mDomainWarpType)
+                {
+                    case DomainWarpType.OpenSimplex2:
+                    case DomainWarpType.OpenSimplex2Reduced:
+                        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                        FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                        x = r - x; y = r - y; z = r - z;
+                        break;
+                    default:
+                        break;
+                }
+                break;
         }
     }
 
@@ -793,16 +921,23 @@ public class FastNoise
     private float SingleSimplex(int seed, FNfloat x, FNfloat y)
     {
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat F2 = 0.5f * (SQRT3 - 1);
         const FNfloat G2 = (3 - SQRT3) / 6;
 
-        FNfloat t = (x + y) * F2;
-        int i = FastFloor(x + t);
-        int j = FastFloor(y + t);
+        /*
+         * --- Skew moved to TransformCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+        */
 
-        t = (i + j) * G2;
-        float x0 = (float)(x - (i - t));
-        float y0 = (float)(y - (j - t));
+        int i = FastFloor(x);
+        int j = FastFloor(y);
+        float xi = (float)(x - i);
+        float yi = (float)(y - j);
+
+        float t = (xi + yi) * G2;
+        float x0 = (float)(xi - t);
+        float y0 = (float)(yi - t);
 
         float y0_1 = y0 - 1;
         int i1 = (int)(y0_1 - x0);
@@ -961,10 +1096,12 @@ public class FastNoise
 
     private float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
-        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-
-        FNfloat r = (x + y + z) * R3; // Rotation, not skew
-        x = r - x; y = r - y; z = r - z;
+        /*
+         * --- Rotation moved to TransformCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+        */
 
         int i = FastRound(x);
         int j = FastRound(y);
@@ -1059,11 +1196,15 @@ public class FastNoise
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y)
     {
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat F2 = 0.5f * (SQRT3 - 1);
         const FNfloat G2 = (3 - SQRT3) / 6;
 
-        FNfloat s = (x + y) * F2;
-        x += s; y += s;
+        /*
+         * --- Skew moved to TransformCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+        */
+
         int i = FastFloor(x);
         int j = FastFloor(y);
         float xi = (float)(x - i);
@@ -1125,10 +1266,12 @@ public class FastNoise
 
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
-        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-
-        FNfloat r = (x + y + z) * R3; // Rotation, not skew
-        x = r - x; y = r - y; z = r - z;
+        /*
+         * --- Rotation moved to TransformCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+        */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -2103,10 +2246,10 @@ public class FastNoise
         float x0 = (float)x - i;
         float y0 = (float)y - j;
         float z0 = (float)z - k;
-        
-        int xNSign = (int)(-1.0f - x0) | 1;
-        int yNSign = (int)(-1.0f - y0) | 1;
-        int zNSign = (int)(-1.0f - z0) | 1;
+
+        int xNSign = (int)(-x0 - 1.0f) | 1;
+        int yNSign = (int)(-y0 - 1.0f) | 1;
+        int zNSign = (int)(-z0 - 1.0f) | 1;
 
         float ax0 = xNSign * -x0;
         float ay0 = yNSign * -y0;
