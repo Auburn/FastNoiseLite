@@ -49,9 +49,13 @@ namespace FastNoiseLite
 
         private DropDown DomainWarp;
         private DropDown DomainWarpRotationType3D;
-        private DropDown DomainWarpFractal;
         private NumericStepper DomainWarpAmplitude;
         private NumericStepper DomainWarpFrequency;
+
+        private DropDown DomainWarpFractal;
+        private NumericStepper DomainWarpFractalOctaves;
+        private NumericStepper DomainWarpFractalLacunarity;
+        private NumericStepper DomainWarpFractalGain;
 
         private Bitmap Bitmap;
         private ImageView Image;
@@ -207,7 +211,7 @@ namespace FastNoiseLite
                             FractalType.Items.Add(FormatReadable(name));
                         }
                         FractalType.SelectedIndex = (int)FastNoise.FractalType.FBm;
-                        FractalType.SelectedIndexChanged += Generate;
+                        FractalType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, FractalType, "Type:");
                     }
 
@@ -300,6 +304,21 @@ namespace FastNoiseLite
                         AddToTableWithLabel(table, DomainWarpRotationType3D, "Rotation Type 3D:");
                     }
 
+                    // Amplitude
+                    DomainWarpAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2, Increment = 5 };
+                    DomainWarpAmplitude.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
+
+                    // Frequency
+                    DomainWarpFrequency = new NumericStepper { Value = 0.005, DecimalPlaces = 3, Increment = 0.005 };
+                    DomainWarpFrequency.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
+                }
+
+                // Add domain warp fractal label
+                table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp Fractal:", Font = bold } } });
+
+                {
                     // Domain Warp Fractal Dropdown
                     {
                         DomainWarpFractal = new DropDown();
@@ -314,15 +333,20 @@ namespace FastNoiseLite
                         AddToTableWithLabel(table, DomainWarpFractal, "Fractal Type:");
                     }
 
-                    // Amplitude
-                    DomainWarpAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2, Increment = 5 };
-                    DomainWarpAmplitude.ValueChanged += Generate;
-                    AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
+                    // Octaves
+                    DomainWarpFractalOctaves = new NumericStepper { Value = 5 };
+                    DomainWarpFractalOctaves.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpFractalOctaves, "Octaves:");
 
-                    // Frequency
-                    DomainWarpFrequency = new NumericStepper { Value = 0.005, DecimalPlaces = 3, Increment = 0.005 };
-                    DomainWarpFrequency.ValueChanged += Generate;
-                    AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
+                    // Lacunarity
+                    DomainWarpFractalLacunarity = new NumericStepper { Value = 2.0, DecimalPlaces = 2, Increment = 0.1 };
+                    DomainWarpFractalLacunarity.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpFractalLacunarity, "Lacunarity:");
+
+                    // Gain
+                    DomainWarpFractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2, Increment = 0.1 };
+                    DomainWarpFractalGain.ValueChanged += Generate;
+                    AddToTableWithLabel(table, DomainWarpFractalGain, "Gain:");
                 }
 
                 // Add table to the controls panel
@@ -450,6 +474,9 @@ namespace FastNoiseLite
             warpNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
             warpNoise.SetFrequency((float)DomainWarpFrequency.Value);
             warpNoise.SetFractalType((FastNoise.FractalType)Enum.Parse(typeof(FastNoise.FractalType), DomainWarpFractal.SelectedKey));
+            warpNoise.SetFractalOctaves((int)DomainWarpFractalOctaves.Value);
+            warpNoise.SetFractalLacunarity((float)DomainWarpFractalLacunarity.Value);
+            warpNoise.SetFractalGain((float)DomainWarpFractalGain.Value);
 
             if (ImageData.Length != w * h)
             {
@@ -523,10 +550,6 @@ namespace FastNoiseLite
             }
             else
             {
-                warpNoise.SetFrequency((float)Frequency.Value);
-                warpNoise.SetFractalOctaves((int)FractalOctaves.Value);
-                warpNoise.SetFractalLacunarity((float)FractalLacunarity.Value);
-                warpNoise.SetFractalGain((float)FractalGain.Value);
                 var noiseValues = new float[w * h * 3];
 
                 sw.Start();
@@ -539,7 +562,7 @@ namespace FastNoiseLite
                         FNfloat zf = zPos;
                         
                         if (get3d)
-                            warpNoise.DomainWarp(ref xf, ref yf, ref zf);                        
+                            warpNoise.DomainWarp(ref xf, ref yf, ref zf);
                         else
                             warpNoise.DomainWarp(ref xf, ref yf);
 
@@ -641,7 +664,7 @@ namespace FastNoiseLite
 
         private void OnUIUpdate(object sender, EventArgs e)
         {
-            // 3D contorls
+            // 3D controls
             var is3d = Is3D.Checked == true;
             UpButton.Enabled = DownButton.Enabled = is3d;
 
@@ -649,20 +672,29 @@ namespace FastNoiseLite
             var warpVis = VisualiseDomainWarp.Checked == true;
             NoiseType.Enabled = !warpVis;
             FractalType.Enabled = !warpVis;
+            Frequency.Enabled = !warpVis;
 
             if (warpVis)
             {
                 if (is3d)
                     ExtraInfo.Text = "Visualisation of domain warp:\r\nRed = X offset, Green = Y offset, Blue = Z offset";
-                else ExtraInfo.Text = "Visualisation of domain warp:\r\nHue = X offset, Brightness = Y offset";
+                else ExtraInfo.Text = "Visualisation of domain warp:\r\nHue = Angle, Brightness = Magnitude";
             }
             else ExtraInfo.Text = "";
 
             // Fractal options
-            var fractal = (!warpVis && FractalType.SelectedIndex > 0) || (warpVis && DomainWarpFractal.SelectedIndex > 0);
-            FractalOctaves.Enabled = fractal;
-            FractalLacunarity.Enabled = fractal;
-            FractalGain.Enabled = fractal;
+            var fractalEnabled = (!warpVis && FractalType.SelectedIndex > 0);
+            FractalOctaves.Enabled = fractalEnabled;
+            FractalLacunarity.Enabled = fractalEnabled;
+            FractalGain.Enabled = fractalEnabled;
+            FractalWeightedStrength.Enabled = fractalEnabled;
+            FractalPingPongStrength.Enabled = (fractalEnabled && FractalType.SelectedKey == "Ping Poing");
+
+            // Domain Warp Fractal options
+            var domainWarpFractalEnabled = (DomainWarp.SelectedIndex > 0 && DomainWarpFractal.SelectedIndex > 0);
+            DomainWarpFractalOctaves.Enabled = domainWarpFractalEnabled;
+            DomainWarpFractalLacunarity.Enabled = domainWarpFractalEnabled;
+            DomainWarpFractalGain.Enabled = domainWarpFractalEnabled;
 
             // Cellular
             var cellular = NoiseType.SelectedKey.Contains("Cellular") && !warpVis;
@@ -670,11 +702,15 @@ namespace FastNoiseLite
             CellularReturnType.Enabled = cellular;
             CellularJitter.Enabled = cellular;
 
-            // Gradient Perturb
+            // Domain Warp
             var warp = DomainWarp.SelectedIndex > 0;
             DomainWarpFractal.Enabled = warp;
-            DomainWarpAmplitude.Enabled = warp && (!warpVis || DomainWarpFractal.SelectedKey.Contains("Progressive"));
-            DomainWarpFrequency.Enabled = warp && !warpVis;
+            DomainWarpAmplitude.Enabled = warp;
+            DomainWarpFrequency.Enabled = warp;
+
+            // 3D Domain Rotation
+            RotationType3D.Enabled = !warpVis && is3d;
+            DomainWarpRotationType3D.Enabled = warp && is3d;
 
             // TODO: Reenable once lag is fixed
             Generate(null, null);
