@@ -260,7 +260,7 @@ public class FastNoise
         switch (mFractalType)
         {
             default:
-                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, ref x, ref y);
+                DomainWarpSingle(ref x, ref y);
                 break;
             case FractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y);
@@ -285,7 +285,7 @@ public class FastNoise
         switch (mFractalType)
         {
             default:
-                DoSingleDomainWarp(mSeed, mDomainWarpAmp, mFrequency, x, y, z, ref x, ref y, ref z);
+                DomainWarpSingle(ref x, ref y, ref z);
                 break;
             case FractalType.DomainWarpProgressive:
                 DomainWarpFractalProgressive(ref x, ref y, ref z);
@@ -1980,6 +1980,36 @@ public class FastNoise
     }
 
 
+    // Domain Warp Single Wrapper
+
+    private void DomainWarpSingle(ref FNfloat x, ref FNfloat y)
+    {
+        int seed = mSeed;
+        float amp = mDomainWarpAmp * mFractalBounding;
+        float freq = mFrequency;
+
+        FNfloat xs = x;
+        FNfloat ys = y;
+        TransformDomainWarpCoordinate(ref xs, ref ys);
+
+        DoSingleDomainWarp(seed, amp, freq, xs, ys, ref x, ref y);
+    }
+
+    private void DomainWarpSingle(ref FNfloat x, ref FNfloat y, ref FNfloat z)
+    {
+        int seed = mSeed;
+        float amp = mDomainWarpAmp * mFractalBounding;
+        float freq = mFrequency;
+
+        FNfloat xs = x;
+        FNfloat ys = y;
+        FNfloat zs = z;
+        TransformDomainWarpCoordinate(ref xs, ref ys, ref zs);
+
+        DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, ref x, ref y, ref z);
+    }
+
+
     // Domain Warp Fractal Progressive
 
     private void DomainWarpFractalProgressive(ref FNfloat x, ref FNfloat y)
@@ -1990,7 +2020,11 @@ public class FastNoise
 
         for (int i = 0; i < mOctaves; i++)
         {
-            DoSingleDomainWarp(seed, amp, freq, x, y, ref x, ref y);
+            FNfloat xs = x;
+            FNfloat ys = y;
+            TransformDomainWarpCoordinate(ref xs, ref ys);
+
+            DoSingleDomainWarp(seed, amp, freq, xs, ys, ref x, ref y);
 
             seed++;
             amp *= mGain;
@@ -2006,7 +2040,12 @@ public class FastNoise
 
         for (int i = 0; i < mOctaves; i++)
         {
-            DoSingleDomainWarp(seed, amp, freq, x, y, z, ref x, ref y, ref z);
+            FNfloat xs = x;
+            FNfloat ys = y;
+            FNfloat zs = z;
+            TransformDomainWarpCoordinate(ref xs, ref ys, ref zs);
+
+            DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, ref x, ref y, ref z);
 
             seed++;
             amp *= mGain;
@@ -2020,6 +2059,7 @@ public class FastNoise
     {
         FNfloat xs = x;
         FNfloat ys = y;
+        TransformDomainWarpCoordinate(ref xs, ref ys);
 
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
@@ -2040,6 +2080,7 @@ public class FastNoise
         FNfloat xs = x;
         FNfloat ys = y;
         FNfloat zs = z;
+        TransformDomainWarpCoordinate(ref xs, ref ys, ref zs);
 
         int seed = mSeed;
         float amp = mDomainWarpAmp * mFractalBounding;
@@ -2154,19 +2195,26 @@ public class FastNoise
     private void SingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat F2 = 0.5f * (SQRT3 - 1);
         const FNfloat G2 = (3 - SQRT3) / 6;
 
         x *= frequency;
         y *= frequency;
 
-        FNfloat t = (x + y) * F2;
-        int i = FastFloor(x + t);
-        int j = FastFloor(y + t);
+        /*
+         * --- Skew moved to TransformDomainWarpCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+        */
 
-        t = (i + j) * G2;
-        float x0 = (float)(x - (i - t));
-        float y0 = (float)(y - (j - t));
+        int i = FastFloor(x);
+        int j = FastFloor(y);
+        float xi = (float)(x - i);
+        float yi = (float)(y - j);
+
+        float t = (xi + yi) * G2;
+        float x0 = (float)(xi - t);
+        float y0 = (float)(yi - t);
 
         float y0_1 = y0 - 1;
         int i1 = (int)(y0_1 - x0);
@@ -2231,14 +2279,16 @@ public class FastNoise
 
     private void SingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, ref FNfloat xr, ref FNfloat yr, ref FNfloat zr, bool outGradOnly)
     {
-        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-
         x *= frequency;
         y *= frequency;
         z *= frequency;
 
-        FNfloat r = (x + y + z) * R3; // Rotation, not skew
-        x = r - x; y = r - y; z = r - z;
+        /*
+         * --- Rotation moved to TransformDomainWarpCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+        */
 
         int i = FastRound(x);
         int j = FastRound(y);

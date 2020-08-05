@@ -48,6 +48,7 @@ namespace FastNoiseLite
         private NumericStepper CellularJitter;
 
         private DropDown DomainWarp;
+        private DropDown DomainWarpRotationType3D;
         private DropDown DomainWarpFractal;
         private NumericStepper DomainWarpAmplitude;
         private NumericStepper DomainWarpFrequency;
@@ -169,6 +170,7 @@ namespace FastNoiseLite
                         NoiseType.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, NoiseType, "Noise Type:");
                     }
+
                     // Rotation Type 3D
                     {
                         RotationType3D = new DropDown();
@@ -284,6 +286,18 @@ namespace FastNoiseLite
                         DomainWarp.SelectedIndex = 0;
                         DomainWarp.SelectedIndexChanged += OnUIUpdate;
                         AddToTableWithLabel(table, DomainWarp, "Type:");
+                    }
+
+                    // Domain Warp Rotation Type 3D
+                    {
+                        DomainWarpRotationType3D = new DropDown();
+                        foreach (var name in Enum.GetNames(typeof(FastNoise.RotationType3D)))
+                        {
+                            DomainWarpRotationType3D.Items.Add(FormatReadable(name));
+                        }
+                        DomainWarpRotationType3D.SelectedIndex = (int)FastNoise.RotationType3D.None;
+                        DomainWarpRotationType3D.SelectedIndexChanged += OnUIUpdate;
+                        AddToTableWithLabel(table, DomainWarpRotationType3D, "Rotation Type 3D:");
                     }
 
                     // Domain Warp Fractal Dropdown
@@ -417,7 +431,6 @@ namespace FastNoiseLite
 
             genNoise.SetNoiseType((FastNoise.NoiseType)NoiseType.SelectedIndex);
             genNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex);
-            warpNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex); // TODO
             genNoise.SetSeed((int)Seed.Value);
             genNoise.SetFrequency((float)Frequency.Value);
             genNoise.SetFractalType((FastNoise.FractalType)FractalType.SelectedIndex);
@@ -433,6 +446,7 @@ namespace FastNoiseLite
 
             warpNoise.SetSeed((int)Seed.Value);
             warpNoise.SetDomainWarpType((FastNoise.DomainWarpType)DomainWarp.SelectedIndex - 1);
+            warpNoise.SetRotationType3D((FastNoise.RotationType3D)DomainWarpRotationType3D.SelectedIndex);
             warpNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
             warpNoise.SetFrequency((float)DomainWarpFrequency.Value);
             warpNoise.SetFractalType((FastNoise.FractalType)Enum.Parse(typeof(FastNoise.FractalType), DomainWarpFractal.SelectedKey));
