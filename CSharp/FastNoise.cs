@@ -38,6 +38,7 @@ public class FastNoise
 
     public enum NoiseType { OpenSimplex2, OpenSimplex2S, Cellular, Perlin, ValueCubic, Value };
     public enum RotationType3D { None, ImproveXYPlanes, ImproveXZPlanes };
+    private enum TransformType3D { None, ImproveXYPlanes, ImproveXZPlanes, DefaultOpenSimplex2 };
     public enum FractalType { None, FBm, Ridged, PingPong, DomainWarpProgressive, DomainWarpIndependent };
     public enum CellularDistanceFunction { Euclidean, EuclideanSq, Manhattan, Hybrid };
     public enum CellularReturnType { CellValue, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
@@ -47,6 +48,7 @@ public class FastNoise
     private float mFrequency = 0.01f;
     private NoiseType mNoiseType = NoiseType.OpenSimplex2;
     private RotationType3D mRotationType3D = RotationType3D.None;
+    private TransformType3D mTransformType3D = TransformType3D.DefaultOpenSimplex2;
 
     private FractalType mFractalType = FractalType.None;
     private int mOctaves = 3;
@@ -62,6 +64,7 @@ public class FastNoise
     private float mCellularJitterModifier = 1.0f;
 
     private DomainWarpType mDomainWarpType = DomainWarpType.OpenSimplex2;
+    private TransformType3D mWarpTransformType3D = TransformType3D.DefaultOpenSimplex2;
     private float mDomainWarpAmp = 1.0f;
 
     /// <summary>
@@ -94,11 +97,24 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetNoiseType(NoiseType noiseType) { mNoiseType = noiseType; }
+    public void SetNoiseType(NoiseType noiseType) {
+        mNoiseType = noiseType;
+        UpdateTransformType3D();
+    }
 
     // Sets noise domain rotation for 3D
     // Default: None
-    public void SetRotationType3D(RotationType3D rotationType3D) { mRotationType3D = rotationType3D; }
+    /// <summary>
+    /// Sets noise rotation type for 3D.
+    /// </summary>
+    /// <remarks>
+    /// Default: None
+    /// </remarks>
+    public void SetRotationType3D(RotationType3D rotationType3D) {
+        mRotationType3D = rotationType3D;
+        UpdateTransformType3D();
+        UpdateWarpTransformType3D();
+    }
 
     /// <summary>
     /// Sets method for combining octaves in all fractal noise types
@@ -183,7 +199,10 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetDomainWarpType(DomainWarpType domainWarpType) { mDomainWarpType = domainWarpType; }
+    public void SetDomainWarpType(DomainWarpType domainWarpType) {
+        mDomainWarpType = domainWarpType;
+        UpdateWarpTransformType3D();
+    }
 
 
     /// <summary>
@@ -681,9 +700,9 @@ public class FastNoise
         y *= mFrequency;
         z *= mFrequency;
 
-        switch (mRotationType3D)
+        switch (mTransformType3D)
         {
-            case RotationType3D.ImproveXYPlanes:
+            case TransformType3D.ImproveXYPlanes:
                 {
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
@@ -692,7 +711,7 @@ public class FastNoise
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
-            case RotationType3D.ImproveXZPlanes:
+            case TransformType3D.ImproveXZPlanes:
                 {
                     FNfloat xz = x + z;
                     FNfloat s2 = xz * -(FNfloat)0.211324865405187;
@@ -701,16 +720,35 @@ public class FastNoise
                     y += xz * (FNfloat)0.577350269189626;
                 }
                 break;
+            case TransformType3D.DefaultOpenSimplex2:
+                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                x = r - x; y = r - y; z = r - z;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void UpdateTransformType3D()
+    {
+        switch (mRotationType3D)
+        {
+            case RotationType3D.ImproveXYPlanes:
+                mTransformType3D = TransformType3D.ImproveXYPlanes;
+                break;
+            case RotationType3D.ImproveXZPlanes:
+                mTransformType3D = TransformType3D.ImproveXZPlanes;
+                break;
             default:
                 switch (mNoiseType)
                 {
                     case NoiseType.OpenSimplex2:
                     case NoiseType.OpenSimplex2S:
-                        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                        FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                        x = r - x; y = r - y; z = r - z;
+                        mTransformType3D = TransformType3D.DefaultOpenSimplex2;
                         break;
                     default:
+                        mTransformType3D = TransformType3D.None;
                         break;
                 }
                 break;
@@ -740,9 +778,9 @@ public class FastNoise
     [MethodImpl(INLINE)]
     private void TransformDomainWarpCoordinate(ref FNfloat x, ref FNfloat y, ref FNfloat z)
     {
-        switch (mRotationType3D)
+        switch (mWarpTransformType3D)
         {
-            case RotationType3D.ImproveXYPlanes:
+            case TransformType3D.ImproveXYPlanes:
                 {
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
@@ -751,7 +789,7 @@ public class FastNoise
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
-            case RotationType3D.ImproveXZPlanes:
+            case TransformType3D.ImproveXZPlanes:
                 {
                     FNfloat xz = x + z;
                     FNfloat s2 = xz * -(FNfloat)0.211324865405187;
@@ -760,16 +798,35 @@ public class FastNoise
                     y += xz * (FNfloat)0.577350269189626;
                 }
                 break;
+            case TransformType3D.DefaultOpenSimplex2:
+                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                x = r - x; y = r - y; z = r - z;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void UpdateWarpTransformType3D()
+    {
+        switch (mRotationType3D)
+        {
+            case RotationType3D.ImproveXYPlanes:
+                mWarpTransformType3D = TransformType3D.ImproveXYPlanes;
+                break;
+            case RotationType3D.ImproveXZPlanes:
+                mWarpTransformType3D = TransformType3D.ImproveXZPlanes;
+                break;
             default:
                 switch (mDomainWarpType)
                 {
                     case DomainWarpType.OpenSimplex2:
                     case DomainWarpType.OpenSimplex2Reduced:
-                        const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                        FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                        x = r - x; y = r - y; z = r - z;
+                        mWarpTransformType3D = TransformType3D.DefaultOpenSimplex2;
                         break;
                     default:
+                        mWarpTransformType3D = TransformType3D.None;
                         break;
                 }
                 break;
