@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
 
@@ -9,7 +10,7 @@ using FNfloat = System.Single;
 //using FNfloat = System.Double;
 
 namespace FastNoiseLite
-{   
+{
     class Program
     {
         [STAThread]
@@ -24,6 +25,7 @@ namespace FastNoiseLite
         private Button GenerateButton;
         private Button UpButton;
         private Button DownButton;
+        private Button ScrollButton;
 
         private NumericStepper PreviewWidth;
         private NumericStepper PreviewHeight;
@@ -67,16 +69,17 @@ namespace FastNoiseLite
         private Label Mean;
         private Label ExtraInfo;
 
+        private bool isScrolling = false;
         private float zPos = 0;
         private Size previewStartSize = new Size(768, 768);
         private Size windowSizeOffset = new Size(334, 52);
 
         public FastNoiseGUI()
-        {            
+        {
             Title = "FastNoise Lite GUI";
             Resizable = false;
 
-            ImageData = new int[1];            
+            ImageData = new int[1];
 
             // Create main layout, makes controls and result appear side by side
             var mainLayout = new StackLayout();
@@ -89,7 +92,7 @@ namespace FastNoiseLite
             var controlPanel = new StackLayout();
             controlPanel.Orientation = Orientation.Vertical;
             controlPanel.Spacing = 5;
-                        
+
             Font bold = new Font(new Label().Font.Family, new Label().Font.Size, FontStyle.Bold);
 
             {
@@ -98,25 +101,35 @@ namespace FastNoiseLite
                     var layout = new StackLayout()
                     {
                         Orientation = Orientation.Horizontal,
-                        Spacing = 3
+                        Spacing = 2
                     };
-                    
+
                     GenerateButton = new Button();
                     GenerateButton.Text = "Generate";
                     GenerateButton.Click += Generate;
+                    GenerateButton.Width = 90;
                     layout.Items.Add(GenerateButton);
 
                     UpButton = new Button();
                     UpButton.Text = "Up";
                     UpButton.Enabled = false;
                     UpButton.Click += OnUp;
+                    UpButton.Width = 70;
                     layout.Items.Add(UpButton);
 
                     DownButton = new Button();
                     DownButton.Text = "Down";
                     DownButton.Enabled = false;
                     DownButton.Click += OnDown;
+                    DownButton.Width = 70;
                     layout.Items.Add(DownButton);
+
+                    ScrollButton = new Button();
+                    ScrollButton.Text = "Scroll";
+                    ScrollButton.Enabled = false;
+                    ScrollButton.Click += OnScroll;
+                    ScrollButton.Width = 70;
+                    layout.Items.Add(ScrollButton);
 
                     controlPanel.Items.Add(layout);
                 }
@@ -158,7 +171,6 @@ namespace FastNoiseLite
                     AddToTableWithLabel(table, VisualiseDomainWarp, "Visualise Domain Warp:");
                 }
 
-                // TODO: Work out how to make this bold
                 table.Rows.Add(new TableRow { Cells = { new Label { Text = "General:", Font = bold } } });
 
                 // General properties
@@ -189,7 +201,7 @@ namespace FastNoiseLite
 
                     // Seed
                     Seed = new NumericStepper { Value = 1337 };
-                    Seed.ValueChanged += Generate; // TODO: This is super laggy. Need to maybe look for enter key, or leave focus?
+                    Seed.ValueChanged += Generate;
                     AddToTableWithLabel(table, Seed, "Seed:");
 
                     // Frequency
@@ -436,210 +448,226 @@ namespace FastNoiseLite
             Content = mainLayout;
 
             // Ensure UI state is valid then it generates
-            OnUIUpdate(null, null);
+            OnUIUpdate();
         }
 
-        private void Generate(object sender, EventArgs e)
+        async private void Generate(object sender = null, EventArgs e = null)
         {
-            // Create noise generators
-            var genNoise = new FastNoise();
-            var warpNoise = new FastNoise();
-
-            int w = (int)PreviewWidth.Value;
-            int h = (int)PreviewHeight.Value;
-
-            if (w <= 0 || h <= 0)
+            if (isScrolling && sender != ScrollButton) return;
+            
+            do
             {
-                return;
-            }
+                // Create noise generators
+                var genNoise = new FastNoise();
+                var warpNoise = new FastNoise();
 
-            genNoise.SetNoiseType((FastNoise.NoiseType)NoiseType.SelectedIndex);
-            genNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex);
-            genNoise.SetSeed((int)Seed.Value);
-            genNoise.SetFrequency((float)Frequency.Value);
-            genNoise.SetFractalType((FastNoise.FractalType)FractalType.SelectedIndex);
-            genNoise.SetFractalOctaves((int)FractalOctaves.Value);
-            genNoise.SetFractalLacunarity((float)FractalLacunarity.Value);
-            genNoise.SetFractalGain((float)FractalGain.Value);
-            genNoise.SetFractalWeightedStrength((float)FractalWeightedStrength.Value);
-            genNoise.SetFractalPingPongStrength((float)FractalPingPongStrength.Value);
+                int w = (int)PreviewWidth.Value;
+                int h = (int)PreviewHeight.Value;
 
-            genNoise.SetCellularDistanceFunction((FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
-            genNoise.SetCellularReturnType((FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
-            genNoise.SetCellularJitter((float)CellularJitter.Value);
-
-            warpNoise.SetSeed((int)Seed.Value);
-            warpNoise.SetDomainWarpType((FastNoise.DomainWarpType)DomainWarp.SelectedIndex - 1);
-            warpNoise.SetRotationType3D((FastNoise.RotationType3D)DomainWarpRotationType3D.SelectedIndex);
-            warpNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
-            warpNoise.SetFrequency((float)DomainWarpFrequency.Value);
-            warpNoise.SetFractalType((FastNoise.FractalType)Enum.Parse(typeof(FastNoise.FractalType), DomainWarpFractal.SelectedKey));
-            warpNoise.SetFractalOctaves((int)DomainWarpFractalOctaves.Value);
-            warpNoise.SetFractalLacunarity((float)DomainWarpFractalLacunarity.Value);
-            warpNoise.SetFractalGain((float)DomainWarpFractalGain.Value);
-
-            if (ImageData.Length != w * h)
-            {
-                ImageData = new int[w * h];
-            }
-
-            float noise;
-            float minN = float.MaxValue;
-            float maxN = float.MinValue;
-            float avg = 0;
-
-            bool get3d = Is3D.Checked == true; // Stupid!
-            bool invert = Invert.Checked == true;
-
-            // Timer
-            Stopwatch sw = new Stopwatch();
-
-            int index = 0;
-            if (VisualiseDomainWarp.Checked != true)
-            {
-                var noiseValues = new float[w * h];
-                bool warp = DomainWarp.SelectedIndex > 0;
-
-                sw.Start();
-                for (var y = -h / 2; y < h / 2; y++)
+                if (w <= 0 || h <= 0)
                 {
-                    for (var x = -w / 2; x < w / 2; x++)
+                    return;
+                }
+
+                genNoise.SetNoiseType((FastNoise.NoiseType)NoiseType.SelectedIndex);
+                genNoise.SetRotationType3D((FastNoise.RotationType3D)RotationType3D.SelectedIndex);
+                genNoise.SetSeed((int)Seed.Value);
+                genNoise.SetFrequency((float)Frequency.Value);
+                genNoise.SetFractalType((FastNoise.FractalType)FractalType.SelectedIndex);
+                genNoise.SetFractalOctaves((int)FractalOctaves.Value);
+                genNoise.SetFractalLacunarity((float)FractalLacunarity.Value);
+                genNoise.SetFractalGain((float)FractalGain.Value);
+                genNoise.SetFractalWeightedStrength((float)FractalWeightedStrength.Value);
+                genNoise.SetFractalPingPongStrength((float)FractalPingPongStrength.Value);
+
+                genNoise.SetCellularDistanceFunction((FastNoise.CellularDistanceFunction)CellularDistanceFunction.SelectedIndex);
+                genNoise.SetCellularReturnType((FastNoise.CellularReturnType)CellularReturnType.SelectedIndex);
+                genNoise.SetCellularJitter((float)CellularJitter.Value);
+
+                warpNoise.SetSeed((int)Seed.Value);
+                warpNoise.SetDomainWarpType((FastNoise.DomainWarpType)DomainWarp.SelectedIndex - 1);
+                warpNoise.SetRotationType3D((FastNoise.RotationType3D)DomainWarpRotationType3D.SelectedIndex);
+                warpNoise.SetDomainWarpAmp((float)DomainWarpAmplitude.Value);
+                warpNoise.SetFrequency((float)DomainWarpFrequency.Value);
+                warpNoise.SetFractalType((FastNoise.FractalType)Enum.Parse(typeof(FastNoise.FractalType), DomainWarpFractal.SelectedKey));
+                warpNoise.SetFractalOctaves((int)DomainWarpFractalOctaves.Value);
+                warpNoise.SetFractalLacunarity((float)DomainWarpFractalLacunarity.Value);
+                warpNoise.SetFractalGain((float)DomainWarpFractalGain.Value);
+
+                if (ImageData.Length != w * h)
+                {
+                    ImageData = new int[w * h];
+                }
+
+                float noise;
+                float minN = float.MaxValue;
+                float maxN = float.MinValue;
+                float avg = 0;
+
+                bool get3d = Is3D.Checked == true; // Stupid!
+                bool invert = Invert.Checked == true;
+
+                // Timer
+                Stopwatch sw = new Stopwatch();
+
+                int index = 0;
+                if (VisualiseDomainWarp.Checked != true)
+                {
+                    var noiseValues = new float[w * h];
+                    bool warp = DomainWarp.SelectedIndex > 0;
+
+                    sw.Start();
+                    for (var y = -h / 2; y < h / 2; y++)
                     {
-                        FNfloat xf = x;
-                        FNfloat yf = y;
-                        FNfloat zf = zPos;
-
-
-                        if (get3d)
+                        for (var x = -w / 2; x < w / 2; x++)
                         {
-                            if (warp)
-                                warpNoise.DomainWarp(ref xf, ref yf, ref zf);
+                            FNfloat xf = x;
+                            FNfloat yf = y;
+                            FNfloat zf = zPos;
 
-                            noise = genNoise.GetNoise(xf, yf, zf);
+
+                            if (get3d)
+                            {
+                                if (warp)
+                                    warpNoise.DomainWarp(ref xf, ref yf, ref zf);
+
+                                noise = genNoise.GetNoise(xf, yf, zf);
+                            }
+                            else
+                            {
+                                if (warp)
+                                    warpNoise.DomainWarp(ref xf, ref yf);
+
+                                noise = genNoise.GetNoise(xf, yf);
+                            }
+
+                            avg += noise;
+                            maxN = Math.Max(maxN, noise);
+                            minN = Math.Min(minN, noise);
+                            noiseValues[index++] = noise;
                         }
-                        else
+                    }
+                    sw.Stop();
+
+                    avg /= index - 1;
+                    float scale = 255 / (maxN - minN);
+
+                    for (var i = 0; i < noiseValues.Length; i++)
+                    {
+                        int value = (int)MathF.Round(Math.Clamp((noiseValues[i] - minN) * scale, 0, 255));
+
+                        if (invert)
+                            value = 255 - value;
+
+                        ImageData[i] = value;
+                        ImageData[i] |= value << 8;
+                        ImageData[i] |= value << 16;
+                    }
+                }
+                else
+                {
+                    var noiseValues = new float[w * h * 3];
+
+                    sw.Start();
+                    for (var y = -h / 2; y < h / 2; y++)
+                    {
+                        for (var x = -w / 2; x < w / 2; x++)
                         {
-                            if (warp)
+                            FNfloat xf = x;
+                            FNfloat yf = y;
+                            FNfloat zf = zPos;
+
+                            if (get3d)
+                                warpNoise.DomainWarp(ref xf, ref yf, ref zf);
+                            else
                                 warpNoise.DomainWarp(ref xf, ref yf);
 
-                            noise = genNoise.GetNoise(xf, yf);
+                            xf -= x;
+                            yf -= y;
+                            zf -= zPos;
+
+                            avg += (float)(xf + yf);
+                            maxN = Math.Max(maxN, (float)Math.Max(xf, yf));
+                            minN = Math.Min(minN, (float)Math.Min(xf, yf));
+
+                            noiseValues[index++] = (float)xf;
+                            noiseValues[index++] = (float)yf;
+
+                            if (get3d)
+                            {
+                                avg += (float)zf;
+                                maxN = Math.Max(maxN, (float)zf);
+                                minN = Math.Min(minN, (float)zf);
+                                noiseValues[index++] = (float)zf;
+                            }
                         }
-
-                        avg += noise;
-                        maxN = Math.Max(maxN, noise);
-                        minN = Math.Min(minN, noise);
-                        noiseValues[index++] = noise;
                     }
-                }
-                sw.Stop();
+                    sw.Stop();
 
-                avg /= index - 1;
-                float scale = 255 / (maxN - minN);
+                    if (get3d)
+                        avg /= (index - 1) * 3;
+                    else avg /= (index - 1) * 2;
 
-                for (var i = 0; i < noiseValues.Length; i++)
-                {
-                    int value = (int)MathF.Round(Math.Clamp((noiseValues[i] - minN) * scale, 0, 255));
+                    index = 0;
+                    float scale = 1 / (maxN - minN);
 
-                    if (invert)
-                        value = 255 - value;
-
-                    ImageData[i] = value;
-                    ImageData[i] |= value << 8;
-                    ImageData[i] |= value << 16;
-                }
-            }
-            else
-            {
-                var noiseValues = new float[w * h * 3];
-
-                sw.Start();
-                for (var y = -h / 2; y < h / 2; y++)
-                {
-                    for (var x = -w / 2; x < w / 2; x++)
+                    for (var i = 0; i < ImageData.Length; i++)
                     {
-                        FNfloat xf = x;
-                        FNfloat yf = y;
-                        FNfloat zf = zPos;
-                        
-                        if (get3d)
-                            warpNoise.DomainWarp(ref xf, ref yf, ref zf);
-                        else
-                            warpNoise.DomainWarp(ref xf, ref yf);
-
-                        xf -= x;
-                        yf -= y;
-                        zf -= zPos;
-
-                        avg += (float)(xf + yf);
-                        maxN = Math.Max(maxN, (float)Math.Max(xf, yf));
-                        minN = Math.Min(minN, (float)Math.Min(xf, yf));
-
-                        noiseValues[index++] = (float)xf;
-                        noiseValues[index++] = (float)yf;
+                        Color color = new Color();
 
                         if (get3d)
                         {
-                            avg += (float)zf;
-                            maxN = Math.Max(maxN, (float)zf);
-                            minN = Math.Min(minN, (float)zf);
-                            noiseValues[index++] = (float)zf;
+                            color.R = (noiseValues[index++] - minN) * scale;
+                            color.G = (noiseValues[index++] - minN) * scale;
+                            color.B = (noiseValues[index++] - minN) * scale;
                         }
+                        else
+                        {
+                            var vx = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
+                            var vy = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
+
+                            ColorHSB hsb = new ColorHSB();
+
+                            hsb.H = MathF.Atan2(vy, vx) * (180 / MathF.PI) + 180;
+                            hsb.B = Math.Min(1.0f, MathF.Sqrt(vx * vx + vy * vy) * 2);
+                            hsb.S = 0.9f;
+
+                            color = hsb.ToColor();
+                        }
+
+                        if (Invert.Checked == true)
+                        {
+                            color.Invert();
+                        }
+
+                        ImageData[i] = color.ToArgb();
                     }
                 }
-                sw.Stop();
 
-                if (get3d)
-                    avg /= (index - 1) * 3;
-                else avg /= (index - 1) * 2;
+                // Set image
+                Bitmap = new Bitmap(w, h, PixelFormat.Format32bppRgb, ImageData);
+                Image.Image = Bitmap;
 
-                index = 0;
-                float scale = 1 / (maxN - minN);
+                // Set info labels
+                Time.Text = "Time (ms): " + sw.ElapsedMilliseconds.ToString();
+                Mean.Text = "Mean: " + avg.ToString();
+                Min.Text = "Min: " + minN.ToString();
+                Max.Text = "Max: " + maxN.ToString();
 
-                for (var i = 0; i < ImageData.Length; i++)
+                // Sets the client (inner) size of the window for your content
+                ClientSize = new Size(Math.Max((int)PreviewWidth.Value, 768), Math.Max((int)PreviewHeight.Value, 768)) + windowSizeOffset;
+
+                if (isScrolling)
                 {
-                    Color color = new Color();
-
-                    if (get3d)
+                    await Task.Delay(50);
+                    try
                     {
-                        color.R = (noiseValues[index++] - minN) * scale;
-                        color.G = (noiseValues[index++] - minN) * scale;
-                        color.B = (noiseValues[index++] - minN) * scale;
+                        zPos += ((float)Frequency.Value) * 100.0f;
                     }
-                    else
-                    {
-                        var vx = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
-                        var vy = (noiseValues[index++] - minN) / (maxN - minN) - 0.5f;
-
-                        ColorHSB hsb = new ColorHSB();
-
-                        hsb.H = MathF.Atan2(vy, vx) * (180 / MathF.PI) + 180;
-                        hsb.B = Math.Min(1.0f, MathF.Sqrt(vx * vx + vy * vy) * 2);
-                        hsb.S = 0.9f;
-
-                        color = hsb.ToColor();
-                    }
-
-                    if (Invert.Checked == true)
-                    {
-                        color.Invert();
-                    }
-
-                    ImageData[i] = color.ToArgb();
+                    catch (Exception ex) { MessageBox.Show("Frequency error: " + ex.ToString()); }
                 }
             }
-
-            // Set image
-            Bitmap = new Bitmap(w, h, PixelFormat.Format32bppRgb, ImageData);
-            Image.Image = Bitmap;
-
-            // Set info labels
-            Time.Text = "Time (ms): " + sw.ElapsedMilliseconds.ToString();
-            Mean.Text = "Mean: " + avg.ToString();
-            Min.Text = "Min: " + minN.ToString();
-            Max.Text = "Max: " + maxN.ToString();
-
-            // Sets the client (inner) size of the window for your content
-            ClientSize = new Size((int)PreviewWidth.Value, (int)PreviewHeight.Value) + windowSizeOffset;
+            while (isScrolling);
         }
 
         private void OnUp(object sender, EventArgs e)
@@ -647,7 +675,7 @@ namespace FastNoiseLite
             try
             {
                 zPos += ((float)Frequency.Value) * 100.0f;
-                Generate(null, null);
+                Generate(sender, e);
             }
             catch (Exception ex) { MessageBox.Show("Frequency error: " + ex.ToString()); }
         }
@@ -657,16 +685,22 @@ namespace FastNoiseLite
             try
             {
                 zPos -= ((float)Frequency.Value) * 100.0f;
-                Generate(null, null);
+                Generate(sender, e);
             }
             catch (Exception ex) { MessageBox.Show("Frequency error: " + ex.ToString()); }
         }
 
-        private void OnUIUpdate(object sender, EventArgs e)
+        private void OnScroll(object sender, EventArgs e)
+        {
+            isScrolling = !isScrolling;
+            if (isScrolling) Generate(sender, e);
+        }
+
+        private void OnUIUpdate(object sender = null, EventArgs e = null)
         {
             // 3D controls
             var is3d = Is3D.Checked == true;
-            UpButton.Enabled = DownButton.Enabled = is3d;
+            UpButton.Enabled = DownButton.Enabled = ScrollButton.Enabled = is3d;
 
             // Warp
             var warpVis = VisualiseDomainWarp.Checked == true;
@@ -712,8 +746,7 @@ namespace FastNoiseLite
             RotationType3D.Enabled = !warpVis && is3d;
             DomainWarpRotationType3D.Enabled = warp && is3d;
 
-            // TODO: Reenable once lag is fixed
-            Generate(null, null);
+            Generate(sender, e);
         }
 
         private void Save(object sender, EventArgs e)
