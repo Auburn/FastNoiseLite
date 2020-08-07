@@ -97,20 +97,21 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetNoiseType(NoiseType noiseType) {
+    public void SetNoiseType(NoiseType noiseType) 
+    {
         mNoiseType = noiseType;
         UpdateTransformType3D();
     }
 
-    // Sets noise domain rotation for 3D
-    // Default: None
     /// <summary>
-    /// Sets noise rotation type for 3D.
+    /// Sets domain rotation type for 3D Noise and 3D DomainWarp.
+    /// Can aid in reducing directional artifacts when sampling a 2D plane in 3D
     /// </summary>
     /// <remarks>
     /// Default: None
     /// </remarks>
-    public void SetRotationType3D(RotationType3D rotationType3D) {
+    public void SetRotationType3D(RotationType3D rotationType3D) 
+    {
         mRotationType3D = rotationType3D;
         UpdateTransformType3D();
         UpdateWarpTransformType3D();
@@ -131,7 +132,11 @@ public class FastNoise
     /// <remarks>
     /// Default: 3
     /// </remarks>
-    public void SetFractalOctaves(int octaves) { mOctaves = octaves; CalculateFractalBounding(); }
+    public void SetFractalOctaves(int octaves) 
+    { 
+        mOctaves = octaves;
+        CalculateFractalBounding();
+    }
 
     /// <summary>
     /// Sets octave lacunarity for all fractal noise types
@@ -147,7 +152,11 @@ public class FastNoise
     /// <remarks>
     /// Default: 0.5
     /// </remarks>
-    public void SetFractalGain(float gain) { mGain = gain; CalculateFractalBounding(); }
+    public void SetFractalGain(float gain)
+    { 
+        mGain = gain;
+        CalculateFractalBounding();
+    }
 
     /// <summary>
     /// Sets octave weighting for all none DomainWarp fratal types
@@ -199,7 +208,8 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetDomainWarpType(DomainWarpType domainWarpType) {
+    public void SetDomainWarpType(DomainWarpType domainWarpType) 
+    {
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
     }
@@ -971,8 +981,8 @@ public class FastNoise
     // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
     private float SingleSimplex(int seed, FNfloat x, FNfloat y)
     {
-        const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat G2 = (3 - SQRT3) / 6;
+        const float SQRT3 = 1.7320508075688772935274463415059f;
+        const float G2 = (3 - SQRT3) / 6;
 
         /*
          * --- Skew moved to TransformNoiseCoordinate method ---
@@ -994,10 +1004,10 @@ public class FastNoise
         int i1 = (int)(y0_1 - x0);
         int j1 = ~i1;
 
-        float x1 = x0 + i1 + (float)G2;
-        float y1 = y0 + j1 + (float)G2;
-        float x2 = x0 - 1 + 2 * (float)G2;
-        float y2 = y0_1 + 2 * (float)G2;
+        float x1 = x0 + i1 + G2;
+        float y1 = y0 + j1 + G2;
+        float x2 = x0 - 1 + 2 * G2;
+        float y2 = y0_1 + 2 * G2;
 
         i *= PrimeX;
         j *= PrimeY;
@@ -2137,8 +2147,8 @@ public class FastNoise
 
     private void SingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
-        const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-        const FNfloat G2 = (3 - SQRT3) / 6;
+        const float SQRT3 = 1.7320508075688772935274463415059f;
+        const float G2 = (3 - SQRT3) / 6;
 
         x *= frequency;
         y *= frequency;
@@ -2163,10 +2173,10 @@ public class FastNoise
         int i1 = (int)(y0_1 - x0);
         int j1 = ~i1;
 
-        float x1 = x0 + i1 + (float)G2;
-        float y1 = y0 + j1 + (float)G2;
-        float x2 = x0 - 1 + 2 * (float)G2;
-        float y2 = y0_1 + 2 * (float)G2;
+        float x1 = x0 + i1 + G2;
+        float y1 = y0 + j1 + G2;
+        float x2 = x0 - 1 + 2 * G2;
+        float y2 = y0_1 + 2 * G2;
 
         i *= PrimeX;
         j *= PrimeY;
