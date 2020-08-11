@@ -1,6 +1,6 @@
 [![discord](https://img.shields.io/discord/703636892901441577?style=flat-square&logo=discord "Discord")](https://discord.gg/SHVaVfV)
 
-# FastNoise (Lite)
+# FastNoise Lite
 
 **FastNoise Lite is a work in progress**
 
@@ -13,8 +13,8 @@ If you are looking for a more extensive noise generation library consider using 
 ### Features
 
 - 2D & 3D
-- Simplex Noise
 - OpenSimplex2 Noise
+- OpenSimplex2S Noise
 - Cellular (Voronoi) Noise
 - Perlin Noise
 - Value Noise
@@ -26,7 +26,7 @@ If you are looking for a more extensive noise generation library consider using 
 
 ### Credits:
 
-- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
+- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm and [@KdotJPG](https://github.com/KdotJPG) for implementing it
 - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
 - [@Rover656](https://github.com/Rover656) for creating the preview GUI
 
