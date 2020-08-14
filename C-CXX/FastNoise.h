@@ -181,7 +181,10 @@ typedef struct fn_state {
     float domain_warp_amp;
 } fn_state;
 
-// Creates a state with default values set
+/**
+ * Creates a noise state with default values.
+ * @param seed Optionally set the state seed.
+ */
 fn_state fnCreateState(int seed = 1337);
 
 /**
@@ -260,9 +263,7 @@ static inline float _fnInvSqrt(float a) {
 }
 
 // NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
-static inline float _fnFastSqrt(float a) {
-    return a * _fnInvSqrt(a);
-}
+static inline float _fnFastSqrt(float a) { return a * _fnInvSqrt(a); }
 
 static inline int _fnFastFloor(FNfloat f) { return (f >= 0 ? (int)f : (int)f - 1); }
 
@@ -527,8 +528,8 @@ static inline void _fnGradCoordDual3D(int seed, int xPrimed, int yPrimed, int zP
 
 // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
 static float _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
-    const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-    const FNfloat G2 = (3 - SQRT3) / 6;
+    const float SQRT3 = 1.7320508075688772935274463415059f;
+    const float G2 = (3 - SQRT3) / 6;
 
     /*
      * --- Skew moved to TransformNoiseCoordinate method ---
@@ -539,6 +540,7 @@ static float _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
     
     int i = _fnFastFloor(x);
     int j = _fnFastFloor(y);
+
     float xi = (float)(x - i);
     float yi = (float)(y - j);
 
@@ -550,10 +552,10 @@ static float _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
     int i1 = (int)(y0_1 - x0);
     int j1 = ~i1;
 
-    float x1 = x0 + i1 + (float)G2;
-    float y1 = y0 + j1 + (float)G2;
-    float x2 = x0 - 1 + 2 * (float)G2;
-    float y2 = y0_1 + 2 * (float)G2;
+    float x1 = x0 + i1 + G2;
+    float y1 = y0 + j1 + G2;
+    float x2 = x0 - 1 + 2 * G2;
+    float y2 = y0_1 + 2 * G2;
 
     i *= PRIME_X;
     j *= PRIME_Y;
@@ -583,6 +585,7 @@ static float _fnSingleSimplex2D(int seed, FNfloat x, FNfloat y) {
         c *= c;
         n2 = c * c * _fnGradCoord2D(seed, i + PRIME_X, j + PRIME_Y, x2, y2);
     }
+
     return (n0 + n1 + n2) * 99.83685446303647f;
 }
 
@@ -914,7 +917,7 @@ static float _fnSingleOpenSimplex2S3D(int seed, FNfloat x, FNfloat y, FNfloat z)
         }
     }
 
-    return value * 9.046026385208288f; // TODO: K.jpg may find a better constant yet.
+    return value * 9.046026385208288f;
 }
 
 // Cellular Noise
@@ -1356,7 +1359,7 @@ static float _fnSingleValue3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
 // 2D Gen functions
 // ====================
 
-static inline float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y) {
+static float _fnGenNoiseSingle2D(fn_state *state, int seed, FNfloat x, FNfloat y) {
     switch (state->noise_type) {
         case FN_NOISE_OPENSIMPLEX2:
             return _fnSingleSimplex2D(seed, x, y);
@@ -1433,7 +1436,7 @@ static float _fnGenFractalPingPong2D(fn_state *state, FNfloat x, FNfloat y) {
 // 3D Gen functions
 // ====================
 
-static inline float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat y, FNfloat z) {
+static float _fnGenNoiseSingle3D(fn_state *state, int seed, FNfloat x, FNfloat y, FNfloat z) {
     switch (state->noise_type) {
         case FN_NOISE_OPENSIMPLEX2:
             return _fnSingleOpenSimplex23D(seed, x, y, z);
@@ -1511,7 +1514,7 @@ static float _fnGenFractalPingPong3D(fn_state *state, FNfloat x, FNfloat y, FNfl
 
 // Noise Coordinate Transforms (frequency, and possible skew or rotation)
 
-static void _fnTransformNoiseCoordinate2D(fn_state *state, float *x, float *y) {
+static void _fnTransformNoiseCoordinate2D(fn_state *state, FNfloat *x, FNfloat *y) {
     *x *= state->frequency;
     *y *= state->frequency;
 
@@ -1528,7 +1531,7 @@ static void _fnTransformNoiseCoordinate2D(fn_state *state, float *x, float *y) {
     }
 }
 
-static void _fnTransformNoiseCoordinate3D(fn_state *state, float *x, float *y, float *z) {
+static void _fnTransformNoiseCoordinate3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
     *x *= state->frequency;
     *y *= state->frequency;
     *z *= state->frequency;
@@ -1705,8 +1708,8 @@ static void _fnSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float freque
 // Domain Warp Simplex/OpenSimplex2
 
 static void _fnSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat *xr, FNfloat *yr, bool outGradOnly) {
-    const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-    const FNfloat G2 = (3 - SQRT3) / 6;
+    const float SQRT3 = 1.7320508075688772935274463415059f;
+    const float G2 = (3 - SQRT3) / 6;
 
     x *= frequency;
     y *= frequency;
@@ -1724,10 +1727,10 @@ static void _fnSingleDomainWarpSimplexGradient(int seed, float warpAmp, float fr
     int i1 = (int)(y0_1 - x0);
     int j1 = ~i1;
 
-    float x1 = x0 + i1 + (float)G2;
-    float y1 = y0 + j1 + (float)G2;
-    float x2 = x0 - 1 + 2 * (float)G2;
-    float y2 = y0_1 + 2 * (float)G2;
+    float x1 = x0 + i1 + G2;
+    float y1 = y0 + j1 + G2;
+    float x2 = x0 - 1 + 2 * G2;
+    float y2 = y0_1 + 2 * G2;
 
     i *= PRIME_X;
     j *= PRIME_Y;
@@ -1785,6 +1788,13 @@ static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, flo
     x *= frequency;
     y *= frequency;
     z *= frequency;
+
+    /*
+     * --- Rotation moved to TransformDomainWarpCoordinate method ---
+     * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+     * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+     * x = r - x; y = r - y; z = r - z;
+     */
 
     int i = _fnFastRound(x);
     int j = _fnFastRound(y);
@@ -2076,7 +2086,7 @@ float fnGetNoise3D(fn_state *state, FNfloat x, FNfloat y, FNfloat z) {
 void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y) {
     switch (state->fractal_type) {
         default:
-            _fnDoSingleDomainWarp2D(state, state->seed, state->domain_warp_amp, state->frequency, *x, *y, x, y);
+            _fnDomainWarpSingle2D(state, x, y);
             break;
         case FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
             _fnDomainWarpFractalProgressive2D(state, x, y);
@@ -2090,7 +2100,7 @@ void fnDomainWarp2D(fn_state *state, FNfloat *x, FNfloat *y) {
 void fnDomainWarp3D(fn_state *state, FNfloat *x, FNfloat *y, FNfloat *z) {
     switch (state->fractal_type) {
         default:
-            _fnDoSingleDomainWarp3D(state, state->seed, state->domain_warp_amp, state->frequency, *x, *y, *z, x, y, z);
+            _fnDomainWarpSingle3D(state, x, y, z);
             break;
         case FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
             _fnDomainWarpFractalProgressive3D(state, x, y, z);
