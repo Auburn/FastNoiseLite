@@ -196,7 +196,7 @@ float fnGetNoise3D(fn_state state, FNfloat x, FNfloat y, FNfloat z);
  * 
  * Example usage with fnGetNoise2D:
  * ```
- * fnDomainWarp2D(&state, &x, &y);
+ * fnDomainWarp2D(&state, x, y);
  * noise = fnGetNoise2D(&state, x, y);
  * ```
  */
@@ -207,7 +207,7 @@ void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y);
  * 
  * Example usage with fnGetNoise3D:
  * ```
- * fnDomainWarp3D(&state, &x, &y, &z);
+ * fnDomainWarp3D(&state, x, y, z);
  * noise = fnGetNoise3D(&state, x, y, z);
  * ```
  */
