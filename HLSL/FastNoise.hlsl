@@ -196,8 +196,8 @@ float fnGetNoise3D(fn_state state, FNfloat x, FNfloat y, FNfloat z);
  * 
  * Example usage with fnGetNoise2D:
  * ```
- * fnDomainWarp2D(&state, x, y);
- * noise = fnGetNoise2D(&state, x, y);
+ * fnDomainWarp2D(state, x, y);
+ * noise = fnGetNoise2D(state, x, y);
  * ```
  */
 void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y);
@@ -207,8 +207,8 @@ void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y);
  * 
  * Example usage with fnGetNoise3D:
  * ```
- * fnDomainWarp3D(&state, x, y, z);
- * noise = fnGetNoise3D(&state, x, y, z);
+ * fnDomainWarp3D(state, x, y, z);
+ * noise = fnGetNoise3D(state, x, y, z);
  * ```
  */
 void fnDomainWarp3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z);
@@ -397,14 +397,14 @@ static const float RAND_VECS_2D[] = {
     0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
 };
 
-static inline void _fnGradCoordOut2D(int seed, int xPrimed, int yPrimed, float *xo, float *yo) {
+static inline void _fnGradCoordOut2D(int seed, int xPrimed, int yPrimed, out float xo, out float yo) {
     int hash = _fnHash2D(seed, xPrimed, yPrimed) & (255 << 1);
 
-    *xo = RAND_VECS_2D[hash];
-    *yo = RAND_VECS_2D[hash | 1];
+    xo = RAND_VECS_2D[hash];
+    yo = RAND_VECS_2D[hash | 1];
 }
 
-static inline void _fnGradCoordDual2D(int seed, int xPrimed, int yPrimed, float xd, float yd, float *xo, float *yo) {
+static inline void _fnGradCoordDual2D(int seed, int xPrimed, int yPrimed, float xd, float yd, out float xo, out float yo) {
     int hash = _fnHash2D(seed, xPrimed, yPrimed);
     int index1 = hash & (127 << 1);
     int index2 = (hash >> 7) & (255 << 1);
@@ -416,8 +416,8 @@ static inline void _fnGradCoordDual2D(int seed, int xPrimed, int yPrimed, float 
     float xgo = RAND_VECS_2D[index2];
     float ygo = RAND_VECS_2D[index2 | 1];
 
-    *xo = value * xgo;
-    *yo = value * ygo;
+    xo = value * xgo;
+    yo = value * ygo;
 }
 
 static const float RAND_VECS_3D[] = {
@@ -455,15 +455,15 @@ static const float RAND_VECS_3D[] = {
     -0.7870349638f, 0.03447489231f, 0.6159443543f, 0, -0.2015596421f, 0.6859872284f, 0.6991389226f, 0, -0.08581082512f, -0.10920836f, -0.9903080513f, 0, 0.5532693395f, 0.7325250401f, -0.396610771f, 0, -0.1842489331f, -0.9777375055f, -0.1004076743f, 0, 0.0775473789f, -0.9111505856f, 0.4047110257f, 0, 0.1399838409f, 0.7601631212f, -0.6344734459f, 0, 0.4484419361f, -0.845289248f, 0.2904925424f, 0
 };
 
-static inline void _fnGradCoordOut3D(int seed, int xPrimed, int yPrimed, int zPrimed, float *xo, float *yo, float *zo) {
+static inline void _fnGradCoordOut3D(int seed, int xPrimed, int yPrimed, int zPrimed, out float xo, out float yo, out float zo) {
     int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
-    *xo = RAND_VECS_3D[hash];
-    *yo = RAND_VECS_3D[hash | 1];
-    *zo = RAND_VECS_3D[hash | 2];
+    xo = RAND_VECS_3D[hash];
+    yo = RAND_VECS_3D[hash | 1];
+    zo = RAND_VECS_3D[hash | 2];
 }
 
-static inline void _fnGradCoordDual3D(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, float *xo, float *yo, float *zo) {
+static inline void _fnGradCoordDual3D(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, out float xo, out float yo, out float zo) {
     int hash = _fnHash3D(seed, xPrimed, yPrimed, zPrimed);
     int index1 = hash & (63 << 2);
     int index2 = (hash >> 6) & (255 << 2);
@@ -477,9 +477,9 @@ static inline void _fnGradCoordDual3D(int seed, int xPrimed, int yPrimed, int zP
     float ygo = RAND_VECS_3D[index2 | 1];
     float zgo = RAND_VECS_3D[index2 | 2];
 
-    *xo = value * xgo;
-    *yo = value * ygo;
-    *zo = value * zgo;
+    xo = value * xgo;
+    yo = value * ygo;
+    zo = value * zgo;
 }
 
 // ====================
@@ -1332,7 +1332,7 @@ static float _fnGenNoiseSingle2D(fn_state state, int seed, FNfloat x, FNfloat y)
         case FN_NOISE_OPENSIMPLEX2:
             return _fnSingleSimplex2D(seed, x, y);
         case FN_NOISE_OPENSIMPLEX2S:
-            return _fnSingleOpenSimplex2S2S(seed, x, y); 
+            return _fnSingleOpenSimplex2S2D(seed, x, y); 
         case FN_NOISE_CELLULAR:
             return _fnSingleCellular2D(state, seed, x, y);
         case FN_NOISE_PERLIN:
@@ -1530,6 +1530,7 @@ static void _fnTransformNoiseCoordinate3D(fn_state state, inout FNfloat x, inout
                 default:
                     break;
             }
+            break;
     }
 }
 
@@ -2068,7 +2069,7 @@ void fnDomainWarp2D(fn_state state, inout FNfloat x, inout FNfloat y) {
 void fnDomainWarp3D(fn_state state, inout FNfloat x, inout FNfloat y, inout FNfloat z) {
     switch (state.fractal_type) {
         default:
-            _fnDomainWarpSingle2D(state, x, y, z);
+            _fnDomainWarpSingle3D(state, x, y, z);
             break;
         case FN_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
             _fnDomainWarpFractalProgressive3D(state, x, y, z);
