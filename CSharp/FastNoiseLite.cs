@@ -1,4 +1,4 @@
-﻿// FastNoise.cs
+﻿// FastNoiseLite.cs
 //
 // MIT License
 //
@@ -31,7 +31,7 @@ using System.Runtime.CompilerServices;
 using FNfloat = System.Single;
 //using FNfloat = System.Double;
 
-public class FastNoise
+public class FastNoiseLite
 {
     private const short INLINE = 256; // MethodImplOptions.AggressiveInlining;
     private const short OPTIMISE = 512; // MethodImplOptions.AggressiveOptimization;
@@ -70,7 +70,7 @@ public class FastNoise
     /// <summary>
     /// Create new FastNoise object with optional seed
     /// </summary>
-    public FastNoise(int seed = 1337)
+    public FastNoiseLite(int seed = 1337)
     {
         SetSeed(seed);
     }
@@ -97,7 +97,7 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetNoiseType(NoiseType noiseType) 
+    public void SetNoiseType(NoiseType noiseType)
     {
         mNoiseType = noiseType;
         UpdateTransformType3D();
@@ -110,7 +110,7 @@ public class FastNoise
     /// <remarks>
     /// Default: None
     /// </remarks>
-    public void SetRotationType3D(RotationType3D rotationType3D) 
+    public void SetRotationType3D(RotationType3D rotationType3D)
     {
         mRotationType3D = rotationType3D;
         UpdateTransformType3D();
@@ -132,8 +132,8 @@ public class FastNoise
     /// <remarks>
     /// Default: 3
     /// </remarks>
-    public void SetFractalOctaves(int octaves) 
-    { 
+    public void SetFractalOctaves(int octaves)
+    {
         mOctaves = octaves;
         CalculateFractalBounding();
     }
@@ -153,7 +153,7 @@ public class FastNoise
     /// Default: 0.5
     /// </remarks>
     public void SetFractalGain(float gain)
-    { 
+    {
         mGain = gain;
         CalculateFractalBounding();
     }
@@ -208,7 +208,7 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetDomainWarpType(DomainWarpType domainWarpType) 
+    public void SetDomainWarpType(DomainWarpType domainWarpType)
     {
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
@@ -1412,7 +1412,7 @@ public class FastNoise
             }
         }
 
-        return value * 9.22768415759705f;
+        return value * 9.046026385208288f;
     }
 
 
