@@ -1000,45 +1000,48 @@ public class FastNoiseLite
         float x0 = (float)(xi - t);
         float y0 = (float)(yi - t);
 
-        float y0_1 = y0 - 1;
-        int i1 = (int)(y0_1 - x0);
-        int j1 = ~i1;
-
-        float x1 = x0 + i1 + G2;
-        float y1 = y0 + j1 + G2;
-        float x2 = x0 - 1 + 2 * G2;
-        float y2 = y0_1 + 2 * G2;
-
         i *= PrimeX;
         j *= PrimeY;
-
-        i1 &= PrimeX;
-        j1 &= PrimeY;
 
         float n0, n1, n2;
 
         float a = 0.5f - x0 * x0 - y0 * y0;
-        if (a < 0) n0 = 0;
+        if (a <= 0) n0 = 0;
         else
         {
-            a *= a;
-            n0 = a * a * GradCoord(seed, i, j, x0, y0);
+            n0 = (a * a) * (a * a) * GradCoord(seed, i, j, x0, y0);
         }
 
-        float b = 0.5f - x1 * x1 - y1 * y1;
-        if (b < 0) n1 = 0;
+        float c = (float)(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float)(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
+        if (c <= 0) n2 = 0;
         else
         {
-            b *= b;
-            n1 = b * b * GradCoord(seed, i + i1, j + j1, x1, y1);
+            float x2 = x0 + (2 * (float)G2 - 1);
+            float y2 = y0 + (2 * (float)G2 - 1);
+            n2 = (c * c) * (c * c) * GradCoord(seed, i + PrimeX, j + PrimeY, x2, y2);
         }
 
-        float c = 0.5f - x2 * x2 - y2 * y2;
-        if (c < 0) n2 = 0;
+        if (y0 > x0)
+        {
+            float x1 = x0 + (float)G2;
+            float y1 = y0 + ((float)G2 - 1);
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b <= 0) n1 = 0;
+            else
+            {
+                n1 = (b * b) * (b * b) * GradCoord(seed, i, j + PrimeY, x1, y1);
+            }
+        }
         else
         {
-            c *= c;
-            n2 = c * c * GradCoord(seed, i + PrimeX, j + PrimeY, x2, y2);
+            float x1 = x0 + ((float)G2 - 1);
+            float y1 = y0 + (float)G2;
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b <= 0) n1 = 0;
+            else
+            {
+                n1 = (b * b) * (b * b) * GradCoord(seed, i + PrimeX, j, x1, y1);
+            }
         }
 
         return (n0 + n1 + n2) * 99.83685446303647f;
@@ -2144,7 +2147,6 @@ public class FastNoiseLite
 
 
     // Domain Warp Simplex/OpenSimplex2
-
     private void SingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
         const float SQRT3 = 1.7320508075688772935274463415059f;
@@ -2154,7 +2156,7 @@ public class FastNoiseLite
         y *= frequency;
 
         /*
-         * --- Skew moved to TransformDomainWarpCoordinate method ---
+         * --- Skew moved to TransformNoiseCoordinate method ---
          * const FNfloat F2 = 0.5f * (SQRT3 - 1);
          * FNfloat s = (x + y) * F2;
          * x += s; y += s;
@@ -2169,20 +2171,8 @@ public class FastNoiseLite
         float x0 = (float)(xi - t);
         float y0 = (float)(yi - t);
 
-        float y0_1 = y0 - 1;
-        int i1 = (int)(y0_1 - x0);
-        int j1 = ~i1;
-
-        float x1 = x0 + i1 + G2;
-        float y1 = y0 + j1 + G2;
-        float x2 = x0 - 1 + 2 * G2;
-        float y2 = y0_1 + 2 * G2;
-
         i *= PrimeX;
         j *= PrimeY;
-
-        i1 &= PrimeX;
-        j1 &= PrimeY;
 
         float vx, vy;
         vx = vy = 0;
@@ -2190,40 +2180,64 @@ public class FastNoiseLite
         float a = 0.5f - x0 * x0 - y0 * y0;
         if (a > 0)
         {
-            a *= a; a *= a;
+            float aaaa = (a * a) * (a * a);
             float xo, yo;
             if (outGradOnly)
                 GradCoordOut(seed, i, j, out xo, out yo);
             else
                 GradCoordDual(seed, i, j, x0, y0, out xo, out yo);
-            vx += a * xo;
-            vy += a * yo;
+            vx += aaaa * xo;
+            vy += aaaa * yo;
         }
 
-        float b = 0.5f - x1 * x1 - y1 * y1;
-        if (b > 0)
-        {
-            b *= b; b *= b;
-            float xo, yo;
-            if (outGradOnly)
-                GradCoordOut(seed, i + i1, j + j1, out xo, out yo);
-            else
-                GradCoordDual(seed, i + i1, j + j1, x1, y1, out xo, out yo);
-            vx += b * xo;
-            vy += b * yo;
-        }
-
-        float c = 0.5f - x2 * x2 - y2 * y2;
+        float c = (float)(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float)(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
         if (c > 0)
         {
-            c *= c; c *= c;
+            float x2 = x0 + (2 * (float)G2 - 1);
+            float y2 = y0 + (2 * (float)G2 - 1);
+            float cccc = (c * c) * (c * c);
             float xo, yo;
             if (outGradOnly)
                 GradCoordOut(seed, i + PrimeX, j + PrimeY, out xo, out yo);
             else
                 GradCoordDual(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
-            vx += c * xo;
-            vy += c * yo;
+            vx += cccc * xo;
+            vy += cccc * yo;
+        }
+
+        if (y0 > x0)
+        {
+            float x1 = x0 + (float)G2;
+            float y1 = y0 + ((float)G2 - 1);
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b > 0)
+            {
+                float bbbb = (b * b) * (b * b);
+                float xo, yo;
+                if (outGradOnly)
+                    GradCoordOut(seed, i, j + PrimeY, out xo, out yo);
+                else
+                    GradCoordDual(seed, i, j + PrimeY, x1, y1, out xo, out yo);
+                vx += bbbb * xo;
+                vy += bbbb * yo;
+            }
+        }
+        else
+        {
+            float x1 = x0 + ((float)G2 - 1);
+            float y1 = y0 + (float)G2;
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b > 0)
+            {
+                float bbbb = (b * b) * (b * b);
+                float xo, yo;
+                if (outGradOnly)
+                    GradCoordOut(seed, i + PrimeX, j, out xo, out yo);
+                else
+                    GradCoordDual(seed, i + PrimeX, j, x1, y1, out xo, out yo);
+                vx += bbbb * xo;
+                vy += bbbb * yo;
+            }
         }
 
         xr += vx * warpAmp;
