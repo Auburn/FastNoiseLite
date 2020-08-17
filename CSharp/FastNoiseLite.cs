@@ -1427,7 +1427,7 @@ public class FastNoiseLite
         float distance1 = float.MaxValue;
         int closestHash = 0;
 
-        float cellularJitter = 0.5f * mCellularJitterModifier;
+        float cellularJitter = 0.43701595f * mCellularJitterModifier;
 
         int xPrimed = (xr - 1) * PrimeX;
         int yPrimedBase = (yr - 1) * PrimeY;
@@ -1557,7 +1557,7 @@ public class FastNoiseLite
         float distance1 = float.MaxValue;
         int closestHash = 0;
 
-        float cellularJitter = 0.45f * mCellularJitterModifier;
+        float cellularJitter = 0.39614353f * mCellularJitterModifier;
 
         int xPrimed = (xr - 1) * PrimeX;
         int yPrimedBase = (yr - 1) * PrimeY;
