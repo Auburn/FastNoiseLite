@@ -1086,36 +1086,20 @@ public class FastNoiseLite
                 value += (a * a) * (a * a) * GradCoord(seed, i, j, k, x0, y0, z0);
             }
 
-            float b = a + 1;
-            int i1 = i;
-            int j1 = j;
-            int k1 = k;
-            float x1 = x0;
-            float y1 = y0;
-            float z1 = z0;
-
             if (ax0 >= ay0 && ax0 >= az0)
             {
-                x1 += xNSign;
-                b -= xNSign * 2 * x1;
-                i1 -= xNSign * PrimeX;
+                float b = a - 1 - xNSign * 2 * x0;
+                if (b > 0) value += (b * b) * (b * b) * GradCoord(seed, i - xNSign * PrimeX, j, k, x0 + xNSign, y0, z0);
             }
             else if (ay0 > ax0 && ay0 >= az0)
             {
-                y1 += yNSign;
-                b -= yNSign * 2 * y1;
-                j1 -= yNSign * PrimeY;
+                float b = a - 1 - yNSign * 2 * y0;
+                if (b > 0) value += (b * b) * (b * b) * GradCoord(seed, i, j - yNSign * PrimeY, k, x0, y0 + yNSign, z0);
             }
             else
             {
-                z1 += zNSign;
-                b -= zNSign * 2 * z1;
-                k1 -= zNSign * PrimeZ;
-            }
-
-            if (b > 0)
-            {
-                value += (b * b) * (b * b) * GradCoord(seed, i1, j1, k1, x1, y1, z1);
+                float b = a - 1 - zNSign * 2 * z0;
+                if (b > 0) value += (b * b) * (b * b) * GradCoord(seed, i, j, k - zNSign * PrimeZ, x0, y0, z0 + zNSign);
             }
 
             if (l == 1) break;
