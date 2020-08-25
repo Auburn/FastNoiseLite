@@ -24,6 +24,8 @@
 //
 //
 
+// VERSION: 1.0
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -693,10 +695,13 @@ public class FastNoiseLite
         {
             case NoiseType.OpenSimplex2:
             case NoiseType.OpenSimplex2S:
-                const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-                const FNfloat F2 = 0.5f * (SQRT3 - 1);
-                FNfloat t = (x + y) * F2;
-                x += t; y += t;
+                {
+                    const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
+                    const FNfloat F2 = 0.5f * (SQRT3 - 1);
+                    FNfloat t = (x + y) * F2;
+                    x += t; 
+                    y += t;
+                }
                 break;
             default:
                 break;
@@ -717,7 +722,8 @@ public class FastNoiseLite
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
                     z *= (FNfloat)0.577350269189626;
-                    x += s2 - z; y = y + s2 - z;
+                    x += s2 - z;
+                    y = y + s2 - z;
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
@@ -726,14 +732,19 @@ public class FastNoiseLite
                     FNfloat xz = x + z;
                     FNfloat s2 = xz * -(FNfloat)0.211324865405187;
                     y *= (FNfloat)0.577350269189626;
-                    x += s2 - y; z += s2 - y;
+                    x += s2 - y;
+                    z += s2 - y;
                     y += xz * (FNfloat)0.577350269189626;
                 }
                 break;
             case TransformType3D.DefaultOpenSimplex2:
-                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                x = r - x; y = r - y; z = r - z;
+                {
+                    const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                    FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                    x = r - x;
+                    y = r - y;
+                    z = r - z;
+                }
                 break;
             default:
                 break;
@@ -775,11 +786,13 @@ public class FastNoiseLite
         {
             case DomainWarpType.OpenSimplex2:
             case DomainWarpType.OpenSimplex2Reduced:
+            {
                 const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
                 const FNfloat F2 = 0.5f * (SQRT3 - 1);
                 FNfloat t = (x + y) * F2;
                 x += t; y += t;
-                break;
+            }
+            break;
             default:
                 break;
         }
@@ -795,7 +808,8 @@ public class FastNoiseLite
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
                     z *= (FNfloat)0.577350269189626;
-                    x += s2 - z; y = y + s2 - z;
+                    x += s2 - z;
+                    y = y + s2 - z;
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
@@ -809,9 +823,13 @@ public class FastNoiseLite
                 }
                 break;
             case TransformType3D.DefaultOpenSimplex2:
-                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                x = r - x; y = r - y; z = r - z;
+                {
+                    const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                    FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                    x = r - x;
+                    y = r - y;
+                    z = r - z;
+                }
                 break;
             default:
                 break;
@@ -978,9 +996,10 @@ public class FastNoiseLite
 
     // Simplex/OpenSimplex2 Noise
 
-    // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
     private float SingleSimplex(int seed, FNfloat x, FNfloat y)
     {
+        // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
+
         const float SQRT3 = 1.7320508075688772935274463415059f;
         const float G2 = (3 - SQRT3) / 6;
 
@@ -1047,9 +1066,10 @@ public class FastNoiseLite
         return (n0 + n1 + n2) * 99.83685446303647f;
     }
 
-    // 3D OpenSimplex2 case uses two offset rotated cube grids.
     private float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
+        // 3D OpenSimplex2 case uses two offset rotated cube grids.
+
         /*
          * --- Rotation moved to TransformNoiseCoordinate method ---
          * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
@@ -1147,9 +1167,10 @@ public class FastNoiseLite
 
     // OpenSimplex2S Noise
 
-    // 2D OpenSimplex2S case is a modified 2D simplex noise.
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y)
     {
+        // 2D OpenSimplex2S case is a modified 2D simplex noise.
+
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
         const FNfloat G2 = (3 - SQRT3) / 6;
 
@@ -1218,10 +1239,11 @@ public class FastNoiseLite
 
         return value * 18.24196194486065f;
     }
-
-    // 3D OpenSimplex2S case uses two offset rotated cube grids.
+   
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
+        // 3D OpenSimplex2S case uses two offset rotated cube grids.
+
         /*
          * --- Rotation moved to TransformNoiseCoordinate method ---
          * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
