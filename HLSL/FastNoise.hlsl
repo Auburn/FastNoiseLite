@@ -1597,7 +1597,7 @@ static float _fnSingleValue3D(int seed, FNfloat x, FNfloat y, FNfloat z) {
 static void _fnSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, out FNfloat xp, out FNfloat yp);
 static void _fnSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, out FNfloat xp, out FNfloat yp, out FNfloat zp);
 static void _fnSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, out FNfloat xr, out FNfloat yr, bool outGradOnly);
-static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, out FNfloat xr, out FNfloat yr, out FNfloat zr, bool outGradOnly)
+static void _fnSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, FNfloat z, out FNfloat xr, out FNfloat yr, out FNfloat zr, bool outGradOnly);
 
 static void _fnDoSingleDomainWarp2D(fn_state state, int seed, float amp, float freq, FNfloat x, FNfloat y, out FNfloat xp, out FNfloat yp) {
     switch (state.domain_warp_type) {
