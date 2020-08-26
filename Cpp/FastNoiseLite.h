@@ -68,6 +68,11 @@ public:
         mDomainWarpType = DomainWarpType_OpenSimplex2;
         mWarpTransformType3D = TransformType3D_DefaultOpenSimplex2;
         mDomainWarpAmp = 1.0f;
+
+        Gradients2D = GetGradients2D();
+        Gradients3D = GetGradients3D();
+        RandVecs2D = GetRandVecs2D();
+        RandVecs3D = GetRandVecs3D();
     }
 
     /// <summary>
@@ -344,7 +349,12 @@ private:
     TransformType3D mWarpTransformType3D;
     float mDomainWarpAmp;
 
-    static float Gradients2D(int idx)
+    const float* Gradients2D;
+    const float* Gradients3D;
+    const float* RandVecs2D;
+    const float* RandVecs3D;
+
+    static const float* GetGradients2D()
     {
         static const float grads[] =
         {
@@ -382,10 +392,10 @@ private:
             -0.38268343236509f,  -0.923879532511287f, -0.923879532511287f, -0.38268343236509f,  -0.923879532511287f,  0.38268343236509f,  -0.38268343236509f,   0.923879532511287f,
         };
 
-        return grads[idx];
+        return grads;
     }
 
-    static float RandVecs2D(int idx)
+    static const float* GetRandVecs2D()
     {
         static const float vecs[] =
         {
@@ -423,10 +433,10 @@ private:
             0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
         };
 
-        return vecs[idx];
+        return vecs;
     }
 
-    static float Gradients3D(int idx)
+    static const float* GetGradients3D()
     {
         static const float grads[] =
         {
@@ -448,10 +458,10 @@ private:
             1, 1, 0, 0,  0,-1, 1, 0, -1, 1, 0, 0,  0,-1,-1, 0
         };
 
-        return grads[idx];
+        return grads;
     }
 
-    static float RandVecs3D(int idx)
+    static const float* GetRandVecs3D()
     {
         static const float vecs[] =
         {
@@ -489,7 +499,7 @@ private:
             -0.7870349638f, 0.03447489231f, 0.6159443543f, 0, -0.2015596421f, 0.6859872284f, 0.6991389226f, 0, -0.08581082512f, -0.10920836f, -0.9903080513f, 0, 0.5532693395f, 0.7325250401f, -0.396610771f, 0, -0.1842489331f, -0.9777375055f, -0.1004076743f, 0, 0.0775473789f, -0.9111505856f, 0.4047110257f, 0, 0.1399838409f, 0.7601631212f, -0.6344734459f, 0, 0.4484419361f, -0.845289248f, 0.2904925424f, 0
         };
 
-        return vecs[idx];
+        return vecs;
     }
 
     static float FastMin(float a, float b) { return a < b ? a : b; }
@@ -580,84 +590,84 @@ private:
     }
 
 
-    static float GradCoord(int seed, int xPrimed, int yPrimed, float xd, float yd)
+    float GradCoord(int seed, int xPrimed, int yPrimed, float xd, float yd)
     {
         int hash = Hash(seed, xPrimed, yPrimed);
         hash ^= hash >> 15;
         hash &= 127 << 1;
 
-        float xg = Gradients2D(hash);
-        float yg = Gradients2D(hash | 1);
+        float xg = Gradients2D[hash];
+        float yg = Gradients2D[hash | 1];
 
         return xd * xg + yd * yg;
     }
 
 
-    static float GradCoord(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd)
+    float GradCoord(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
         hash ^= hash >> 15;
         hash &= 63 << 2;
 
-        float xg = Gradients3D(hash);
-        float yg = Gradients3D(hash | 1);
-        float zg = Gradients3D(hash | 2);
+        float xg = Gradients3D[hash];
+        float yg = Gradients3D[hash | 1];
+        float zg = Gradients3D[hash | 2];
 
         return xd * xg + yd * yg + zd * zg;
     }
 
 
-    static void GradCoordOut(int seed, int xPrimed, int yPrimed, float& xo, float& yo)
+    void GradCoordOut(int seed, int xPrimed, int yPrimed, float& xo, float& yo)
     {
         int hash = Hash(seed, xPrimed, yPrimed) & (255 << 1);
 
-        xo = RandVecs2D(hash);
-        yo = RandVecs2D(hash | 1);
+        xo = RandVecs2D[hash];
+        yo = RandVecs2D[hash | 1];
     }
 
 
-    static void GradCoordOut(int seed, int xPrimed, int yPrimed, int zPrimed, float& xo, float& yo, float& zo)
+    void GradCoordOut(int seed, int xPrimed, int yPrimed, int zPrimed, float& xo, float& yo, float& zo)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed) & (255 << 2);
 
-        xo = RandVecs3D(hash);
-        yo = RandVecs3D(hash | 1);
-        zo = RandVecs3D(hash | 2);
+        xo = RandVecs3D[hash];
+        yo = RandVecs3D[hash | 1];
+        zo = RandVecs3D[hash | 2];
     }
 
 
-    static void GradCoordDual(int seed, int xPrimed, int yPrimed, float xd, float yd, float& xo, float& yo)
+    void GradCoordDual(int seed, int xPrimed, int yPrimed, float xd, float yd, float& xo, float& yo)
     {
         int hash = Hash(seed, xPrimed, yPrimed);
         int index1 = hash & (127 << 1);
         int index2 = (hash >> 7) & (255 << 1);
 
-        float xg = Gradients2D(index1);
-        float yg = Gradients2D(index1 | 1);
+        float xg = Gradients2D[index1];
+        float yg = Gradients2D[index1 | 1];
         float value = xd * xg + yd * yg;
 
-        float xgo = RandVecs2D(index2);
-        float ygo = RandVecs2D(index2 | 1);
+        float xgo = RandVecs2D[index2];
+        float ygo = RandVecs2D[index2 | 1];
 
         xo = value * xgo;
         yo = value * ygo;
     }
 
 
-    static void GradCoordDual(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, float& xo, float& yo, float& zo)
+    void GradCoordDual(int seed, int xPrimed, int yPrimed, int zPrimed, float xd, float yd, float zd, float& xo, float& yo, float& zo)
     {
         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
         int index1 = hash & (63 << 2);
         int index2 = (hash >> 6) & (255 << 2);
 
-        float xg = Gradients3D(index1);
-        float yg = Gradients3D(index1 | 1);
-        float zg = Gradients3D(index1 | 2);
+        float xg = Gradients3D[index1];
+        float yg = Gradients3D[index1 | 1];
+        float zg = Gradients3D[index1 | 2];
         float value = xd * xg + yd * yg + zd * zg;
 
-        float xgo = RandVecs3D(index2);
-        float ygo = RandVecs3D(index2 | 1);
-        float zgo = RandVecs3D(index2 | 2);
+        float xgo = RandVecs3D[index2];
+        float ygo = RandVecs3D[index2 | 1];
+        float zgo = RandVecs3D[index2 | 2];
 
         xo = value * xgo;
         yo = value * ygo;
@@ -1511,8 +1521,8 @@ private:
                     int hash = Hash(seed, xPrimed, yPrimed);
                     int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RandVecs2D(idx) * cellularJitter;
-                    float vecY = (float)(yi - y) + RandVecs2D(idx | 1) * cellularJitter;
+                    float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                     float newDistance = vecX * vecX + vecY * vecY;
 
@@ -1537,8 +1547,8 @@ private:
                     int hash = Hash(seed, xPrimed, yPrimed);
                     int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RandVecs2D(idx) * cellularJitter;
-                    float vecY = (float)(yi - y) + RandVecs2D(idx | 1) * cellularJitter;
+                    float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                     float newDistance = FastAbs(vecX) + FastAbs(vecY);
 
@@ -1563,8 +1573,8 @@ private:
                     int hash = Hash(seed, xPrimed, yPrimed);
                     int idx = hash & (255 << 1);
 
-                    float vecX = (float)(xi - x) + RandVecs2D(idx) * cellularJitter;
-                    float vecY = (float)(yi - y) + RandVecs2D(idx | 1) * cellularJitter;
+                    float vecX = (float)(xi - x) + RandVecs2D[idx] * cellularJitter;
+                    float vecY = (float)(yi - y) + RandVecs2D[idx | 1] * cellularJitter;
 
                     float newDistance = (FastAbs(vecX) + FastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
@@ -1646,9 +1656,9 @@ private:
                         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
                         int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RandVecs3D(idx) * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs3D(idx | 1) * cellularJitter;
-                        float vecZ = (float)(zi - z) + RandVecs3D(idx | 2) * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                         float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
@@ -1679,9 +1689,9 @@ private:
                         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
                         int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RandVecs3D(idx) * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs3D(idx | 1) * cellularJitter;
-                        float vecZ = (float)(zi - z) + RandVecs3D(idx | 2) * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                         float newDistance = FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ);
 
@@ -1712,9 +1722,9 @@ private:
                         int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
                         int idx = hash & (255 << 2);
 
-                        float vecX = (float)(xi - x) + RandVecs3D(idx) * cellularJitter;
-                        float vecY = (float)(yi - y) + RandVecs3D(idx | 1) * cellularJitter;
-                        float vecZ = (float)(zi - z) + RandVecs3D(idx | 2) * cellularJitter;
+                        float vecX = (float)(xi - x) + RandVecs3D[idx] * cellularJitter;
+                        float vecY = (float)(yi - y) + RandVecs3D[idx | 1] * cellularJitter;
+                        float vecZ = (float)(zi - z) + RandVecs3D[idx | 2] * cellularJitter;
 
                         float newDistance = (FastAbs(vecX) + FastAbs(vecY) + FastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
@@ -2153,14 +2163,14 @@ private:
         int hash0 = Hash(seed, x0, y0) & (255 << 1);
         int hash1 = Hash(seed, x1, y0) & (255 << 1);
 
-        float lx0x = Lerp(RandVecs2D(hash0), RandVecs2D(hash1), xs);
-        float ly0x = Lerp(RandVecs2D(hash0 | 1), RandVecs2D(hash1 | 1), xs);
+        float lx0x = Lerp(RandVecs2D[hash0], RandVecs2D[hash1], xs);
+        float ly0x = Lerp(RandVecs2D[hash0 | 1], RandVecs2D[hash1 | 1], xs);
 
         hash0 = Hash(seed, x0, y1) & (255 << 1);
         hash1 = Hash(seed, x1, y1) & (255 << 1);
 
-        float lx1x = Lerp(RandVecs2D(hash0), RandVecs2D(hash1), xs);
-        float ly1x = Lerp(RandVecs2D(hash0 | 1), RandVecs2D(hash1 | 1), xs);
+        float lx1x = Lerp(RandVecs2D[hash0], RandVecs2D[hash1], xs);
+        float ly1x = Lerp(RandVecs2D[hash0 | 1], RandVecs2D[hash1 | 1], xs);
 
         xr += Lerp(lx0x, lx1x, ys) * warpAmp;
         yr += Lerp(ly0x, ly1x, ys) * warpAmp;
@@ -2191,16 +2201,16 @@ private:
         int hash0 = Hash(seed, x0, y0, z0) & (255 << 2);
         int hash1 = Hash(seed, x1, y0, z0) & (255 << 2);
 
-        float lx0x = Lerp(RandVecs3D(hash0), RandVecs3D(hash1), xs);
-        float ly0x = Lerp(RandVecs3D(hash0 | 1), RandVecs3D(hash1 | 1), xs);
-        float lz0x = Lerp(RandVecs3D(hash0 | 2), RandVecs3D(hash1 | 2), xs);
+        float lx0x = Lerp(RandVecs3D[hash0], RandVecs3D[hash1], xs);
+        float ly0x = Lerp(RandVecs3D[hash0 | 1], RandVecs3D[hash1 | 1], xs);
+        float lz0x = Lerp(RandVecs3D[hash0 | 2], RandVecs3D[hash1 | 2], xs);
 
         hash0 = Hash(seed, x0, y1, z0) & (255 << 2);
         hash1 = Hash(seed, x1, y1, z0) & (255 << 2);
 
-        float lx1x = Lerp(RandVecs3D(hash0), RandVecs3D(hash1), xs);
-        float ly1x = Lerp(RandVecs3D(hash0 | 1), RandVecs3D(hash1 | 1), xs);
-        float lz1x = Lerp(RandVecs3D(hash0 | 2), RandVecs3D(hash1 | 2), xs);
+        float lx1x = Lerp(RandVecs3D[hash0], RandVecs3D[hash1], xs);
+        float ly1x = Lerp(RandVecs3D[hash0 | 1], RandVecs3D[hash1 | 1], xs);
+        float lz1x = Lerp(RandVecs3D[hash0 | 2], RandVecs3D[hash1 | 2], xs);
 
         float lx0y = Lerp(lx0x, lx1x, ys);
         float ly0y = Lerp(ly0x, ly1x, ys);
@@ -2209,16 +2219,16 @@ private:
         hash0 = Hash(seed, x0, y0, z1) & (255 << 2);
         hash1 = Hash(seed, x1, y0, z1) & (255 << 2);
 
-        lx0x = Lerp(RandVecs3D(hash0), RandVecs3D(hash1), xs);
-        ly0x = Lerp(RandVecs3D(hash0 | 1), RandVecs3D(hash1 | 1), xs);
-        lz0x = Lerp(RandVecs3D(hash0 | 2), RandVecs3D(hash1 | 2), xs);
+        lx0x = Lerp(RandVecs3D[hash0], RandVecs3D[hash1], xs);
+        ly0x = Lerp(RandVecs3D[hash0 | 1], RandVecs3D[hash1 | 1], xs);
+        lz0x = Lerp(RandVecs3D[hash0 | 2], RandVecs3D[hash1 | 2], xs);
 
         hash0 = Hash(seed, x0, y1, z1) & (255 << 2);
         hash1 = Hash(seed, x1, y1, z1) & (255 << 2);
 
-        lx1x = Lerp(RandVecs3D(hash0), RandVecs3D(hash1), xs);
-        ly1x = Lerp(RandVecs3D(hash0 | 1), RandVecs3D(hash1 | 1), xs);
-        lz1x = Lerp(RandVecs3D(hash0 | 2), RandVecs3D(hash1 | 2), xs);
+        lx1x = Lerp(RandVecs3D[hash0], RandVecs3D[hash1], xs);
+        ly1x = Lerp(RandVecs3D[hash0 | 1], RandVecs3D[hash1 | 1], xs);
+        lz1x = Lerp(RandVecs3D[hash0 | 2], RandVecs3D[hash1 | 2], xs);
 
         xr += Lerp(lx0y, Lerp(lx0x, lx1x, ys), zs) * warpAmp;
         yr += Lerp(ly0y, Lerp(ly0x, ly1x, ys), zs) * warpAmp;
