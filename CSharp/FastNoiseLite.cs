@@ -1,4 +1,4 @@
-﻿// FastNoise.cs
+﻿// FastNoiseLite.cs
 //
 // MIT License
 //
@@ -24,6 +24,8 @@
 //
 //
 
+// VERSION: 1.0
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -31,7 +33,7 @@ using System.Runtime.CompilerServices;
 using FNfloat = System.Single;
 //using FNfloat = System.Double;
 
-public class FastNoise
+public class FastNoiseLite
 {
     private const short INLINE = 256; // MethodImplOptions.AggressiveInlining;
     private const short OPTIMISE = 512; // MethodImplOptions.AggressiveOptimization;
@@ -70,7 +72,7 @@ public class FastNoise
     /// <summary>
     /// Create new FastNoise object with optional seed
     /// </summary>
-    public FastNoise(int seed = 1337)
+    public FastNoiseLite(int seed = 1337)
     {
         SetSeed(seed);
     }
@@ -97,7 +99,7 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetNoiseType(NoiseType noiseType) 
+    public void SetNoiseType(NoiseType noiseType)
     {
         mNoiseType = noiseType;
         UpdateTransformType3D();
@@ -110,7 +112,7 @@ public class FastNoise
     /// <remarks>
     /// Default: None
     /// </remarks>
-    public void SetRotationType3D(RotationType3D rotationType3D) 
+    public void SetRotationType3D(RotationType3D rotationType3D)
     {
         mRotationType3D = rotationType3D;
         UpdateTransformType3D();
@@ -132,8 +134,8 @@ public class FastNoise
     /// <remarks>
     /// Default: 3
     /// </remarks>
-    public void SetFractalOctaves(int octaves) 
-    { 
+    public void SetFractalOctaves(int octaves)
+    {
         mOctaves = octaves;
         CalculateFractalBounding();
     }
@@ -153,7 +155,7 @@ public class FastNoise
     /// Default: 0.5
     /// </remarks>
     public void SetFractalGain(float gain)
-    { 
+    {
         mGain = gain;
         CalculateFractalBounding();
     }
@@ -208,7 +210,7 @@ public class FastNoise
     /// <remarks>
     /// Default: OpenSimplex2
     /// </remarks>
-    public void SetDomainWarpType(DomainWarpType domainWarpType) 
+    public void SetDomainWarpType(DomainWarpType domainWarpType)
     {
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
@@ -693,10 +695,13 @@ public class FastNoise
         {
             case NoiseType.OpenSimplex2:
             case NoiseType.OpenSimplex2S:
-                const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
-                const FNfloat F2 = 0.5f * (SQRT3 - 1);
-                FNfloat t = (x + y) * F2;
-                x += t; y += t;
+                {
+                    const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
+                    const FNfloat F2 = 0.5f * (SQRT3 - 1);
+                    FNfloat t = (x + y) * F2;
+                    x += t; 
+                    y += t;
+                }
                 break;
             default:
                 break;
@@ -717,7 +722,8 @@ public class FastNoise
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
                     z *= (FNfloat)0.577350269189626;
-                    x += s2 - z; y = y + s2 - z;
+                    x += s2 - z;
+                    y = y + s2 - z;
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
@@ -726,14 +732,19 @@ public class FastNoise
                     FNfloat xz = x + z;
                     FNfloat s2 = xz * -(FNfloat)0.211324865405187;
                     y *= (FNfloat)0.577350269189626;
-                    x += s2 - y; z += s2 - y;
+                    x += s2 - y;
+                    z += s2 - y;
                     y += xz * (FNfloat)0.577350269189626;
                 }
                 break;
             case TransformType3D.DefaultOpenSimplex2:
-                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                x = r - x; y = r - y; z = r - z;
+                {
+                    const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                    FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                    x = r - x;
+                    y = r - y;
+                    z = r - z;
+                }
                 break;
             default:
                 break;
@@ -775,11 +786,13 @@ public class FastNoise
         {
             case DomainWarpType.OpenSimplex2:
             case DomainWarpType.OpenSimplex2Reduced:
+            {
                 const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
                 const FNfloat F2 = 0.5f * (SQRT3 - 1);
                 FNfloat t = (x + y) * F2;
                 x += t; y += t;
-                break;
+            }
+            break;
             default:
                 break;
         }
@@ -795,7 +808,8 @@ public class FastNoise
                     FNfloat xy = x + y;
                     FNfloat s2 = xy * -(FNfloat)0.211324865405187;
                     z *= (FNfloat)0.577350269189626;
-                    x += s2 - z; y = y + s2 - z;
+                    x += s2 - z;
+                    y = y + s2 - z;
                     z += xy * (FNfloat)0.577350269189626;
                 }
                 break;
@@ -809,9 +823,13 @@ public class FastNoise
                 }
                 break;
             case TransformType3D.DefaultOpenSimplex2:
-                const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-                FNfloat r = (x + y + z) * R3; // Rotation, not skew
-                x = r - x; y = r - y; z = r - z;
+                {
+                    const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+                    FNfloat r = (x + y + z) * R3; // Rotation, not skew
+                    x = r - x;
+                    y = r - y;
+                    z = r - z;
+                }
                 break;
             default:
                 break;
@@ -978,9 +996,10 @@ public class FastNoise
 
     // Simplex/OpenSimplex2 Noise
 
-    // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
     private float SingleSimplex(int seed, FNfloat x, FNfloat y)
     {
+        // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
+
         const float SQRT3 = 1.7320508075688772935274463415059f;
         const float G2 = (3 - SQRT3) / 6;
 
@@ -1000,53 +1019,57 @@ public class FastNoise
         float x0 = (float)(xi - t);
         float y0 = (float)(yi - t);
 
-        float y0_1 = y0 - 1;
-        int i1 = (int)(y0_1 - x0);
-        int j1 = ~i1;
-
-        float x1 = x0 + i1 + G2;
-        float y1 = y0 + j1 + G2;
-        float x2 = x0 - 1 + 2 * G2;
-        float y2 = y0_1 + 2 * G2;
-
         i *= PrimeX;
         j *= PrimeY;
-
-        i1 &= PrimeX;
-        j1 &= PrimeY;
 
         float n0, n1, n2;
 
         float a = 0.5f - x0 * x0 - y0 * y0;
-        if (a < 0) n0 = 0;
+        if (a <= 0) n0 = 0;
         else
         {
-            a *= a;
-            n0 = a * a * GradCoord(seed, i, j, x0, y0);
+            n0 = (a * a) * (a * a) * GradCoord(seed, i, j, x0, y0);
         }
 
-        float b = 0.5f - x1 * x1 - y1 * y1;
-        if (b < 0) n1 = 0;
+        float c = (float)(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float)(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
+        if (c <= 0) n2 = 0;
         else
         {
-            b *= b;
-            n1 = b * b * GradCoord(seed, i + i1, j + j1, x1, y1);
+            float x2 = x0 + (2 * (float)G2 - 1);
+            float y2 = y0 + (2 * (float)G2 - 1);
+            n2 = (c * c) * (c * c) * GradCoord(seed, i + PrimeX, j + PrimeY, x2, y2);
         }
 
-        float c = 0.5f - x2 * x2 - y2 * y2;
-        if (c < 0) n2 = 0;
+        if (y0 > x0)
+        {
+            float x1 = x0 + (float)G2;
+            float y1 = y0 + ((float)G2 - 1);
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b <= 0) n1 = 0;
+            else
+            {
+                n1 = (b * b) * (b * b) * GradCoord(seed, i, j + PrimeY, x1, y1);
+            }
+        }
         else
         {
-            c *= c;
-            n2 = c * c * GradCoord(seed, i + PrimeX, j + PrimeY, x2, y2);
+            float x1 = x0 + ((float)G2 - 1);
+            float y1 = y0 + (float)G2;
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b <= 0) n1 = 0;
+            else
+            {
+                n1 = (b * b) * (b * b) * GradCoord(seed, i + PrimeX, j, x1, y1);
+            }
         }
 
         return (n0 + n1 + n2) * 99.83685446303647f;
     }
 
-    // 3D OpenSimplex2 case uses two offset rotated cube grids.
     private float SingleOpenSimplex2(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
+        // 3D OpenSimplex2 case uses two offset rotated cube grids.
+
         /*
          * --- Rotation moved to TransformNoiseCoordinate method ---
          * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
@@ -1144,9 +1167,10 @@ public class FastNoise
 
     // OpenSimplex2S Noise
 
-    // 2D OpenSimplex2S case is a modified 2D simplex noise.
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y)
     {
+        // 2D OpenSimplex2S case is a modified 2D simplex noise.
+
         const FNfloat SQRT3 = (FNfloat)1.7320508075688772935274463415059;
         const FNfloat G2 = (3 - SQRT3) / 6;
 
@@ -1215,10 +1239,11 @@ public class FastNoise
 
         return value * 18.24196194486065f;
     }
-
-    // 3D OpenSimplex2S case uses two offset rotated cube grids.
+   
     private float SingleOpenSimplex2S(int seed, FNfloat x, FNfloat y, FNfloat z)
     {
+        // 3D OpenSimplex2S case uses two offset rotated cube grids.
+
         /*
          * --- Rotation moved to TransformNoiseCoordinate method ---
          * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
@@ -1412,7 +1437,7 @@ public class FastNoise
             }
         }
 
-        return value * 9.22768415759705f;
+        return value * 9.046026385208288f;
     }
 
 
@@ -1427,7 +1452,7 @@ public class FastNoise
         float distance1 = float.MaxValue;
         int closestHash = 0;
 
-        float cellularJitter = 0.5f * mCellularJitterModifier;
+        float cellularJitter = 0.43701595f * mCellularJitterModifier;
 
         int xPrimed = (xr - 1) * PrimeX;
         int yPrimedBase = (yr - 1) * PrimeY;
@@ -1557,7 +1582,7 @@ public class FastNoise
         float distance1 = float.MaxValue;
         int closestHash = 0;
 
-        float cellularJitter = 0.45f * mCellularJitterModifier;
+        float cellularJitter = 0.39614353f * mCellularJitterModifier;
 
         int xPrimed = (xr - 1) * PrimeX;
         int yPrimedBase = (yr - 1) * PrimeY;
@@ -2144,7 +2169,6 @@ public class FastNoise
 
 
     // Domain Warp Simplex/OpenSimplex2
-
     private void SingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNfloat x, FNfloat y, ref FNfloat xr, ref FNfloat yr, bool outGradOnly)
     {
         const float SQRT3 = 1.7320508075688772935274463415059f;
@@ -2154,7 +2178,7 @@ public class FastNoise
         y *= frequency;
 
         /*
-         * --- Skew moved to TransformDomainWarpCoordinate method ---
+         * --- Skew moved to TransformNoiseCoordinate method ---
          * const FNfloat F2 = 0.5f * (SQRT3 - 1);
          * FNfloat s = (x + y) * F2;
          * x += s; y += s;
@@ -2169,20 +2193,8 @@ public class FastNoise
         float x0 = (float)(xi - t);
         float y0 = (float)(yi - t);
 
-        float y0_1 = y0 - 1;
-        int i1 = (int)(y0_1 - x0);
-        int j1 = ~i1;
-
-        float x1 = x0 + i1 + G2;
-        float y1 = y0 + j1 + G2;
-        float x2 = x0 - 1 + 2 * G2;
-        float y2 = y0_1 + 2 * G2;
-
         i *= PrimeX;
         j *= PrimeY;
-
-        i1 &= PrimeX;
-        j1 &= PrimeY;
 
         float vx, vy;
         vx = vy = 0;
@@ -2190,40 +2202,64 @@ public class FastNoise
         float a = 0.5f - x0 * x0 - y0 * y0;
         if (a > 0)
         {
-            a *= a; a *= a;
+            float aaaa = (a * a) * (a * a);
             float xo, yo;
             if (outGradOnly)
                 GradCoordOut(seed, i, j, out xo, out yo);
             else
                 GradCoordDual(seed, i, j, x0, y0, out xo, out yo);
-            vx += a * xo;
-            vy += a * yo;
+            vx += aaaa * xo;
+            vy += aaaa * yo;
         }
 
-        float b = 0.5f - x1 * x1 - y1 * y1;
-        if (b > 0)
-        {
-            b *= b; b *= b;
-            float xo, yo;
-            if (outGradOnly)
-                GradCoordOut(seed, i + i1, j + j1, out xo, out yo);
-            else
-                GradCoordDual(seed, i + i1, j + j1, x1, y1, out xo, out yo);
-            vx += b * xo;
-            vy += b * yo;
-        }
-
-        float c = 0.5f - x2 * x2 - y2 * y2;
+        float c = (float)(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float)(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
         if (c > 0)
         {
-            c *= c; c *= c;
+            float x2 = x0 + (2 * (float)G2 - 1);
+            float y2 = y0 + (2 * (float)G2 - 1);
+            float cccc = (c * c) * (c * c);
             float xo, yo;
             if (outGradOnly)
                 GradCoordOut(seed, i + PrimeX, j + PrimeY, out xo, out yo);
             else
                 GradCoordDual(seed, i + PrimeX, j + PrimeY, x2, y2, out xo, out yo);
-            vx += c * xo;
-            vy += c * yo;
+            vx += cccc * xo;
+            vy += cccc * yo;
+        }
+
+        if (y0 > x0)
+        {
+            float x1 = x0 + (float)G2;
+            float y1 = y0 + ((float)G2 - 1);
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b > 0)
+            {
+                float bbbb = (b * b) * (b * b);
+                float xo, yo;
+                if (outGradOnly)
+                    GradCoordOut(seed, i, j + PrimeY, out xo, out yo);
+                else
+                    GradCoordDual(seed, i, j + PrimeY, x1, y1, out xo, out yo);
+                vx += bbbb * xo;
+                vy += bbbb * yo;
+            }
+        }
+        else
+        {
+            float x1 = x0 + ((float)G2 - 1);
+            float y1 = y0 + (float)G2;
+            float b = 0.5f - x1 * x1 - y1 * y1;
+            if (b > 0)
+            {
+                float bbbb = (b * b) * (b * b);
+                float xo, yo;
+                if (outGradOnly)
+                    GradCoordOut(seed, i + PrimeX, j, out xo, out yo);
+                else
+                    GradCoordDual(seed, i + PrimeX, j, x1, y1, out xo, out yo);
+                vx += bbbb * xo;
+                vy += bbbb * yo;
+            }
         }
 
         xr += vx * warpAmp;
