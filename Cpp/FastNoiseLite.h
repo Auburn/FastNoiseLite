@@ -2376,19 +2376,11 @@ private:
 };
 
 template <>
-struct FastNoiseLite::Arguments_must_be_floating_point_values<float>
-{
-};
-
+struct FastNoiseLite::Arguments_must_be_floating_point_values<float> {};
 template <>
-struct FastNoiseLite::Arguments_must_be_floating_point_values<double>
-{
-};
-
+struct FastNoiseLite::Arguments_must_be_floating_point_values<double> {};
 template <>
-struct FastNoiseLite::Arguments_must_be_floating_point_values<long double>
-{
-};
+struct FastNoiseLite::Arguments_must_be_floating_point_values<long double> {};
 
 template <typename T>
 const T FastNoiseLite::Lookup<T>::Gradients2D[] =
