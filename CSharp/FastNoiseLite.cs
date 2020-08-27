@@ -25,6 +25,7 @@
 //
 
 // VERSION: 1.0
+// https://github.com/Auburn/FastNoise
 
 using System;
 using System.Runtime.CompilerServices;
