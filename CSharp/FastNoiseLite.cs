@@ -1099,43 +1099,38 @@ public class FastNoiseLite
         float value = 0;
 
         float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-        for (int l = 0; l < 2; l++)
+        for (int l = 0; ; l++)
         {
             if (a > 0)
             {
                 value += (a * a) * (a * a) * GradCoord(seed, i, j, k, x0, y0, z0);
             }
 
-            float b = a + 1;
-            int i1 = i;
-            int j1 = j;
-            int k1 = k;
-            float x1 = x0;
-            float y1 = y0;
-            float z1 = z0;
-
             if (ax0 >= ay0 && ax0 >= az0)
             {
-                x1 += xNSign;
-                b -= xNSign * 2 * x1;
-                i1 -= xNSign * PrimeX;
+                float b = a + ax0 + ax0;
+                if (b > 1) {
+                    b -= 1;
+                    value += (b * b) * (b * b) * GradCoord(seed, i - xNSign * PrimeX, j, k, x0 + xNSign, y0, z0);
+                }
             }
             else if (ay0 > ax0 && ay0 >= az0)
             {
-                y1 += yNSign;
-                b -= yNSign * 2 * y1;
-                j1 -= yNSign * PrimeY;
+                float b = a + ay0 + ay0;
+                if (b > 1)
+                {
+                    b -= 1;
+                    value += (b * b) * (b * b) * GradCoord(seed, i, j - yNSign * PrimeY, k, x0, y0 + yNSign, z0);
+                }
             }
             else
             {
-                z1 += zNSign;
-                b -= zNSign * 2 * z1;
-                k1 -= zNSign * PrimeZ;
-            }
-
-            if (b > 0)
-            {
-                value += (b * b) * (b * b) * GradCoord(seed, i1, j1, k1, x1, y1, z1);
+                float b = a + az0 + az0;
+                if (b > 1)
+                {
+                    b -= 1;
+                    value += (b * b) * (b * b) * GradCoord(seed, i, j, k - zNSign * PrimeZ, x0, y0, z0 + zNSign);
+                }
             }
 
             if (l == 1) break;
@@ -2302,7 +2297,7 @@ public class FastNoiseLite
         vx = vy = vz = 0;
 
         float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-        for (int l = 0; l < 2; l++)
+        for (int l = 0; ; l++)
         {
             if (a > 0)
             {
@@ -2317,7 +2312,7 @@ public class FastNoiseLite
                 vz += aaaa * zo;
             }
 
-            float b = a + 1;
+            float b = a;
             int i1 = i;
             int j1 = j;
             int k1 = k;
@@ -2328,24 +2323,25 @@ public class FastNoiseLite
             if (ax0 >= ay0 && ax0 >= az0)
             {
                 x1 += xNSign;
-                b -= xNSign * 2 * x1;
+                b = b + ax0 + ax0;
                 i1 -= xNSign * PrimeX;
             }
             else if (ay0 > ax0 && ay0 >= az0)
             {
                 y1 += yNSign;
-                b -= yNSign * 2 * y1;
+                b = b + ay0 + ay0;
                 j1 -= yNSign * PrimeY;
             }
             else
             {
                 z1 += zNSign;
-                b -= zNSign * 2 * z1;
+                b = b + az0 + az0;
                 k1 -= zNSign * PrimeZ;
             }
 
-            if (b > 0)
+            if (b > 1)
             {
+                b -= 1;
                 float bbbb = (b * b) * (b * b);
                 float xo, yo, zo;
                 if (outGradOnly)
