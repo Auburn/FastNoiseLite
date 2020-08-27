@@ -28,7 +28,7 @@ If you are looking for a more extensive noise generation library consider using 
 
 - [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm and [@KdotJPG](https://github.com/KdotJPG) for implementing it
 - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
-- [@Rover656](https://github.com/Rover656) for creating the preview GUI
+- [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
 
 ## FastNoise Preview App
 
