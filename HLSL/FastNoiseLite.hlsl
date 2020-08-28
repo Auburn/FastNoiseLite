@@ -1,4 +1,4 @@
-// FastNoise.compute
+// FastNoise.hlsl
 //
 // MIT License
 //
