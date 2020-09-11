@@ -1049,21 +1049,13 @@ static float _fnlSingleOpenSimplex2S2D(int seed, FNLfloat x, FNLfloat y)
     int bMask = (int)((xi - (aMask + 2)) * 0.5f - yi);
     int cMask = (int)((yi - (aMask + 2)) * 0.5f - xi);
 
-    float value = 0;
-
     float a0 = (2.0f / 3.0f) - x0 * x0 - y0 * y0;
-    if (a0 > 0)
-    {
-        value += (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0);
-    }
+    float value = (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0);
 
     float a1 = (float)(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float)(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0);
-    if (a1 > 0)
-    {
-        float x1 = x0 - (float)(1 - 2 * G2);
-        float y1 = y0 - (float)(1 - 2 * G2);
-        value += (a1 * a1) * (a1 * a1) * _fnlGradCoord2D(seed, i1, j1, x1, y1);
-    }
+    float x1 = x0 - (float)(1 - 2 * G2);
+    float y1 = y0 - (float)(1 - 2 * G2);
+    value += (a1 * a1) * (a1 * a1) * _fnlGradCoord2D(seed, i1, j1, x1, y1);
 
     int di2 = ~(aMask | cMask) | 1;
     int ndj2 = (aMask & bMask) << 1;
@@ -1117,27 +1109,19 @@ static float _fnlSingleOpenSimplex2S3D(int seed, FNLfloat x, FNLfloat y, FNLfloa
     int yNMask = (int)(-0.5f - yi);
     int zNMask = (int)(-0.5f - zi);
 
-    float value = 0;
-
     float x0 = xi + xNMask;
     float y0 = yi + yNMask;
     float z0 = zi + zNMask;
     float a0 = 0.75f - x0 * x0 - y0 * y0 - z0 * z0;
-    if (a0 > 0)
-    {
-        value += (a0 * a0) * (a0 * a0) * _fnlGradCoord3D(seed,
-                                                         i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x0, y0, z0);
-    }
+    float value = (a0 * a0) * (a0 * a0) * _fnlGradCoord3D(seed,
+                                                          i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x0, y0, z0);
 
     float x1 = xi - 0.5f;
     float y1 = yi - 0.5f;
     float z1 = zi - 0.5f;
     float a1 = 0.75f - x1 * x1 - y1 * y1 - z1 * z1;
-    if (a1 > 0)
-    {
-        value += (a1 * a1) * (a1 * a1) * _fnlGradCoord3D(seed2,
-                                                         i + PRIME_X, j + PRIME_Y, k + PRIME_Z, x1, y1, z1);
-    }
+    value += (a1 * a1) * (a1 * a1) * _fnlGradCoord3D(seed2,
+                                                     i + PRIME_X, j + PRIME_Y, k + PRIME_Z, x1, y1, z1);
 
     float xAFlipMask0 = ((xNMask | 1) << 1) * x1;
     float yAFlipMask0 = ((yNMask | 1) << 1) * y1;
