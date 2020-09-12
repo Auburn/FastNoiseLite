@@ -1181,10 +1181,6 @@ private:
         float x0 = xi - t;
         float y0 = yi - t;
 
-        int aMask = (int)((xi + yi + 1) * -0.5f);
-        int bMask = (int)((xi - (aMask + 2)) * 0.5f - yi);
-        int cMask = (int)((yi - (aMask + 2)) * 0.5f - xi);
-
         float a0 = (2.0f / 3.0f) - x0 * x0 - y0 * y0;
         float value = (a0 * a0) * (a0 * a0) * GradCoord(seed, i, j, x0, y0);
 
@@ -1849,8 +1845,8 @@ private:
         int y0 = y1 - PrimeY;
         int x2 = x1 + PrimeX;
         int y2 = y1 + PrimeY;
-        int x3 = x1 + (int)(PrimeX * 2L);
-        int y3 = y1 + (int)(PrimeY * 2L);
+        int x3 = x1 + (int)((long)PrimeX << 1);
+        int y3 = y1 + (int)((long)PrimeY << 1);
 
         return CubicLerp(
             CubicLerp(ValCoord(seed, x0, y0), ValCoord(seed, x1, y0), ValCoord(seed, x2, y0), ValCoord(seed, x3, y0),
@@ -1885,9 +1881,9 @@ private:
         int x2 = x1 + PrimeX;
         int y2 = y1 + PrimeY;
         int z2 = z1 + PrimeZ;
-        int x3 = x1 + (int)(PrimeX * 2L);
-        int y3 = y1 + (int)(PrimeY * 2L);
-        int z3 = z1 + (int)(PrimeZ * 2L);
+        int x3 = x1 + (int)((long)PrimeX << 1);
+        int y3 = y1 + (int)((long)PrimeY << 1);
+        int z3 = z1 + (int)((long)PrimeZ << 1);
 
 
         return CubicLerp(

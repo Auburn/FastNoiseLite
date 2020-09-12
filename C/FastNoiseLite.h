@@ -1099,10 +1099,6 @@ static float _fnlSingleOpenSimplex2S2D(int seed, FNLfloat x, FNLfloat y)
     float x0 = xi - t;
     float y0 = yi - t;
 
-    int aMask = (int)((xi + yi + 1) * -0.5f);
-    int bMask = (int)((xi - (aMask + 2)) * 0.5f - yi);
-    int cMask = (int)((yi - (aMask + 2)) * 0.5f - xi);
-
     float a0 = (2.0f / 3.0f) - x0 * x0 - y0 * y0;
     float value = (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0);
 
