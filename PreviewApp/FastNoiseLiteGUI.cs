@@ -367,6 +367,7 @@ public class FastNoiseLiteGUI : Form
                 var stack = new StackLayout();
                 stack.Orientation = Orientation.Horizontal;
                 stack.Spacing = 5;
+                stack.Padding = new Padding(10);
 
                 var save = new Button { Text = "Save" };
                 save.Click += Save;

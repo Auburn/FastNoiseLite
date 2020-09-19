@@ -2,15 +2,13 @@
 
 # FastNoise Lite
 
-**FastNoise Lite is a work in progress**
-
-FastNoise Lite is a portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
+FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
 This project is an evolution of the original FastNoise library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. 
 
-If you are looking for a more extensive noise generation library consider using [FastNoise2](https://github.com/Auburn/FastNoise2). It provides large performance gains thanks to SIMD and uses a node graph structure to allow huge amounts of flexibilty and configuration.
+If you are looking for a more extensive noise generation library consider using [FastNoise2](https://github.com/Auburn/FastNoise2). It provides large performance gains thanks to SIMD and uses a node graph structure to allow complex noise configurations with lots of flexibility.
 
-### Features
+## Features
 
 - 2D & 3D
 - OpenSimplex2 Noise
@@ -24,41 +22,54 @@ If you are looking for a more extensive noise generation library consider using 
 - Multiple fractal options for all of the above
 - Supports floats or doubles
 
-### Credits:
+### Supported Languages
 
-- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm and [@KdotJPG](https://github.com/KdotJPG) for implementing it
-- [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
-- [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
+- C#
+- C++
+- C
+- Java
+- HLSL
 
 ## FastNoise Preview App
 
-A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This is used for development purposes and testing noise settings used in terrain generation.
+A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes and testing noise settings.
 
-Download links can be found in the [Releases Section](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory if you wish to change any of the settings.
+Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory if you wish to build the application.
 
 <!-- TODO: Update image -->
 ![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
 
+## Performance Comparisons
 
-<!-- TODO: Update metrics for FastNoiseLite -->
-# Performance Comparisons
+Benchmarked using C++ version with [NoiseBenchmarking](https://github.com/Auburn/NoiseBenchmarking)
+Using default noise settings on FastNoise Lite and matching those settings across the other libraries where possible.
 
-Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
+- CPU: Intel 7820X @ 4.9Ghz
+- OS: Win10 x64
+- Compiler: clang-cl 10.0.0 -m64 /O2
 
-Timings below are x1000 ns to generate 32x32x32 points of noise on a single thread.
+Million points of noise generated per second (higher = better)
 
-- CPU: Intel Xeon Skylake @ 2.0Ghz
-- Compiler: Intel 17.0 x64
+| 3D                 | Value  | Perlin | (*Open)Simplex | Cellular |
+|--------------------|--------|--------|----------------|----------|
+| FastNoise Lite     | 64.13  | 47.93  | 36.83*         | 12.49    |
+| FastNoise (Legacy) | 49.34  | 37.75  | 44.74          | 13.27    |
+| FastNoise 2 (AVX2) | 494.49 | 261.10 | 268.44         | 52.43    |
+| libnoise           |        | 27.35  |                | 0.65     |
+| stb perlin         |        | 34.32  |                |          |
 
-| Noise Type    | FastNoise | FastNoiseSIMD AVX2 | LibNoise | FastNoise 2D |
-|---------------|-----------|--------------------|----------|--------------|
-| Simplex       | 1194      | 294                |          | 883          |
-| Cellular      | 2979      | 1283               | 58125    | 1074         |
-| Perlin        | 1002      | 324                | 1368     | 473          |
-| Value (Cubic) | 2979      | 952                |          | 858          |
-| Value         | 642       | 152                |          | 361          |
+| 2D                 | Value  | Perlin | Simplex | Cellular |
+|--------------------|--------|--------|---------|----------|
+| FastNoise Lite     | 114.01 | 92.83  | 71.30   | 39.15    |
+| FastNoise (Legacy) | 102.12 | 87.99  | 65.29   | 36.84    |
+| FastNoise 2 (AVX2) | 776.33 | 624.27 | 466.03  | 194.30   |
 
-Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
+## Credits:
+
+- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
+- [@KdotJPG](https://github.com/KdotJPG) for implementing all the OpenSimplex alogrithms and the Java port
+- [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
+- [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
 
 # Examples
 
@@ -85,6 +96,3 @@ Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSI
 ![Gradient Perturb](http://i.imgur.com/ui045Bk.png)
 
 ![Gradient Perturb](http://i.imgur.com/JICFypT.png)
-
-
-# Any suggestions or questions welcome
