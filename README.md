@@ -36,8 +36,7 @@ A compact testing application is available for testing all features included in 
 
 Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory if you wish to build the application.
 
-<!-- TODO: Update image -->
-![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
+![FastNoise GUI](https://user-images.githubusercontent.com/1349548/93670916-b19b3a00-fa96-11ea-9990-e866bc3d719e.png)
 
 ## Performance Comparisons
 
@@ -73,26 +72,16 @@ Million points of noise generated per second (higher = better)
 
 # Examples
 
-## Cellular Noise
+![Ridged Fractal](https://user-images.githubusercontent.com/1349548/93671180-b2cd6680-fa98-11ea-9026-0fb58b346c23.png)
 
-![Cellular Noise](http://i.imgur.com/quAic8M.png)
+![Cellular](https://user-images.githubusercontent.com/1349548/93670968-12c30d80-fa97-11ea-87ee-452173e784e0.png)
 
-![Cellular Noise](http://i.imgur.com/gAd9Y2t.png)
+![Cellular Fractal](https://user-images.githubusercontent.com/1349548/93671060-dfcd4980-fa97-11ea-9792-da7df5cc7fa9.png)
 
-![Cellular Noise](http://i.imgur.com/7kJd4fA.png)
+![Cellular Warped](https://user-images.githubusercontent.com/1349548/93671113-3470c480-fa98-11ea-9da8-a279538ef7c2.png)
 
-## Fractal Noise
+![Value Warped](https://user-images.githubusercontent.com/1349548/93671571-ff667100-fa9b-11ea-934c-1f1ab1f8d3f4.png)
 
-![Fractal Noise](http://i.imgur.com/XqSD7eR.png)
+![Cellular Scrolling](https://user-images.githubusercontent.com/1349548/93672159-97665980-faa0-11ea-9fcc-f5309b1a3a4b.gif)
 
-## Value Noise
-
-![Value Noise](http://i.imgur.com/X2lbFZR.png)
-
-## Basic Grid Gradient Perturb
-
-![Gradient Perturb](http://i.imgur.com/gOjc1u1.png)
-
-![Gradient Perturb](http://i.imgur.com/ui045Bk.png)
-
-![Gradient Perturb](http://i.imgur.com/JICFypT.png)
+![OpenSimplex2 Warp](https://user-images.githubusercontent.com/1349548/93671333-f674a000-fa99-11ea-8a34-1338b104dd82.png)
