@@ -30,11 +30,11 @@ If you are looking for a more extensive noise generation library consider using 
 - Java
 - HLSL
 
-## FastNoise Preview App
+## FastNoise Lite Preview App
 
 A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes and testing noise settings.
 
-Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory.
+Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can be found in the PreviewApp directory.
 
 ![FastNoise GUI](https://user-images.githubusercontent.com/1349548/93670916-b19b3a00-fa96-11ea-9990-e866bc3d719e.png)
 
