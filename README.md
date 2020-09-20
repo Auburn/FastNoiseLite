@@ -1,89 +1,86 @@
 [![discord](https://img.shields.io/discord/703636892901441577?style=flat-square&logo=discord "Discord")](https://discord.gg/SHVaVfV)
 
-# FastNoise
+# FastNoise Lite
 
-FastNoise is an open source noise generation library with a large collection of different noise algorithms. This library has been designed for realtime usage from the ground up, so has been optimised for speed without sacrificing noise quality.
+FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
-This project started when my search to find a good noise library for procedural terrain generation concluded without an obvious choice. I enjoyed the options and customisation of Accidental Noise Library and the speed of LibNoise, so many of the techniques from these libraries and the knowledge I gained from reading through their source has gone into creating FastNoise.
+This project is an evolution of the original FastNoise library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. 
 
-I have now also created [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD), which utilises SIMD CPU instructions to gain huge performance boosts. It is slightly less flexible and cannot be converted to other languages, but if you can I would highly suggest using this for heavy noise generation loads.
+If you are looking for a more extensive noise generation library consider using [FastNoise2](https://github.com/Auburn/FastNoise2). It provides large performance gains thanks to SIMD and uses a node graph structure to allow complex noise configurations with lots of flexibility.
 
-### Features
-- Value Noise 2D, 3D
-- Perlin Noise 2D, 3D
-- Simplex Noise 2D, 3D, 4D
-- Cubic Noise 2D, 3D
-- Gradient Perturb 2D, 3D
+## Features
+
+- 2D & 3D
+- OpenSimplex2 Noise
+- OpenSimplex2S Noise
+- Cellular (Voronoi) Noise
+- Perlin Noise
+- Value Noise
+- Value Cubic Noise
+- OpenSimplex2-based Domain Warp
+- Basic Grid Gradient Domain Warp
 - Multiple fractal options for all of the above
-- Cellular (Voronoi) Noise 2D, 3D
-- White Noise 2D, 3D, 4D
-- Supports floats or doubles
+- Supports floats and/or doubles
 
-### Wiki
-Usage and documentation available in wiki
+### Supported Languages
 
-[Wiki Link](https://github.com/Auburns/FastNoise/wiki)
+- C#
+- C++
+- C
+- Java
+- HLSL
 
-### Related repositories
- - [FastNoise C#](https://github.com/Auburns/FastNoise_CSharp)
- - [FastNoise Java](https://github.com/Auburns/FastNoise_Java)
- - [FastNoise SIMD](https://github.com/Auburns/FastNoiseSIMD)
- - [FastNoise Unity](https://www.assetstore.unity3d.com/en/#!/content/70706)
- - [Unreal FastNoise](https://github.com/midgen/UnrealFastNoise)
+## FastNoise Preview App
 
-Credit to [CubicNoise](https://github.com/jobtalle/CubicNoise) for the cubic noise algorithm
+A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes and testing noise settings.
 
-## FastNoise Preview
+Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory.
 
-I have written a compact testing application for all the features included in FastNoise with a visual representation. I use this for development purposes and testing noise settings used in terrain generation.
+![FastNoise GUI](https://user-images.githubusercontent.com/1349548/93670916-b19b3a00-fa96-11ea-9990-e866bc3d719e.png)
 
-Download links can be found in the [Releases Section](https://github.com/Auburns/FastNoise/releases).
+## Performance Comparisons
 
-![FastNoise Preview](http://i.imgur.com/uG7Vepc.png)
+Benchmarked using C++ version with [NoiseBenchmarking](https://github.com/Auburn/NoiseBenchmarking)
 
+- CPU: Intel 7820X @ 4.9Ghz
+- OS: Win10 x64
+- Compiler: clang-cl 10.0.0 -m64 /O2
 
-# Performance Comparisons
-Using default noise settings on FastNoise and matching those settings across the other libraries where possible.
+Million points of noise generated per second (higher = better)
 
-Timings below are x1000 ns to generate 32x32x32 points of noise on a single thread.
+| 3D                 | Value  | Perlin | (*Open)Simplex | Cellular |
+|--------------------|--------|--------|----------------|----------|
+| FastNoise Lite     | 64.13  | 47.93  | 36.83*         | 12.49    |
+| FastNoise (Legacy) | 49.34  | 37.75  | 44.74          | 13.27    |
+| FastNoise 2 (AVX2) | 494.49 | 261.10 | 268.44         | 52.43    |
+| libnoise           |        | 27.35  |                | 0.65     |
+| stb perlin         |        | 34.32  |                |          |
 
-- CPU: Intel Xeon Skylake @ 2.0Ghz
-- Compiler: Intel 17.0 x64
+| 2D                 | Value  | Perlin | Simplex | Cellular |
+|--------------------|--------|--------|---------|----------|
+| FastNoise Lite     | 114.01 | 92.83  | 71.30   | 39.15    |
+| FastNoise (Legacy) | 102.12 | 87.99  | 65.29   | 36.84    |
+| FastNoise 2 (AVX2) | 776.33 | 624.27 | 466.03  | 194.30   |
 
-| Noise Type  | FastNoise | FastNoiseSIMD AVX2 | LibNoise | FastNoise 2D |
-|-------------|-----------|--------------------|----------|--------------|
-| White Noise | 141       | 9                  |          | 111          |
-| Value       | 642       | 152                |          | 361          |
-| Perlin      | 1002      | 324                | 1368     | 473          |
-| Simplex     | 1194      | 294                |          | 883          |
-| Cellular    | 2979      | 1283               | 58125    | 1074         |
-| Cubic       | 2979      | 952                |          | 858          |
+## Credits:
 
-Comparision of fractal performance [here](https://github.com/Auburns/FastNoiseSIMD/wiki/In-depth-SIMD-level).
+- [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
+- [@KdotJPG](https://github.com/KdotJPG) for implementing all the OpenSimplex alogrithms and the Java port
+- [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
+- [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
 
 # Examples
-## Cellular Noise
-![Cellular Noise](http://i.imgur.com/quAic8M.png)
 
-![Cellular Noise](http://i.imgur.com/gAd9Y2t.png)
+![Ridged Fractal](https://user-images.githubusercontent.com/1349548/93671180-b2cd6680-fa98-11ea-9026-0fb58b346c23.png)
 
-![Cellular Noise](http://i.imgur.com/7kJd4fA.png)
+![Cellular](https://user-images.githubusercontent.com/1349548/93670968-12c30d80-fa97-11ea-87ee-452173e784e0.png)
 
-## Fractal Noise
-![Fractal Noise](http://i.imgur.com/XqSD7eR.png)
+![Cellular Fractal](https://user-images.githubusercontent.com/1349548/93671060-dfcd4980-fa97-11ea-9792-da7df5cc7fa9.png)
 
-## Value Noise
-![Value Noise](http://i.imgur.com/X2lbFZR.png)
+![Cellular Warped](https://user-images.githubusercontent.com/1349548/93671113-3470c480-fa98-11ea-9da8-a279538ef7c2.png)
 
-## White Noise
-![White Noise](http://i.imgur.com/QIlYvyQ.png)
+![Value Warped](https://user-images.githubusercontent.com/1349548/93671571-ff667100-fa9b-11ea-934c-1f1ab1f8d3f4.png)
 
-## Gradient Perturb
-![Gradient Perturb](http://i.imgur.com/gOjc1u1.png)
+![Cellular Scrolling](https://user-images.githubusercontent.com/1349548/93672159-97665980-faa0-11ea-9fcc-f5309b1a3a4b.gif)
 
-![Gradient Perturb](http://i.imgur.com/ui045Bk.png)
-
-![Gradient Perturb](http://i.imgur.com/JICFypT.png)
-
-
-# Any suggestions or questions welcome
+![OpenSimplex2 Warp](https://user-images.githubusercontent.com/1349548/93671333-f674a000-fa99-11ea-8a34-1338b104dd82.png)
