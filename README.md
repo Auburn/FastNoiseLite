@@ -20,7 +20,7 @@ If you are looking for a more extensive noise generation library consider using 
 - OpenSimplex2-based Domain Warp
 - Basic Grid Gradient Domain Warp
 - Multiple fractal options for all of the above
-- Supports floats or doubles
+- Supports floats and/or doubles
 
 ### Supported Languages
 

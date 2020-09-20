@@ -721,7 +721,7 @@ public class FastNoiseLiteGUI : Form
         FractalLacunarity.Enabled = fractalEnabled;
         FractalGain.Enabled = fractalEnabled;
         FractalWeightedStrength.Enabled = fractalEnabled;
-        FractalPingPongStrength.Enabled = (fractalEnabled && FractalType.SelectedKey == "Ping Poing");
+        FractalPingPongStrength.Enabled = (fractalEnabled && FractalType.SelectedKey == "Ping Pong");
 
         // Domain Warp Fractal options
         var domainWarpFractalEnabled = (DomainWarp.SelectedIndex > 0 && DomainWarpFractal.SelectedIndex > 0);
