@@ -25,8 +25,8 @@ If you are looking for a more extensive noise generation library consider using 
 ### Supported Languages
 
 - C#
-- C++
-- C
+- C++98
+- C99
 - Java
 - HLSL
 
