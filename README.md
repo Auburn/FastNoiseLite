@@ -4,7 +4,7 @@
 
 FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
-This project is an evolution of the original FastNoise library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. 
+This project is an evolution of the [original FastNoise](https://github.com/Auburn/FastNoise/tree/FastNoise-Legacy) library and shares the same goal: An easy to use library that can quickly be integrated into a project and provides performant modern noise generation. See a breakdown of changes from the transition to FastNoise Lite [here](https://github.com/Auburn/FastNoise/pull/49)
 
 If you are looking for a more extensive noise generation library consider using [FastNoise2](https://github.com/Auburn/FastNoise2). It provides large performance gains thanks to SIMD and uses a node graph structure to allow complex noise configurations with lots of flexibility.
 
@@ -25,16 +25,16 @@ If you are looking for a more extensive noise generation library consider using 
 ### Supported Languages
 
 - C#
-- C++
-- C
+- C++98
+- C99
 - Java
 - HLSL
 
-## FastNoise Preview App
+## FastNoise Lite Preview App
 
 A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes and testing noise settings.
 
-Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can also be found in the PreviewApp directory.
+Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can be found in the PreviewApp directory.
 
 ![FastNoise GUI](https://user-images.githubusercontent.com/1349548/93670916-b19b3a00-fa96-11ea-9990-e866bc3d719e.png)
 
