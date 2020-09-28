@@ -1002,9 +1002,9 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
     k *= PRIME_Z;
 
     float value = 0;
-
     float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-    for (int l = 0; l < 2; l++)
+
+    for (int l = 0; ; l++)
     {
         if (a > 0)
         {
@@ -1063,7 +1063,7 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
         yNSign = -yNSign;
         zNSign = -zNSign;
 
-        seed += 1293373;
+        seed = ~seed;
     }
 
     return value * 32.69428253173828125f;

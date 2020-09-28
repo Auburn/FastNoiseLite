@@ -949,9 +949,9 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
     k *= PRIME_Z;
 
     float value = 0;
-
     float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
-    for (int l = 0; l < 2; l++)
+
+    for (int l = 0; ; l++)
     {
         if (a > 0)
         {
@@ -989,8 +989,7 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
             value += (b * b) * (b * b) * _fnlGradCoord3D(seed, i1, j1, k1, x1, y1, z1);
         }
 
-        if (l == 1)
-            break;
+        if (l == 1) break;
 
         ax0 = 0.5f - ax0;
         ay0 = 0.5f - ay0;
@@ -1010,7 +1009,7 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
         yNSign = -yNSign;
         zNSign = -zNSign;
 
-        seed += 1293373;
+        seed = ~seed;
     }
 
     return value * 32.69428253173828125f;
