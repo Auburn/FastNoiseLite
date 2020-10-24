@@ -59,6 +59,7 @@ extern "C" {
 
 #include <math.h>
 #include <stdint.h>
+#include <stdbool.h> 
 #include <float.h>
 
 // Enums
@@ -219,7 +220,7 @@ typedef struct fnl_state
  * Creates a noise state with default values.
  * @param seed Optionally set the state seed.
  */
-fnl_state fnlCreateState(int seed = 1337);
+fnl_state fnlCreateState();
 
 /**
  * 2D noise at given position using the state settings
@@ -1747,8 +1748,8 @@ static float _fnlSingleValueCubic2D(int seed, FNLfloat x, FNLfloat y)
     int y0 = y1 - PRIME_Y;
     int x2 = x1 + PRIME_X;
     int y2 = y1 + PRIME_Y;
-    int x3 = x1 + PRIME_X * 2;
-    int y3 = y1 + PRIME_Y * 2;
+    int x3 = x1 + (int)((long)PrimeX << 1);
+    int y3 = y1 + (int)((long)PrimeY << 1);
 
     return _fnlCubicLerp(
         _fnlCubicLerp(_fnlValCoord2D(seed, x0, y0), _fnlValCoord2D(seed, x1, y0), _fnlValCoord2D(seed, x2, y0), _fnlValCoord2D(seed, x3, y0),
@@ -1782,9 +1783,9 @@ static float _fnlSingleValueCubic3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z
     int x2 = x1 + PRIME_X;
     int y2 = y1 + PRIME_Y;
     int z2 = z1 + PRIME_Z;
-    int x3 = x1 + PRIME_X * 2;
-    int y3 = y1 + PRIME_Y * 2;
-    int z3 = z1 + PRIME_Z * 2;
+    int x3 = x1 + (int)((long)PrimeX << 1);
+    int y3 = y1 + (int)((long)PrimeY << 1);
+    int z3 = z1 + (int)((long)PrimeZ << 1);   
 
     return _fnlCubicLerp(
         _fnlCubicLerp(
@@ -2332,10 +2333,10 @@ static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, fl
 // Public API
 // ====================
 
-fnl_state fnlCreateState(int seed)
+fnl_state fnlCreateState()
 {
     fnl_state newState;
-    newState.seed = seed;
+    newState.seed = 1337;
     newState.frequency = 0.01f;
     newState.noise_type = FNL_NOISE_OPENSIMPLEX2;
     newState.rotation_type_3d = FNL_ROTATION_NONE;
