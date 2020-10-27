@@ -1748,8 +1748,8 @@ static float _fnlSingleValueCubic2D(int seed, FNLfloat x, FNLfloat y)
     int y0 = y1 - PRIME_Y;
     int x2 = x1 + PRIME_X;
     int y2 = y1 + PRIME_Y;
-    int x3 = x1 + (int)((long)PrimeX << 1);
-    int y3 = y1 + (int)((long)PrimeY << 1);
+    int x3 = x1 + (int)((long)PRIME_X << 1);
+    int y3 = y1 + (int)((long)PRIME_Y << 1);
 
     return _fnlCubicLerp(
         _fnlCubicLerp(_fnlValCoord2D(seed, x0, y0), _fnlValCoord2D(seed, x1, y0), _fnlValCoord2D(seed, x2, y0), _fnlValCoord2D(seed, x3, y0),
@@ -1783,9 +1783,9 @@ static float _fnlSingleValueCubic3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z
     int x2 = x1 + PRIME_X;
     int y2 = y1 + PRIME_Y;
     int z2 = z1 + PRIME_Z;
-    int x3 = x1 + (int)((long)PrimeX << 1);
-    int y3 = y1 + (int)((long)PrimeY << 1);
-    int z3 = z1 + (int)((long)PrimeZ << 1);   
+    int x3 = x1 + (int)((long)PRIME_X << 1);
+    int y3 = y1 + (int)((long)PRIME_Y << 1);
+    int z3 = z1 + (int)((long)PRIME_Z << 1);   
 
     return _fnlCubicLerp(
         _fnlCubicLerp(
