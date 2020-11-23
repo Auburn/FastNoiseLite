@@ -1759,12 +1759,12 @@ static float _fnlSingleValue3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z)
 // Domain Warp
 
 // Forward declare
-static void _fnlSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, out FNLfloat xp, out FNLfloat yp);
-static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, out FNLfloat xp, out FNLfloat yp, out FNLfloat zp);
-static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, out FNLfloat xr, out FNLfloat yr, bool outGradOnly);
-static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, out FNLfloat xr, out FNLfloat yr, out FNLfloat zr, bool outGradOnly);
+static void _fnlSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, inout FNLfloat xp, inout FNLfloat yp);
+static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xp, inout FNLfloat yp, out FNLfloat zp);
+static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, inout FNLfloat xr, inout FNLfloat yr, bool outGradOnly);
+static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xr, inout FNLfloat yr, out FNLfloat zr, bool outGradOnly);
 
-static void _fnlDoSingleDomainWarp2D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, out FNLfloat xp, out FNLfloat yp)
+static void _fnlDoSingleDomainWarp2D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, inout FNLfloat xp, inout FNLfloat yp)
 {
     switch (state.domain_warp_type)
     {
@@ -1780,7 +1780,7 @@ static void _fnlDoSingleDomainWarp2D(fnl_state state, int seed, float amp, float
     }
 }
 
-static void _fnlDoSingleDomainWarp3D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat z, out FNLfloat xp, out FNLfloat yp, out FNLfloat zp)
+static void _fnlDoSingleDomainWarp3D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xp, inout FNLfloat yp, inout FNLfloat zp)
 {
     switch (state.domain_warp_type)
     {
@@ -1913,7 +1913,7 @@ static void _fnlDomainWarpFractalIndependent3D(fnl_state state, inout FNLfloat x
 
 // Domain Warp Basic Grid
 
-static void _fnlSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, out FNLfloat xp, out FNLfloat yp)
+static void _fnlSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, inout FNLfloat xp, inout FNLfloat yp)
 {
     FNLfloat xf = x * frequency;
     FNLfloat yf = y * frequency;
@@ -1945,7 +1945,7 @@ static void _fnlSingleDomainWarpBasicGrid2D(int seed, float warpAmp, float frequ
     yp += _fnlLerp(ly0x, ly1x, ys) * warpAmp;
 }
 
-static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, out FNLfloat xp, out FNLfloat yp, out FNLfloat zp)
+static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xp, inout FNLfloat yp, inout FNLfloat zp)
 {
     FNLfloat xf = x * frequency;
     FNLfloat yf = y * frequency;
@@ -2005,7 +2005,7 @@ static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequ
 
 // Domain Warp Simplex/OpenSimplex2
 
-static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, out FNLfloat xr, out FNLfloat yr, bool outGradOnly)
+static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, inout FNLfloat xr, inout FNLfloat yr, bool outGradOnly)
 {
     const float SQRT3 = 1.7320508075688772935274463415059f;
     const float G2 = (3 - SQRT3) / 6;
@@ -2102,7 +2102,7 @@ static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float f
     yr += vy * warpAmp;
 }
 
-static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, out FNLfloat xr, out FNLfloat yr, out FNLfloat zr, bool outGradOnly)
+static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xr, inout FNLfloat yr, inout FNLfloat zr, bool outGradOnly)
 {
     x *= frequency;
     y *= frequency;
