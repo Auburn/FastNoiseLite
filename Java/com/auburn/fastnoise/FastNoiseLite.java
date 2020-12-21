@@ -1092,27 +1092,22 @@ public class FastNoiseLite {
         float a2 = xAFlipMask0 + a0;
         if (a2 > 0) {
             float x2 = x0 - (xNMask | 1);
-            float y2 = y0;
-            float z2 = z0;
             value += (a2 * a2) * (a2 * a2) * gradCoord(seed,
-                    i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x2, y2, z2);
+                    i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x2, y0, z0);
         } else {
             float a3 = yAFlipMask0 + zAFlipMask0 + a0;
             if (a3 > 0) {
-                float x3 = x0;
                 float y3 = y0 - (yNMask | 1);
                 float z3 = z0 - (zNMask | 1);
                 value += (a3 * a3) * (a3 * a3) * gradCoord(seed,
-                        i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x3, y3, z3);
+                        i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x0, y3, z3);
             }
 
             float a4 = xAFlipMask1 + a1;
             if (a4 > 0) {
                 float x4 = (xNMask | 1) + x1;
-                float y4 = y1;
-                float z4 = z1;
                 value += (a4 * a4) * (a4 * a4) * gradCoord(seed2,
-                        i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + PRIME_Z, x4, y4, z4);
+                        i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + PRIME_Z, x4, y1, z1);
                 skip5 = true;
             }
         }
@@ -1120,28 +1115,23 @@ public class FastNoiseLite {
         boolean skip9 = false;
         float a6 = yAFlipMask0 + a0;
         if (a6 > 0) {
-            float x6 = x0;
             float y6 = y0 - (yNMask | 1);
-            float z6 = z0;
             value += (a6 * a6) * (a6 * a6) * gradCoord(seed,
-                    i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x6, y6, z6);
+                    i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x0, y6, z0);
         } else {
             float a7 = xAFlipMask0 + zAFlipMask0 + a0;
             if (a7 > 0) {
                 float x7 = x0 - (xNMask | 1);
-                float y7 = y0;
                 float z7 = z0 - (zNMask | 1);
                 value += (a7 * a7) * (a7 * a7) * gradCoord(seed,
-                        i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x7, y7, z7);
+                        i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x7, y0, z7);
             }
 
             float a8 = yAFlipMask1 + a1;
             if (a8 > 0) {
-                float x8 = x1;
                 float y8 = (yNMask | 1) + y1;
-                float z8 = z1;
                 value += (a8 * a8) * (a8 * a8) * gradCoord(seed2,
-                        i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, x8, y8, z8);
+                        i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, x1, y8, z1);
                 skip9 = true;
             }
         }
@@ -1149,28 +1139,23 @@ public class FastNoiseLite {
         boolean skipD = false;
         float aA = zAFlipMask0 + a0;
         if (aA > 0) {
-            float xA = x0;
-            float yA = y0;
             float zA = z0 - (zNMask | 1);
             value += (aA * aA) * (aA * aA) * gradCoord(seed,
-                    i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), xA, yA, zA);
+                    i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x0, y0, zA);
         } else {
             float aB = xAFlipMask0 + yAFlipMask0 + a0;
             if (aB > 0) {
                 float xB = x0 - (xNMask | 1);
                 float yB = y0 - (yNMask | 1);
-                float zB = z0;
                 value += (aB * aB) * (aB * aB) * gradCoord(seed,
-                        i + (~xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), xB, yB, zB);
+                        i + (~xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), xB, yB, z0);
             }
 
             float aC = zAFlipMask1 + a1;
             if (aC > 0) {
-                float xC = x1;
-                float yC = y1;
                 float zC = (zNMask | 1) + z1;
                 value += (aC * aC) * (aC * aC) * gradCoord(seed2,
-                        i + PRIME_X, j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), xC, yC, zC);
+                        i + PRIME_X, j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), x1, y1, zC);
                 skipD = true;
             }
         }
@@ -1178,11 +1163,10 @@ public class FastNoiseLite {
         if (!skip5) {
             float a5 = yAFlipMask1 + zAFlipMask1 + a1;
             if (a5 > 0) {
-                float x5 = x1;
                 float y5 = (yNMask | 1) + y1;
                 float z5 = (zNMask | 1) + z1;
                 value += (a5 * a5) * (a5 * a5) * gradCoord(seed2,
-                        i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + (zNMask & (PRIME_Z << 1)), x5, y5, z5);
+                        i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + (zNMask & (PRIME_Z << 1)), x1, y5, z5);
             }
         }
 
@@ -1190,10 +1174,9 @@ public class FastNoiseLite {
             float a9 = xAFlipMask1 + zAFlipMask1 + a1;
             if (a9 > 0) {
                 float x9 = (xNMask | 1) + x1;
-                float y9 = y1;
                 float z9 = (zNMask | 1) + z1;
                 value += (a9 * a9) * (a9 * a9) * gradCoord(seed2,
-                        i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), x9, y9, z9);
+                        i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), x9, y1, z9);
             }
         }
 
@@ -1202,9 +1185,8 @@ public class FastNoiseLite {
             if (aD > 0) {
                 float xD = (xNMask | 1) + x1;
                 float yD = (yNMask | 1) + y1;
-                float zD = z1;
                 value += (aD * aD) * (aD * aD) * gradCoord(seed2,
-                        i + (xNMask & (PRIME_X << 1)), j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, xD, yD, zD);
+                        i + (xNMask & (PRIME_X << 1)), j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, xD, yD, z1);
             }
         }
 
