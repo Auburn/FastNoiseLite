@@ -1302,12 +1302,12 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
-            distance0 = fastSqrt(distance0);
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN
+                && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
 
-            if (this.cellularReturnType != CellularReturnType.CELL_VALUE) {
-                distance1 = fastSqrt(distance1);
-            }
+            distance0 = fastSqrt(distance0);
+            distance1 = fastSqrt(distance1);
+
         }
 
         switch (this.cellularReturnType) {
@@ -1440,12 +1440,12 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
-            distance0 = fastSqrt(distance0);
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN
+                && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
 
-            if (this.cellularReturnType != CellularReturnType.CELL_VALUE) {
-                distance1 = fastSqrt(distance1);
-            }
+            distance0 = fastSqrt(distance0);
+            distance1 = fastSqrt(distance1);
+
         }
 
         switch (this.cellularReturnType) {
