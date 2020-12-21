@@ -190,7 +190,7 @@ public class FastNoiseLite {
     private TransformType3D transformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
 
     private FractalType fractalType = FractalType.NONE;
-    private int mOctaves = 3;
+    private int octaves = 3;
     private float mLacunarity = 2.0f;
     private float mGain = 0.5f;
     private float mWeightedStrength = 0.0f;
@@ -287,7 +287,7 @@ public class FastNoiseLite {
     /// </remarks>
     public void setFractalOctaves(int octaves) {
 
-        mOctaves = octaves;
+        this.octaves = octaves;
         calculateFractalBounding();
 
     }
@@ -549,7 +549,7 @@ public class FastNoiseLite {
         float amp = gain;
         float ampFractal = 1.0f;
 
-        for (int i = 1; i < mOctaves; i++) {
+        for (int i = 1; i < this.octaves; i++) {
             ampFractal += amp;
             amp *= gain;
         }
@@ -662,7 +662,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = genNoiseSingle(seed++, x, y);
             sum += noise * amp;
             amp *= lerp(1.0f, fastMin(noise + 1, 2) * 0.5f, mWeightedStrength);
@@ -682,7 +682,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = genNoiseSingle(seed++, x, y, z);
             sum += noise * amp;
             amp *= lerp(1.0f, (noise + 1) * 0.5f, mWeightedStrength);
@@ -706,7 +706,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = fastAbs(genNoiseSingle(seed++, x, y));
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, mWeightedStrength);
@@ -726,7 +726,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = fastAbs(genNoiseSingle(seed++, x, y, z));
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, mWeightedStrength);
@@ -750,7 +750,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = pingPong((genNoiseSingle(seed++, x, y) + 1) * mPingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, mWeightedStrength);
@@ -770,7 +770,7 @@ public class FastNoiseLite {
         float sum = 0;
         float amp = mFractalBounding;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             float noise = pingPong((genNoiseSingle(seed++, x, y, z) + 1) * mPingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, mWeightedStrength);
@@ -1807,7 +1807,7 @@ public class FastNoiseLite {
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = this.frequency;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             /*FNLfloat*/
             float xs = coord.x;
             /*FNLfloat*/
@@ -1842,7 +1842,7 @@ public class FastNoiseLite {
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = this.frequency;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             /*FNLfloat*/
             float xs = coord.x;
             /*FNLfloat*/
@@ -1921,7 +1921,7 @@ public class FastNoiseLite {
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = this.frequency;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
 
             seed++;
@@ -1979,7 +1979,7 @@ public class FastNoiseLite {
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = this.frequency;
 
-        for (int i = 0; i < mOctaves; i++) {
+        for (int i = 0; i < this.octaves; i++) {
             doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
 
             seed++;
