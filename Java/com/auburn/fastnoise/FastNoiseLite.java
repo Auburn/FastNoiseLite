@@ -768,12 +768,12 @@ public class FastNoiseLite {
 
         int i = fastFloor(x);
         int j = fastFloor(y);
-        float xi = (float) (x - i);
-        float yi = (float) (y - j);
+        float xi = x - i;
+        float yi = y - j;
 
         float t = (xi + yi) * G2;
-        float x0 = (float) (xi - t);
-        float y0 = (float) (yi - t);
+        float x0 = xi - t;
+        float y0 = yi - t;
 
         i *= PRIME_X;
         j *= PRIME_Y;
@@ -786,25 +786,25 @@ public class FastNoiseLite {
             n0 = (a * a) * (a * a) * gradCoord(seed, i, j, x0, y0);
         }
 
-        float c = (float) (2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float) (-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
+        float c = 2 * (1 - 2 * G2) * (1 / G2 - 2) * t + ((-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
         if (c <= 0) n2 = 0;
         else {
-            float x2 = x0 + (2 * (float) G2 - 1);
-            float y2 = y0 + (2 * (float) G2 - 1);
+            float x2 = x0 + (2 * G2 - 1);
+            float y2 = y0 + (2 * G2 - 1);
             n2 = (c * c) * (c * c) * gradCoord(seed, i + PRIME_X, j + PRIME_Y, x2, y2);
         }
 
         if (y0 > x0) {
-            float x1 = x0 + (float) G2;
-            float y1 = y0 + ((float) G2 - 1);
+            float x1 = x0 + G2;
+            float y1 = y0 + (G2 - 1);
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b <= 0) n1 = 0;
             else {
                 n1 = (b * b) * (b * b) * gradCoord(seed, i, j + PRIME_Y, x1, y1);
             }
         } else {
-            float x1 = x0 + ((float) G2 - 1);
-            float y1 = y0 + (float) G2;
+            float x1 = x0 + (G2 - 1);
+            float y1 = y0 + G2;
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b <= 0) n1 = 0;
             else {
@@ -830,9 +830,9 @@ public class FastNoiseLite {
         int i = fastRound(x);
         int j = fastRound(y);
         int k = fastRound(z);
-        float x0 = (float) (x - i);
-        float y0 = (float) (y - j);
-        float z0 = (float) (z - k);
+        float x0 = x - i;
+        float y0 = y - j;
+        float z0 = z - k;
 
         int xNSign = (int) (-1.0f - x0) | 1;
         int yNSign = (int) (-1.0f - y0) | 1;
@@ -918,39 +918,39 @@ public class FastNoiseLite {
 
         int i = fastFloor(x);
         int j = fastFloor(y);
-        float xi = (float) (x - i);
-        float yi = (float) (y - j);
+        float xi = x - i;
+        float yi = y - j;
 
         i *= PRIME_X;
         j *= PRIME_Y;
         int i1 = i + PRIME_X;
         int j1 = j + PRIME_Y;
 
-        float t = (xi + yi) * (float) G2;
+        float t = (xi + yi) * G2;
         float x0 = xi - t;
         float y0 = yi - t;
 
         float a0 = (2.0f / 3.0f) - x0 * x0 - y0 * y0;
         float value = (a0 * a0) * (a0 * a0) * gradCoord(seed, i, j, x0, y0);
 
-        float a1 = (float) (2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float) (-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0);
-        float x1 = x0 - (float) (1 - 2 * G2);
-        float y1 = y0 - (float) (1 - 2 * G2);
+        float a1 = 2 * (1 - 2 * G2) * (1 / G2 - 2) * t + ((-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0);
+        float x1 = x0 - (1 - 2 * G2);
+        float y1 = y0 - (1 - 2 * G2);
         value += (a1 * a1) * (a1 * a1) * gradCoord(seed, i1, j1, x1, y1);
 
         // Nested conditionals were faster than compact bit logic/arithmetic.
         float xmyi = xi - yi;
         if (t > G2) {
             if (xi + xmyi > 1) {
-                float x2 = x0 + (float) (3 * G2 - 2);
-                float y2 = y0 + (float) (3 * G2 - 1);
+                float x2 = x0 + (3 * G2 - 2);
+                float y2 = y0 + (3 * G2 - 1);
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i + (PRIME_X << 1), j + PRIME_Y, x2, y2);
                 }
             } else {
-                float x2 = x0 + (float) G2;
-                float y2 = y0 + (float) (G2 - 1);
+                float x2 = x0 + G2;
+                float y2 = y0 + (G2 - 1);
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i, j + PRIME_Y, x2, y2);
@@ -958,15 +958,15 @@ public class FastNoiseLite {
             }
 
             if (yi - xmyi > 1) {
-                float x3 = x0 + (float) (3 * G2 - 1);
-                float y3 = y0 + (float) (3 * G2 - 2);
+                float x3 = x0 + (3 * G2 - 1);
+                float y3 = y0 + (3 * G2 - 2);
                 float a3 = (2.0f / 3.0f) - x3 * x3 - y3 * y3;
                 if (a3 > 0) {
                     value += (a3 * a3) * (a3 * a3) * gradCoord(seed, i + PRIME_X, j + (PRIME_Y << 1), x3, y3);
                 }
             } else {
-                float x3 = x0 + (float) (G2 - 1);
-                float y3 = y0 + (float) G2;
+                float x3 = x0 + (G2 - 1);
+                float y3 = y0 + G2;
                 float a3 = (2.0f / 3.0f) - x3 * x3 - y3 * y3;
                 if (a3 > 0) {
                     value += (a3 * a3) * (a3 * a3) * gradCoord(seed, i + PRIME_X, j, x3, y3);
@@ -974,15 +974,15 @@ public class FastNoiseLite {
             }
         } else {
             if (xi + xmyi < 0) {
-                float x2 = x0 + (float) (1 - G2);
-                float y2 = y0 - (float) G2;
+                float x2 = x0 + (1 - G2);
+                float y2 = y0 - G2;
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i - PRIME_X, j, x2, y2);
                 }
             } else {
-                float x2 = x0 + (float) (G2 - 1);
-                float y2 = y0 + (float) G2;
+                float x2 = x0 + (G2 - 1);
+                float y2 = y0 + G2;
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i + PRIME_X, j, x2, y2);
@@ -990,15 +990,15 @@ public class FastNoiseLite {
             }
 
             if (yi < xmyi) {
-                float x2 = x0 - (float) G2;
-                float y2 = y0 - (float) (G2 - 1);
+                float x2 = x0 - G2;
+                float y2 = y0 - (G2 - 1);
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i, j - PRIME_Y, x2, y2);
                 }
             } else {
-                float x2 = x0 + (float) G2;
-                float y2 = y0 + (float) (G2 - 1);
+                float x2 = x0 + G2;
+                float y2 = y0 + (G2 - 1);
                 float a2 = (2.0f / 3.0f) - x2 * x2 - y2 * y2;
                 if (a2 > 0) {
                     value += (a2 * a2) * (a2 * a2) * gradCoord(seed, i, j + PRIME_Y, x2, y2);
@@ -1024,9 +1024,9 @@ public class FastNoiseLite {
         int i = fastFloor(x);
         int j = fastFloor(y);
         int k = fastFloor(z);
-        float xi = (float) (x - i);
-        float yi = (float) (y - j);
-        float zi = (float) (z - k);
+        float xi = x - i;
+        float yi = y - j;
+        float zi = z - k;
 
         i *= PRIME_X;
         j *= PRIME_Y;
@@ -1209,8 +1209,8 @@ public class FastNoiseLite {
                         int hash = hash(seed, xPrimed, yPrimed);
                         int idx = hash & (255 << 1);
 
-                        float vecX = (float) (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
-                        float vecY = (float) (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
+                        float vecX = (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                        float vecY = (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                         float newDistance = vecX * vecX + vecY * vecY;
 
@@ -1232,8 +1232,8 @@ public class FastNoiseLite {
                         int hash = hash(seed, xPrimed, yPrimed);
                         int idx = hash & (255 << 1);
 
-                        float vecX = (float) (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
-                        float vecY = (float) (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
+                        float vecX = (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                        float vecY = (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                         float newDistance = fastAbs(vecX) + fastAbs(vecY);
 
@@ -1255,8 +1255,8 @@ public class FastNoiseLite {
                         int hash = hash(seed, xPrimed, yPrimed);
                         int idx = hash & (255 << 1);
 
-                        float vecX = (float) (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
-                        float vecY = (float) (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
+                        float vecX = (xi - x) + RAND_VECS_2D[idx] * cellularJitter;
+                        float vecY = (yi - y) + RAND_VECS_2D[idx | 1] * cellularJitter;
 
                         float newDistance = (fastAbs(vecX) + fastAbs(vecY)) + (vecX * vecX + vecY * vecY);
 
@@ -1330,9 +1330,9 @@ public class FastNoiseLite {
                             int hash = hash(seed, xPrimed, yPrimed, zPrimed);
                             int idx = hash & (255 << 2);
 
-                            float vecX = (float) (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
-                            float vecY = (float) (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
-                            float vecZ = (float) (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
+                            float vecX = (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                            float vecY = (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                            float vecZ = (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
 
                             float newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
@@ -1359,9 +1359,9 @@ public class FastNoiseLite {
                             int hash = hash(seed, xPrimed, yPrimed, zPrimed);
                             int idx = hash & (255 << 2);
 
-                            float vecX = (float) (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
-                            float vecY = (float) (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
-                            float vecZ = (float) (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
+                            float vecX = (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                            float vecY = (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                            float vecZ = (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
 
                             float newDistance = fastAbs(vecX) + fastAbs(vecY) + fastAbs(vecZ);
 
@@ -1388,9 +1388,9 @@ public class FastNoiseLite {
                             int hash = hash(seed, xPrimed, yPrimed, zPrimed);
                             int idx = hash & (255 << 2);
 
-                            float vecX = (float) (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
-                            float vecY = (float) (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
-                            float vecZ = (float) (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
+                            float vecX = (xi - x) + RAND_VECS_3D[idx] * cellularJitter;
+                            float vecY = (yi - y) + RAND_VECS_3D[idx | 1] * cellularJitter;
+                            float vecZ = (zi - z) + RAND_VECS_3D[idx | 2] * cellularJitter;
 
                             float newDistance = (fastAbs(vecX) + fastAbs(vecY) + fastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ);
 
@@ -1446,8 +1446,8 @@ public class FastNoiseLite {
         int x0 = fastFloor(x);
         int y0 = fastFloor(y);
 
-        float xd0 = (float) (x - x0);
-        float yd0 = (float) (y - y0);
+        float xd0 = x - x0;
+        float yd0 = y - y0;
         float xd1 = xd0 - 1;
         float yd1 = yd0 - 1;
 
@@ -1472,9 +1472,9 @@ public class FastNoiseLite {
         int y0 = fastFloor(y);
         int z0 = fastFloor(z);
 
-        float xd0 = (float) (x - x0);
-        float yd0 = (float) (y - y0);
-        float zd0 = (float) (z - z0);
+        float xd0 = x - x0;
+        float yd0 = y - y0;
+        float zd0 = z - z0;
         float xd1 = xd0 - 1;
         float yd1 = yd0 - 1;
         float zd1 = zd0 - 1;
@@ -1509,8 +1509,8 @@ public class FastNoiseLite {
         int x1 = fastFloor(x);
         int y1 = fastFloor(y);
 
-        float xs = (float) (x - x1);
-        float ys = (float) (y - y1);
+        float xs = x - x1;
+        float ys = y - y1;
 
         x1 *= PRIME_X;
         y1 *= PRIME_Y;
@@ -1540,9 +1540,9 @@ public class FastNoiseLite {
         int y1 = fastFloor(y);
         int z1 = fastFloor(z);
 
-        float xs = (float) (x - x1);
-        float ys = (float) (y - y1);
-        float zs = (float) (z - z1);
+        float xs = x - x1;
+        float ys = y - y1;
+        float zs = z - z1;
 
         x1 *= PRIME_X;
         y1 *= PRIME_Y;
@@ -1595,8 +1595,8 @@ public class FastNoiseLite {
         int x0 = fastFloor(x);
         int y0 = fastFloor(y);
 
-        float xs = interpHermite((float) (x - x0));
-        float ys = interpHermite((float) (y - y0));
+        float xs = interpHermite(x - x0);
+        float ys = interpHermite(y - y0);
 
         x0 *= PRIME_X;
         y0 *= PRIME_Y;
@@ -1616,9 +1616,9 @@ public class FastNoiseLite {
         int y0 = fastFloor(y);
         int z0 = fastFloor(z);
 
-        float xs = interpHermite((float) (x - x0));
-        float ys = interpHermite((float) (y - y0));
-        float zs = interpHermite((float) (z - z0));
+        float xs = interpHermite(x - x0);
+        float ys = interpHermite(y - y0);
+        float zs = interpHermite(z - z0);
 
         x0 *= PRIME_X;
         y0 *= PRIME_Y;
@@ -1958,8 +1958,8 @@ public class FastNoiseLite {
         int x0 = fastFloor(xf);
         int y0 = fastFloor(yf);
 
-        float xs = interpHermite((float) (xf - x0));
-        float ys = interpHermite((float) (yf - y0));
+        float xs = interpHermite(xf - x0);
+        float ys = interpHermite(yf - y0);
 
         x0 *= PRIME_X;
         y0 *= PRIME_Y;
@@ -1996,9 +1996,9 @@ public class FastNoiseLite {
         int y0 = fastFloor(yf);
         int z0 = fastFloor(zf);
 
-        float xs = interpHermite((float) (xf - x0));
-        float ys = interpHermite((float) (yf - y0));
-        float zs = interpHermite((float) (zf - z0));
+        float xs = interpHermite(xf - x0);
+        float ys = interpHermite(yf - y0);
+        float zs = interpHermite(zf - z0);
 
         x0 *= PRIME_X;
         y0 *= PRIME_Y;
@@ -2064,12 +2064,12 @@ public class FastNoiseLite {
 
         int i = fastFloor(x);
         int j = fastFloor(y);
-        float xi = (float) (x - i);
-        float yi = (float) (y - j);
+        float xi = x - i;
+        float yi = y - j;
 
         float t = (xi + yi) * G2;
-        float x0 = (float) (xi - t);
-        float y0 = (float) (yi - t);
+        float x0 = xi - t;
+        float y0 = yi - t;
 
         i *= PRIME_X;
         j *= PRIME_Y;
@@ -2101,10 +2101,10 @@ public class FastNoiseLite {
             vy += aaaa * yo;
         }
 
-        float c = (float) (2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((float) (-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
+        float c = 2 * (1 - 2 * G2) * (1 / G2 - 2) * t + ((-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a);
         if (c > 0) {
-            float x2 = x0 + (2 * (float) G2 - 1);
-            float y2 = y0 + (2 * (float) G2 - 1);
+            float x2 = x0 + (2 * G2 - 1);
+            float y2 = y0 + (2 * G2 - 1);
             float cccc = (c * c) * (c * c);
             float xo, yo;
             if (outGradOnly) {
@@ -2128,8 +2128,8 @@ public class FastNoiseLite {
         }
 
         if (y0 > x0) {
-            float x1 = x0 + (float) G2;
-            float y1 = y0 + ((float) G2 - 1);
+            float x1 = x0 + G2;
+            float y1 = y0 + (G2 - 1);
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b > 0) {
                 float bbbb = (b * b) * (b * b);
@@ -2154,8 +2154,8 @@ public class FastNoiseLite {
                 vy += bbbb * yo;
             }
         } else {
-            float x1 = x0 + ((float) G2 - 1);
-            float y1 = y0 + (float) G2;
+            float x1 = x0 + (G2 - 1);
+            float y1 = y0 + G2;
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b > 0) {
                 float bbbb = (b * b) * (b * b);
@@ -2202,9 +2202,9 @@ public class FastNoiseLite {
         int i = fastRound(x);
         int j = fastRound(y);
         int k = fastRound(z);
-        float x0 = (float) x - i;
-        float y0 = (float) y - j;
-        float z0 = (float) z - k;
+        float x0 = x - i;
+        float y0 = y - j;
+        float z0 = z - k;
 
         int xNSign = (int) (-x0 - 1.0f) | 1;
         int yNSign = (int) (-y0 - 1.0f) | 1;
