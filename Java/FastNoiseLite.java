@@ -200,7 +200,7 @@ public class FastNoiseLite {
 
     private CellularDistanceFunction cellularDistanceFunction = CellularDistanceFunction.EUCLIDEAN_SQ;
     private CellularReturnType cellularReturnType = CellularReturnType.DISTANCE;
-    private float mCellularJitterModifier = 1.0f;
+    private float cellularJitterModifier = 1.0f;
 
     private DomainWarpType mDomainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
     private TransformType3D mWarpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
@@ -365,7 +365,7 @@ public class FastNoiseLite {
     /// Note: Setting this higher than 1 will cause artifacts
     /// </remarks> 
     public void setCellularJitter(float cellularJitter) {
-        mCellularJitterModifier = cellularJitter;
+        this.cellularJitterModifier = cellularJitter;
     }
 
 
@@ -1230,7 +1230,7 @@ public class FastNoiseLite {
         float distance1 = Float.MAX_VALUE;
         int closestHash = 0;
 
-        float cellularJitter = 0.43701595f * mCellularJitterModifier;
+        float cellularJitter = 0.43701595f * this.cellularJitterModifier;
 
         int xPrimed = (xr - 1) * PRIME_X;
         int yPrimedBase = (yr - 1) * PRIME_Y;
@@ -1348,7 +1348,7 @@ public class FastNoiseLite {
         float distance1 = Float.MAX_VALUE;
         int closestHash = 0;
 
-        float cellularJitter = 0.39614353f * mCellularJitterModifier;
+        float cellularJitter = 0.39614353f * this.cellularJitterModifier;
 
         int xPrimed = (xr - 1) * PRIME_X;
         int yPrimedBase = (yr - 1) * PRIME_Y;
