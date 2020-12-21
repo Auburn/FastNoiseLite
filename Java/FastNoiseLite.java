@@ -52,6 +52,7 @@
  * FNLfloat = float
  * FNLfloat = double
  */
+@SuppressWarnings("unused")
 public class FastNoiseLite {
 
     private static final float[] GRADIENTS_2D = {
