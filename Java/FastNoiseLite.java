@@ -183,7 +183,7 @@ public class FastNoiseLite {
     private static final int PRIME_Y = 1136930381;
     private static final int PRIME_Z = 1720413743;
 
-    private int mSeed = 1337;
+    private int seed = 1337;
     private float mFrequency = 0.01f;
     private NoiseType mNoiseType = NoiseType.OPEN_SIMPLEX_2;
     private RotationType3D mRotationType3D = RotationType3D.NONE;
@@ -227,7 +227,7 @@ public class FastNoiseLite {
     /// Default: 1337
     /// </remarks>
     public void setSeed(int seed) {
-        mSeed = seed;
+        this.seed = seed;
     }
 
     /// <summary>
@@ -422,7 +422,7 @@ public class FastNoiseLite {
 
         switch (mFractalType) {
             default:
-                return genNoiseSingle(mSeed, x, y);
+                return genNoiseSingle(this.seed, x, y);
             case FBM:
                 return genFractalFBm(x, y);
             case RIDGED:
@@ -483,7 +483,7 @@ public class FastNoiseLite {
 
         switch (mFractalType) {
             default:
-                return genNoiseSingle(mSeed, x, y, z);
+                return genNoiseSingle(this.seed, x, y, z);
             case FBM:
                 return genFractalFBm(x, y, z);
             case RIDGED:
@@ -658,7 +658,7 @@ public class FastNoiseLite {
 
     private float genFractalFBm(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -678,7 +678,7 @@ public class FastNoiseLite {
 
     private float genFractalFBm(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -702,7 +702,7 @@ public class FastNoiseLite {
 
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -722,7 +722,7 @@ public class FastNoiseLite {
 
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -746,7 +746,7 @@ public class FastNoiseLite {
 
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -766,7 +766,7 @@ public class FastNoiseLite {
 
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float sum = 0;
         float amp = mFractalBounding;
 
@@ -1719,7 +1719,7 @@ public class FastNoiseLite {
 
     private void domainWarpSingle(Vector2 coord) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
@@ -1748,7 +1748,7 @@ public class FastNoiseLite {
 
     private void domainWarpSingle(Vector3 coord) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
@@ -1803,7 +1803,7 @@ public class FastNoiseLite {
 
     private void domainWarpFractalProgressive(Vector2 coord) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
@@ -1838,7 +1838,7 @@ public class FastNoiseLite {
 
     private void domainWarpFractalProgressive(Vector3 coord) {
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
@@ -1917,7 +1917,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
@@ -1975,7 +1975,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        int seed = mSeed;
+        int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
         float freq = mFrequency;
 
