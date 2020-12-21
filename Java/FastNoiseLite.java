@@ -189,7 +189,7 @@ public class FastNoiseLite {
     private RotationType3D rotationType3D = RotationType3D.NONE;
     private TransformType3D transformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
 
-    private FractalType mFractalType = FractalType.NONE;
+    private FractalType fractalType = FractalType.NONE;
     private int mOctaves = 3;
     private float mLacunarity = 2.0f;
     private float mGain = 0.5f;
@@ -276,7 +276,7 @@ public class FastNoiseLite {
     /// Note: FractalType.DomainWarp... only affects DomainWarp(...)
     /// </remarks>
     public void setFractalType(FractalType fractalType) {
-        mFractalType = fractalType;
+        this.fractalType = fractalType;
     }
 
     /// <summary>
@@ -420,7 +420,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        switch (mFractalType) {
+        switch (this.fractalType) {
             default:
                 return genNoiseSingle(this.seed, x, y);
             case FBM:
@@ -481,7 +481,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        switch (mFractalType) {
+        switch (this.fractalType) {
             default:
                 return genNoiseSingle(this.seed, x, y, z);
             case FBM:
@@ -505,7 +505,7 @@ public class FastNoiseLite {
     /// </example>
     public void domainWarp(Vector2 coord) {
 
-        switch (mFractalType) {
+        switch (this.fractalType) {
             default:
                 domainWarpSingle(coord);
                 break;
@@ -529,7 +529,7 @@ public class FastNoiseLite {
     /// </example>
     public void domainWarp(Vector3 coord) {
 
-        switch (mFractalType) {
+        switch (this.fractalType) {
             default:
                 domainWarpSingle(coord);
                 break;
