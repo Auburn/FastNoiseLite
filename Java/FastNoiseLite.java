@@ -186,7 +186,7 @@ public class FastNoiseLite {
     private int seed = 1337;
     private float frequency = 0.01f;
     private NoiseType noiseType = NoiseType.OPEN_SIMPLEX_2;
-    private RotationType3D mRotationType3D = RotationType3D.NONE;
+    private RotationType3D rotationType3D = RotationType3D.NONE;
     private TransformType3D mTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
 
     private FractalType mFractalType = FractalType.NONE;
@@ -262,7 +262,7 @@ public class FastNoiseLite {
     /// </remarks>
     public void setRotationType3D(RotationType3D rotationType3D) {
 
-        mRotationType3D = rotationType3D;
+        this.rotationType3D = rotationType3D;
         updateTransformType3D();
         updateWarpTransformType3D();
 
@@ -607,7 +607,7 @@ public class FastNoiseLite {
 
     private void updateTransformType3D() {
 
-        switch (mRotationType3D) {
+        switch (this.rotationType3D) {
             case IMPROVE_XY_PLANES:
                 mTransformType3D = TransformType3D.IMPROVE_XY_PLANES;
                 break;
@@ -631,7 +631,7 @@ public class FastNoiseLite {
 
     private void updateWarpTransformType3D() {
 
-        switch (mRotationType3D) {
+        switch (this.rotationType3D) {
             case IMPROVE_XY_PLANES:
                 mWarpTransformType3D = TransformType3D.IMPROVE_XY_PLANES;
                 break;
