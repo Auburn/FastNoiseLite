@@ -184,7 +184,7 @@ public class FastNoiseLite {
     private static final int PRIME_Z = 1720413743;
 
     private int seed = 1337;
-    private float mFrequency = 0.01f;
+    private float frequency = 0.01f;
     private NoiseType mNoiseType = NoiseType.OPEN_SIMPLEX_2;
     private RotationType3D mRotationType3D = RotationType3D.NONE;
     private TransformType3D mTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
@@ -237,7 +237,7 @@ public class FastNoiseLite {
     /// Default: 0.01
     /// </remarks>
     public void setFrequency(float frequency) {
-        mFrequency = frequency;
+        this.frequency = frequency;
     }
 
     /// <summary>
@@ -402,8 +402,8 @@ public class FastNoiseLite {
     /// </returns>
     public float getNoise(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        x *= mFrequency;
-        y *= mFrequency;
+        x *= this.frequency;
+        y *= this.frequency;
 
         switch (mNoiseType) {
             case OPEN_SIMPLEX_2:
@@ -441,9 +441,9 @@ public class FastNoiseLite {
     /// </returns>
     public float getNoise(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        x *= mFrequency;
-        y *= mFrequency;
-        z *= mFrequency;
+        x *= this.frequency;
+        y *= this.frequency;
+        z *= this.frequency;
 
         switch (mTransformType3D) {
             case IMPROVE_XY_PLANES: {
@@ -1721,7 +1721,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         /*FNLfloat*/
         float xs = coord.x;
@@ -1750,7 +1750,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         /*FNLfloat*/
         float xs = coord.x;
@@ -1805,7 +1805,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         for (int i = 0; i < mOctaves; i++) {
             /*FNLfloat*/
@@ -1840,7 +1840,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         for (int i = 0; i < mOctaves; i++) {
             /*FNLfloat*/
@@ -1919,7 +1919,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         for (int i = 0; i < mOctaves; i++) {
             doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
@@ -1977,7 +1977,7 @@ public class FastNoiseLite {
 
         int seed = this.seed;
         float amp = mDomainWarpAmp * mFractalBounding;
-        float freq = mFrequency;
+        float freq = this.frequency;
 
         for (int i = 0; i < mOctaves; i++) {
             doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
