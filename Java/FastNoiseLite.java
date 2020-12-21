@@ -185,7 +185,7 @@ public class FastNoiseLite {
 
     private int seed = 1337;
     private float frequency = 0.01f;
-    private NoiseType mNoiseType = NoiseType.OPEN_SIMPLEX_2;
+    private NoiseType noiseType = NoiseType.OPEN_SIMPLEX_2;
     private RotationType3D mRotationType3D = RotationType3D.NONE;
     private TransformType3D mTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
 
@@ -248,7 +248,7 @@ public class FastNoiseLite {
     /// </remarks>
     public void setNoiseType(NoiseType noiseType) {
 
-        mNoiseType = noiseType;
+        this.noiseType = noiseType;
         updateTransformType3D();
 
     }
@@ -405,7 +405,7 @@ public class FastNoiseLite {
         x *= this.frequency;
         y *= this.frequency;
 
-        switch (mNoiseType) {
+        switch (this.noiseType) {
             case OPEN_SIMPLEX_2:
             case OPEN_SIMPLEX_2S: {
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
@@ -562,7 +562,7 @@ public class FastNoiseLite {
 
     private float genNoiseSingle(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        switch (mNoiseType) {
+        switch (this.noiseType) {
             case OPEN_SIMPLEX_2:
                 return singleSimplex(seed, x, y);
             case OPEN_SIMPLEX_2S:
@@ -583,7 +583,7 @@ public class FastNoiseLite {
 
     private float genNoiseSingle(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        switch (mNoiseType) {
+        switch (this.noiseType) {
             case OPEN_SIMPLEX_2:
                 return singleOpenSimplex2(seed, x, y, z);
             case OPEN_SIMPLEX_2S:
@@ -615,7 +615,7 @@ public class FastNoiseLite {
                 mTransformType3D = TransformType3D.IMPROVE_XZ_PLANES;
                 break;
             default:
-                switch (mNoiseType) {
+                switch (this.noiseType) {
                     case OPEN_SIMPLEX_2:
                     case OPEN_SIMPLEX_2S:
                         mTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
