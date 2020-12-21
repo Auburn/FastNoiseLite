@@ -199,7 +199,7 @@ public class FastNoiseLite {
     private float fractalBounding = 1 / 1.75f;
 
     private CellularDistanceFunction cellularDistanceFunction = CellularDistanceFunction.EUCLIDEAN_SQ;
-    private CellularReturnType mCellularReturnType = CellularReturnType.DISTANCE;
+    private CellularReturnType cellularReturnType = CellularReturnType.DISTANCE;
     private float mCellularJitterModifier = 1.0f;
 
     private DomainWarpType mDomainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
@@ -354,7 +354,7 @@ public class FastNoiseLite {
     /// Default: EuclideanSq
     /// </remarks>
     public void setCellularReturnType(CellularReturnType cellularReturnType) {
-        mCellularReturnType = cellularReturnType;
+        this.cellularReturnType = cellularReturnType;
     }
 
     /// <summary>
@@ -1309,15 +1309,15 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
             distance0 = fastSqrt(distance0);
 
-            if (mCellularReturnType != CellularReturnType.CELL_VALUE) {
+            if (this.cellularReturnType != CellularReturnType.CELL_VALUE) {
                 distance1 = fastSqrt(distance1);
             }
         }
 
-        switch (mCellularReturnType) {
+        switch (this.cellularReturnType) {
             case CELL_VALUE:
                 return closestHash * (1 / 2147483648.0f);
             case DISTANCE:
@@ -1447,15 +1447,15 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && this.cellularReturnType != CellularReturnType.CELL_VALUE) {
             distance0 = fastSqrt(distance0);
 
-            if (mCellularReturnType != CellularReturnType.CELL_VALUE) {
+            if (this.cellularReturnType != CellularReturnType.CELL_VALUE) {
                 distance1 = fastSqrt(distance1);
             }
         }
 
-        switch (mCellularReturnType) {
+        switch (this.cellularReturnType) {
             case CELL_VALUE:
                 return closestHash * (1 / 2147483648.0f);
             case DISTANCE:
