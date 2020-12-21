@@ -520,13 +520,15 @@ public class FastNoiseLite {
 
     private void calculateFractalBounding() {
 
-        float gain = fastAbs(this.gain);
-        float amp = gain;
+        float absGain = fastAbs(this.gain);
+        float amp = absGain;
         float ampFractal = 1.0f;
 
         for (int i = 1; i < this.octaves; i++) {
+
             ampFractal += amp;
-            amp *= gain;
+            amp *= absGain;
+
         }
 
         this.fractalBounding = 1 / ampFractal;
@@ -630,18 +632,21 @@ public class FastNoiseLite {
     // Fractal FBm
     private float genFractalFBm(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = genNoiseSingle(seed++, x, y);
+
+            float noise = genNoiseSingle(iSeed++, x, y);
             sum += noise * amp;
             amp *= lerp(1.0f, fastMin(noise + 1, 2) * 0.5f, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -650,19 +655,22 @@ public class FastNoiseLite {
 
     private float genFractalFBm(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = genNoiseSingle(seed++, x, y, z);
+
+            float noise = genNoiseSingle(iSeed++, x, y, z);
             sum += noise * amp;
             amp *= lerp(1.0f, (noise + 1) * 0.5f, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -673,18 +681,21 @@ public class FastNoiseLite {
     // Fractal Ridged
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = fastAbs(genNoiseSingle(seed++, x, y));
+
+            float noise = fastAbs(genNoiseSingle(iSeed++, x, y));
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -693,19 +704,22 @@ public class FastNoiseLite {
 
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = fastAbs(genNoiseSingle(seed++, x, y, z));
+
+            float noise = fastAbs(genNoiseSingle(iSeed++, x, y, z));
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -716,18 +730,21 @@ public class FastNoiseLite {
     // Fractal PingPong
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = pingPong((genNoiseSingle(seed++, x, y) + 1) * this.pingPongStrength);
+
+            float noise = pingPong((genNoiseSingle(iSeed++, x, y) + 1) * this.pingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -736,19 +753,22 @@ public class FastNoiseLite {
 
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float sum = 0;
         float amp = this.fractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = pingPong((genNoiseSingle(seed++, x, y, z) + 1) * this.pingPongStrength);
+
+            float noise = pingPong((genNoiseSingle(iSeed++, x, y, z) + 1) * this.pingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, this.weightedStrength);
 
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
+
             amp *= this.gain;
+
         }
 
         return sum;
@@ -782,7 +802,9 @@ public class FastNoiseLite {
         i *= PRIME_X;
         j *= PRIME_Y;
 
-        float n0, n1, n2;
+        float n0;
+        float n1;
+        float n2;
 
         float a = 0.5f - x0 * x0 - y0 * y0;
         if (a <= 0) n0 = 0;
@@ -1681,7 +1703,7 @@ public class FastNoiseLite {
     // Domain Warp Single Wrapper
     private void domainWarpSingle(Vector2 coord) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
@@ -1689,28 +1711,30 @@ public class FastNoiseLite {
         float xs = coord.x;
         /*FNLfloat*/
         float ys = coord.y;
+
         switch (this.domainWarpType) {
+
             case OPEN_SIMPLEX_2:
-            case OPEN_SIMPLEX_2_REDUCED: {
+            case OPEN_SIMPLEX_2_REDUCED:
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
                 final /*FNLfloat*/ float F2 = 0.5f * (SQRT3 - 1);
                 /*FNLfloat*/
                 float t = (xs + ys) * F2;
                 xs += t;
                 ys += t;
-            }
+
             break;
             default:
                 break;
         }
 
-        doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
+        doSingleDomainWarp(iSeed, amp, freq, xs, ys, coord);
 
     }
 
     private void domainWarpSingle(Vector3 coord) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
@@ -1720,8 +1744,10 @@ public class FastNoiseLite {
         float ys = coord.y;
         /*FNLfloat*/
         float zs = coord.z;
+
         switch (this.warpTransformType3D) {
-            case IMPROVE_XY_PLANES: {
+
+            case IMPROVE_XY_PLANES:
                 /*FNLfloat*/
                 float xy = xs + ys;
                 /*FNLfloat*/
@@ -1730,33 +1756,33 @@ public class FastNoiseLite {
                 xs += s2 - zs;
                 ys = ys + s2 - zs;
                 zs += xy * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case IMPROVE_XZ_PLANES: {
+            case IMPROVE_XZ_PLANES:
                 /*FNLfloat*/
                 float xz = xs + zs;
                 /*FNLfloat*/
-                float s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
+                s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
                 ys *= (/*FNLfloat*/ float) 0.577350269189626;
                 xs += s2 - ys;
                 zs += s2 - ys;
                 ys += xz * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case DEFAULT_OPEN_SIMPLEX_2: {
+            case DEFAULT_OPEN_SIMPLEX_2:
                 final /*FNLfloat*/ float R3 = (/*FNLfloat*/ float) (2.0 / 3.0);
                 /*FNLfloat*/
                 float r = (xs + ys + zs) * R3; // Rotation, not skew
                 xs = r - xs;
                 ys = r - ys;
                 zs = r - zs;
-            }
+
             break;
             default:
                 break;
         }
 
-        doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
+        doSingleDomainWarp(iSeed, amp, freq, xs, ys, zs, coord);
 
     }
 
@@ -1764,54 +1790,62 @@ public class FastNoiseLite {
     // Domain Warp Fractal Progressive
     private void domainWarpFractalProgressive(Vector2 coord) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
+
             /*FNLfloat*/
             float xs = coord.x;
             /*FNLfloat*/
             float ys = coord.y;
+
             switch (this.domainWarpType) {
+
                 case OPEN_SIMPLEX_2:
-                case OPEN_SIMPLEX_2_REDUCED: {
+                case OPEN_SIMPLEX_2_REDUCED:
+
                     final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
                     final /*FNLfloat*/ float F2 = 0.5f * (SQRT3 - 1);
                     /*FNLfloat*/
                     float t = (xs + ys) * F2;
                     xs += t;
                     ys += t;
-                }
+
                 break;
                 default:
                     break;
             }
 
-            doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
+            doSingleDomainWarp(iSeed, amp, freq, xs, ys, coord);
 
-            seed++;
+            iSeed++;
             amp *= this.gain;
             freq *= this.lacunarity;
+
         }
 
     }
 
     private void domainWarpFractalProgressive(Vector3 coord) {
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
+
             /*FNLfloat*/
             float xs = coord.x;
             /*FNLfloat*/
             float ys = coord.y;
             /*FNLfloat*/
             float zs = coord.z;
+
             switch (this.warpTransformType3D) {
-                case IMPROVE_XY_PLANES: {
+
+                case IMPROVE_XY_PLANES:
                     /*FNLfloat*/
                     float xy = xs + ys;
                     /*FNLfloat*/
@@ -1820,37 +1854,39 @@ public class FastNoiseLite {
                     xs += s2 - zs;
                     ys = ys + s2 - zs;
                     zs += xy * (/*FNLfloat*/ float) 0.577350269189626;
-                }
+
                 break;
-                case IMPROVE_XZ_PLANES: {
+                case IMPROVE_XZ_PLANES:
                     /*FNLfloat*/
                     float xz = xs + zs;
                     /*FNLfloat*/
-                    float s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
+                    s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
                     ys *= (/*FNLfloat*/ float) 0.577350269189626;
                     xs += s2 - ys;
                     zs += s2 - ys;
                     ys += xz * (/*FNLfloat*/ float) 0.577350269189626;
-                }
+
                 break;
-                case DEFAULT_OPEN_SIMPLEX_2: {
+                case DEFAULT_OPEN_SIMPLEX_2:
+
                     final /*FNLfloat*/ float R3 = (/*FNLfloat*/ float) (2.0 / 3.0);
                     /*FNLfloat*/
                     float r = (xs + ys + zs) * R3; // Rotation, not skew
                     xs = r - xs;
                     ys = r - ys;
                     zs = r - zs;
-                }
+
                 break;
                 default:
                     break;
             }
 
-            doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
+            doSingleDomainWarp(iSeed, amp, freq, xs, ys, zs, coord);
 
-            seed++;
+            iSeed++;
             amp *= this.gain;
             freq *= this.lacunarity;
+
         }
 
     }
@@ -1863,31 +1899,35 @@ public class FastNoiseLite {
         float xs = coord.x;
         /*FNLfloat*/
         float ys = coord.y;
+
         switch (this.domainWarpType) {
+
             case OPEN_SIMPLEX_2:
-            case OPEN_SIMPLEX_2_REDUCED: {
+            case OPEN_SIMPLEX_2_REDUCED:
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
                 final /*FNLfloat*/ float F2 = 0.5f * (SQRT3 - 1);
                 /*FNLfloat*/
                 float t = (xs + ys) * F2;
                 xs += t;
                 ys += t;
-            }
+
             break;
             default:
                 break;
         }
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
-            doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
 
-            seed++;
+            doSingleDomainWarp(iSeed, amp, freq, xs, ys, coord);
+
+            iSeed++;
             amp *= this.gain;
             freq *= this.lacunarity;
+
         }
 
     }
@@ -1900,8 +1940,11 @@ public class FastNoiseLite {
         float ys = coord.y;
         /*FNLfloat*/
         float zs = coord.z;
+
         switch (this.warpTransformType3D) {
-            case IMPROVE_XY_PLANES: {
+
+            case IMPROVE_XY_PLANES:
+
                 /*FNLfloat*/
                 float xy = xs + ys;
                 /*FNLfloat*/
@@ -1910,42 +1953,46 @@ public class FastNoiseLite {
                 xs += s2 - zs;
                 ys = ys + s2 - zs;
                 zs += xy * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case IMPROVE_XZ_PLANES: {
+            case IMPROVE_XZ_PLANES:
+
                 /*FNLfloat*/
                 float xz = xs + zs;
                 /*FNLfloat*/
-                float s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
+                s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
                 ys *= (/*FNLfloat*/ float) 0.577350269189626;
                 xs += s2 - ys;
                 zs += s2 - ys;
                 ys += xz * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case DEFAULT_OPEN_SIMPLEX_2: {
+            case DEFAULT_OPEN_SIMPLEX_2:
+
                 final /*FNLfloat*/ float R3 = (/*FNLfloat*/ float) (2.0 / 3.0);
                 /*FNLfloat*/
                 float r = (xs + ys + zs) * R3; // Rotation, not skew
                 xs = r - xs;
                 ys = r - ys;
                 zs = r - zs;
-            }
+
             break;
             default:
                 break;
         }
 
-        int seed = this.seed;
+        int iSeed = this.seed;
         float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
-            doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
 
-            seed++;
+            doSingleDomainWarp(iSeed, amp, freq, xs, ys, zs, coord);
+
+            iSeed++;
             amp *= this.gain;
             freq *= this.lacunarity;
+
         }
 
     }
@@ -2078,13 +2125,15 @@ public class FastNoiseLite {
         i *= PRIME_X;
         j *= PRIME_Y;
 
-        float vx, vy;
+        float vx;
+        float vy;
         vx = vy = 0;
 
         float a = 0.5f - x0 * x0 - y0 * y0;
         if (a > 0) {
             float aaaa = (a * a) * (a * a);
-            float xo, yo;
+            float xo;
+            float yo;
             if (outGradOnly) {
                 int hash = hash(seed, i, j) & (255 << 1);
                 xo = RAND_VECS_2D[hash];
@@ -2110,7 +2159,8 @@ public class FastNoiseLite {
             float x2 = x0 + (2 * G2 - 1);
             float y2 = y0 + (2 * G2 - 1);
             float cccc = (c * c) * (c * c);
-            float xo, yo;
+            float xo;
+            float yo;
             if (outGradOnly) {
                 int hash = hash(seed, i + PRIME_X, j + PRIME_Y) & (255 << 1);
                 xo = RAND_VECS_2D[hash];
@@ -2137,7 +2187,8 @@ public class FastNoiseLite {
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b > 0) {
                 float bbbb = (b * b) * (b * b);
-                float xo, yo;
+                float xo;
+                float yo;
                 if (outGradOnly) {
                     int hash = hash(seed, i, j + PRIME_Y) & (255 << 1);
                     xo = RAND_VECS_2D[hash];
@@ -2163,7 +2214,8 @@ public class FastNoiseLite {
             float b = 0.5f - x1 * x1 - y1 * y1;
             if (b > 0) {
                 float bbbb = (b * b) * (b * b);
-                float xo, yo;
+                float xo;
+                float yo;
                 if (outGradOnly) {
                     int hash = hash(seed, i + PRIME_X, j) & (255 << 1);
                     xo = RAND_VECS_2D[hash];
@@ -2222,14 +2274,18 @@ public class FastNoiseLite {
         j *= PRIME_Y;
         k *= PRIME_Z;
 
-        float vx, vy, vz;
+        float vx;
+        float vy;
+        float vz;
         vx = vy = vz = 0;
 
         float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
         for (int l = 0; ; l++) {
             if (a > 0) {
                 float aaaa = (a * a) * (a * a);
-                float xo, yo, zo;
+                float xo;
+                float yo;
+                float zo;
                 if (outGradOnly) {
                     int hash = hash(seed, i, j, k) & (255 << 2);
                     xo = RAND_VECS_3D[hash];
@@ -2280,7 +2336,9 @@ public class FastNoiseLite {
             if (b > 1) {
                 b -= 1;
                 float bbbb = (b * b) * (b * b);
-                float xo, yo, zo;
+                float xo;
+                float yo;
+                float zo;
                 if (outGradOnly) {
                     int hash = hash(seed, i1, j1, k1) & (255 << 2);
                     xo = RAND_VECS_3D[hash];
