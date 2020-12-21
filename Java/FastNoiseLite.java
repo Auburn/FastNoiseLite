@@ -1,57 +1,57 @@
-// MIT License
-//
-// Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
-// Copyright(c) 2020 Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
-// .'',;:cldxkO00KKXXNNWWWNNXKOkxdollcc::::::;:::ccllloooolllllllllooollc:,'...        ...........',;cldxkO000Okxdlc::;;;,,;;;::cclllllll
-// ..',;:ldxO0KXXNNNNNNNNXXK0kxdolcc::::::;;;,,,,,,;;;;;;;;;;:::cclllllc:;'....       ...........',;:ldxO0KXXXK0Okxdolc::;;;;::cllodddddo
-// ...',:loxO0KXNNNNNXXKK0Okxdolc::;::::::::;;;,,'''''.....''',;:clllllc:;,'............''''''''',;:loxO0KXNNNNNXK0Okxdollccccllodxxxxxxd
-// ....';:ldkO0KXXXKK00Okxdolcc:;;;;;::cclllcc:;;,''..... ....',;clooddolcc:;;;;,,;;;;;::::;;;;;;:cloxk0KXNWWWWWWNXKK0Okxddoooddxxkkkkkxx
-// .....';:ldxkOOOOOkxxdolcc:;;;,,,;;:cllooooolcc:;'...      ..,:codxkkkxddooollloooooooollcc:::::clodkO0KXNWWWWWWNNXK00Okxxxxxxxxkkkkxxx
-// . ....';:cloddddo___________,,,,;;:clooddddoolc:,...      ..,:ldx__00OOOkkk___kkkkkkxxdollc::::cclodkO0KXXNNNNNNXXK0OOkxxxxxxxxxxxxddd
-// .......',;:cccc:|           |,,,;;:cclooddddoll:;'..     ..';cox|  \KKK000|   |KK00OOkxdocc___;::clldxxkO0KKKKK00Okkxdddddddddddddddoo
-// .......'',,,,,''|   ________|',,;;::cclloooooolc:;'......___:ldk|   \KK000|   |XKKK0Okxolc|   |;;::cclodxxkkkkxxdoolllcclllooodddooooo
-// ''......''''....|   |  ....'',,,,;;;::cclloooollc:;,''.'|   |oxk|    \OOO0|   |KKK00Oxdoll|___|;;;;;::ccllllllcc::;;,,;;;:cclloooooooo
-// ;;,''.......... |   |_____',,;;;____:___cllo________.___|   |___|     \xkk|   |KK_______ool___:::;________;;;_______...'',;;:ccclllloo
-// c:;,''......... |         |:::/     '   |lo/        |           |      \dx|   |0/       \d|   |cc/        |'/       \......',,;;:ccllo
-// ol:;,'..........|    _____|ll/    __    |o/   ______|____    ___|   |   \o|   |/   ___   \|   |o/   ______|/   ___   \ .......'',;:clo
-// dlc;,...........|   |::clooo|    /  |   |x\___   \KXKKK0|   |dol|   |\   \|   |   |   |   |   |d\___   \..|   |  /   /       ....',:cl
-// xoc;'...  .....'|   |llodddd|    \__|   |_____\   \KKK0O|   |lc:|   |'\       |   |___|   |   |_____\   \.|   |_/___/...      ...',;:c
-// dlc;'... ....',;|   |oddddddo\          |          |Okkx|   |::;|   |..\      |\         /|   |          | \         |...    ....',;:c
-// ol:,'.......',:c|___|xxxddollc\_____,___|_________/ddoll|___|,,,|___|...\_____|:\ ______/l|___|_________/...\________|'........',;::cc
-// c:;'.......';:codxxkkkkxxolc::;::clodxkOO0OOkkxdollc::;;,,''''',,,,''''''''''',,'''''',;:loxkkOOkxol:;,'''',,;:ccllcc:;,'''''',;::ccll
-// ;,'.......',:codxkOO0OOkxdlc:;,,;;:cldxxkkxxdolc:;;,,''.....'',;;:::;;,,,'''''........,;cldkO0KK0Okdoc::;;::cloodddoolc:;;;;;::ccllooo
-// .........',;:lodxOO0000Okdoc:,,',,;:clloddoolc:;,''.......'',;:clooollc:;;,,''.......',:ldkOKXNNXX0Oxdolllloddxxxxxxdolccccccllooodddd
-// .    .....';:cldxkO0000Okxol:;,''',,;::cccc:;,,'.......'',;:cldxxkkxxdolc:;;,'.......';coxOKXNWWWNXKOkxddddxxkkkkkkxdoollllooddxxxxkkk
-//       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
-//       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
-//
-// VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+/** MIT License
+ *
+ * Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
+ * Copyright(c) 2020 Contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files(the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions :
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * .'',;:cldxkO00KKXXNNWWWNNXKOkxdollcc::::::;:::ccllloooolllllllllooollc:,'...        ...........',;cldxkO000Okxdlc::;;;,,;;;::cclllllll
+ * ..',;:ldxO0KXXNNNNNNNNXXK0kxdolcc::::::;;;,,,,,,;;;;;;;;;;:::cclllllc:;'....       ...........',;:ldxO0KXXXK0Okxdolc::;;;;::cllodddddo
+ * ...',:loxO0KXNNNNNXXKK0Okxdolc::;::::::::;;;,,'''''.....''',;:clllllc:;,'............''''''''',;:loxO0KXNNNNNXK0Okxdollccccllodxxxxxxd
+ * ....';:ldkO0KXXXKK00Okxdolcc:;;;;;::cclllcc:;;,''..... ....',;clooddolcc:;;;;,,;;;;;::::;;;;;;:cloxk0KXNWWWWWWNXKK0Okxddoooddxxkkkkkxx
+ * .....';:ldxkOOOOOkxxdolcc:;;;,,,;;:cllooooolcc:;'...      ..,:codxkkkxddooollloooooooollcc:::::clodkO0KXNWWWWWWNNXK00Okxxxxxxxxkkkkxxx
+ * . ....';:cloddddo___________,,,,;;:clooddddoolc:,...      ..,:ldx__00OOOkkk___kkkkkkxxdollc::::cclodkO0KXXNNNNNNXXK0OOkxxxxxxxxxxxxddd
+ * .......',;:cccc:|           |,,,;;:cclooddddoll:;'..     ..';cox|  \KKK000|   |KK00OOkxdocc___;::clldxxkO0KKKKK00Okkxdddddddddddddddoo
+ * .......'',,,,,''|   ________|',,;;::cclloooooolc:;'......___:ldk|   \KK000|   |XKKK0Okxolc|   |;;::cclodxxkkkkxxdoolllcclllooodddooooo
+ * ''......''''....|   |  ....'',,,,;;;::cclloooollc:;,''.'|   |oxk|    \OOO0|   |KKK00Oxdoll|___|;;;;;::ccllllllcc::;;,,;;;:cclloooooooo
+ * ;;,''.......... |   |_____',,;;;____:___cllo________.___|   |___|     \xkk|   |KK_______ool___:::;________;;;_______...'',;;:ccclllloo
+ * c:;,''......... |         |:::/     '   |lo/        |           |      \dx|   |0/       \d|   |cc/        |'/       \......',,;;:ccllo
+ * ol:;,'..........|    _____|ll/    __    |o/   ______|____    ___|   |   \o|   |/   ___   \|   |o/   ______|/   ___   \ .......'',;:clo
+ * dlc;,...........|   |::clooo|    /  |   |x\___   \KXKKK0|   |dol|   |\   \|   |   |   |   |   |d\___   \..|   |  /   /       ....',:cl
+ * xoc;'...  .....'|   |llodddd|    \__|   |_____\   \KKK0O|   |lc:|   |'\       |   |___|   |   |_____\   \.|   |_/___/...      ...',;:c
+ * dlc;'... ....',;|   |oddddddo\          |          |Okkx|   |::;|   |..\      |\         /|   |          | \         |...    ....',;:c
+ * ol:,'.......',:c|___|xxxddollc\_____,___|_________/ddoll|___|,,,|___|...\_____|:\ ______/l|___|_________/...\________|'........',;::cc
+ * c:;'.......';:codxxkkkkxxolc::;::clodxkOO0OOkkxdollc::;;,,''''',,,,''''''''''',,'''''',;:loxkkOOkxol:;,'''',,;:ccllcc:;,'''''',;::ccll
+ * ;,'.......',:codxkOO0OOkxdlc:;,,;;:cldxxkkxxdolc:;;,,''.....'',;;:::;;,,,'''''........,;cldkO0KK0Okdoc::;;::cloodddoolc:;;;;;::ccllooo
+ * .........',;:lodxOO0000Okdoc:,,',,;:clloddoolc:;,''.......'',;:clooollc:;;,,''.......',:ldkOKXNNXX0Oxdolllloddxxxxxxdolccccccllooodddd
+ * .    .....';:cldxkO0000Okxol:;,''',,;::cccc:;,,'.......'',;:cldxxkkxxdolc:;;,'.......';coxOKXNWWWNXKOkxddddxxkkkkkkxdoollllooddxxxxkkk
+ *       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
+ *       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
+ *
+ * VERSION: 1.0.1
+ * https://github.com/Auburn/FastNoise
 
-// To switch between using floats or doubles for input position,
-// perform a file-wide replace on the following strings (including /*FNLfloat*/)
-// /*FNLfloat*/ float
-// /*FNLfloat*/ double
-
+ * To switch between using floats or doubles for input position,
+ * perform a file-wide replace on the following strings (including FNLfloat)
+ * FNLfloat = float
+ * FNLfloat = double
+ */
 public class FastNoiseLite {
 
     private static final float[] GRADIENTS_2D = {
@@ -206,46 +206,40 @@ public class FastNoiseLite {
     private TransformType3D warpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
     private float domainWarpAmp = 1.0f;
 
-    /// <summary>
-    /// Create new FastNoise object with default seed
-    /// </summary>
+    /**
+     * Create new FastNoise object with default seed
+     */
     public FastNoiseLite() {
         // nothing to do
     }
 
-    /// <summary>
-    /// Create new FastNoise object with specified seed
-    /// </summary>
+    /**
+     * Create new FastNoise object with specified seed
+     */
     public FastNoiseLite(int seed) {
         setSeed(seed);
     }
 
-    /// <summary>
-    /// Sets seed used for all noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 1337
-    /// </remarks>
+    /**
+     * Sets seed used for all noise types
+     * Default: 1337
+     */
     public void setSeed(int seed) {
         this.seed = seed;
     }
 
-    /// <summary>
-    /// Sets frequency for all noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.01
-    /// </remarks>
+    /**
+     * Sets frequency for all noise types
+     * Default: 0.01
+     */
     public void setFrequency(float frequency) {
         this.frequency = frequency;
     }
 
-    /// <summary>
-    /// Sets noise algorithm used for GetNoise(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: OpenSimplex2
-    /// </remarks>
+    /**
+     * Sets noise algorithm used for GetNoise(...)
+     * Default: OpenSimplex2
+     */
     public void setNoiseType(NoiseType noiseType) {
 
         this.noiseType = noiseType;
@@ -253,13 +247,12 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// Sets domain rotation type for 3D Noise and 3D DomainWarp.
-    /// Can aid in reducing directional artifacts when sampling a 2D plane in 3D
-    /// </summary>
-    /// <remarks>
-    /// Default: None
-    /// </remarks>
+    /**
+     * Sets domain rotation type for 3D Noise and 3D DomainWarp.
+     * Can aid in reducing directional artifacts when sampling a 2D plane in 3D
+     *
+     * Default: None
+     */
     public void setRotationType3D(RotationType3D rotationType3D) {
 
         this.rotationType3D = rotationType3D;
@@ -268,23 +261,20 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// Sets method for combining octaves in all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: None
-    /// Note: FractalType.DomainWarp... only affects DomainWarp(...)
-    /// </remarks>
+    /**
+     * Sets method for combining octaves in all fractal noise types
+     *
+     * Default: None
+     * Note: FractalType.DomainWarp... only affects DomainWarp(...)
+     */
     public void setFractalType(FractalType fractalType) {
         this.fractalType = fractalType;
     }
 
-    /// <summary>
-    /// Sets octave count for all fractal noise types 
-    /// </summary>
-    /// <remarks>
-    /// Default: 3
-    /// </remarks>
+    /**
+     * Sets octave count for all fractal noise types
+     * Default: 3
+     */
     public void setFractalOctaves(int octaves) {
 
         this.octaves = octaves;
@@ -292,22 +282,18 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// Sets octave lacunarity for all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 2.0
-    /// </remarks>
+    /**
+     * Sets octave lacunarity for all fractal noise types
+     * Default: 2.0
+     */
     public void setFractalLacunarity(float lacunarity) {
         this.lacunarity = lacunarity;
     }
 
-    /// <summary>
-    /// Sets octave gain for all fractal noise types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.5
-    /// </remarks>
+    /**
+     * Sets octave gain for all fractal noise types
+     * Default: 0.5
+     */
     public void setFractalGain(float gain) {
 
         this.gain = gain;
@@ -315,66 +301,56 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// Sets octave weighting for all none DomainWarp fratal types
-    /// </summary>
-    /// <remarks>
-    /// Default: 0.0
-    /// Note: Keep between 0...1 to maintain -1...1 output bounding
-    /// </remarks>
+    /**
+     * Sets octave weighting for all none DomainWarp fractal types
+     *
+     * Default: 0.0
+     * Note: Keep between 0...1 to maintain -1...1 output bounding
+     */
     public void setFractalWeightedStrength(float weightedStrength) {
         this.weightedStrength = weightedStrength;
     }
 
-    /// <summary>
-    /// Sets strength of the fractal ping pong effect
-    /// </summary>
-    /// <remarks>
-    /// Default: 2.0
-    /// </remarks>
+    /**
+     * Sets strength of the fractal ping pong effect
+     *
+     * Default: 2.0
+     */
     public void setFractalPingPongStrength(float pingPongStrength) {
         this.pingPongStrength = pingPongStrength;
     }
 
 
-    /// <summary>
-    /// Sets distance function used in cellular noise calculations
-    /// </summary>
-    /// <remarks>
-    /// Default: Distance
-    /// </remarks>
+    /**
+     * Sets distance function used in cellular noise calculations
+     * Default: DISTANCE
+     */
     public void setCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) {
         this.cellularDistanceFunction = cellularDistanceFunction;
     }
 
-    /// <summary>
-    /// Sets return type from cellular noise calculations
-    /// </summary>
-    /// <remarks>
-    /// Default: EuclideanSq
-    /// </remarks>
+    /**
+     * Sets return type from cellular noise calculations
+     * Default: EUCLIDEAN_SQ
+     */
     public void setCellularReturnType(CellularReturnType cellularReturnType) {
         this.cellularReturnType = cellularReturnType;
     }
 
-    /// <summary>
-    /// Sets the maximum distance a cellular point can move from it's grid position
-    /// </summary>
-    /// <remarks>
-    /// Default: 1.0
-    /// Note: Setting this higher than 1 will cause artifacts
-    /// </remarks> 
+    /**
+     * Sets the maximum distance a cellular point can move from it's grid position
+     * Default: 1.0
+     * Note: Setting this higher than 1 will cause artifacts
+     */
     public void setCellularJitter(float cellularJitter) {
         this.cellularJitterModifier = cellularJitter;
     }
 
 
-    /// <summary>
-    /// Sets the warp algorithm when using DomainWarp(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: OpenSimplex2
-    /// </remarks>
+    /**
+     * Sets the warp algorithm when using domainWarp(...)
+     * Default: OPEN_SIMPLEX_2
+     */
     public void setDomainWarpType(DomainWarpType domainWarpType) {
 
         this.domainWarpType = domainWarpType;
@@ -383,23 +359,19 @@ public class FastNoiseLite {
     }
 
 
-    /// <summary>
-    /// Sets the maximum warp distance from original position when using DomainWarp(...)
-    /// </summary>
-    /// <remarks>
-    /// Default: 1.0
-    /// </remarks>
+    /**
+     * Sets the maximum warp distance from original position when using domainWarp(...)
+     * Default: 1.0
+     */
     public void setDomainWarpAmp(float domainWarpAmp) {
         this.domainWarpAmp = domainWarpAmp;
     }
 
 
-    /// <summary>
-    /// 2D noise at given position using current settings
-    /// </summary>
-    /// <returns>
-    /// Noise output bounded between -1...1
-    /// </returns>
+    /**
+     * 2D noise at given position using current settings
+     * @return Noise output bounded between -1...1
+     */
     public float getNoise(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         x *= this.frequency;
@@ -433,12 +405,10 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// 3D noise at given position using current settings
-    /// </summary>
-    /// <returns>
-    /// Noise output bounded between -1...1
-    /// </returns>
+    /**
+     * 3D noise at given position using current settings
+     * @return Noise output bounded between -1...1
+     */
     public float getNoise(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
         x *= this.frequency;
@@ -495,14 +465,13 @@ public class FastNoiseLite {
     }
 
 
-    /// <summary>
-    /// 2D warps the input position using current domain warp settings
-    /// </summary>
-    /// <example>
-    /// Example usage with GetNoise
-    /// <code>DomainWarp(coord)
-    /// noise = GetNoise(x, y)</code>
-    /// </example>
+    /**
+     * 2D warps the input position using current domain warp settings
+     *
+     * Example usage with GetNoise
+     *  domainWarp(coord)
+     *  noise = getNoise(x, y)
+     */
     public void domainWarp(Vector2 coord) {
 
         switch (this.fractalType) {
@@ -519,14 +488,13 @@ public class FastNoiseLite {
 
     }
 
-    /// <summary>
-    /// 3D warps the input position using current domain warp settings
-    /// </summary>
-    /// <example>
-    /// Example usage with GetNoise
-    /// <code>DomainWarp(coord)
-    /// noise = GetNoise(x, y, z)</code>
-    /// </example>
+    /**
+     * 3D warps the input position using current domain warp settings
+     *
+     * Example usage with GetNoise
+     *  domainWarp(coord)
+     *  noise = getNoise(x, y, z)
+     */
     public void domainWarp(Vector3 coord) {
 
         switch (this.fractalType) {
@@ -559,7 +527,6 @@ public class FastNoiseLite {
     }
 
     // Generic noise gen
-
     private float genNoiseSingle(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         switch (this.noiseType) {
@@ -604,7 +571,6 @@ public class FastNoiseLite {
 
 
     // Noise Coordinate Transforms (frequency, and possible skew or rotation)
-
     private void updateTransformType3D() {
 
         switch (this.rotationType3D) {
@@ -655,7 +621,6 @@ public class FastNoiseLite {
 
 
     // Fractal FBm
-
     private float genFractalFBm(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int seed = this.seed;
@@ -699,7 +664,6 @@ public class FastNoiseLite {
 
 
     // Fractal Ridged
-
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int seed = this.seed;
@@ -742,8 +706,7 @@ public class FastNoiseLite {
     }
 
 
-    // Fractal PingPong 
-
+    // Fractal PingPong
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int seed = this.seed;
@@ -786,8 +749,7 @@ public class FastNoiseLite {
     }
 
 
-    // Simplex/OpenSimplex2 Noise
-
+    // SIMPLEX/OPEN_SIMPLEX_2 Noise
     private float singleSimplex(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
@@ -936,8 +898,7 @@ public class FastNoiseLite {
 
     }
 
-    // OpenSimplex2S Noise
-
+    // OPEN_SIMPLEX_2S Noise
     private float singleOpenSimplex2S(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         // 2D OpenSimplex2S case is a modified 2D simplex noise.
@@ -1220,7 +1181,6 @@ public class FastNoiseLite {
 
 
     // Cellular Noise
-
     private float singleCellular(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int xr = fastRound(x);
@@ -1478,7 +1438,6 @@ public class FastNoiseLite {
 
 
     // Perlin Noise
-
     private float singlePerlin(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int x0 = fastFloor(x);
@@ -1542,7 +1501,6 @@ public class FastNoiseLite {
 
 
     // Value Cubic Noise
-
     private float singleValueCubic(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int x1 = fastFloor(x);
@@ -1629,7 +1587,6 @@ public class FastNoiseLite {
 
 
     // Value Noise
-
     private float singleValue(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         int x0 = fastFloor(x);
@@ -1681,7 +1638,6 @@ public class FastNoiseLite {
 
 
     // Domain Warp
-
     private void doSingleDomainWarp(int seed, float amp, float freq, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2 coord) {
 
         switch (this.domainWarpType) {
@@ -1716,7 +1672,6 @@ public class FastNoiseLite {
 
 
     // Domain Warp Single Wrapper
-
     private void domainWarpSingle(Vector2 coord) {
 
         int seed = this.seed;
@@ -1800,7 +1755,6 @@ public class FastNoiseLite {
 
 
     // Domain Warp Fractal Progressive
-
     private void domainWarpFractalProgressive(Vector2 coord) {
 
         int seed = this.seed;
@@ -1895,7 +1849,7 @@ public class FastNoiseLite {
     }
 
 
-    // Domain Warp Fractal Independant
+    // Domain Warp Fractal Independent
     private void domainWarpFractalIndependent(Vector2 coord) {
 
         /*FNLfloat*/
@@ -1991,7 +1945,6 @@ public class FastNoiseLite {
 
 
     // Domain Warp Basic Grid
-
     private void singleDomainWarpBasicGrid(int seed, float warpAmp, float frequency, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2 coord) {
 
         /*FNLfloat*/
@@ -2090,7 +2043,7 @@ public class FastNoiseLite {
     }
 
 
-    // Domain Warp Simplex/OpenSimplex2
+    // Domain Warp SIMPLEX/OPEN_SIMPLEX_2
     private void singleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2 coord, boolean outGradOnly) {
 
         final float SQRT3 = 1.7320508075688772935274463415059f;
