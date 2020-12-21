@@ -192,7 +192,7 @@ public class FastNoiseLite {
     private FractalType fractalType = FractalType.NONE;
     private int octaves = 3;
     private float lacunarity = 2.0f;
-    private float mGain = 0.5f;
+    private float gain = 0.5f;
     private float mWeightedStrength = 0.0f;
     private float mPingPongStrength = 2.0f;
 
@@ -310,7 +310,7 @@ public class FastNoiseLite {
     /// </remarks>
     public void setFractalGain(float gain) {
 
-        mGain = gain;
+        this.gain = gain;
         calculateFractalBounding();
 
     }
@@ -545,7 +545,7 @@ public class FastNoiseLite {
 
     private void calculateFractalBounding() {
 
-        float gain = fastAbs(mGain);
+        float gain = fastAbs(this.gain);
         float amp = gain;
         float ampFractal = 1.0f;
 
@@ -669,7 +669,7 @@ public class FastNoiseLite {
 
             x *= this.lacunarity;
             y *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -690,7 +690,7 @@ public class FastNoiseLite {
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -713,7 +713,7 @@ public class FastNoiseLite {
 
             x *= this.lacunarity;
             y *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -734,7 +734,7 @@ public class FastNoiseLite {
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -757,7 +757,7 @@ public class FastNoiseLite {
 
             x *= this.lacunarity;
             y *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -778,7 +778,7 @@ public class FastNoiseLite {
             x *= this.lacunarity;
             y *= this.lacunarity;
             z *= this.lacunarity;
-            amp *= mGain;
+            amp *= this.gain;
         }
 
         return sum;
@@ -1830,7 +1830,7 @@ public class FastNoiseLite {
             doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
 
             seed++;
-            amp *= mGain;
+            amp *= this.gain;
             freq *= this.lacunarity;
         }
 
@@ -1888,7 +1888,7 @@ public class FastNoiseLite {
             doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
 
             seed++;
-            amp *= mGain;
+            amp *= this.gain;
             freq *= this.lacunarity;
         }
 
@@ -1925,7 +1925,7 @@ public class FastNoiseLite {
             doSingleDomainWarp(seed, amp, freq, xs, ys, coord);
 
             seed++;
-            amp *= mGain;
+            amp *= this.gain;
             freq *= this.lacunarity;
         }
 
@@ -1983,7 +1983,7 @@ public class FastNoiseLite {
             doSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
 
             seed++;
-            amp *= mGain;
+            amp *= this.gain;
             freq *= this.lacunarity;
         }
 
