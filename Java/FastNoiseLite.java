@@ -202,7 +202,7 @@ public class FastNoiseLite {
     private CellularReturnType cellularReturnType = CellularReturnType.DISTANCE;
     private float cellularJitterModifier = 1.0f;
 
-    private DomainWarpType mDomainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
+    private DomainWarpType domainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
     private TransformType3D mWarpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
     private float mDomainWarpAmp = 1.0f;
 
@@ -377,7 +377,7 @@ public class FastNoiseLite {
     /// </remarks>
     public void setDomainWarpType(DomainWarpType domainWarpType) {
 
-        mDomainWarpType = domainWarpType;
+        this.domainWarpType = domainWarpType;
         updateWarpTransformType3D();
 
     }
@@ -639,7 +639,7 @@ public class FastNoiseLite {
                 mWarpTransformType3D = TransformType3D.IMPROVE_XZ_PLANES;
                 break;
             default:
-                switch (mDomainWarpType) {
+                switch (this.domainWarpType) {
                     case OPEN_SIMPLEX_2:
                     case OPEN_SIMPLEX_2_REDUCED:
                         mWarpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
@@ -1684,7 +1684,7 @@ public class FastNoiseLite {
 
     private void doSingleDomainWarp(int seed, float amp, float freq, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2 coord) {
 
-        switch (mDomainWarpType) {
+        switch (this.domainWarpType) {
             case OPEN_SIMPLEX_2:
                 singleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375f, freq, x, y, coord, false);
                 break;
@@ -1700,7 +1700,7 @@ public class FastNoiseLite {
 
     private void doSingleDomainWarp(int seed, float amp, float freq, /*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z, Vector3 coord) {
 
-        switch (mDomainWarpType) {
+        switch (this.domainWarpType) {
             case OPEN_SIMPLEX_2:
                 singleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125f, freq, x, y, z, coord, false);
                 break;
@@ -1727,7 +1727,7 @@ public class FastNoiseLite {
         float xs = coord.x;
         /*FNLfloat*/
         float ys = coord.y;
-        switch (mDomainWarpType) {
+        switch (this.domainWarpType) {
             case OPEN_SIMPLEX_2:
             case OPEN_SIMPLEX_2_REDUCED: {
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
@@ -1812,7 +1812,7 @@ public class FastNoiseLite {
             float xs = coord.x;
             /*FNLfloat*/
             float ys = coord.y;
-            switch (mDomainWarpType) {
+            switch (this.domainWarpType) {
                 case OPEN_SIMPLEX_2:
                 case OPEN_SIMPLEX_2_REDUCED: {
                     final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
@@ -1902,7 +1902,7 @@ public class FastNoiseLite {
         float xs = coord.x;
         /*FNLfloat*/
         float ys = coord.y;
-        switch (mDomainWarpType) {
+        switch (this.domainWarpType) {
             case OPEN_SIMPLEX_2:
             case OPEN_SIMPLEX_2_REDUCED: {
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
