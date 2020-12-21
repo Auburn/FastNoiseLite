@@ -2335,11 +2335,11 @@ public class FastNoiseLite {
     //
 
     private static float fastMin(float a, float b) {
-        return a < b ? a : b;
+        return Math.min(a, b);
     }
 
     private static float fastMax(float a, float b) {
-        return a > b ? a : b;
+        return Math.max(a, b);
     }
 
     private static float fastAbs(float f) {
