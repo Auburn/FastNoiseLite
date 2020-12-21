@@ -1,3 +1,5 @@
+package com.auburn.fastnoise;
+
 /** MIT License
  *
  * Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
