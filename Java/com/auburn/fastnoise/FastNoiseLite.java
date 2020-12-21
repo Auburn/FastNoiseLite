@@ -777,6 +777,7 @@ public class FastNoiseLite {
 
 
     // SIMPLEX/OPEN_SIMPLEX_2 Noise
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private float singleSimplex(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
@@ -842,6 +843,7 @@ public class FastNoiseLite {
 
     }
 
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private float singleOpenSimplex2(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
         // 3D OpenSimplex2 case uses two offset rotated cube grids.
@@ -928,6 +930,7 @@ public class FastNoiseLite {
     }
 
     // OPEN_SIMPLEX_2S Noise
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private float singleOpenSimplex2S(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
 
         // 2D OpenSimplex2S case is a modified 2D simplex noise.
@@ -1036,6 +1039,7 @@ public class FastNoiseLite {
 
     }
 
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private float singleOpenSimplex2S(int seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
 
         // 3D OpenSimplex2S case uses two offset rotated cube grids.
@@ -2098,6 +2102,7 @@ public class FastNoiseLite {
 
 
     // Domain Warp SIMPLEX/OPEN_SIMPLEX_2
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private void singleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2 coord, boolean outGradOnly) {
 
         final float SQRT3 = 1.7320508075688772935274463415059f;
@@ -2242,6 +2247,7 @@ public class FastNoiseLite {
 
     }
 
+    @SuppressWarnings("squid:S125") // this block contains commented-out lines of code that should be removed
     private void singleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, /*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z, Vector3 coord, boolean outGradOnly) {
 
         x *= frequency;
