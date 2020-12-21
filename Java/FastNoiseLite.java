@@ -194,7 +194,7 @@ public class FastNoiseLite {
     private float lacunarity = 2.0f;
     private float gain = 0.5f;
     private float weightedStrength = 0.0f;
-    private float mPingPongStrength = 2.0f;
+    private float pingPongStrength = 2.0f;
 
     private float mFractalBounding = 1 / 1.75f;
 
@@ -333,7 +333,7 @@ public class FastNoiseLite {
     /// Default: 2.0
     /// </remarks>
     public void setFractalPingPongStrength(float pingPongStrength) {
-        mPingPongStrength = pingPongStrength;
+        this.pingPongStrength = pingPongStrength;
     }
 
 
@@ -751,7 +751,7 @@ public class FastNoiseLite {
         float amp = mFractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = pingPong((genNoiseSingle(seed++, x, y) + 1) * mPingPongStrength);
+            float noise = pingPong((genNoiseSingle(seed++, x, y) + 1) * this.pingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, this.weightedStrength);
 
@@ -771,7 +771,7 @@ public class FastNoiseLite {
         float amp = mFractalBounding;
 
         for (int i = 0; i < this.octaves; i++) {
-            float noise = pingPong((genNoiseSingle(seed++, x, y, z) + 1) * mPingPongStrength);
+            float noise = pingPong((genNoiseSingle(seed++, x, y, z) + 1) * this.pingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, this.weightedStrength);
 
