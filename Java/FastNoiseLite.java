@@ -203,7 +203,7 @@ public class FastNoiseLite {
     private float cellularJitterModifier = 1.0f;
 
     private DomainWarpType domainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
-    private TransformType3D mWarpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
+    private TransformType3D warpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
     private float mDomainWarpAmp = 1.0f;
 
     /// <summary>
@@ -633,19 +633,19 @@ public class FastNoiseLite {
 
         switch (this.rotationType3D) {
             case IMPROVE_XY_PLANES:
-                mWarpTransformType3D = TransformType3D.IMPROVE_XY_PLANES;
+                this.warpTransformType3D = TransformType3D.IMPROVE_XY_PLANES;
                 break;
             case IMPROVE_XZ_PLANES:
-                mWarpTransformType3D = TransformType3D.IMPROVE_XZ_PLANES;
+                this.warpTransformType3D = TransformType3D.IMPROVE_XZ_PLANES;
                 break;
             default:
                 switch (this.domainWarpType) {
                     case OPEN_SIMPLEX_2:
                     case OPEN_SIMPLEX_2_REDUCED:
-                        mWarpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
+                        this.warpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
                         break;
                     default:
-                        mWarpTransformType3D = TransformType3D.NONE;
+                        this.warpTransformType3D = TransformType3D.NONE;
                         break;
                 }
                 break;
@@ -1758,7 +1758,7 @@ public class FastNoiseLite {
         float ys = coord.y;
         /*FNLfloat*/
         float zs = coord.z;
-        switch (mWarpTransformType3D) {
+        switch (this.warpTransformType3D) {
             case IMPROVE_XY_PLANES: {
                 /*FNLfloat*/
                 float xy = xs + ys;
@@ -1849,7 +1849,7 @@ public class FastNoiseLite {
             float ys = coord.y;
             /*FNLfloat*/
             float zs = coord.z;
-            switch (mWarpTransformType3D) {
+            switch (this.warpTransformType3D) {
                 case IMPROVE_XY_PLANES: {
                     /*FNLfloat*/
                     float xy = xs + ys;
@@ -1939,7 +1939,7 @@ public class FastNoiseLite {
         float ys = coord.y;
         /*FNLfloat*/
         float zs = coord.z;
-        switch (mWarpTransformType3D) {
+        switch (this.warpTransformType3D) {
             case IMPROVE_XY_PLANES: {
                 /*FNLfloat*/
                 float xy = xs + ys;
