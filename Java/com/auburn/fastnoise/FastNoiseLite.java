@@ -2521,27 +2521,85 @@ public class FastNoiseLite {
 
     }
 
+    /**
+     * Representing simple 2D vector coordinates
+     */
     public static class Vector2 {
 
-        public /*FNLfloat*/ float x;
-        public /*FNLfloat*/ float y;
+        protected /*FNLfloat*/ float x;
+        protected /*FNLfloat*/ float y;
 
+        /**
+         * @param x The x value
+         * @param y The y value
+         */
         public Vector2(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
+
             this.x = x;
+            this.y = y;
+
+        }
+
+        /**
+         * @return The x
+         */
+        public /*FNLfloat*/ float getX() {
+            return x;
+        }
+
+        /**
+         * @return The y
+         */
+        public /*FNLfloat*/ float getY() {
+            return y;
+        }
+
+        /**
+         * @param x The x value
+         */
+        public void setX(/*FNLfloat*/ float x) {
+            this.x = x;
+        }
+
+        /**
+         * @param y The y value
+         */
+        public void setY(/*FNLfloat*/ float y) {
             this.y = y;
         }
 
     }
 
-    public static class Vector3 {
+    /**
+     * 3D extension of 2D Vector with the z axis.
+     */
+    public static class Vector3 extends Vector2 {
 
-        public /*FNLfloat*/ float x;
-        public /*FNLfloat*/ float y;
-        public /*FNLfloat*/ float z;
+        protected /*FNLfloat*/ float z;
 
+        /**
+         * @param x The x value
+         * @param y The y value
+         * @param z The z value
+         */
         public Vector3(/*FNLfloat*/ float x, /*FNLfloat*/ float y, /*FNLfloat*/ float z) {
-            this.x = x;
-            this.y = y;
+
+            super(x, y);
+            this.z = z;
+
+        }
+
+        /**
+         * @return The z
+         */
+        public /*FNLfloat*/ float getZ() {
+            return z;
+        }
+
+        /**
+         * @param z The z value
+         */
+        public void setZ(/*FNLfloat*/ float z) {
             this.z = z;
         }
 
