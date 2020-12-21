@@ -204,7 +204,7 @@ public class FastNoiseLite {
 
     private DomainWarpType domainWarpType = DomainWarpType.OPEN_SIMPLEX_2;
     private TransformType3D warpTransformType3D = TransformType3D.DEFAULT_OPEN_SIMPLEX_2;
-    private float mDomainWarpAmp = 1.0f;
+    private float domainWarpAmp = 1.0f;
 
     /// <summary>
     /// Create new FastNoise object with default seed
@@ -390,7 +390,7 @@ public class FastNoiseLite {
     /// Default: 1.0
     /// </remarks>
     public void setDomainWarpAmp(float domainWarpAmp) {
-        mDomainWarpAmp = domainWarpAmp;
+        this.domainWarpAmp = domainWarpAmp;
     }
 
 
@@ -1720,7 +1720,7 @@ public class FastNoiseLite {
     private void domainWarpSingle(Vector2 coord) {
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         /*FNLfloat*/
@@ -1749,7 +1749,7 @@ public class FastNoiseLite {
     private void domainWarpSingle(Vector3 coord) {
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         /*FNLfloat*/
@@ -1804,7 +1804,7 @@ public class FastNoiseLite {
     private void domainWarpFractalProgressive(Vector2 coord) {
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
@@ -1839,7 +1839,7 @@ public class FastNoiseLite {
     private void domainWarpFractalProgressive(Vector3 coord) {
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
@@ -1918,7 +1918,7 @@ public class FastNoiseLite {
         }
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
@@ -1976,7 +1976,7 @@ public class FastNoiseLite {
         }
 
         int seed = this.seed;
-        float amp = mDomainWarpAmp * this.fractalBounding;
+        float amp = this.domainWarpAmp * this.fractalBounding;
         float freq = this.frequency;
 
         for (int i = 0; i < this.octaves; i++) {
