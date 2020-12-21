@@ -149,7 +149,7 @@ public class FastNoiseLite {
     /// Create new FastNoise object with default seed
     /// </summary>
     public FastNoiseLite() {
-        // noting to do
+        // nothing to do
     }
 
     /// <summary>
