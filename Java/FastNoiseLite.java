@@ -191,7 +191,7 @@ public class FastNoiseLite {
 
     private FractalType fractalType = FractalType.NONE;
     private int octaves = 3;
-    private float mLacunarity = 2.0f;
+    private float lacunarity = 2.0f;
     private float mGain = 0.5f;
     private float mWeightedStrength = 0.0f;
     private float mPingPongStrength = 2.0f;
@@ -299,7 +299,7 @@ public class FastNoiseLite {
     /// Default: 2.0
     /// </remarks>
     public void setFractalLacunarity(float lacunarity) {
-        mLacunarity = lacunarity;
+        this.lacunarity = lacunarity;
     }
 
     /// <summary>
@@ -667,8 +667,8 @@ public class FastNoiseLite {
             sum += noise * amp;
             amp *= lerp(1.0f, fastMin(noise + 1, 2) * 0.5f, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -687,9 +687,9 @@ public class FastNoiseLite {
             sum += noise * amp;
             amp *= lerp(1.0f, (noise + 1) * 0.5f, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
-            z *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
+            z *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -711,8 +711,8 @@ public class FastNoiseLite {
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -731,9 +731,9 @@ public class FastNoiseLite {
             sum += (noise * -2 + 1) * amp;
             amp *= lerp(1.0f, 1 - noise, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
-            z *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
+            z *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -755,8 +755,8 @@ public class FastNoiseLite {
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -775,9 +775,9 @@ public class FastNoiseLite {
             sum += (noise - 0.5f) * 2 * amp;
             amp *= lerp(1.0f, noise, mWeightedStrength);
 
-            x *= mLacunarity;
-            y *= mLacunarity;
-            z *= mLacunarity;
+            x *= this.lacunarity;
+            y *= this.lacunarity;
+            z *= this.lacunarity;
             amp *= mGain;
         }
 
@@ -1831,7 +1831,7 @@ public class FastNoiseLite {
 
             seed++;
             amp *= mGain;
-            freq *= mLacunarity;
+            freq *= this.lacunarity;
         }
 
     }
@@ -1889,7 +1889,7 @@ public class FastNoiseLite {
 
             seed++;
             amp *= mGain;
-            freq *= mLacunarity;
+            freq *= this.lacunarity;
         }
 
     }
@@ -1926,7 +1926,7 @@ public class FastNoiseLite {
 
             seed++;
             amp *= mGain;
-            freq *= mLacunarity;
+            freq *= this.lacunarity;
         }
 
     }
@@ -1984,7 +1984,7 @@ public class FastNoiseLite {
 
             seed++;
             amp *= mGain;
-            freq *= mLacunarity;
+            freq *= this.lacunarity;
         }
 
     }
