@@ -54,74 +54,6 @@
 
 public class FastNoiseLite {
 
-    public enum NoiseType {
-
-        OPEN_SIMPLEX_2,
-        OPEN_SIMPLEX_2S,
-        CELLULAR,
-        PERLIN,
-        VALUE_CUBIC,
-        VALUE
-
-    }
-
-    public enum RotationType3D {
-
-        NONE,
-        IMPROVE_XY_PLANES,
-        IMPROVE_XZ_PLANES
-
-    }
-
-    public enum FractalType {
-
-        NONE,
-        FBM,
-        RIDGED,
-        PING_PONG,
-        DOMAIN_WRAP_PROGESSIVE,
-        DOMAIN_WRAP_INDEPENDENT
-
-    }
-
-    public enum CellularDistanceFunction {
-
-        EUCLIDEAN,
-        EUCLIDEAN_SQ,
-        MANHATTAN,
-        HYBRID
-
-    }
-
-    public enum CellularReturnType {
-
-        CELL_VALUE,
-        DISTANCE,
-        DISTANCE_2,
-        DISTANCE_2_ADD,
-        DISTANCE_2_SUB,
-        DISTANCE_2_MUL,
-        DISTANCE_2_DIV
-
-    }
-
-    public enum DomainWarpType {
-
-        OPEN_SIMPLEX_2,
-        OPEN_SIMPLEX_2_REDUCED,
-        BASIC_GRID
-
-    }
-
-    private enum TransformType3D {
-
-        NONE,
-        IMPROVE_XY_PLANES,
-        IMPROVE_XZ_PLANES,
-        DEFAULT_OPEN_SIMPLEX_2
-
-    }
-
     private int mSeed = 1337;
     private float mFrequency = 0.01f;
     private NoiseType mNoiseType = NoiseType.OPEN_SIMPLEX_2;
@@ -2558,6 +2490,74 @@ public class FastNoiseLite {
         coord.x += vx * warpAmp;
         coord.y += vy * warpAmp;
         coord.z += vz * warpAmp;
+    }
+
+    public enum NoiseType {
+
+        OPEN_SIMPLEX_2,
+        OPEN_SIMPLEX_2S,
+        CELLULAR,
+        PERLIN,
+        VALUE_CUBIC,
+        VALUE
+
+    }
+
+    public enum RotationType3D {
+
+        NONE,
+        IMPROVE_XY_PLANES,
+        IMPROVE_XZ_PLANES
+
+    }
+
+    public enum FractalType {
+
+        NONE,
+        FBM,
+        RIDGED,
+        PING_PONG,
+        DOMAIN_WRAP_PROGESSIVE,
+        DOMAIN_WRAP_INDEPENDENT
+
+    }
+
+    public enum CellularDistanceFunction {
+
+        EUCLIDEAN,
+        EUCLIDEAN_SQ,
+        MANHATTAN,
+        HYBRID
+
+    }
+
+    public enum CellularReturnType {
+
+        CELL_VALUE,
+        DISTANCE,
+        DISTANCE_2,
+        DISTANCE_2_ADD,
+        DISTANCE_2_SUB,
+        DISTANCE_2_MUL,
+        DISTANCE_2_DIV
+
+    }
+
+    public enum DomainWarpType {
+
+        OPEN_SIMPLEX_2,
+        OPEN_SIMPLEX_2_REDUCED,
+        BASIC_GRID
+
+    }
+
+    private enum TransformType3D {
+
+        NONE,
+        IMPROVE_XY_PLANES,
+        IMPROVE_XZ_PLANES,
+        DEFAULT_OPEN_SIMPLEX_2
+
     }
 
     public static class Vector2 {
