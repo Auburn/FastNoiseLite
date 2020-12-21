@@ -198,7 +198,7 @@ public class FastNoiseLite {
 
     private float fractalBounding = 1 / 1.75f;
 
-    private CellularDistanceFunction mCellularDistanceFunction = CellularDistanceFunction.EUCLIDEAN_SQ;
+    private CellularDistanceFunction cellularDistanceFunction = CellularDistanceFunction.EUCLIDEAN_SQ;
     private CellularReturnType mCellularReturnType = CellularReturnType.DISTANCE;
     private float mCellularJitterModifier = 1.0f;
 
@@ -344,7 +344,7 @@ public class FastNoiseLite {
     /// Default: Distance
     /// </remarks>
     public void setCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) {
-        mCellularDistanceFunction = cellularDistanceFunction;
+        this.cellularDistanceFunction = cellularDistanceFunction;
     }
 
     /// <summary>
@@ -1235,7 +1235,7 @@ public class FastNoiseLite {
         int xPrimed = (xr - 1) * PRIME_X;
         int yPrimedBase = (yr - 1) * PRIME_Y;
 
-        switch (mCellularDistanceFunction) {
+        switch (this.cellularDistanceFunction) {
             default:
             case EUCLIDEAN:
             case EUCLIDEAN_SQ:
@@ -1309,7 +1309,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (mCellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
             distance0 = fastSqrt(distance0);
 
             if (mCellularReturnType != CellularReturnType.CELL_VALUE) {
@@ -1354,7 +1354,7 @@ public class FastNoiseLite {
         int yPrimedBase = (yr - 1) * PRIME_Y;
         int zPrimedBase = (zr - 1) * PRIME_Z;
 
-        switch (mCellularDistanceFunction) {
+        switch (this.cellularDistanceFunction) {
             case EUCLIDEAN:
             case EUCLIDEAN_SQ:
                 for (int xi = xr - 1; xi <= xr + 1; xi++) {
@@ -1447,7 +1447,7 @@ public class FastNoiseLite {
                 break;
         }
 
-        if (mCellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
+        if (this.cellularDistanceFunction == CellularDistanceFunction.EUCLIDEAN && mCellularReturnType != CellularReturnType.CELL_VALUE) {
             distance0 = fastSqrt(distance0);
 
             if (mCellularReturnType != CellularReturnType.CELL_VALUE) {
