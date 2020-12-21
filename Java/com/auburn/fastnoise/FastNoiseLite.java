@@ -382,28 +382,29 @@ public class FastNoiseLite {
 
         switch (this.noiseType) {
             case OPEN_SIMPLEX_2:
-            case OPEN_SIMPLEX_2S: {
+            case OPEN_SIMPLEX_2S:
+
                 final /*FNLfloat*/ float SQRT3 = (/*FNLfloat*/ float) 1.7320508075688772935274463415059;
                 final /*FNLfloat*/ float F2 = 0.5f * (SQRT3 - 1);
                 /*FNLfloat*/
                 float t = (x + y) * F2;
                 x += t;
                 y += t;
-            }
+
             break;
             default:
                 break;
         }
 
         switch (this.fractalType) {
-            default:
-                return genNoiseSingle(this.seed, x, y);
             case FBM:
                 return genFractalFBm(x, y);
             case RIDGED:
                 return genFractalRidged(x, y);
             case PING_PONG:
                 return genFractalPingPong(x, y);
+            default:
+                return genNoiseSingle(this.seed, x, y);
         }
 
     }
@@ -419,7 +420,8 @@ public class FastNoiseLite {
         z *= this.frequency;
 
         switch (this.transformType3D) {
-            case IMPROVE_XY_PLANES: {
+            case IMPROVE_XY_PLANES:
+
                 /*FNLfloat*/
                 float xy = x + y;
                 /*FNLfloat*/
@@ -428,41 +430,43 @@ public class FastNoiseLite {
                 x += s2 - z;
                 y = y + s2 - z;
                 z += xy * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case IMPROVE_XZ_PLANES: {
+            case IMPROVE_XZ_PLANES:
+
                 /*FNLfloat*/
                 float xz = x + z;
                 /*FNLfloat*/
-                float s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
+                s2 = xz * -(/*FNLfloat*/ float) 0.211324865405187;
                 y *= (/*FNLfloat*/ float) 0.577350269189626;
                 x += s2 - y;
                 z += s2 - y;
                 y += xz * (/*FNLfloat*/ float) 0.577350269189626;
-            }
+
             break;
-            case DEFAULT_OPEN_SIMPLEX_2: {
+            case DEFAULT_OPEN_SIMPLEX_2:
+
                 final /*FNLfloat*/ float R3 = (/*FNLfloat*/ float) (2.0 / 3.0);
                 /*FNLfloat*/
                 float r = (x + y + z) * R3; // Rotation, not skew
                 x = r - x;
                 y = r - y;
                 z = r - z;
-            }
+
             break;
             default:
                 break;
         }
 
         switch (this.fractalType) {
-            default:
-                return genNoiseSingle(this.seed, x, y, z);
             case FBM:
                 return genFractalFBm(x, y, z);
             case RIDGED:
                 return genFractalRidged(x, y, z);
             case PING_PONG:
                 return genFractalPingPong(x, y, z);
+            default:
+                return genNoiseSingle(this.seed, x, y, z);
         }
 
     }
@@ -478,14 +482,14 @@ public class FastNoiseLite {
     public void domainWarp(Vector2 coord) {
 
         switch (this.fractalType) {
-            default:
-                domainWarpSingle(coord);
-                break;
             case DOMAIN_WRAP_PROGESSIVE:
                 domainWarpFractalProgressive(coord);
                 break;
             case DOMAIN_WRAP_INDEPENDENT:
                 domainWarpFractalIndependent(coord);
+                break;
+            default:
+                domainWarpSingle(coord);
                 break;
         }
 
@@ -501,14 +505,14 @@ public class FastNoiseLite {
     public void domainWarp(Vector3 coord) {
 
         switch (this.fractalType) {
-            default:
-                domainWarpSingle(coord);
-                break;
             case DOMAIN_WRAP_PROGESSIVE:
                 domainWarpFractalProgressive(coord);
                 break;
             case DOMAIN_WRAP_INDEPENDENT:
                 domainWarpFractalIndependent(coord);
+                break;
+            default:
+                domainWarpSingle(coord);
                 break;
         }
 
