@@ -50,7 +50,10 @@
 // Ported to Javascript by storm (Patrick U):
 // Discord: storm#5279 | Email: storm1surge@gmail.com | Github: stormy482
 //
-
+/**
+ * @description FastNoiseLite | Noise Generator
+ * @class
+ */
 class FastNoise {
 	/**
 	 * @static
@@ -284,8 +287,8 @@ class FastNoise {
 
 	/**
 	 * @description Sets distance function used in cellular noise calculations
-	 * @remarks Default: Distance
-	 * @default FastNoise.CellularDistanceFunction.Distance
+	 * @remarks Default: EuclideanSq 
+	 * @default FastNoise.CellularDistanceFunction.EuclideanSq
 	 * @param {FastNoise.CellularDistanceFunction} cellularDistanceFunction
 	 */
 	SetCellularDistanceFunction(cellularDistanceFunction) {
@@ -294,8 +297,8 @@ class FastNoise {
 
 	/**
 	 * @description Sets return type from cellular noise calculations
-	 * @remarks Default: EuclideanSq
-	 * @default FastNoise.CellularReturnType.EuclideanSq
+	 * @remarks Default: Distance
+	 * @default FastNoise.CellularReturnType.Distance
 	 * @param {FastNoise.CellularReturnType} cellularReturnType
 	 */
 	SetCellularReturnType(cellularReturnType) {
