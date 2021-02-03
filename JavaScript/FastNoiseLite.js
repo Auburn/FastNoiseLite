@@ -51,7 +51,7 @@
 // Discord: storm#5279 | Email: storm1surge@gmail.com | Github: stormy482
 //
 
-export class FastNoise {
+class FastNoise {
 	/**
 	 * @static
 	 * @enum {string}
@@ -671,7 +671,7 @@ export class FastNoise {
 		 */
 		let R2 = (seed, xPrimed, yPrimed) => {
 			let hash = Math.trunc(seed ^ xPrimed ^ yPrimed);
-			hash *= 0x27d4eb2d;
+			hash = (hash * 0x27d4eb2d) >>> 0;
 			return hash;
 		};
 
@@ -685,7 +685,7 @@ export class FastNoise {
 		 */
 		let R3 = (seed, xPrimed, yPrimed, zPrimed) => {
 			let hash = Math.trunc(seed ^ xPrimed ^ yPrimed ^ zPrimed);
-			hash *= 0x27d4eb2d;
+			hash = (hash * 0x27d4eb2d) >>> 0;
 			return hash;
 		};
 
