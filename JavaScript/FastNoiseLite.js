@@ -832,9 +832,9 @@ class FastNoise {
 				case FastNoise.NoiseType.Perlin:
 					return this.#SinglePerlin(seed, x, y);
 				case FastNoise.NoiseType.ValueCubic:
-					return this.#SingleValueCubic();
+					return this.#SingleValueCubic(seed, x, y);
 				case FastNoise.NoiseType.Value:
-					return this.#SingleValue();
+					return this.#SingleValue(seed, x, y);
 				default:
 					return 0;
 			}
