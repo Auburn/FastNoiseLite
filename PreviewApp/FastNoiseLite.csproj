@@ -7,13 +7,13 @@
   <ItemGroup>
     <PackageReference Include="Eto.Forms" Version="2.5.10" />    
   </ItemGroup>
-  <ItemGroup Condition=" $( RuntimeIdentifier.StartsWith('win') ) ">
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
     <PackageReference Include="Eto.Platform.Wpf" Version="2.5.10" />
   </ItemGroup>
-  <ItemGroup Condition=" $( RuntimeIdentifier.StartsWith('osx') ) ">
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform('OSX'))">
     <PackageReference Include="Eto.Platform.Mac64" Version="2.5.10" />
   </ItemGroup>
-  <ItemGroup Condition=" ! $( RuntimeIdentifier.StartsWith('win') ) And ! $( RuntimeIdentifier.StartsWith('osx') )  ">
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Linux'))">
     <PackageReference Include="Eto.Platform.Gtk" Version="2.5.10" />
   </ItemGroup>
 
