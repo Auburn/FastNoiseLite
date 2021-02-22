@@ -91,8 +91,6 @@ public class FastNoiseLiteGUI : Form
         controlPanel.Orientation = Orientation.Vertical;
         controlPanel.Spacing = 5;
 
-        Font bold = new Font(new Label().Font.Family, new Label().Font.Size, FontStyle.Bold);
-
         {
             // Generate, Up, Down
             {
@@ -134,7 +132,7 @@ public class FastNoiseLiteGUI : Form
 
             // Control table
             var table = new TableLayout();
-            table.Spacing = new Size(5, 5);
+            table.Spacing = new Size(5, 5);                    
 
             // Preview controls
             {
@@ -150,26 +148,26 @@ public class FastNoiseLiteGUI : Form
                     PreviewHeight.ValueChanged += Generate;
                     stack.Items.Add(new StackLayoutItem(PreviewHeight));
 
-                    AddToTableWithLabel(table, stack, "Preview Size:");
+                    AddToTableWithLabel(table, stack, "Preview Size");
                 }
 
                 // Invert
                 Invert = new CheckBox();
                 Invert.CheckedChanged += Generate;
-                AddToTableWithLabel(table, Invert, "Invert:");
+                AddToTableWithLabel(table, Invert, "Invert");
 
                 // 3D
                 Is3D = new CheckBox();
                 Is3D.CheckedChanged += OnUIUpdate;
-                AddToTableWithLabel(table, Is3D, "3D:");
+                AddToTableWithLabel(table, Is3D, "3D");
 
                 // Visualise Domain Warp
                 VisualiseDomainWarp = new CheckBox();
                 VisualiseDomainWarp.CheckedChanged += OnUIUpdate;
-                AddToTableWithLabel(table, VisualiseDomainWarp, "Visualise Domain Warp:");
+                AddToTableWithLabel(table, VisualiseDomainWarp, "Visualise Domain Warp");
             }
 
-            table.Rows.Add(new TableRow { Cells = { new Label { Text = "General:", Font = bold } } });
+            AddHeadingToTable(table, "General");
 
             // General properties
             {
@@ -182,7 +180,7 @@ public class FastNoiseLiteGUI : Form
                     }
                     NoiseType.SelectedIndex = (int)FastNoiseLite.NoiseType.OpenSimplex2;
                     NoiseType.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, NoiseType, "Noise Type:");
+                    AddToTableWithLabel(table, NoiseType, "Noise Type");
                 }
 
                 // Rotation Type 3D
@@ -194,22 +192,22 @@ public class FastNoiseLiteGUI : Form
                     }
                     RotationType3D.SelectedIndex = (int)FastNoiseLite.RotationType3D.None;
                     RotationType3D.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, RotationType3D, "Rotation Type 3D:");
+                    AddToTableWithLabel(table, RotationType3D, "Rotation Type 3D");
                 }
 
                 // Seed
                 Seed = new NumericStepper { Value = 1337 };
                 Seed.ValueChanged += Generate;
-                AddToTableWithLabel(table, Seed, "Seed:");
+                AddToTableWithLabel(table, Seed, "Seed");
 
                 // Frequency
                 Frequency = new NumericStepper { Value = 0.02, DecimalPlaces = 3, Increment = 0.005 };
                 Frequency.ValueChanged += Generate;
-                AddToTableWithLabel(table, Frequency, "Frequency:");
+                AddToTableWithLabel(table, Frequency, "Frequency");
             }
 
             // Add fractal label
-            table.Rows.Add(new TableRow { Cells = { new Label { Text = "Fractal:", Font = bold } } });
+            AddHeadingToTable(table, "Fractal");
 
             {
                 // Fractal type
@@ -222,37 +220,37 @@ public class FastNoiseLiteGUI : Form
                     }
                     FractalType.SelectedIndex = (int)FastNoiseLite.FractalType.FBm;
                     FractalType.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, FractalType, "Type:");
+                    AddToTableWithLabel(table, FractalType, "Type");
                 }
 
                 // Octaves
                 FractalOctaves = new NumericStepper { Value = 5 };
                 FractalOctaves.ValueChanged += Generate;
-                AddToTableWithLabel(table, FractalOctaves, "Octaves:");
+                AddToTableWithLabel(table, FractalOctaves, "Octaves");
 
                 // Lacunarity
                 FractalLacunarity = new NumericStepper { Value = 2.0, DecimalPlaces = 2, Increment = 0.1 };
                 FractalLacunarity.ValueChanged += Generate;
-                AddToTableWithLabel(table, FractalLacunarity, "Lacunarity:");
+                AddToTableWithLabel(table, FractalLacunarity, "Lacunarity");
 
                 // Gain
                 FractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2, Increment = 0.1 };
                 FractalGain.ValueChanged += Generate;
-                AddToTableWithLabel(table, FractalGain, "Gain:");
+                AddToTableWithLabel(table, FractalGain, "Gain");
 
                 // Weighted Strength
                 FractalWeightedStrength = new NumericStepper { Value = 0.0, DecimalPlaces = 2, Increment = 0.1 };
                 FractalWeightedStrength.ValueChanged += Generate;
-                AddToTableWithLabel(table, FractalWeightedStrength, "Weighted Strength:");
+                AddToTableWithLabel(table, FractalWeightedStrength, "Weighted Strength");
 
                 // Ping Pong Strength
                 FractalPingPongStrength = new NumericStepper { Value = 2.0, DecimalPlaces = 2, Increment = 0.1 };
                 FractalPingPongStrength.ValueChanged += Generate;
-                AddToTableWithLabel(table, FractalPingPongStrength, "Ping Pong Strength:");
+                AddToTableWithLabel(table, FractalPingPongStrength, "Ping Pong Strength");
             }
 
             // Add fractal label
-            table.Rows.Add(new TableRow { Cells = { new Label { Text = "Cellular:", Font = bold } } });
+            AddHeadingToTable(table, "Cellular");
 
             {
                 // Distance Function
@@ -264,7 +262,7 @@ public class FastNoiseLiteGUI : Form
                     }
                     CellularDistanceFunction.SelectedIndex = (int)FastNoiseLite.CellularDistanceFunction.EuclideanSq;
                     CellularDistanceFunction.SelectedIndexChanged += Generate;
-                    AddToTableWithLabel(table, CellularDistanceFunction, "Distance Function:");
+                    AddToTableWithLabel(table, CellularDistanceFunction, "Distance Function");
                 }
 
                 // Return Type
@@ -276,17 +274,17 @@ public class FastNoiseLiteGUI : Form
                     }
                     CellularReturnType.SelectedIndex = (int)FastNoiseLite.CellularReturnType.Distance;
                     CellularReturnType.SelectedIndexChanged += Generate;
-                    AddToTableWithLabel(table, CellularReturnType, "Return Type:");
+                    AddToTableWithLabel(table, CellularReturnType, "Return Type");
                 }
 
                 // Jitter
                 CellularJitter = new NumericStepper() { Value = 1.0, DecimalPlaces = 2, Increment = 0.1 };
                 CellularJitter.ValueChanged += Generate;
-                AddToTableWithLabel(table, CellularJitter, "Jitter:");
+                AddToTableWithLabel(table, CellularJitter, "Jitter");
             }
 
             // Add fractal label
-            table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp:", Font = bold } } });
+            AddHeadingToTable(table, "Domain Warp");
 
             {
                 // Domain Warp Dropdown
@@ -299,7 +297,7 @@ public class FastNoiseLiteGUI : Form
                     }
                     DomainWarp.SelectedIndex = 0;
                     DomainWarp.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, DomainWarp, "Type:");
+                    AddToTableWithLabel(table, DomainWarp, "Type");
                 }
 
                 // Domain Warp Rotation Type 3D
@@ -311,22 +309,22 @@ public class FastNoiseLiteGUI : Form
                     }
                     DomainWarpRotationType3D.SelectedIndex = (int)FastNoiseLite.RotationType3D.None;
                     DomainWarpRotationType3D.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, DomainWarpRotationType3D, "Rotation Type 3D:");
+                    AddToTableWithLabel(table, DomainWarpRotationType3D, "Rotation Type 3D");
                 }
 
                 // Amplitude
                 DomainWarpAmplitude = new NumericStepper { Value = 30.0, DecimalPlaces = 2, Increment = 5 };
                 DomainWarpAmplitude.ValueChanged += Generate;
-                AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude:");
+                AddToTableWithLabel(table, DomainWarpAmplitude, "Amplitude");
 
                 // Frequency
                 DomainWarpFrequency = new NumericStepper { Value = 0.005, DecimalPlaces = 3, Increment = 0.005 };
                 DomainWarpFrequency.ValueChanged += Generate;
-                AddToTableWithLabel(table, DomainWarpFrequency, "Frequency:");
+                AddToTableWithLabel(table, DomainWarpFrequency, "Frequency");
             }
 
             // Add domain warp fractal label
-            table.Rows.Add(new TableRow { Cells = { new Label { Text = "Domain Warp Fractal:", Font = bold } } });
+            AddHeadingToTable(table, "Domain Warp Fractal");
 
             {
                 // Domain Warp Fractal Dropdown
@@ -340,27 +338,32 @@ public class FastNoiseLiteGUI : Form
                     }
                     DomainWarpFractal.SelectedIndex = 0;
                     DomainWarpFractal.SelectedIndexChanged += OnUIUpdate;
-                    AddToTableWithLabel(table, DomainWarpFractal, "Fractal Type:");
+                    AddToTableWithLabel(table, DomainWarpFractal, "Fractal Type");
                 }
 
                 // Octaves
                 DomainWarpFractalOctaves = new NumericStepper { Value = 5 };
                 DomainWarpFractalOctaves.ValueChanged += Generate;
-                AddToTableWithLabel(table, DomainWarpFractalOctaves, "Octaves:");
+                AddToTableWithLabel(table, DomainWarpFractalOctaves, "Octaves");
 
                 // Lacunarity
                 DomainWarpFractalLacunarity = new NumericStepper { Value = 2.0, DecimalPlaces = 2, Increment = 0.1 };
                 DomainWarpFractalLacunarity.ValueChanged += Generate;
-                AddToTableWithLabel(table, DomainWarpFractalLacunarity, "Lacunarity:");
+                AddToTableWithLabel(table, DomainWarpFractalLacunarity, "Lacunarity");
 
                 // Gain
                 DomainWarpFractalGain = new NumericStepper { Value = 0.5, DecimalPlaces = 2, Increment = 0.1 };
                 DomainWarpFractalGain.ValueChanged += Generate;
-                AddToTableWithLabel(table, DomainWarpFractalGain, "Gain:");
+                AddToTableWithLabel(table, DomainWarpFractalGain, "Gain");
             }
 
             // Add table to the controls panel
-            controlPanel.Items.Add(table);
+            Scrollable scrollPanel = new Scrollable();
+            scrollPanel.Content = table;
+            scrollPanel.Border = BorderType.None;
+            scrollPanel.Padding = new Padding(0);          
+
+            controlPanel.Items.Add(scrollPanel);
 
             // Add save and github buttons
             {
@@ -374,7 +377,7 @@ public class FastNoiseLiteGUI : Form
                 stack.Items.Add(new StackLayoutItem(save));
 
                 var github = new Button { Text = "GitHub" };
-                github.Click += (sender, e) => { Process.Start(new ProcessStartInfo("https://github.com/Auburns/FastNoise") { UseShellExecute = true }); };
+                github.Click += (sender, e) => { Process.Start(new ProcessStartInfo("https://github.com/Auburn/FastNoise") { UseShellExecute = true }); };
                 stack.Items.Add(new StackLayoutItem(github));
 
                 controlPanel.Items.Add(stack);
@@ -762,13 +765,22 @@ public class FastNoiseLiteGUI : Form
     // Helper
     private void AddToTableWithLabel(TableLayout parent, Control me, string label)
     {
+        me.Width = 200;
+
         parent.Rows.Add(new TableRow
         {
             Cells = {
-                new TableCell(new Label { Text = label, TextAlignment = TextAlignment.Right }),
+                TableLayout.AutoSized(new Label { Text = label, TextAlignment = TextAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Width = 130 }),
                 new TableCell(me)
             }
         });
+    }
+    private void AddHeadingToTable(TableLayout parent, string label)
+    {
+        Font bold = new Font(new Label().Font.Family, new Label().Font.Size, FontStyle.Bold);
+
+        parent.Rows.Add(new TableRow { Cells = { 
+            new Label { Text = label + "", Font = bold, Wrap = WrapMode.None, VerticalAlignment = VerticalAlignment.Center, Width = 130 } } });
     }
 
     private string FormatReadable(string enumName)

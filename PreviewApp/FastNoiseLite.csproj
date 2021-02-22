@@ -3,10 +3,20 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+  
   <ItemGroup>
-    <PackageReference Include="Eto.Forms" Version="2.5.2" />
-    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.2" />
+    <PackageReference Include="Eto.Forms" Version="2.5.10" />    
   </ItemGroup>
+  <ItemGroup Condition=" $( RuntimeIdentifier.StartsWith('win') ) ">
+    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.10" />
+  </ItemGroup>
+  <ItemGroup Condition=" $( RuntimeIdentifier.StartsWith('osx') ) ">
+    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.10" />
+  </ItemGroup>
+  <ItemGroup Condition=" ! $( RuntimeIdentifier.StartsWith('win') ) And ! $( RuntimeIdentifier.StartsWith('osx') )  ">
+    <PackageReference Include="Eto.Platform.Gtk" Version="2.5.10" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\CSharp\FastNoiseLite.cs" Link="FastNoiseLite.cs" />
   </ItemGroup>
