@@ -351,7 +351,7 @@ class FastNoise {
 		/**
 		 * @description 2D noise at given position using current settings
 		 * @param {number} x
-		 * @param {*} y
+		 * @param {number} y
 		 * @return {number} Noise output bounded between -1...1
 		 */
 		let R2 = (x, y) => {
