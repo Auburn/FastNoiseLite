@@ -25,7 +25,7 @@ for (let y= 0; y < 128; y++) {
 
 Method overloading explained.
 
-JavaScript does not support method overloading I simulated it inordered to make the user experience more continuous
+Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
 between language versions.
 
 Here is a template for the method overloading:

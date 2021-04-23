@@ -48,15 +48,37 @@
 // https://github.com/Auburn/FastNoise
 //
 // Ported to Javascript by storm (Patrick U):
-// Discord: storm#5279 | Email: storm1surge@gmail.com | Github: stormy482
+// Discord: storm_5279 | Email: storm1surge@gmail.com | Github: stormy482 (https://github.com/stormy482)
 //
 
 
 
-console.time("timer");
 /**
- * @description FastNoiseLite | Noise Generator
- * @class
+ * @description FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
+ * @author stormy482, Jordan Peck
+ * @version 1.0.1
+ * @copyright Copyright(c) 2021 Jordan Peck, Contributors
+ * @license MIT
+ * @npm fast-noise-lite
+ * @example
+// Create and configure FastNoise object
+let noise = new FastNoiseLite();
+noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+
+// Gather noise data
+let noiseData = [];
+
+for (let y= 0; y < 128; y++) {
+	for (let x= 0; x < 128; x++) {
+      if (typeof noiseData[x] == 'undefined']){
+         noiseData[x] = [];
+      }
+
+     noiseData[x][y] = noise.GetNoise(x,y);
+   }
+}
+
+// Do something with this data...
  */
 class FastNoise {
 	/**
@@ -148,29 +170,29 @@ class FastNoise {
 		DefaultOpenSimplex2: "DefaultOpenSimplex2",
 	});
 
-	//private
-	#Seed = 1337;
-	#Frequency = 0.01;
-	#NoiseType = FastNoise.NoiseType.OpenSimplex2;
-	#RotationType3D = FastNoise.RotationType3D.None;
-	#TransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
-	#DomainWarpAmp = 1.0;
+	/* Private */
+	_Seed = 1337;
+	_Frequency = 0.01;
+	_NoiseType = FastNoise.NoiseType.OpenSimplex2;
+	_RotationType3D = FastNoise.RotationType3D.None;
+	_TransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
+	_DomainWarpAmp = 1.0;
 
-	#FractalType = FastNoise.FractalType.None;
-	#Octaves = 3;
-	#Lacunarity = 2.0;
-	#Gain = 0.5;
-	#WeightedStrength = 0.0;
-	#PingPongStrength = 2.0;
+	_FractalType = FastNoise.FractalType.None;
+	_Octaves = 3;
+	_Lacunarity = 2.0;
+	_Gain = 0.5;
+	_WeightedStrength = 0.0;
+	_PingPongStrength = 2.0;
 
-	#FractalBounding = 1 / 1.75;
+	_FractalBounding = 1 / 1.75;
 
-	#CellularDistanceFunction = FastNoise.CellularDistanceFunction.EuclideanSq;
-	#CellularReturnType = FastNoise.CellularReturnType.Distance;
-	#CellularJitterModifier = 1.0;
+	_CellularDistanceFunction = FastNoise.CellularDistanceFunction.EuclideanSq;
+	_CellularReturnType = FastNoise.CellularReturnType.Distance;
+	_CellularJitterModifier = 1.0;
 
-	#DomainWarpType = FastNoise.DomainWarpType.OpenSimplex2;
-	#WarpTransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
+	_DomainWarpType = FastNoise.DomainWarpType.OpenSimplex2;
+	_WarpTransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
 
 	/**
 	 * @description Create new FastNoise object with optional seed
@@ -179,7 +201,7 @@ class FastNoise {
 	 */
 	constructor(seed) {
 		if (seed !== undefined) {
-			this.#Seed = seed;
+			this._Seed = seed;
 		}
 	}
 
@@ -190,7 +212,7 @@ class FastNoise {
 	 * @param {number} seed
 	 */
 	SetSeed(seed) {
-		this.#Seed = seed;
+		this._Seed = seed;
 	}
 
 	/**
@@ -200,7 +222,7 @@ class FastNoise {
 	 * @param {number} frequency
 	 */
 	SetFrequency(frequency) {
-		this.#Frequency = frequency;
+		this._Frequency = frequency;
 	}
 
 	/**
@@ -210,8 +232,8 @@ class FastNoise {
 	 * @param {FastNoise.NoiseType} noiseType
 	 */
 	SetNoiseType(noiseType) {
-		this.#NoiseType = noiseType;
-		this.#UpdateTransformType3D();
+		this._NoiseType = noiseType;
+		this._UpdateTransformType3D();
 	}
 
 	/**
@@ -222,9 +244,9 @@ class FastNoise {
 	 * @param {FastNoise.RotationType3D} rotationType3D
 	 */
 	SetRotationType3D(rotationType3D) {
-		this.#RotationType3D = rotationType3D;
-		this.#UpdateTransformType3D();
-		this.#UpdateWarpTransformType3D();
+		this._RotationType3D = rotationType3D;
+		this._UpdateTransformType3D();
+		this._UpdateWarpTransformType3D();
 	}
 
 	/**
@@ -234,7 +256,7 @@ class FastNoise {
 	 * @param {FastNoise.FractalType} fractalType
 	 */
 	SetFractalType(fractalType) {
-		this.#FractalType = fractalType;
+		this._FractalType = fractalType;
 	}
 
 	/**
@@ -244,8 +266,8 @@ class FastNoise {
 	 * @param {number} octaves
 	 */
 	SetFractalOctaves(octaves) {
-		this.#Octaves = octaves;
-		this.#CalculateFractalBounding();
+		this._Octaves = octaves;
+		this._CalculateFractalBounding();
 	}
 
 	/**
@@ -255,7 +277,7 @@ class FastNoise {
 	 * @param {number} lacunarity
 	 */
 	SetFractalLacunarity(lacunarity) {
-		this.#Lacunarity = lacunarity;
+		this._Lacunarity = lacunarity;
 	}
 
 	/**
@@ -265,8 +287,8 @@ class FastNoise {
 	 * @param {number} gain
 	 */
 	SetFractalGain(gain) {
-		this.#Gain = gain;
-		this.#CalculateFractalBounding();
+		this._Gain = gain;
+		this._CalculateFractalBounding();
 	}
 
 	/**
@@ -276,7 +298,7 @@ class FastNoise {
 	 * @param {number} weightedStrength
 	 */
 	SetFractalWeightedStrength(weightedStrength) {
-		this.#WeightedStrength = weightedStrength;
+		this._WeightedStrength = weightedStrength;
 	}
 
 	/**
@@ -286,7 +308,7 @@ class FastNoise {
 	 * @param {number} pingPongStrength
 	 */
 	SetFractalPingPongStrength(pingPongStrength) {
-		this.#PingPongStrength = pingPongStrength;
+		this._PingPongStrength = pingPongStrength;
 	}
 
 	/**
@@ -296,7 +318,7 @@ class FastNoise {
 	 * @param {FastNoise.CellularDistanceFunction} cellularDistanceFunction
 	 */
 	SetCellularDistanceFunction(cellularDistanceFunction) {
-		this.#CellularDistanceFunction = cellularDistanceFunction;
+		this._CellularDistanceFunction = cellularDistanceFunction;
 	}
 
 	/**
@@ -306,7 +328,7 @@ class FastNoise {
 	 * @param {FastNoise.CellularReturnType} cellularReturnType
 	 */
 	SetCellularReturnType(cellularReturnType) {
-		this.#CellularReturnType = cellularReturnType;
+		this._CellularReturnType = cellularReturnType;
 	}
 
 	/**
@@ -316,7 +338,7 @@ class FastNoise {
 	 * @param {number} cellularJitter
 	 */
 	SetCellularJitter(cellularJitter) {
-		this.#CellularJitterModifier = cellularJitter;
+		this._CellularJitterModifier = cellularJitter;
 	}
 
 	/**
@@ -326,8 +348,8 @@ class FastNoise {
 	 * @param {FastNoise.DomainWarpType} domainWarpType
 	 */
 	SetDomainWarpType(domainWarpType) {
-		this.#DomainWarpType = domainWarpType;
-		this.#UpdateWarpTransformType3D();
+		this._DomainWarpType = domainWarpType;
+		this._UpdateWarpTransformType3D();
 	}
 
 	/**
@@ -337,7 +359,7 @@ class FastNoise {
 	 * @param {number} domainWarpAmp
 	 */
 	SetDomainWarpAmp(domainWarpAmp) {
-		this.#DomainWarpAmp = domainWarpAmp;
+		this._DomainWarpAmp = domainWarpAmp;
 	}
 
 	/**
@@ -355,10 +377,10 @@ class FastNoise {
 		 * @return {number} Noise output bounded between -1...1
 		 */
 		let R2 = (x, y) => {
-			x *= this.#Frequency;
-			y *= this.#Frequency;
+			x *= this._Frequency;
+			y *= this._Frequency;
 
-			switch (this.#NoiseType) {
+			switch (this._NoiseType) {
 				case FastNoise.NoiseType.OpenSimplex2:
 				case FastNoise.NoiseType.OpenSimplex2S:
 					const SQRT3 = 1.7320508075688772935274463415059;
@@ -371,15 +393,15 @@ class FastNoise {
 					break;
 			}
 
-			switch (this.#FractalType) {
+			switch (this._FractalType) {
 				default:
-					return this.#GenNoiseSingleR2(this.#Seed, x, y);
+					return this._GenNoiseSingleR2(this._Seed, x, y);
 				case FastNoise.FractalType.FBm:
-					return this.#GenFractalFBmR2(x, y);
+					return this._GenFractalFBmR2(x, y);
 				case FastNoise.FractalType.Ridged:
-					return this.#GenFractalRidgedR2(x, y);
+					return this._GenFractalRidgedR2(x, y);
 				case FastNoise.FractalType.PingPong:
-					return this.#GenFractalPingPongR2(x, y);
+					return this._GenFractalPingPongR2(x, y);
 			}
 		};
 
@@ -391,11 +413,11 @@ class FastNoise {
 		 * @return {number} Noise output bounded between -1...1
 		 */
 		let R3 = (x, y, z) => {
-			x *= this.#Frequency;
-			y *= this.#Frequency;
-			z *= this.#Frequency;
+			x *= this._Frequency;
+			y *= this._Frequency;
+			z *= this._Frequency;
 
-			switch (this.#TransformType3D) {
+			switch (this._TransformType3D) {
 				case FastNoise.TransformType3D.ImproveXYPlanes: {
 					let xy = x + y;
 					let s2 = xy * -0.211324865405187;
@@ -425,15 +447,15 @@ class FastNoise {
 					break;
 			}
 
-			switch (this.#FractalType) {
+			switch (this._FractalType) {
 				default:
-					return this.#GenNoiseSingleR3(this.#Seed, x, y, z);
+					return this._GenNoiseSingleR3(this._Seed, x, y, z);
 				case FastNoise.FractalType.FBm:
-					return this.#GenFractalFBmR3(x, y, z);
+					return this._GenFractalFBmR3(x, y, z);
 				case FastNoise.FractalType.Ridged:
-					return this.#GenFractalRidgedR3(x, y, z);
+					return this._GenFractalRidgedR3(x, y, z);
 				case FastNoise.FractalType.PingPong:
-					return this.#GenFractalPingPongR3(x, y, z);
+					return this._GenFractalPingPongR3(x, y, z);
 			}
 		};
 
@@ -451,21 +473,21 @@ class FastNoise {
 	 * @param {Vector2|Vector3} coord
 	 */
 	DomainWrap(coord) {
-		switch (this.#FractalType) {
+		switch (this._FractalType) {
 			default:
-				this.#DomainWarpSingle(coord);
+				this._DomainWarpSingle(coord);
 				break;
 			case FastNoise.FractalType.DomainWarpProgressive:
-				this.#DomainWarpFractalProgressive(coord);
+				this._DomainWarpFractalProgressive(coord);
 				break;
 			case FastNoise.FractalType.DomainWarpIndependent:
-				this.#DomainWarpFractalIndependent(coord);
+				this._DomainWarpFractalIndependent(coord);
 				break;
 		}
 	}
 
 	// prettier-ignore
-	#Gradients2D = [
+	_Gradients2D = [
 		0.130526192220052, 0.99144486137381, 0.38268343236509, 0.923879532511287, 0.608761429008721, 0.793353340291235, 0.793353340291235, 0.608761429008721,
 		0.923879532511287, 0.38268343236509, 0.99144486137381, 0.130526192220051, 0.99144486137381, -0.130526192220051, 0.923879532511287, -0.38268343236509,
 		0.793353340291235, -0.60876142900872, 0.608761429008721, -0.793353340291235, 0.38268343236509, -0.923879532511287, 0.130526192220052, -0.99144486137381,
@@ -501,7 +523,7 @@ class FastNoise {
 	];
 
 	// prettier-ignore
-	#RandVecs2D = [
+	_RandVecs2D = [
 		-0.2700222198, -0.9628540911, 0.3863092627, -0.9223693152, 0.04444859006, -0.999011673, -0.5992523158, -0.8005602176, -0.7819280288, 0.6233687174, 0.9464672271, 0.3227999196, -0.6514146797, -0.7587218957, 0.9378472289, 0.347048376,
 		-0.8497875957, -0.5271252623, -0.879042592, 0.4767432447, -0.892300288, -0.4514423508, -0.379844434, -0.9250503802, -0.9951650832, 0.0982163789, 0.7724397808, -0.6350880136, 0.7573283322, -0.6530343002, -0.9928004525, -0.119780055,
 		-0.0532665713, 0.9985803285, 0.9754253726, -0.2203300762, -0.7665018163, 0.6422421394, 0.991636706, 0.1290606184, -0.994696838, 0.1028503788, -0.5379205513, -0.84299554, 0.5022815471, -0.8647041387, 0.4559821461, -0.8899889226,
@@ -537,7 +559,7 @@ class FastNoise {
 	];
 
 	// prettier-ignore
-	#Gradients3D = [
+	_Gradients3D = [
 		0, 1, 1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, -1, 0,
 		1, 0, 1, 0, -1, 0, 1, 0, 1, 0, -1, 0, -1, 0, -1, 0,
 		1, 1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, -1, 0, 0,
@@ -557,7 +579,7 @@ class FastNoise {
 	];
 
 	// prettier-ignore
-	#RandVecs3D = [
+	_RandVecs3D = [
 		-0.7292736885, -0.6618439697, 0.1735581948, 0, 0.790292081, -0.5480887466, -0.2739291014, 0, 0.7217578935, 0.6226212466, -0.3023380997, 0, 0.565683137, -0.8208298145, -0.0790000257, 0, 0.760049034, -0.5555979497, -0.3370999617, 0, 0.3713945616, 0.5011264475, 0.7816254623, 0, -0.1277062463, -0.4254438999, -0.8959289049, 0, -0.2881560924, -0.5815838982, 0.7607405838, 0,
 		0.5849561111, -0.662820239, -0.4674352136, 0, 0.3307171178, 0.0391653737, 0.94291689, 0, 0.8712121778, -0.4113374369, -0.2679381538, 0, 0.580981015, 0.7021915846, 0.4115677815, 0, 0.503756873, 0.6330056931, -0.5878203852, 0, 0.4493712205, 0.601390195, 0.6606022552, 0, -0.6878403724, 0.09018890807, -0.7202371714, 0, -0.5958956522, -0.6469350577, 0.475797649, 0,
 		-0.5127052122, 0.1946921978, -0.8361987284, 0, -0.9911507142, -0.05410276466, -0.1212153153, 0, -0.2149721042, 0.9720882117, -0.09397607749, 0, -0.7518650936, -0.5428057603, 0.3742469607, 0, 0.5237068895, 0.8516377189, -0.02107817834, 0, 0.6333504779, 0.1926167129, -0.7495104896, 0, -0.06788241606, 0.3998305789, 0.9140719259, 0, -0.5538628599, -0.4729896695, -0.6852128902, 0,
@@ -592,9 +614,9 @@ class FastNoise {
 		-0.7870349638, 0.03447489231, 0.6159443543, 0, -0.2015596421, 0.6859872284, 0.6991389226, 0, -0.08581082512, -0.10920836, -0.9903080513, 0, 0.5532693395, 0.7325250401, -0.396610771, 0, -0.1842489331, -0.9777375055, -0.1004076743, 0, 0.0775473789, -0.9111505856, 0.4047110257, 0, 0.1399838409, 0.7601631212, -0.6344734459, 0, 0.4484419361, -0.845289248, 0.2904925424, 0
 	];
 
-	#PrimeX = 501125321;
-	#PrimeY = 1136930381;
-	#PrimeZ = 1720413743;
+	_PrimeX = 501125321;
+	_PrimeY = 1136930381;
+	_PrimeZ = 1720413743;
 
 	/**
 	 * @private
@@ -603,7 +625,7 @@ class FastNoise {
 	 * @param {number} t
 	 * @returns {number}
 	 */
-	static #Lerp(a, b, t) {
+	static _Lerp(a, b, t) {
 		return a + t * (b - a);
 	}
 
@@ -612,7 +634,7 @@ class FastNoise {
 	 * @param {number} t
 	 * @returns {number}
 	 */
-	static #InterpHermite(t) {
+	static _InterpHermite(t) {
 		return t * t * (3 - 2 * t);
 	}
 
@@ -621,7 +643,7 @@ class FastNoise {
 	 * @param t
 	 * @returns {number}
 	 */
-	static #InterpQuintic(t) {
+	static _InterpQuintic(t) {
 		return t * t * t * (t * (t * 6 - 15) + 10);
 	}
 
@@ -634,7 +656,7 @@ class FastNoise {
 	 * @param {number} t
 	 * @returns {number}
 	 */
-	static #CubicLerp(a, b, c, d, t) {
+	static _CubicLerp(a, b, c, d, t) {
 		let p = d - c - (a - b);
 		return t * t * t * p + t * t * (a - b - p) + t * (c - a) + b;
 	}
@@ -644,7 +666,7 @@ class FastNoise {
 	 * @param {number} t
 	 * @returns {number}
 	 */
-	static #PingPong(t) {
+	static _PingPong(t) {
 		t -= Math.trunc(t * 0.5 * 2);
 		return t < 1 ? t : 2 - t;
 	}
@@ -652,15 +674,15 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#CalculateFractalBounding() {
-		let gain = Math.abs(this.#Gain);
+	_CalculateFractalBounding() {
+		let gain = Math.abs(this._Gain);
 		let amp = gain;
 		let ampFractal = 1.0;
-		for (let i = 1; i < this.#Octaves; i++) {
+		for (let i = 1; i < this._Octaves; i++) {
 			ampFractal += amp;
 			amp *= gain;
 		}
-		this.#FractalBounding = 1 / ampFractal;
+		this._FractalBounding = 1 / ampFractal;
 	}
 
 	/**
@@ -670,7 +692,7 @@ class FastNoise {
 	 * @param {number} yPrimed
 	 * @returns {number}
 	 */
-	#HashR2(seed, xPrimed, yPrimed) {
+	_HashR2(seed, xPrimed, yPrimed) {
 		let hash = Math.trunc(seed ^ xPrimed ^ yPrimed);
 		hash = (hash * 0x27d4eb2d) >>> 0;
 		return hash;
@@ -684,7 +706,7 @@ class FastNoise {
 	 * @param {number} zPrimed
 	 * @returns {number}
 	 */
-	#HashR3(seed, xPrimed, yPrimed, zPrimed){
+	_HashR3(seed, xPrimed, yPrimed, zPrimed){
 		let hash = Math.trunc(seed ^ xPrimed ^ yPrimed ^ zPrimed);
 		hash = (hash * 0x27d4eb2d) >>> 0;
 		return hash;
@@ -697,8 +719,8 @@ class FastNoise {
 	 * @param {number} yPrimed
 	 * @returns {number}
 	 */
-	#ValCoordR2(seed, xPrimed, yPrimed) {
-		let hash = this.#HashR2(seed, xPrimed, yPrimed);
+	_ValCoordR2(seed, xPrimed, yPrimed) {
+		let hash = this._HashR2(seed, xPrimed, yPrimed);
 
 		hash *= hash;
 		hash ^= hash << 19;
@@ -713,8 +735,8 @@ class FastNoise {
 	 * @param {number} zPrimed
 	 * @returns {number}
 	 */
-	#ValCoordR3(seed, xPrimed, yPrimed, zPrimed){
-		let hash = this.#HashR3(seed, xPrimed, yPrimed, zPrimed);
+	_ValCoordR3(seed, xPrimed, yPrimed, zPrimed){
+		let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 
 		hash *= hash;
 		hash ^= hash << 19;
@@ -730,13 +752,13 @@ class FastNoise {
 	 * @param {number} yd
 	 * @returns {number}
 	 */
-	#GradCoordR2(seed, xPrimed, yPrimed, xd, yd) {
-		let hash = this.#HashR2(seed, xPrimed, yPrimed);
+	_GradCoordR2(seed, xPrimed, yPrimed, xd, yd) {
+		let hash = this._HashR2(seed, xPrimed, yPrimed);
 		hash ^= hash >> 15;
 		hash &= 127 << 1;
 
-		let xg = this.#Gradients2D[hash];
-		let yg = this.#Gradients2D[hash | 1];
+		let xg = this._Gradients2D[hash];
+		let yg = this._Gradients2D[hash | 1];
 
 		return xd * xg + yd * yg;
 	}
@@ -752,14 +774,14 @@ class FastNoise {
 	 * @param {number} zd
 	 * @returns {number}
 	 */
-	#GradCoordR3(seed, xPrimed, yPrimed, zPrimed, xd, yd, zd) {
-		let hash = this.#HashR3(seed, xPrimed, yPrimed, zPrimed);
+	_GradCoordR3(seed, xPrimed, yPrimed, zPrimed, xd, yd, zd) {
+		let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 		hash ^= hash >> 15;
 		hash &= 63 << 2;
 
-		let xg = this.#Gradients3D[hash];
-		let yg = this.#Gradients3D[hash | 1];
-		let zg = this.#Gradients3D[hash | 2];
+		let xg = this._Gradients3D[hash];
+		let yg = this._Gradients3D[hash | 1];
+		let zg = this._Gradients3D[hash | 2];
 
 		return xd * xg + yd * yg + zd * zg;
 	}
@@ -771,20 +793,20 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#GenNoiseSingleR2(seed, x, y) {
-		switch (this.#NoiseType) {
+	_GenNoiseSingleR2(seed, x, y) {
+		switch (this._NoiseType) {
 			case FastNoise.NoiseType.OpenSimplex2:
-				return this.#SingleOpenSimplex2R2(seed, x, y);
+				return this._SingleOpenSimplex2R2(seed, x, y);
 			case FastNoise.NoiseType.OpenSimplex2S:
-				return this.#SingleOpenSimplex2SR2(seed, x, y);
+				return this._SingleOpenSimplex2SR2(seed, x, y);
 			case FastNoise.NoiseType.Cellular:
-				return this.#SingleCellularR2(seed, x, y);
+				return this._SingleCellularR2(seed, x, y);
 			case FastNoise.NoiseType.Perlin:
-				return this.#SinglePerlinR2(seed, x, y);
+				return this._SinglePerlinR2(seed, x, y);
 			case FastNoise.NoiseType.ValueCubic:
-				return this.#SingleValueCubicR2(seed, x, y);
+				return this._SingleValueCubicR2(seed, x, y);
 			case FastNoise.NoiseType.Value:
-				return this.#SingleValueR2(seed, x, y);
+				return this._SingleValueR2(seed, x, y);
 			default:
 				return 0;
 		}
@@ -798,20 +820,20 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#GenNoiseSingleR3(seed, x, y, z){
-		switch (this.#NoiseType) {
+	_GenNoiseSingleR3(seed, x, y, z){
+		switch (this._NoiseType) {
 			case FastNoise.NoiseType.OpenSimplex2:
-				return this.#SingleOpenSimplex2R3(seed, x, y, z);
+				return this._SingleOpenSimplex2R3(seed, x, y, z);
 			case FastNoise.NoiseType.OpenSimplex2S:
-				return this.#SingleOpenSimplex2SR3(seed, x, y, z);
+				return this._SingleOpenSimplex2SR3(seed, x, y, z);
 			case FastNoise.NoiseType.Cellular:
-				return this.#SingleCellularR3(seed, x, y, z);
+				return this._SingleCellularR3(seed, x, y, z);
 			case FastNoise.NoiseType.Perlin:
-				return this.#SinglePerlinR3(seed, x, y, z);
+				return this._SinglePerlinR3(seed, x, y, z);
 			case FastNoise.NoiseType.ValueCubic:
-				return this.#SingleValueCubicR3(seed, x, y, z);
+				return this._SingleValueCubicR3(seed, x, y, z);
 			case FastNoise.NoiseType.Value:
-				return this.#SingleValueR3(seed, x, y, z);
+				return this._SingleValueR3(seed, x, y, z);
 			default:
 				return 0;
 		}
@@ -820,22 +842,22 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#UpdateTransformType3D() {
-		switch (this.#RotationType3D) {
+	_UpdateTransformType3D() {
+		switch (this._RotationType3D) {
 			case FastNoise.RotationType3D.ImproveXYPlanes:
-				this.#TransformType3D = FastNoise.TransformType3D.ImproveXYPlanes;
+				this._TransformType3D = FastNoise.TransformType3D.ImproveXYPlanes;
 				break;
 			case FastNoise.RotationType3D.ImproveXZPlanes:
-				this.#TransformType3D = FastNoise.TransformType3D.ImproveXZPlanes;
+				this._TransformType3D = FastNoise.TransformType3D.ImproveXZPlanes;
 				break;
 			default:
-				switch (this.#NoiseType) {
+				switch (this._NoiseType) {
 					case FastNoise.NoiseType.OpenSimplex2:
 					case FastNoise.NoiseType.OpenSimplex2S:
-						this.#TransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
+						this._TransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
 						break;
 					default:
-						this.#TransformType3D = FastNoise.TransformType3D.None;
+						this._TransformType3D = FastNoise.TransformType3D.None;
 						break;
 				}
 				break;
@@ -845,22 +867,22 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#UpdateWarpTransformType3D() {
-		switch (this.#RotationType3D) {
+	_UpdateWarpTransformType3D() {
+		switch (this._RotationType3D) {
 			case FastNoise.RotationType3D.ImproveXYPlanes:
-				this.#WarpTransformType3D = FastNoise.TransformType3D.ImproveXYPlanes;
+				this._WarpTransformType3D = FastNoise.TransformType3D.ImproveXYPlanes;
 				break;
 			case FastNoise.RotationType3D.ImproveXZPlanes:
-				this.#WarpTransformType3D = FastNoise.TransformType3D.ImproveXZPlanes;
+				this._WarpTransformType3D = FastNoise.TransformType3D.ImproveXZPlanes;
 				break;
 			default:
-				switch (this.#DomainWarpType) {
+				switch (this._DomainWarpType) {
 					case FastNoise.DomainWarpType.OpenSimplex2:
 					case FastNoise.DomainWarpType.OpenSimplex2Reduced:
-						this.#WarpTransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
+						this._WarpTransformType3D = FastNoise.TransformType3D.DefaultOpenSimplex2;
 						break;
 					default:
-						this.#WarpTransformType3D = FastNoise.TransformType3D.None;
+						this._WarpTransformType3D = FastNoise.TransformType3D.None;
 						break;
 				}
 				break;
@@ -873,19 +895,19 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#GenFractalFBmR2(x,y) {
-		let seed = this.#Seed;
+	_GenFractalFBmR2(x,y) {
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = this.#GenNoiseSingleR2(seed++, x, y);
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = this._GenNoiseSingleR2(seed++, x, y);
 			sum += noise * amp;
-			amp *= FastNoise.#Lerp(1.0, Math.min(noise + 1, 2) * 0.5, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, Math.min(noise + 1, 2) * 0.5, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -897,20 +919,20 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#GenFractalFBmR3(x,y,z){
-		let seed = this.#Seed;
+	_GenFractalFBmR3(x,y,z){
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = this.#GenNoiseSingleR3(seed++, x, y, z);
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = this._GenNoiseSingleR3(seed++, x, y, z);
 			sum += noise * amp;
-			amp *= FastNoise.#Lerp(1.0, (noise + 1) * 0.5, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, (noise + 1) * 0.5, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			z *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			z *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -921,19 +943,19 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#GenFractalRidgedR2(x,y) {
-		let seed = this.#Seed;
+	_GenFractalRidgedR2(x,y) {
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = Math.abs(this.#GenNoiseSingleR2(seed++, x, y));
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = Math.abs(this._GenNoiseSingleR2(seed++, x, y));
 			sum += (noise * -2 + 1) * amp;
-			amp *= FastNoise.#Lerp(1.0, 1 - noise, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, 1 - noise, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -945,20 +967,20 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#GenFractalRidgedR3(x,y,z){
-		let seed = this.#Seed;
+	_GenFractalRidgedR3(x,y,z){
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = Math.abs(this.#GenNoiseSingleR3(seed++, x, y, z));
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = Math.abs(this._GenNoiseSingleR3(seed++, x, y, z));
 			sum += (noise * -2 + 1) * amp;
-			amp *= FastNoise.#Lerp(1.0, 1 - noise, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, 1 - noise, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			z *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			z *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -969,21 +991,21 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#GenFractalPingPongR2(x,y) {
-		let seed = this.#Seed;
+	_GenFractalPingPongR2(x,y) {
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = FastNoise.#PingPong(
-				(this.#GenNoiseSingleR2(seed++, x, y) + 1) * this.#PingPongStrength
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = FastNoise._PingPong(
+				(this._GenNoiseSingleR2(seed++, x, y) + 1) * this._PingPongStrength
 			);
 			sum += (noise - 0.5) * 2 * amp;
-			amp *= FastNoise.#Lerp(1.0, noise, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, noise, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -995,22 +1017,22 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#GenFractalPingPongR3(x,y,z){
-		let seed = this.#Seed;
+	_GenFractalPingPongR3(x,y,z){
+		let seed = this._Seed;
 		let sum = 0;
-		let amp = this.#FractalBounding;
+		let amp = this._FractalBounding;
 
-		for (let i = 0; i < this.#Octaves; i++) {
-			let noise = FastNoise.#PingPong(
-				(this.#GenNoiseSingleR3(seed++, x, y, z) + 1) * this.#PingPongStrength
+		for (let i = 0; i < this._Octaves; i++) {
+			let noise = FastNoise._PingPong(
+				(this._GenNoiseSingleR3(seed++, x, y, z) + 1) * this._PingPongStrength
 			);
 			sum += (noise - 0.5) * 2 * amp;
-			amp *= FastNoise.#Lerp(1.0, noise, this.#WeightedStrength);
+			amp *= FastNoise._Lerp(1.0, noise, this._WeightedStrength);
 
-			x *= this.#Lacunarity;
-			y *= this.#Lacunarity;
-			z *= this.#Lacunarity;
-			amp *= this.#Gain;
+			x *= this._Lacunarity;
+			y *= this._Lacunarity;
+			z *= this._Lacunarity;
+			amp *= this._Gain;
 		}
 		return sum;
 	}
@@ -1022,7 +1044,7 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SingleOpenSimplex2R2(seed,x,y) {
+	_SingleOpenSimplex2R2(seed,x,y) {
 		const SQRT3 = 1.7320508075688772935274463415059;
 		const G2 = (3 - SQRT3) / 6;
 
@@ -1035,8 +1057,8 @@ class FastNoise {
 		let x0 = xi - t;
 		let y0 = yi - t;
 
-		i *= this.#PrimeX;
-		j *= this.#PrimeY;
+		i *= this._PrimeX;
+		j *= this._PrimeY;
 
 		let n0, n1, n2;
 
@@ -1045,7 +1067,7 @@ class FastNoise {
 		if (a <= 0) {
 			n0 = 0;
 		} else {
-			n0 = a * a * (a * a) * this.#GradCoordR2(seed, i, j, x0, y0);
+			n0 = a * a * (a * a) * this._GradCoordR2(seed, i, j, x0, y0);
 		}
 
 		let c = 2 * (1 - 2 * G2) * (1 / G2 - 2) * t + (-2 * (1 - 2 * G2) * (1 - 2 * G2) + a);
@@ -1055,7 +1077,7 @@ class FastNoise {
 		} else {
 			let x2 = x0 + (2 * G2 - 1);
 			let y2 = y0 + (2 * G2 - 1);
-			n2 = c * c * (c * c) * this.#GradCoordR2(seed, i + this.#PrimeX, j + this.#PrimeY, x2, y2);
+			n2 = c * c * (c * c) * this._GradCoordR2(seed, i + this._PrimeX, j + this._PrimeY, x2, y2);
 		}
 
 		if (y0 > x0) {
@@ -1065,7 +1087,7 @@ class FastNoise {
 			if (b <= 0) {
 				n1 = 0;
 			} else {
-				n1 = b * b * (b * b) * this.#GradCoordR2(seed, i, j + this.#PrimeY, x1, y1);
+				n1 = b * b * (b * b) * this._GradCoordR2(seed, i, j + this._PrimeY, x1, y1);
 			}
 		} else {
 			let x1 = x0 + (G2 - 1);
@@ -1074,7 +1096,7 @@ class FastNoise {
 			if (b <= 0) {
 				n1 = 0;
 			} else {
-				n1 = b * b * (b * b) * this.#GradCoordR2(seed, i + this.#PrimeX, j, x1, y1);
+				n1 = b * b * (b * b) * this._GradCoordR2(seed, i + this._PrimeX, j, x1, y1);
 			}
 		}
 		return (n0 + n1 + n2) * 99.83685446303647;
@@ -1088,7 +1110,7 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SingleOpenSimplex2R3(seed,x,y,z){
+	_SingleOpenSimplex2R3(seed,x,y,z){
 		let i = Math.round(x);
 		let j = Math.round(y);
 		let k = Math.round(z);
@@ -1103,16 +1125,16 @@ class FastNoise {
 		let ax0 = xNSign * -x0;
 		let ay0 = yNSign * -y0;
 		let az0 = zNSign * -z0;
-		i *= this.#PrimeX;
-		j *= this.#PrimeY;
-		k *= this.#PrimeZ;
+		i *= this._PrimeX;
+		j *= this._PrimeY;
+		k *= this._PrimeZ;
 
 		let value = 0;
 		let a = 0.6 - x0 * x0 - (y0 * y0 + z0 * z0);
 
 		for (let l = 0; ; l++) {
 			if (a > 0) {
-				value += a * a * (a * a) * this.#GradCoordR3(seed, i, j, k, x0, y0, z0);
+				value += a * a * (a * a) * this._GradCoordR3(seed, i, j, k, x0, y0, z0);
 			}
 
 			if (ax0 >= ay0 && ax0 >= az0) {
@@ -1123,9 +1145,9 @@ class FastNoise {
 						b *
 						b *
 						(b * b) *
-						this.#GradCoordR3(
+						this._GradCoordR3(
 							seed,
-							i - xNSign * this.#PrimeX,
+							i - xNSign * this._PrimeX,
 							j,
 							k,
 							x0 + xNSign,
@@ -1141,10 +1163,10 @@ class FastNoise {
 						b *
 						b *
 						(b * b) *
-						this.#GradCoordR3(
+						this._GradCoordR3(
 							seed,
 							i,
-							j - yNSign * this.#PrimeY,
+							j - yNSign * this._PrimeY,
 							k,
 							x0,
 							y0 + yNSign,
@@ -1159,11 +1181,11 @@ class FastNoise {
 						b *
 						b *
 						(b * b) *
-						this.#GradCoordR3(
+						this._GradCoordR3(
 							seed,
 							i,
 							j,
-							k - zNSign * this.#PrimeZ,
+							k - zNSign * this._PrimeZ,
 							x0,
 							y0,
 							z0 + zNSign
@@ -1185,9 +1207,9 @@ class FastNoise {
 
 			a += 0.75 - ax0 - (ay0 + az0);
 
-			i += (xNSign >> 1) & this.#PrimeX;
-			j += (yNSign >> 1) & this.#PrimeY;
-			k += (zNSign >> 1) & this.#PrimeZ;
+			i += (xNSign >> 1) & this._PrimeX;
+			j += (yNSign >> 1) & this._PrimeY;
+			k += (zNSign >> 1) & this._PrimeZ;
 
 			xNSign = -xNSign;
 			yNSign = -yNSign;
@@ -1205,7 +1227,7 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SingleOpenSimplex2SR2(seed,x,y) {
+	_SingleOpenSimplex2SR2(seed,x,y) {
 		// 2D OpenSimplex2S case is a modified 2D simplex noise.
 
 		const SQRT3 = 1.7320508075688772935274463415059;
@@ -1223,21 +1245,21 @@ class FastNoise {
 		let xi = x - i;
 		let yi = y - j;
 
-		i *= this.#PrimeX;
-		j *= this.#PrimeY;
-		let i1 = i + this.#PrimeX;
-		let j1 = j + this.#PrimeY;
+		i *= this._PrimeX;
+		j *= this._PrimeY;
+		let i1 = i + this._PrimeX;
+		let j1 = j + this._PrimeY;
 
 		let t = (xi + yi) * G2;
 		let x0 = xi - t;
 		let y0 = yi - t;
 
 		let a0 = 2.0 / 3.0 - x0 * x0 - y0 * y0;
-		let value = a0 * a0 * (a0 * a0) * this.#GradCoordR2(seed, i, j, x0, y0);
+		let value = a0 * a0 * (a0 * a0) * this._GradCoordR2(seed, i, j, x0, y0);
 		let a1 = 2 * (1 - 2 * G2) * (1 / G2 - 2) * t + (-2 * (1 - 2 * G2) * (1 - 2 * G2) + a0);
 		let x1 = x0 - (1 - 2 * G2);
 		let y1 = y0 - (1 - 2 * G2);
-		value += a1 * a1 * (a1 * a1) * this.#GradCoordR2(seed, i1, j1, x1, y1);
+		value += a1 * a1 * (a1 * a1) * this._GradCoordR2(seed, i1, j1, x1, y1);
 
 		// Nested conditionals were faster than compact bit logic/arithmetic.
 		let xmyi = xi - yi;
@@ -1251,7 +1273,7 @@ class FastNoise {
 						a2 *
 						a2 *
 						(a2 * a2) *
-						this.#GradCoordR2(seed, i + (this.#PrimeX << 1), j + this.#PrimeY, x2, y2);
+						this._GradCoordR2(seed, i + (this._PrimeX << 1), j + this._PrimeY, x2, y2);
 				}
 			} else {
 				let x2 = x0 + G2;
@@ -1259,7 +1281,7 @@ class FastNoise {
 				let a2 = 2.0 / 3.0 - x2 * x2 - y2 * y2;
 				if (a2 > 0) {
 					value +=
-						a2 * a2 * (a2 * a2) * this.#GradCoordR2(seed, i, j + this.#PrimeY, x2, y2);
+						a2 * a2 * (a2 * a2) * this._GradCoordR2(seed, i, j + this._PrimeY, x2, y2);
 				}
 			}
 
@@ -1272,7 +1294,7 @@ class FastNoise {
 						a3 *
 						a3 *
 						(a3 * a3) *
-						this.#GradCoordR2(seed, i + this.#PrimeX, j + (this.#PrimeY << 1), x3, y3);
+						this._GradCoordR2(seed, i + this._PrimeX, j + (this._PrimeY << 1), x3, y3);
 				}
 			} else {
 				let x3 = x0 + (G2 - 1);
@@ -1280,7 +1302,7 @@ class FastNoise {
 				let a3 = 2.0 / 3.0 - x3 * x3 - y3 * y3;
 				if (a3 > 0) {
 					value +=
-						a3 * a3 * (a3 * a3) * this.#GradCoordR2(seed, i + this.#PrimeX, j, x3, y3);
+						a3 * a3 * (a3 * a3) * this._GradCoordR2(seed, i + this._PrimeX, j, x3, y3);
 				}
 			}
 		} else {
@@ -1290,7 +1312,7 @@ class FastNoise {
 				let a2 = 2.0 / 3.0 - x2 * x2 - y2 * y2;
 				if (a2 > 0) {
 					value +=
-						a2 * a2 * (a2 * a2) * this.#GradCoordR2(seed, i - this.#PrimeX, j, x2, y2);
+						a2 * a2 * (a2 * a2) * this._GradCoordR2(seed, i - this._PrimeX, j, x2, y2);
 				}
 			} else {
 				let x2 = x0 + (G2 - 1);
@@ -1298,7 +1320,7 @@ class FastNoise {
 				let a2 = 2.0 / 3.0 - x2 * x2 - y2 * y2;
 				if (a2 > 0) {
 					value +=
-						a2 * a2 * (a2 * a2) * this.#GradCoordR2(seed, i + this.#PrimeX, j, x2, y2);
+						a2 * a2 * (a2 * a2) * this._GradCoordR2(seed, i + this._PrimeX, j, x2, y2);
 				}
 			}
 
@@ -1308,7 +1330,7 @@ class FastNoise {
 				let a2 = 2.0 / 3.0 - x2 * x2 - y2 * y2;
 				if (a2 > 0) {
 					value +=
-						a2 * a2 * (a2 * a2) * this.#GradCoordR2(seed, i, j - this.#PrimeY, x2, y2);
+						a2 * a2 * (a2 * a2) * this._GradCoordR2(seed, i, j - this._PrimeY, x2, y2);
 				}
 			} else {
 				let x2 = x0 + G2;
@@ -1316,7 +1338,7 @@ class FastNoise {
 				let a2 = 2.0 / 3.0 - x2 * x2 - y2 * y2;
 				if (a2 > 0) {
 					value +=
-						a2 * a2 * (a2 * a2) * this.#GradCoordR2(seed, i, j + this.#PrimeY, x2, y2);
+						a2 * a2 * (a2 * a2) * this._GradCoordR2(seed, i, j + this._PrimeY, x2, y2);
 				}
 			}
 		}
@@ -1332,7 +1354,7 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SingleOpenSimplex2SR3 (seed, x, y, z) {
+	_SingleOpenSimplex2SR3 (seed, x, y, z) {
 		// 3D OpenSimplex2S case uses two offset rotated cube grids.
 
 		/*
@@ -1349,9 +1371,9 @@ class FastNoise {
 		let yi = y - j;
 		let zi = z - k;
 
-		i *= this.#PrimeX;
-		j *= this.#PrimeY;
-		k *= this.#PrimeZ;
+		i *= this._PrimeX;
+		j *= this._PrimeY;
+		k *= this._PrimeZ;
 		let seed2 = seed + 1293373;
 
 		let xNMask = Math.trunc(-0.5 - xi);
@@ -1366,11 +1388,11 @@ class FastNoise {
 			a0 *
 			a0 *
 			(a0 * a0) *
-			this.#GradCoordR3(
+			this._GradCoordR3(
 				seed,
-				i + (xNMask & this.#PrimeX),
-				j + (yNMask & this.#PrimeY),
-				k + (zNMask & this.#PrimeZ),
+				i + (xNMask & this._PrimeX),
+				j + (yNMask & this._PrimeY),
+				k + (zNMask & this._PrimeZ),
 				x0,
 				y0,
 				z0
@@ -1384,7 +1406,7 @@ class FastNoise {
 			a1 *
 			a1 *
 			(a1 * a1) *
-			this.#GradCoordR3(seed2, i + this.#PrimeX, j + this.#PrimeY, k + this.#PrimeZ, x1, y1, z1);
+			this._GradCoordR3(seed2, i + this._PrimeX, j + this._PrimeY, k + this._PrimeZ, x1, y1, z1);
 
 		let xAFlipMask0 = ((xNMask | 1) << 1) * x1;
 		let yAFlipMask0 = ((yNMask | 1) << 1) * y1;
@@ -1401,11 +1423,11 @@ class FastNoise {
 				a2 *
 				a2 *
 				(a2 * a2) *
-				this.#GradCoordR3(
+				this._GradCoordR3(
 					seed,
-					i + (~xNMask & this.#PrimeX),
-					j + (yNMask & this.#PrimeY),
-					k + (zNMask & this.#PrimeZ),
+					i + (~xNMask & this._PrimeX),
+					j + (yNMask & this._PrimeY),
+					k + (zNMask & this._PrimeZ),
 					x2,
 					y0,
 					z0
@@ -1421,11 +1443,11 @@ class FastNoise {
 					a3 *
 					a3 *
 					(a3 * a3) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed,
-						i + (xNMask & this.#PrimeX),
-						j + (~yNMask & this.#PrimeY),
-						k + (~zNMask & this.#PrimeZ),
+						i + (xNMask & this._PrimeX),
+						j + (~yNMask & this._PrimeY),
+						k + (~zNMask & this._PrimeZ),
 						x3,
 						y3,
 						z3
@@ -1439,11 +1461,11 @@ class FastNoise {
 					a4 *
 					a4 *
 					(a4 * a4) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + (xNMask & (this.#PrimeX * 2)),
-						j + this.#PrimeY,
-						k + this.#PrimeZ,
+						i + (xNMask & (this._PrimeX * 2)),
+						j + this._PrimeY,
+						k + this._PrimeZ,
 						x4,
 						y1,
 						z1
@@ -1461,11 +1483,11 @@ class FastNoise {
 				a6 *
 				a6 *
 				(a6 * a6) *
-				this.#GradCoordR3(
+				this._GradCoordR3(
 					seed,
-					i + (xNMask & this.#PrimeX),
-					j + (~yNMask & this.#PrimeY),
-					k + (zNMask & this.#PrimeZ),
+					i + (xNMask & this._PrimeX),
+					j + (~yNMask & this._PrimeY),
+					k + (zNMask & this._PrimeZ),
 					x6,
 					y6,
 					z0
@@ -1480,11 +1502,11 @@ class FastNoise {
 					a7 *
 					a7 *
 					(a7 * a7) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed,
-						i + (~xNMask & this.#PrimeX),
-						j + (yNMask & this.#PrimeY),
-						k + (~zNMask & this.#PrimeZ),
+						i + (~xNMask & this._PrimeX),
+						j + (yNMask & this._PrimeY),
+						k + (~zNMask & this._PrimeZ),
 						x7,
 						y7,
 						z7
@@ -1499,11 +1521,11 @@ class FastNoise {
 					a8 *
 					a8 *
 					(a8 * a8) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + this.#PrimeX,
-						j + (yNMask & (this.#PrimeY << 1)),
-						k + this.#PrimeZ,
+						i + this._PrimeX,
+						j + (yNMask & (this._PrimeY << 1)),
+						k + this._PrimeZ,
 						x8,
 						y8,
 						z1
@@ -1522,11 +1544,11 @@ class FastNoise {
 				aA *
 				aA *
 				(aA * aA) *
-				this.#GradCoordR3(
+				this._GradCoordR3(
 					seed,
-					i + (xNMask & this.#PrimeX),
-					j + (yNMask & this.#PrimeY),
-					k + (~zNMask & this.#PrimeZ),
+					i + (xNMask & this._PrimeX),
+					j + (yNMask & this._PrimeY),
+					k + (~zNMask & this._PrimeZ),
 					xA,
 					yA,
 					zA
@@ -1540,11 +1562,11 @@ class FastNoise {
 					aB *
 					aB *
 					(aB * aB) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed,
-						i + (~xNMask & this.#PrimeX),
-						j + (~yNMask & this.#PrimeY),
-						k + (zNMask & this.#PrimeZ),
+						i + (~xNMask & this._PrimeX),
+						j + (~yNMask & this._PrimeY),
+						k + (zNMask & this._PrimeZ),
 						xB,
 						yB,
 						z0
@@ -1560,11 +1582,11 @@ class FastNoise {
 					aC *
 					aC *
 					(aC * aC) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + this.#PrimeX,
-						j + this.#PrimeY,
-						k + (zNMask & (this.#PrimeZ << 1)),
+						i + this._PrimeX,
+						j + this._PrimeY,
+						k + (zNMask & (this._PrimeZ << 1)),
 						xC,
 						yC,
 						zC
@@ -1583,11 +1605,11 @@ class FastNoise {
 					a5 *
 					a5 *
 					(a5 * a5) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + this.#PrimeX,
-						j + (yNMask & (this.#PrimeY << 1)),
-						k + (zNMask & (this.#PrimeZ << 1)),
+						i + this._PrimeX,
+						j + (yNMask & (this._PrimeY << 1)),
+						k + (zNMask & (this._PrimeZ << 1)),
 						x5,
 						y5,
 						z5
@@ -1605,11 +1627,11 @@ class FastNoise {
 					a9 *
 					a9 *
 					(a9 * a9) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + (xNMask & (this.#PrimeX * 2)),
-						j + this.#PrimeY,
-						k + (zNMask & (this.#PrimeZ << 1)),
+						i + (xNMask & (this._PrimeX * 2)),
+						j + this._PrimeY,
+						k + (zNMask & (this._PrimeZ << 1)),
 						x9,
 						y9,
 						z9
@@ -1626,11 +1648,11 @@ class FastNoise {
 					aD *
 					aD *
 					(aD * aD) *
-					this.#GradCoordR3(
+					this._GradCoordR3(
 						seed2,
-						i + (xNMask & (this.#PrimeX << 1)),
-						j + (yNMask & (this.#PrimeY << 1)),
-						k + this.#PrimeZ,
+						i + (xNMask & (this._PrimeX << 1)),
+						j + (yNMask & (this._PrimeY << 1)),
+						k + this._PrimeZ,
 						xD,
 						yD,
 						z1
@@ -1648,7 +1670,7 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SingleCellularR2(seed,x,y) {
+	_SingleCellularR2(seed,x,y) {
 		/**
 		 *
 		 * @param {number} seed
@@ -1664,12 +1686,12 @@ class FastNoise {
 
 		let closestHash = 0;
 
-		let cellularJitter = 0.43701595 * this.#CellularJitterModifier;
+		let cellularJitter = 0.43701595 * this._CellularJitterModifier;
 
-		let xPrimed = (xr - 1) * this.#PrimeX;
-		let yPrimedBase = (yr - 1) * this.#PrimeY;
+		let xPrimed = (xr - 1) * this._PrimeX;
+		let yPrimedBase = (yr - 1) * this._PrimeY;
 
-		switch (this.#CellularDistanceFunction) {
+		switch (this._CellularDistanceFunction) {
 			default:
 			case FastNoise.CellularDistanceFunction.Euclidean:
 			case FastNoise.CellularDistanceFunction.EuclideanSq:
@@ -1677,11 +1699,11 @@ class FastNoise {
 					let yPrimed = yPrimedBase;
 
 					for (let yi = yr - 1; yi <= yr + 1; yi++) {
-						let hash = this.#HashR2(seed, xPrimed, yPrimed);
+						let hash = this._HashR2(seed, xPrimed, yPrimed);
 						let idx = hash & (255 << 1);
 
-						let vecX = xi - x + this.#RandVecs2D[idx] * cellularJitter;
-						let vecY = yi - y + this.#RandVecs2D[idx | 1] * cellularJitter;
+						let vecX = xi - x + this._RandVecs2D[idx] * cellularJitter;
+						let vecY = yi - y + this._RandVecs2D[idx | 1] * cellularJitter;
 
 						let newDistance = vecX * vecX + vecY * vecY;
 
@@ -1690,9 +1712,9 @@ class FastNoise {
 							distance0 = newDistance;
 							closestHash = hash;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 			case FastNoise.CellularDistanceFunction.Manhattan:
@@ -1700,11 +1722,11 @@ class FastNoise {
 					let yPrimed = yPrimedBase;
 
 					for (let yi = yr - 1; yi <= yr + 1; yi++) {
-						let hash = this.#HashR2(seed, xPrimed, yPrimed);
+						let hash = this._HashR2(seed, xPrimed, yPrimed);
 						let idx = hash & (255 << 1);
 
-						let vecX = xi - x + this.#RandVecs2D[idx] * cellularJitter;
-						let vecY = yi - y + this.#RandVecs2D[idx | 1] * cellularJitter;
+						let vecX = xi - x + this._RandVecs2D[idx] * cellularJitter;
+						let vecY = yi - y + this._RandVecs2D[idx | 1] * cellularJitter;
 
 						let newDistance = Math.abs(vecX) + Math.abs(vecY);
 
@@ -1713,9 +1735,9 @@ class FastNoise {
 							distance0 = newDistance;
 							closestHash = hash;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 			case FastNoise.CellularDistanceFunction.Hybrid:
@@ -1723,11 +1745,11 @@ class FastNoise {
 					let yPrimed = yPrimedBase;
 
 					for (let yi = yr - 1; yi <= yr + 1; yi++) {
-						let hash = this.#HashR2(seed, xPrimed, yPrimed);
+						let hash = this._HashR2(seed, xPrimed, yPrimed);
 						let idx = hash & (255 << 1);
 
-						let vecX = xi - x + this.#RandVecs2D[idx] * cellularJitter;
-						let vecY = yi - y + this.#RandVecs2D[idx | 1] * cellularJitter;
+						let vecX = xi - x + this._RandVecs2D[idx] * cellularJitter;
+						let vecY = yi - y + this._RandVecs2D[idx | 1] * cellularJitter;
 
 						let newDistance =
 							Math.abs(vecX) + Math.abs(vecY) + (vecX * vecX + vecY * vecY);
@@ -1737,25 +1759,25 @@ class FastNoise {
 							distance0 = newDistance;
 							closestHash = hash;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 		}
 
 		if (
-			this.#CellularDistanceFunction === FastNoise.CellularDistanceFunction.Euclidean &&
-			this.#CellularReturnType !== FastNoise.CellularReturnType.CellValue
+			this._CellularDistanceFunction === FastNoise.CellularDistanceFunction.Euclidean &&
+			this._CellularReturnType !== FastNoise.CellularReturnType.CellValue
 		) {
 			distance0 = Math.sqrt(distance0);
 
-			if (this.#CellularReturnType !== FastNoise.CellularReturnType.CellValue) {
+			if (this._CellularReturnType !== FastNoise.CellularReturnType.CellValue) {
 				distance1 = Math.sqrt(distance1);
 			}
 		}
 
-		switch (this.#CellularReturnType) {
+		switch (this._CellularReturnType) {
 			case FastNoise.CellularReturnType.CellValue:
 				return closestHash * (1 / 2147483648.0);
 			case FastNoise.CellularReturnType.Distance:
@@ -1784,7 +1806,7 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SingleCellularR3 (seed, x, y, z) {
+	_SingleCellularR3 (seed, x, y, z) {
 		let xr = Math.round(x);
 		let yr = Math.round(y);
 		let zr = Math.round(z);
@@ -1793,13 +1815,13 @@ class FastNoise {
 		let distance1 = Number.MAX_VALUE;
 		let closestHash = 0;
 
-		let cellularJitter = 0.39614353 * this.#CellularJitterModifier;
+		let cellularJitter = 0.39614353 * this._CellularJitterModifier;
 
-		let xPrimed = (xr - 1) * this.#PrimeX;
-		let yPrimedBase = (yr - 1) * this.#PrimeY;
-		let zPrimedBase = (zr - 1) * this.#PrimeZ;
+		let xPrimed = (xr - 1) * this._PrimeX;
+		let yPrimedBase = (yr - 1) * this._PrimeY;
+		let zPrimedBase = (zr - 1) * this._PrimeZ;
 
-		switch (this.#CellularDistanceFunction) {
+		switch (this._CellularDistanceFunction) {
 			case FastNoise.CellularDistanceFunction.Euclidean:
 			case FastNoise.CellularDistanceFunction.EuclideanSq:
 				for (let xi = xr - 1; xi <= xr + 1; xi++) {
@@ -1809,12 +1831,12 @@ class FastNoise {
 						let zPrimed = zPrimedBase;
 
 						for (let zi = zr - 1; zi <= zr + 1; zi++) {
-							let hash = this.#HashR3(seed, xPrimed, yPrimed, zPrimed);
+							let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 							let idx = hash & (255 << 2);
 
-							let vecX = xi - x + this.#RandVecs3D[idx] * cellularJitter;
-							let vecY = yi - y + this.#RandVecs3D[idx | 1] * cellularJitter;
-							let vecZ = zi - z + this.#RandVecs3D[idx | 2] * cellularJitter;
+							let vecX = xi - x + this._RandVecs3D[idx] * cellularJitter;
+							let vecY = yi - y + this._RandVecs3D[idx | 1] * cellularJitter;
+							let vecZ = zi - z + this._RandVecs3D[idx | 2] * cellularJitter;
 
 							let newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
@@ -1823,11 +1845,11 @@ class FastNoise {
 								distance0 = newDistance;
 								closestHash = hash;
 							}
-							zPrimed += this.#PrimeZ;
+							zPrimed += this._PrimeZ;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 			case FastNoise.CellularDistanceFunction.Manhattan:
@@ -1838,12 +1860,12 @@ class FastNoise {
 						let zPrimed = zPrimedBase;
 
 						for (let zi = zr - 1; zi <= zr + 1; zi++) {
-							let hash = this.#HashR3(seed, xPrimed, yPrimed, zPrimed);
+							let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 							let idx = hash & (255 << 2);
 
-							let vecX = xi - x + this.#RandVecs3D[idx] * cellularJitter;
-							let vecY = yi - y + this.#RandVecs3D[idx | 1] * cellularJitter;
-							let vecZ = zi - z + this.#RandVecs3D[idx | 2] * cellularJitter;
+							let vecX = xi - x + this._RandVecs3D[idx] * cellularJitter;
+							let vecY = yi - y + this._RandVecs3D[idx | 1] * cellularJitter;
+							let vecZ = zi - z + this._RandVecs3D[idx | 2] * cellularJitter;
 
 							let newDistance = Math.abs(vecX) + Math.abs(vecY) + Math.abs(vecZ);
 
@@ -1852,11 +1874,11 @@ class FastNoise {
 								distance0 = newDistance;
 								closestHash = hash;
 							}
-							zPrimed += this.#PrimeZ;
+							zPrimed += this._PrimeZ;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 			case FastNoise.CellularDistanceFunction.Hybrid:
@@ -1867,12 +1889,12 @@ class FastNoise {
 						let zPrimed = zPrimedBase;
 
 						for (let zi = zr - 1; zi <= zr + 1; zi++) {
-							let hash = this.#HashR3(seed, xPrimed, yPrimed, zPrimed);
+							let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 							let idx = hash & (255 << 2);
 
-							let vecX = xi - x + this.#RandVecs3D[idx] * cellularJitter;
-							let vecY = yi - y + this.#RandVecs3D[idx | 1] * cellularJitter;
-							let vecZ = zi - z + this.#RandVecs3D[idx | 2] * cellularJitter;
+							let vecX = xi - x + this._RandVecs3D[idx] * cellularJitter;
+							let vecY = yi - y + this._RandVecs3D[idx | 1] * cellularJitter;
+							let vecZ = zi - z + this._RandVecs3D[idx | 2] * cellularJitter;
 
 							let newDistance =
 								Math.abs(vecX) +
@@ -1885,11 +1907,11 @@ class FastNoise {
 								distance0 = newDistance;
 								closestHash = hash;
 							}
-							zPrimed += this.#PrimeZ;
+							zPrimed += this._PrimeZ;
 						}
-						yPrimed += this.#PrimeY;
+						yPrimed += this._PrimeY;
 					}
-					xPrimed += this.#PrimeX;
+					xPrimed += this._PrimeX;
 				}
 				break;
 			default:
@@ -1897,17 +1919,17 @@ class FastNoise {
 		}
 
 		if (
-			this.#CellularDistanceFunction === FastNoise.CellularDistanceFunction.Euclidean &&
-			this.#CellularReturnType !== FastNoise.CellularReturnType.CellValue
+			this._CellularDistanceFunction === FastNoise.CellularDistanceFunction.Euclidean &&
+			this._CellularReturnType !== FastNoise.CellularReturnType.CellValue
 		) {
 			distance0 = Math.sqrt(distance0);
 
-			if (this.#CellularReturnType !== FastNoise.CellularReturnType.CellValue) {
+			if (this._CellularReturnType !== FastNoise.CellularReturnType.CellValue) {
 				distance1 = Math.sqrt(distance1);
 			}
 		}
 
-		switch (this.#CellularReturnType) {
+		switch (this._CellularReturnType) {
 			case FastNoise.CellularReturnType.CellValue:
 				return closestHash * (1 / 2147483648.0);
 			case FastNoise.CellularReturnType.Distance:
@@ -1934,7 +1956,7 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SinglePerlinR2(seed, x, y) {
+	_SinglePerlinR2(seed, x, y) {
 		let x0 = Math.floor(x);
 		let y0 = Math.floor(y);
 
@@ -1943,26 +1965,26 @@ class FastNoise {
 		let xd1 = xd0 - 1;
 		let yd1 = yd0 - 1;
 
-		let xs = FastNoise.#InterpQuintic(xd0);
-		let ys = FastNoise.#InterpQuintic(yd0);
+		let xs = FastNoise._InterpQuintic(xd0);
+		let ys = FastNoise._InterpQuintic(yd0);
 
-		x0 *= this.#PrimeX;
-		y0 *= this.#PrimeY;
-		let x1 = x0 + this.#PrimeX;
-		let y1 = y0 + this.#PrimeY;
+		x0 *= this._PrimeX;
+		y0 *= this._PrimeY;
+		let x1 = x0 + this._PrimeX;
+		let y1 = y0 + this._PrimeY;
 
-		let xf0 = FastNoise.#Lerp(
-			this.#GradCoordR2(seed, x0, y0, xd0, yd0),
-			this.#GradCoordR2(seed, x1, y0, xd1, yd0),
+		let xf0 = FastNoise._Lerp(
+			this._GradCoordR2(seed, x0, y0, xd0, yd0),
+			this._GradCoordR2(seed, x1, y0, xd1, yd0),
 			xs
 		);
-		let xf1 = FastNoise.#Lerp(
-			this.#GradCoordR2(seed, x0, y1, xd0, yd1),
-			this.#GradCoordR2(seed, x1, y1, xd1, yd1),
+		let xf1 = FastNoise._Lerp(
+			this._GradCoordR2(seed, x0, y1, xd0, yd1),
+			this._GradCoordR2(seed, x1, y1, xd1, yd1),
 			xs
 		);
 
-		return FastNoise.#Lerp(xf0, xf1, ys) * 1.4247691104677813;
+		return FastNoise._Lerp(xf0, xf1, ys) * 1.4247691104677813;
 	}
 
 	/**
@@ -1973,7 +1995,7 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SinglePerlinR3 (seed, x, y, z) {
+	_SinglePerlinR3 (seed, x, y, z) {
 		let x0 = Math.floor(x);
 		let y0 = Math.floor(y);
 		let z0 = Math.floor(z);
@@ -1985,42 +2007,42 @@ class FastNoise {
 		let yd1 = yd0 - 1;
 		let zd1 = zd0 - 1;
 
-		let xs = FastNoise.#InterpQuintic(xd0);
-		let ys = FastNoise.#InterpQuintic(yd0);
-		let zs = FastNoise.#InterpQuintic(zd0);
+		let xs = FastNoise._InterpQuintic(xd0);
+		let ys = FastNoise._InterpQuintic(yd0);
+		let zs = FastNoise._InterpQuintic(zd0);
 
-		x0 *= this.#PrimeX;
-		y0 *= this.#PrimeY;
-		z0 *= this.#PrimeZ;
-		let x1 = x0 + this.#PrimeX;
-		let y1 = y0 + this.#PrimeY;
-		let z1 = z0 + this.#PrimeZ;
+		x0 *= this._PrimeX;
+		y0 *= this._PrimeY;
+		z0 *= this._PrimeZ;
+		let x1 = x0 + this._PrimeX;
+		let y1 = y0 + this._PrimeY;
+		let z1 = z0 + this._PrimeZ;
 
-		let xf00 = FastNoise.#Lerp(
-			this.#GradCoordR3(seed, x0, y0, z0, xd0, yd0, zd0),
-			this.#GradCoordR3(seed, x1, y0, z0, xd1, yd0, zd0),
+		let xf00 = FastNoise._Lerp(
+			this._GradCoordR3(seed, x0, y0, z0, xd0, yd0, zd0),
+			this._GradCoordR3(seed, x1, y0, z0, xd1, yd0, zd0),
 			xs
 		);
-		let xf10 = FastNoise.#Lerp(
-			this.#GradCoordR3(seed, x0, y1, z0, xd0, yd1, zd0),
-			this.#GradCoordR3(seed, x1, y1, z0, xd1, yd1, zd0),
+		let xf10 = FastNoise._Lerp(
+			this._GradCoordR3(seed, x0, y1, z0, xd0, yd1, zd0),
+			this._GradCoordR3(seed, x1, y1, z0, xd1, yd1, zd0),
 			xs
 		);
-		let xf01 = FastNoise.#Lerp(
-			this.#GradCoordR3(seed, x0, y0, z1, xd0, yd0, zd1),
-			this.#GradCoordR3(seed, x1, y0, z1, xd1, yd0, zd1),
+		let xf01 = FastNoise._Lerp(
+			this._GradCoordR3(seed, x0, y0, z1, xd0, yd0, zd1),
+			this._GradCoordR3(seed, x1, y0, z1, xd1, yd0, zd1),
 			xs
 		);
-		let xf11 = FastNoise.#Lerp(
-			this.#GradCoordR3(seed, x0, y1, z1, xd0, yd1, zd1),
-			this.#GradCoordR3(seed, x1, y1, z1, xd1, yd1, zd1),
+		let xf11 = FastNoise._Lerp(
+			this._GradCoordR3(seed, x0, y1, z1, xd0, yd1, zd1),
+			this._GradCoordR3(seed, x1, y1, z1, xd1, yd1, zd1),
 			xs
 		);
 
-		let yf0 = FastNoise.#Lerp(xf00, xf10, ys);
-		let yf1 = FastNoise.#Lerp(xf01, xf11, ys);
+		let yf0 = FastNoise._Lerp(xf00, xf10, ys);
+		let yf1 = FastNoise._Lerp(xf01, xf11, ys);
 
-		return FastNoise.#Lerp(yf0, yf1, zs) * 0.964921414852142333984375;
+		return FastNoise._Lerp(yf0, yf1, zs) * 0.964921414852142333984375;
 	}
 
 	/**
@@ -2030,50 +2052,50 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SingleValueCubicR2(seed, x, y) {
+	_SingleValueCubicR2(seed, x, y) {
 		let x1 = Math.floor(x);
 		let y1 = Math.floor(y);
 
 		let xs = x - x1;
 		let ys = y - y1;
 
-		x1 *= this.#PrimeX;
-		y1 *= this.#PrimeY;
-		let x0 = x1 - this.#PrimeX;
-		let y0 = y1 - this.#PrimeY;
-		let x2 = x1 + this.#PrimeX;
-		let y2 = y1 + this.#PrimeY;
-		let x3 = x1 + (this.#PrimeX << 1);
-		let y3 = y1 + (this.#PrimeY << 1);
+		x1 *= this._PrimeX;
+		y1 *= this._PrimeY;
+		let x0 = x1 - this._PrimeX;
+		let y0 = y1 - this._PrimeY;
+		let x2 = x1 + this._PrimeX;
+		let y2 = y1 + this._PrimeY;
+		let x3 = x1 + (this._PrimeX << 1);
+		let y3 = y1 + (this._PrimeY << 1);
 
 		return (
-			FastNoise.#CubicLerp(
-				FastNoise.#CubicLerp(
-					this.#ValCoordR2(seed, x0, y0),
-					this.#ValCoordR2(seed, x1, y0),
-					this.#ValCoordR2(seed, x2, y0),
-					this.#ValCoordR2(seed, x3, y0),
+			FastNoise._CubicLerp(
+				FastNoise._CubicLerp(
+					this._ValCoordR2(seed, x0, y0),
+					this._ValCoordR2(seed, x1, y0),
+					this._ValCoordR2(seed, x2, y0),
+					this._ValCoordR2(seed, x3, y0),
 					xs
 				),
-				FastNoise.#CubicLerp(
-					this.#ValCoordR2(seed, x0, y1),
-					this.#ValCoordR2(seed, x1, y1),
-					this.#ValCoordR2(seed, x2, y1),
-					this.#ValCoordR2(seed, x3, y1),
+				FastNoise._CubicLerp(
+					this._ValCoordR2(seed, x0, y1),
+					this._ValCoordR2(seed, x1, y1),
+					this._ValCoordR2(seed, x2, y1),
+					this._ValCoordR2(seed, x3, y1),
 					xs
 				),
-				FastNoise.#CubicLerp(
-					this.#ValCoordR2(seed, x0, y2),
-					this.#ValCoordR2(seed, x1, y2),
-					this.#ValCoordR2(seed, x2, y2),
-					this.#ValCoordR2(seed, x3, y2),
+				FastNoise._CubicLerp(
+					this._ValCoordR2(seed, x0, y2),
+					this._ValCoordR2(seed, x1, y2),
+					this._ValCoordR2(seed, x2, y2),
+					this._ValCoordR2(seed, x3, y2),
 					xs
 				),
-				FastNoise.#CubicLerp(
-					this.#ValCoordR2(seed, x0, y3),
-					this.#ValCoordR2(seed, x1, y3),
-					this.#ValCoordR2(seed, x2, y3),
-					this.#ValCoordR2(seed, x3, y3),
+				FastNoise._CubicLerp(
+					this._ValCoordR2(seed, x0, y3),
+					this._ValCoordR2(seed, x1, y3),
+					this._ValCoordR2(seed, x2, y3),
+					this._ValCoordR2(seed, x3, y3),
 					xs
 				),
 				ys
@@ -2090,7 +2112,7 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SingleValueCubicR3(seed, x, y, z) {
+	_SingleValueCubicR3(seed, x, y, z) {
 		let x1 = Math.floor(x);
 		let y1 = Math.floor(y);
 		let z1 = Math.floor(z);
@@ -2099,142 +2121,142 @@ class FastNoise {
 		let ys = y - y1;
 		let zs = z - z1;
 
-		x1 *= this.#PrimeX;
-		y1 *= this.#PrimeY;
-		z1 *= this.#PrimeZ;
+		x1 *= this._PrimeX;
+		y1 *= this._PrimeY;
+		z1 *= this._PrimeZ;
 
-		let x0 = x1 - this.#PrimeX;
-		let y0 = y1 - this.#PrimeY;
-		let z0 = z1 - this.#PrimeZ;
-		let x2 = x1 + this.#PrimeX;
-		let y2 = y1 + this.#PrimeY;
-		let z2 = z1 + this.#PrimeZ;
-		let x3 = x1 + (this.#PrimeX << 1);
-		let y3 = y1 + (this.#PrimeY << 1);
-		let z3 = z1 + (this.#PrimeZ << 1);
+		let x0 = x1 - this._PrimeX;
+		let y0 = y1 - this._PrimeY;
+		let z0 = z1 - this._PrimeZ;
+		let x2 = x1 + this._PrimeX;
+		let y2 = y1 + this._PrimeY;
+		let z2 = z1 + this._PrimeZ;
+		let x3 = x1 + (this._PrimeX << 1);
+		let y3 = y1 + (this._PrimeY << 1);
+		let z3 = z1 + (this._PrimeZ << 1);
 
 		return (
-			FastNoise.#CubicLerp(
-				FastNoise.#CubicLerp(
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y0, z0),
-						this.#ValCoordR3(seed, x1, y0, z0),
-						this.#ValCoordR3(seed, x2, y0, z0),
-						this.#ValCoordR3(seed, x3, y0, z0),
+			FastNoise._CubicLerp(
+				FastNoise._CubicLerp(
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y0, z0),
+						this._ValCoordR3(seed, x1, y0, z0),
+						this._ValCoordR3(seed, x2, y0, z0),
+						this._ValCoordR3(seed, x3, y0, z0),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y1, z0),
-						this.#ValCoordR3(seed, x1, y1, z0),
-						this.#ValCoordR3(seed, x2, y1, z0),
-						this.#ValCoordR3(seed, x3, y1, z0),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y1, z0),
+						this._ValCoordR3(seed, x1, y1, z0),
+						this._ValCoordR3(seed, x2, y1, z0),
+						this._ValCoordR3(seed, x3, y1, z0),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y2, z0),
-						this.#ValCoordR3(seed, x1, y2, z0),
-						this.#ValCoordR3(seed, x2, y2, z0),
-						this.#ValCoordR3(seed, x3, y2, z0),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y2, z0),
+						this._ValCoordR3(seed, x1, y2, z0),
+						this._ValCoordR3(seed, x2, y2, z0),
+						this._ValCoordR3(seed, x3, y2, z0),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y3, z0),
-						this.#ValCoordR3(seed, x1, y3, z0),
-						this.#ValCoordR3(seed, x2, y3, z0),
-						this.#ValCoordR3(seed, x3, y3, z0),
-						xs
-					),
-					ys
-				),
-				FastNoise.#CubicLerp(
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y0, z1),
-						this.#ValCoordR3(seed, x1, y0, z1),
-						this.#ValCoordR3(seed, x2, y0, z1),
-						this.#ValCoordR3(seed, x3, y0, z1),
-						xs
-					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y1, z1),
-						this.#ValCoordR3(seed, x1, y1, z1),
-						this.#ValCoordR3(seed, x2, y1, z1),
-						this.#ValCoordR3(seed, x3, y1, z1),
-						xs
-					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y2, z1),
-						this.#ValCoordR3(seed, x1, y2, z1),
-						this.#ValCoordR3(seed, x2, y2, z1),
-						this.#ValCoordR3(seed, x3, y2, z1),
-						xs
-					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y3, z1),
-						this.#ValCoordR3(seed, x1, y3, z1),
-						this.#ValCoordR3(seed, x2, y3, z1),
-						this.#ValCoordR3(seed, x3, y3, z1),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y3, z0),
+						this._ValCoordR3(seed, x1, y3, z0),
+						this._ValCoordR3(seed, x2, y3, z0),
+						this._ValCoordR3(seed, x3, y3, z0),
 						xs
 					),
 					ys
 				),
-				FastNoise.#CubicLerp(
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y0, z2),
-						this.#ValCoordR3(seed, x1, y0, z2),
-						this.#ValCoordR3(seed, x2, y0, z2),
-						this.#ValCoordR3(seed, x3, y0, z2),
+				FastNoise._CubicLerp(
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y0, z1),
+						this._ValCoordR3(seed, x1, y0, z1),
+						this._ValCoordR3(seed, x2, y0, z1),
+						this._ValCoordR3(seed, x3, y0, z1),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y1, z2),
-						this.#ValCoordR3(seed, x1, y1, z2),
-						this.#ValCoordR3(seed, x2, y1, z2),
-						this.#ValCoordR3(seed, x3, y1, z2),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y1, z1),
+						this._ValCoordR3(seed, x1, y1, z1),
+						this._ValCoordR3(seed, x2, y1, z1),
+						this._ValCoordR3(seed, x3, y1, z1),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y2, z2),
-						this.#ValCoordR3(seed, x1, y2, z2),
-						this.#ValCoordR3(seed, x2, y2, z2),
-						this.#ValCoordR3(seed, x3, y2, z2),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y2, z1),
+						this._ValCoordR3(seed, x1, y2, z1),
+						this._ValCoordR3(seed, x2, y2, z1),
+						this._ValCoordR3(seed, x3, y2, z1),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y3, z2),
-						this.#ValCoordR3(seed, x1, y3, z2),
-						this.#ValCoordR3(seed, x2, y3, z2),
-						this.#ValCoordR3(seed, x3, y3, z2),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y3, z1),
+						this._ValCoordR3(seed, x1, y3, z1),
+						this._ValCoordR3(seed, x2, y3, z1),
+						this._ValCoordR3(seed, x3, y3, z1),
 						xs
 					),
 					ys
 				),
-				FastNoise.#CubicLerp(
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y0, z3),
-						this.#ValCoordR3(seed, x1, y0, z3),
-						this.#ValCoordR3(seed, x2, y0, z3),
-						this.#ValCoordR3(seed, x3, y0, z3),
+				FastNoise._CubicLerp(
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y0, z2),
+						this._ValCoordR3(seed, x1, y0, z2),
+						this._ValCoordR3(seed, x2, y0, z2),
+						this._ValCoordR3(seed, x3, y0, z2),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y1, z3),
-						this.#ValCoordR3(seed, x1, y1, z3),
-						this.#ValCoordR3(seed, x2, y1, z3),
-						this.#ValCoordR3(seed, x3, y1, z3),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y1, z2),
+						this._ValCoordR3(seed, x1, y1, z2),
+						this._ValCoordR3(seed, x2, y1, z2),
+						this._ValCoordR3(seed, x3, y1, z2),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y2, z3),
-						this.#ValCoordR3(seed, x1, y2, z3),
-						this.#ValCoordR3(seed, x2, y2, z3),
-						this.#ValCoordR3(seed, x3, y2, z3),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y2, z2),
+						this._ValCoordR3(seed, x1, y2, z2),
+						this._ValCoordR3(seed, x2, y2, z2),
+						this._ValCoordR3(seed, x3, y2, z2),
 						xs
 					),
-					FastNoise.#CubicLerp(
-						this.#ValCoordR3(seed, x0, y3, z3),
-						this.#ValCoordR3(seed, x1, y3, z3),
-						this.#ValCoordR3(seed, x2, y3, z3),
-						this.#ValCoordR3(seed, x3, y3, z3),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y3, z2),
+						this._ValCoordR3(seed, x1, y3, z2),
+						this._ValCoordR3(seed, x2, y3, z2),
+						this._ValCoordR3(seed, x3, y3, z2),
+						xs
+					),
+					ys
+				),
+				FastNoise._CubicLerp(
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y0, z3),
+						this._ValCoordR3(seed, x1, y0, z3),
+						this._ValCoordR3(seed, x2, y0, z3),
+						this._ValCoordR3(seed, x3, y0, z3),
+						xs
+					),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y1, z3),
+						this._ValCoordR3(seed, x1, y1, z3),
+						this._ValCoordR3(seed, x2, y1, z3),
+						this._ValCoordR3(seed, x3, y1, z3),
+						xs
+					),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y2, z3),
+						this._ValCoordR3(seed, x1, y2, z3),
+						this._ValCoordR3(seed, x2, y2, z3),
+						this._ValCoordR3(seed, x3, y2, z3),
+						xs
+					),
+					FastNoise._CubicLerp(
+						this._ValCoordR3(seed, x0, y3, z3),
+						this._ValCoordR3(seed, x1, y3, z3),
+						this._ValCoordR3(seed, x2, y3, z3),
+						this._ValCoordR3(seed, x3, y3, z3),
 						xs
 					),
 					ys
@@ -2252,22 +2274,22 @@ class FastNoise {
 	 * @param {number} y
 	 * @returns {number}
 	 */
-	#SingleValueR2(seed, x, y) {
+	_SingleValueR2(seed, x, y) {
 		let x0 = Math.floor(x);
 		let y0 = Math.floor(y);
 
-		let xs = FastNoise.#InterpHermite(x - x0);
-		let ys = FastNoise.#InterpHermite(y - y0);
+		let xs = FastNoise._InterpHermite(x - x0);
+		let ys = FastNoise._InterpHermite(y - y0);
 
-		x0 *= this.#PrimeX;
-		y0 *= this.#PrimeY;
-		let x1 = x0 + this.#PrimeX;
-		let y1 = y0 + this.#PrimeY;
+		x0 *= this._PrimeX;
+		y0 *= this._PrimeY;
+		let x1 = x0 + this._PrimeX;
+		let y1 = y0 + this._PrimeY;
 
-		let xf0 = FastNoise.#Lerp(this.#ValCoordR2(seed, x0, y0), this.#ValCoordR2(seed, x1, y0), xs);
-		let xf1 = FastNoise.#Lerp(this.#ValCoordR2(seed, x0, y1), this.#ValCoordR2(seed, x1, y1), xs);
+		let xf0 = FastNoise._Lerp(this._ValCoordR2(seed, x0, y0), this._ValCoordR2(seed, x1, y0), xs);
+		let xf1 = FastNoise._Lerp(this._ValCoordR2(seed, x0, y1), this._ValCoordR2(seed, x1, y1), xs);
 
-		return FastNoise.#Lerp(xf0, xf1, ys);
+		return FastNoise._Lerp(xf0, xf1, ys);
 	}
 
 	/**
@@ -2278,53 +2300,53 @@ class FastNoise {
 	 * @param {number} z
 	 * @returns {number}
 	 */
-	#SingleValueR3(seed, x, y, z) {
+	_SingleValueR3(seed, x, y, z) {
 		let x0 = Math.floor(x);
 		let y0 = Math.floor(y);
 		let z0 = Math.floor(z);
 
-		let xs = FastNoise.#InterpHermite(x - x0);
-		let ys = FastNoise.#InterpHermite(y - y0);
-		let zs = FastNoise.#InterpHermite(z - z0);
+		let xs = FastNoise._InterpHermite(x - x0);
+		let ys = FastNoise._InterpHermite(y - y0);
+		let zs = FastNoise._InterpHermite(z - z0);
 
-		x0 *= this.#PrimeX;
-		y0 *= this.#PrimeY;
-		z0 *= this.#PrimeZ;
-		let x1 = x0 + this.#PrimeX;
-		let y1 = y0 + this.#PrimeY;
-		let z1 = z0 + this.#PrimeZ;
+		x0 *= this._PrimeX;
+		y0 *= this._PrimeY;
+		z0 *= this._PrimeZ;
+		let x1 = x0 + this._PrimeX;
+		let y1 = y0 + this._PrimeY;
+		let z1 = z0 + this._PrimeZ;
 
-		let xf00 = FastNoise.#Lerp(
-			this.#ValCoordR3(seed, x0, y0, z0),
-			this.#ValCoordR3(seed, x1, y0, z0),
+		let xf00 = FastNoise._Lerp(
+			this._ValCoordR3(seed, x0, y0, z0),
+			this._ValCoordR3(seed, x1, y0, z0),
 			xs
 		);
-		let xf10 = FastNoise.#Lerp(
-			this.#ValCoordR3(seed, x0, y1, z0),
-			this.#ValCoordR3(seed, x1, y1, z0),
+		let xf10 = FastNoise._Lerp(
+			this._ValCoordR3(seed, x0, y1, z0),
+			this._ValCoordR3(seed, x1, y1, z0),
 			xs
 		);
-		let xf01 = FastNoise.#Lerp(
-			this.#ValCoordR3(seed, x0, y0, z1),
-			this.#ValCoordR3(seed, x1, y0, z1),
+		let xf01 = FastNoise._Lerp(
+			this._ValCoordR3(seed, x0, y0, z1),
+			this._ValCoordR3(seed, x1, y0, z1),
 			xs
 		);
-		let xf11 = FastNoise.#Lerp(
-			this.#ValCoordR3(seed, x0, y1, z1),
-			this.#ValCoordR3(seed, x1, y1, z1),
+		let xf11 = FastNoise._Lerp(
+			this._ValCoordR3(seed, x0, y1, z1),
+			this._ValCoordR3(seed, x1, y1, z1),
 			xs
 		);
 
-		let yf0 = FastNoise.#Lerp(xf00, xf10, ys);
-		let yf1 = FastNoise.#Lerp(xf01, xf11, ys);
+		let yf0 = FastNoise._Lerp(xf00, xf10, ys);
+		let yf1 = FastNoise._Lerp(xf01, xf11, ys);
 
-		return FastNoise.#Lerp(yf0, yf1, zs);
+		return FastNoise._Lerp(yf0, yf1, zs);
 	}
 
 	/**
 	 * @private
 	 */
-	#DoSingleDomainWarp() {
+	_DoSingleDomainWarp() {
 		/**
 		 *
 		 * @param {number} seed
@@ -2335,9 +2357,9 @@ class FastNoise {
 		 * @param {number} y
 		 */
 		let R2 = (seed, amp, freq, coord, x, y) => {
-			switch (this.#DomainWarpType) {
+			switch (this._DomainWarpType) {
 				case FastNoise.DomainWarpType.OpenSimplex2:
-					this.#SingleDomainWarpOpenSimplex2Gradient(
+					this._SingleDomainWarpOpenSimplex2Gradient(
 						seed,
 						amp * 38.283687591552734375,
 						freq,
@@ -2348,7 +2370,7 @@ class FastNoise {
 					);
 					break;
 				case FastNoise.DomainWarpType.OpenSimplex2Reduced:
-					this.#SingleDomainWarpOpenSimplex2Gradient(
+					this._SingleDomainWarpOpenSimplex2Gradient(
 						seed,
 						amp * 16.0,
 						freq,
@@ -2359,7 +2381,7 @@ class FastNoise {
 					);
 					break;
 				case FastNoise.DomainWarpType.BasicGrid:
-					this.#SingleDomainWarpBasicGrid(seed, amp, freq, coord, x, y);
+					this._SingleDomainWarpBasicGrid(seed, amp, freq, coord, x, y);
 					break;
 			}
 		};
@@ -2375,9 +2397,9 @@ class FastNoise {
 		 * @param {number} z
 		 */
 		let R3 = (seed, amp, freq, coord, x, y, z) => {
-			switch (this.#DomainWarpType) {
+			switch (this._DomainWarpType) {
 				case FastNoise.DomainWarpType.OpenSimplex2:
-					this.#SingleDomainWarpOpenSimplex2Gradient(
+					this._SingleDomainWarpOpenSimplex2Gradient(
 						seed,
 						amp * 32.69428253173828125,
 						freq,
@@ -2389,7 +2411,7 @@ class FastNoise {
 					);
 					break;
 				case FastNoise.DomainWarpType.OpenSimplex2Reduced:
-					this.#SingleDomainWarpOpenSimplex2Gradient(
+					this._SingleDomainWarpOpenSimplex2Gradient(
 						seed,
 						amp * 7.71604938271605,
 						freq,
@@ -2401,7 +2423,7 @@ class FastNoise {
 					);
 					break;
 				case FastNoise.DomainWarpType.BasicGrid:
-					this.#SingleDomainWarpBasicGrid(seed, amp, freq, coord, x, y, z);
+					this._SingleDomainWarpBasicGrid(seed, amp, freq, coord, x, y, z);
 					break;
 			}
 		};
@@ -2426,19 +2448,19 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#DomainWarpSingle() {
+	_DomainWarpSingle() {
 		/**
 		 *
 		 * @param {Vector2} coord
 		 */
 		let R2 = coord => {
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
 
 			let xs = coord.x;
 			let ys = coord.y;
-			switch (this.#DomainWarpType) {
+			switch (this._DomainWarpType) {
 				case FastNoise.DomainWarpType.OpenSimplex2:
 				case FastNoise.DomainWarpType.OpenSimplex2Reduced:
 					const SQRT3 = 1.7320508075688772935274463415059;
@@ -2451,7 +2473,7 @@ class FastNoise {
 					break;
 			}
 
-			this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
+			this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
 		};
 
 		/**
@@ -2459,14 +2481,14 @@ class FastNoise {
 		 * @param {Vector3} coord
 		 */
 		let R3 = coord => {
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
 
 			let xs = coord.x;
 			let ys = coord.y;
 			let zs = coord.z;
-			switch (this.#WarpTransformType3D) {
+			switch (this._WarpTransformType3D) {
 				case FastNoise.TransformType3D.ImproveXYPlanes:
 				{
 					let xy = xs + ys;
@@ -2499,7 +2521,7 @@ class FastNoise {
 					break;
 			}
 
-			this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
+			this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
 		};
 
 		if (arguments.length === 1 && arguments[0] instanceof Vector2) {
@@ -2511,20 +2533,20 @@ class FastNoise {
 		}
 	}
 
-	#DomainWarpFractalProgressive() {
+	_DomainWarpFractalProgressive() {
 		/**
 		 *
 		 * @param {Vector2} coord
 		 */
 		let R2 = coord => {
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
 
-			for (let i = 0; i < this.#Octaves; i++) {
+			for (let i = 0; i < this._Octaves; i++) {
 				let xs = coord.x;
 				let ys = coord.y;
-				switch (this.#DomainWarpType) {
+				switch (this._DomainWarpType) {
 					case FastNoise.DomainWarpType.OpenSimplex2:
 					case FastNoise.DomainWarpType.OpenSimplex2Reduced:
 						const SQRT3 = 1.7320508075688772935274463415059;
@@ -2537,11 +2559,11 @@ class FastNoise {
 						break;
 				}
 
-				this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
+				this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
 
 				seed++;
-				amp *= this.#Gain;
-				freq *= this.#Lacunarity;
+				amp *= this._Gain;
+				freq *= this._Lacunarity;
 			}
 		};
 
@@ -2550,15 +2572,15 @@ class FastNoise {
 		 * @param {Vector3} coord
 		 */
 		let R3 = coord => {
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
 
-			for (let i = 0; i < this.#Octaves; i++) {
+			for (let i = 0; i < this._Octaves; i++) {
 				let xs = coord.x;
 				let ys = coord.y;
 				let zs = coord.z;
-				switch (this.#WarpTransformType3D) {
+				switch (this._WarpTransformType3D) {
 					case FastNoise.TransformType3D.ImproveXYPlanes:
 					{
 						let xy = xs + ys;
@@ -2592,11 +2614,11 @@ class FastNoise {
 						break;
 				}
 
-				this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
+				this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
 
 				seed++;
-				amp *= this.#Gain;
-				freq *= this.#Lacunarity;
+				amp *= this._Gain;
+				freq *= this._Lacunarity;
 			}
 		};
 
@@ -2612,7 +2634,7 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#DomainWarpFractalIndependent() {
+	_DomainWarpFractalIndependent() {
 		/**
 		 *
 		 * @param {Vector2} coord
@@ -2620,7 +2642,7 @@ class FastNoise {
 		let R2 = coord => {
 			let xs = coord.x;
 			let ys = coord.y;
-			switch (this.#DomainWarpType) {
+			switch (this._DomainWarpType) {
 				case FastNoise.DomainWarpType.OpenSimplex2:
 				case FastNoise.DomainWarpType.OpenSimplex2Reduced:
 					const SQRT3 = 1.7320508075688772935274463415059;
@@ -2632,16 +2654,16 @@ class FastNoise {
 				default:
 					break;
 			}
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
 
-			for (let i = 0; i < this.#Octaves; i++) {
-				this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
+			for (let i = 0; i < this._Octaves; i++) {
+				this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys);
 
 				seed++;
-				amp *= this.#Gain;
-				freq *= this.#Lacunarity;
+				amp *= this._Gain;
+				freq *= this._Lacunarity;
 			}
 		};
 
@@ -2653,7 +2675,7 @@ class FastNoise {
 			let xs = coord.x;
 			let ys = coord.y;
 			let zs = coord.z;
-			switch (this.#WarpTransformType3D) {
+			switch (this._WarpTransformType3D) {
 				case FastNoise.TransformType3D.ImproveXYPlanes:
 				{
 					let xy = xs + ys;
@@ -2687,15 +2709,15 @@ class FastNoise {
 					break;
 			}
 
-			let seed = this.#Seed;
-			let amp = this.#DomainWarpAmp * this.#FractalBounding;
-			let freq = this.#Frequency;
-			for (let i = 0; i < this.#Octaves; i++) {
-				this.#DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
+			let seed = this._Seed;
+			let amp = this._DomainWarpAmp * this._FractalBounding;
+			let freq = this._Frequency;
+			for (let i = 0; i < this._Octaves; i++) {
+				this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
 
 				seed++;
-				amp *= this.#Gain;
-				freq *= this.#Lacunarity;
+				amp *= this._Gain;
+				freq *= this._Lacunarity;
 			}
 		};
 
@@ -2711,7 +2733,7 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#SingleDomainWarpBasicGrid() {
+	_SingleDomainWarpBasicGrid() {
 		/**
 		 *
 		 * @param {number} seed
@@ -2729,28 +2751,28 @@ class FastNoise {
 			let x0 = Math.floor(xf);
 			let y0 = Math.floor(yf);
 
-			let xs = FastNoise.#InterpHermite(xf - x0);
-			let ys = FastNoise.#InterpHermite(yf - y0);
+			let xs = FastNoise._InterpHermite(xf - x0);
+			let ys = FastNoise._InterpHermite(yf - y0);
 
-			x0 *= this.#PrimeX;
-			y0 *= this.#PrimeY;
-			let x1 = x0 + this.#PrimeX;
-			let y1 = y0 + this.#PrimeY;
+			x0 *= this._PrimeX;
+			y0 *= this._PrimeY;
+			let x1 = x0 + this._PrimeX;
+			let y1 = y0 + this._PrimeY;
 
-			let hash0 = this.#HashR2(seed, x0, y0) & (255 << 1);
-			let hash1 = this.#HashR2(seed, x1, y0) & (255 << 1);
+			let hash0 = this._HashR2(seed, x0, y0) & (255 << 1);
+			let hash1 = this._HashR2(seed, x1, y0) & (255 << 1);
 
-			let lx0x = FastNoise.#Lerp(this.#RandVecs2D[hash0], this.#RandVecs2D[hash1], xs);
-			let ly0x = FastNoise.#Lerp(this.#RandVecs2D[hash0 | 1], this.#RandVecs2D[hash1 | 1], xs);
+			let lx0x = FastNoise._Lerp(this._RandVecs2D[hash0], this._RandVecs2D[hash1], xs);
+			let ly0x = FastNoise._Lerp(this._RandVecs2D[hash0 | 1], this._RandVecs2D[hash1 | 1], xs);
 
-			hash0 = this.#HashR2(seed, x0, y1) & (255 << 1);
-			hash1 = this.#HashR2(seed, x1, y1) & (255 << 1);
+			hash0 = this._HashR2(seed, x0, y1) & (255 << 1);
+			hash1 = this._HashR2(seed, x1, y1) & (255 << 1);
 
-			let lx1x = FastNoise.#Lerp(this.#RandVecs2D[hash0], this.#RandVecs2D[hash1], xs);
-			let ly1x = FastNoise.#Lerp(this.#RandVecs2D[hash0 | 1], this.#RandVecs2D[hash1 | 1], xs);
+			let lx1x = FastNoise._Lerp(this._RandVecs2D[hash0], this._RandVecs2D[hash1], xs);
+			let ly1x = FastNoise._Lerp(this._RandVecs2D[hash0 | 1], this._RandVecs2D[hash1 | 1], xs);
 
-			coord.x += FastNoise.#Lerp(lx0x, lx1x, ys) * warpAmp;
-			coord.y += FastNoise.#Lerp(ly0x, ly1x, ys) * warpAmp;
+			coord.x += FastNoise._Lerp(lx0x, lx1x, ys) * warpAmp;
+			coord.y += FastNoise._Lerp(ly0x, ly1x, ys) * warpAmp;
 		};
 
 		/**
@@ -2772,52 +2794,52 @@ class FastNoise {
 			let y0 = Math.floor(yf);
 			let z0 = Math.floor(zf);
 
-			let xs = FastNoise.#InterpHermite(xf - x0);
-			let ys = FastNoise.#InterpHermite(yf - y0);
-			let zs = FastNoise.#InterpHermite(zf - z0);
+			let xs = FastNoise._InterpHermite(xf - x0);
+			let ys = FastNoise._InterpHermite(yf - y0);
+			let zs = FastNoise._InterpHermite(zf - z0);
 
-			x0 *= this.#PrimeX;
-			y0 *= this.#PrimeY;
-			z0 *= this.#PrimeZ;
-			let x1 = x0 + this.#PrimeX;
-			let y1 = y0 + this.#PrimeY;
-			let z1 = z0 + this.#PrimeZ;
+			x0 *= this._PrimeX;
+			y0 *= this._PrimeY;
+			z0 *= this._PrimeZ;
+			let x1 = x0 + this._PrimeX;
+			let y1 = y0 + this._PrimeY;
+			let z1 = z0 + this._PrimeZ;
 
-			let hash0 = this.#HashR3(seed, x0, y0, z0) & (255 << 2);
-			let hash1 = this.#HashR3(seed, x1, y0, z0) & (255 << 2);
+			let hash0 = this._HashR3(seed, x0, y0, z0) & (255 << 2);
+			let hash1 = this._HashR3(seed, x1, y0, z0) & (255 << 2);
 
-			let lx0x = FastNoise.#Lerp(this.#RandVecs3D[hash0], this.#RandVecs3D[hash1], xs);
-			let ly0x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 1], this.#RandVecs3D[hash1 | 1], xs);
-			let lz0x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 2], this.#RandVecs3D[hash1 | 2], xs);
+			let lx0x = FastNoise._Lerp(this._RandVecs3D[hash0], this._RandVecs3D[hash1], xs);
+			let ly0x = FastNoise._Lerp(this._RandVecs3D[hash0 | 1], this._RandVecs3D[hash1 | 1], xs);
+			let lz0x = FastNoise._Lerp(this._RandVecs3D[hash0 | 2], this._RandVecs3D[hash1 | 2], xs);
 
-			hash0 = this.#HashR3(seed, x0, y1, z0) & (255 << 2);
-			hash1 = this.#HashR3(seed, x1, y1, z0) & (255 << 2);
+			hash0 = this._HashR3(seed, x0, y1, z0) & (255 << 2);
+			hash1 = this._HashR3(seed, x1, y1, z0) & (255 << 2);
 
-			let lx1x = FastNoise.#Lerp(this.#RandVecs3D[hash0], this.#RandVecs3D[hash1], xs);
-			let ly1x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 1], this.#RandVecs3D[hash1 | 1], xs);
-			let lz1x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 2], this.#RandVecs3D[hash1 | 2], xs);
+			let lx1x = FastNoise._Lerp(this._RandVecs3D[hash0], this._RandVecs3D[hash1], xs);
+			let ly1x = FastNoise._Lerp(this._RandVecs3D[hash0 | 1], this._RandVecs3D[hash1 | 1], xs);
+			let lz1x = FastNoise._Lerp(this._RandVecs3D[hash0 | 2], this._RandVecs3D[hash1 | 2], xs);
 
-			let lx0y = FastNoise.#Lerp(lx0x, lx1x, ys);
-			let ly0y = FastNoise.#Lerp(ly0x, ly1x, ys);
-			let lz0y = FastNoise.#Lerp(lz0x, lz1x, ys);
+			let lx0y = FastNoise._Lerp(lx0x, lx1x, ys);
+			let ly0y = FastNoise._Lerp(ly0x, ly1x, ys);
+			let lz0y = FastNoise._Lerp(lz0x, lz1x, ys);
 
-			hash0 = this.#HashR3(seed, x0, y0, z1) & (255 << 2);
-			hash1 = this.#HashR3(seed, x1, y0, z1) & (255 << 2);
+			hash0 = this._HashR3(seed, x0, y0, z1) & (255 << 2);
+			hash1 = this._HashR3(seed, x1, y0, z1) & (255 << 2);
 
-			lx0x = FastNoise.#Lerp(this.#RandVecs3D[hash0], this.#RandVecs3D[hash1], xs);
-			ly0x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 1], this.#RandVecs3D[hash1 | 1], xs);
-			lz0x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 2], this.#RandVecs3D[hash1 | 2], xs);
+			lx0x = FastNoise._Lerp(this._RandVecs3D[hash0], this._RandVecs3D[hash1], xs);
+			ly0x = FastNoise._Lerp(this._RandVecs3D[hash0 | 1], this._RandVecs3D[hash1 | 1], xs);
+			lz0x = FastNoise._Lerp(this._RandVecs3D[hash0 | 2], this._RandVecs3D[hash1 | 2], xs);
 
-			hash0 = this.#HashR3(seed, x0, y1, z1) & (255 << 2);
-			hash1 = this.#HashR3(seed, x1, y1, z1) & (255 << 2);
+			hash0 = this._HashR3(seed, x0, y1, z1) & (255 << 2);
+			hash1 = this._HashR3(seed, x1, y1, z1) & (255 << 2);
 
-			lx1x = FastNoise.#Lerp(this.#RandVecs3D[hash0], this.#RandVecs3D[hash1], xs);
-			ly1x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 1], this.#RandVecs3D[hash1 | 1], xs);
-			lz1x = FastNoise.#Lerp(this.#RandVecs3D[hash0 | 2], this.#RandVecs3D[hash1 | 2], xs);
+			lx1x = FastNoise._Lerp(this._RandVecs3D[hash0], this._RandVecs3D[hash1], xs);
+			ly1x = FastNoise._Lerp(this._RandVecs3D[hash0 | 1], this._RandVecs3D[hash1 | 1], xs);
+			lz1x = FastNoise._Lerp(this._RandVecs3D[hash0 | 2], this._RandVecs3D[hash1 | 2], xs);
 
-			coord.x += FastNoise.#Lerp(lx0y, FastNoise.#Lerp(lx0x, lx1x, ys), zs) * warpAmp;
-			coord.y += FastNoise.#Lerp(ly0y, FastNoise.#Lerp(ly0x, ly1x, ys), zs) * warpAmp;
-			coord.z += FastNoise.#Lerp(lz0y, FastNoise.#Lerp(lz0x, lz1x, ys), zs) * warpAmp;
+			coord.x += FastNoise._Lerp(lx0y, FastNoise._Lerp(lx0x, lx1x, ys), zs) * warpAmp;
+			coord.y += FastNoise._Lerp(ly0y, FastNoise._Lerp(ly0x, ly1x, ys), zs) * warpAmp;
+			coord.z += FastNoise._Lerp(lz0y, FastNoise._Lerp(lz0x, lz1x, ys), zs) * warpAmp;
 		};
 
 		if (arguments.length === 6 && arguments[3] instanceof Vector2) {
@@ -2840,7 +2862,7 @@ class FastNoise {
 	/**
 	 * @private
 	 */
-	#SingleDomainWarpOpenSimplex2Gradient() {
+	_SingleDomainWarpOpenSimplex2Gradient() {
 		/**
 		 *
 		 * @param {number} seed
@@ -2867,8 +2889,8 @@ class FastNoise {
 			let x0 = xi - t;
 			let y0 = yi - t;
 
-			i *= this.#PrimeX;
-			j *= this.#PrimeY;
+			i *= this._PrimeX;
+			j *= this._PrimeY;
 
 			let vx, vy;
 			vx = vy = 0;
@@ -2878,18 +2900,18 @@ class FastNoise {
 				let aaaa = a * a * (a * a);
 				let xo, yo;
 				if (outGradOnly) {
-					let hash = this.#HashR2(seed, i, j) & (255 << 1);
-					xo = this.#RandVecs2D[hash];
-					yo = this.#RandVecs2D[hash | 1];
+					let hash = this._HashR2(seed, i, j) & (255 << 1);
+					xo = this._RandVecs2D[hash];
+					yo = this._RandVecs2D[hash | 1];
 				} else {
-					let hash = this.#HashR2(seed, i, j);
+					let hash = this._HashR2(seed, i, j);
 					let index1 = hash & (127 << 1);
 					let index2 = (hash >> 7) & (255 << 1);
-					let xg = this.#Gradients2D[index1];
-					let yg = this.#Gradients2D[index1 | 1];
+					let xg = this._Gradients2D[index1];
+					let yg = this._Gradients2D[index1 | 1];
 					let value = x0 * xg + y0 * yg;
-					let xgo = this.#RandVecs2D[index2];
-					let ygo = this.#RandVecs2D[index2 | 1];
+					let xgo = this._RandVecs2D[index2];
+					let ygo = this._RandVecs2D[index2 | 1];
 					xo = value * xgo;
 					yo = value * ygo;
 				}
@@ -2904,18 +2926,18 @@ class FastNoise {
 				let cccc = c * c * (c * c);
 				let xo, yo;
 				if (outGradOnly) {
-					let hash = this.#HashR2(seed, i + this.#PrimeX, j + this.#PrimeY) & (255 << 1);
-					xo = this.#RandVecs2D[hash];
-					yo = this.#RandVecs2D[hash | 1];
+					let hash = this._HashR2(seed, i + this._PrimeX, j + this._PrimeY) & (255 << 1);
+					xo = this._RandVecs2D[hash];
+					yo = this._RandVecs2D[hash | 1];
 				} else {
-					let hash = this.#HashR2(seed, i + this.#PrimeX, j + this.#PrimeY);
+					let hash = this._HashR2(seed, i + this._PrimeX, j + this._PrimeY);
 					let index1 = hash & (127 << 1);
 					let index2 = (hash >> 7) & (255 << 1);
-					let xg = this.#Gradients2D[index1];
-					let yg = this.#Gradients2D[index1 | 1];
+					let xg = this._Gradients2D[index1];
+					let yg = this._Gradients2D[index1 | 1];
 					let value = x2 * xg + y2 * yg;
-					let xgo = this.#RandVecs2D[index2];
-					let ygo = this.#RandVecs2D[index2 | 1];
+					let xgo = this._RandVecs2D[index2];
+					let ygo = this._RandVecs2D[index2 | 1];
 					xo = value * xgo;
 					yo = value * ygo;
 				}
@@ -2931,18 +2953,18 @@ class FastNoise {
 					let bbbb = b * b * (b * b);
 					let xo, yo;
 					if (outGradOnly) {
-						let hash = this.#HashR2(seed, i, j + this.#PrimeY) & (255 << 1);
-						xo = this.#RandVecs2D[hash];
-						yo = this.#RandVecs2D[hash | 1];
+						let hash = this._HashR2(seed, i, j + this._PrimeY) & (255 << 1);
+						xo = this._RandVecs2D[hash];
+						yo = this._RandVecs2D[hash | 1];
 					} else {
-						let hash = this.#HashR2(seed, i, j + this.#PrimeY);
+						let hash = this._HashR2(seed, i, j + this._PrimeY);
 						let index1 = hash & (127 << 1);
 						let index2 = (hash >> 7) & (255 << 1);
-						let xg = this.#Gradients2D[index1];
-						let yg = this.#Gradients2D[index1 | 1];
+						let xg = this._Gradients2D[index1];
+						let yg = this._Gradients2D[index1 | 1];
 						let value = x1 * xg + y1 * yg;
-						let xgo = this.#RandVecs2D[index2];
-						let ygo = this.#RandVecs2D[index2 | 1];
+						let xgo = this._RandVecs2D[index2];
+						let ygo = this._RandVecs2D[index2 | 1];
 						xo = value * xgo;
 						yo = value * ygo;
 					}
@@ -2957,18 +2979,18 @@ class FastNoise {
 					let bbbb = b * b * (b * b);
 					let xo, yo;
 					if (outGradOnly) {
-						let hash = this.#HashR2(seed, i + this.#PrimeX, j) & (255 << 1);
-						xo = this.#RandVecs2D[hash];
-						yo = this.#RandVecs2D[hash | 1];
+						let hash = this._HashR2(seed, i + this._PrimeX, j) & (255 << 1);
+						xo = this._RandVecs2D[hash];
+						yo = this._RandVecs2D[hash | 1];
 					} else {
-						let hash = this.#HashR2(seed, i + this.#PrimeX, j);
+						let hash = this._HashR2(seed, i + this._PrimeX, j);
 						let index1 = hash & (127 << 1);
 						let index2 = (hash >> 7) & (255 << 1);
-						let xg = this.#Gradients2D[index1];
-						let yg = this.#Gradients2D[index1 | 1];
+						let xg = this._Gradients2D[index1];
+						let yg = this._Gradients2D[index1 | 1];
 						let value = x1 * xg + y1 * yg;
-						let xgo = this.#RandVecs2D[index2];
-						let ygo = this.#RandVecs2D[index2 | 1];
+						let xgo = this._RandVecs2D[index2];
+						let ygo = this._RandVecs2D[index2 | 1];
 						xo = value * xgo;
 						yo = value * ygo;
 					}
@@ -3012,9 +3034,9 @@ class FastNoise {
 			let ay0 = yNSign * -y0;
 			let az0 = zNSign * -z0;
 
-			i *= this.#PrimeX;
-			j *= this.#PrimeY;
-			k *= this.#PrimeZ;
+			i *= this._PrimeX;
+			j *= this._PrimeY;
+			k *= this._PrimeZ;
 
 			let vx, vy, vz;
 			vx = vy = vz = 0;
@@ -3025,21 +3047,21 @@ class FastNoise {
 					let aaaa = a * a * (a * a);
 					let xo, yo, zo;
 					if (outGradOnly) {
-						let hash = this.#HashR3(seed, i, j, k) & (255 << 2);
-						xo = this.#RandVecs3D[hash];
-						yo = this.#RandVecs3D[hash | 1];
-						zo = this.#RandVecs3D[hash | 2];
+						let hash = this._HashR3(seed, i, j, k) & (255 << 2);
+						xo = this._RandVecs3D[hash];
+						yo = this._RandVecs3D[hash | 1];
+						zo = this._RandVecs3D[hash | 2];
 					} else {
-						let hash = this.#HashR3(seed, i, j, k);
+						let hash = this._HashR3(seed, i, j, k);
 						let index1 = hash & (63 << 2);
 						let index2 = (hash >> 6) & (255 << 2);
-						let xg = this.#Gradients3D[index1];
-						let yg = this.#Gradients3D[index1 | 1];
-						let zg = this.#Gradients3D[index1 | 2];
+						let xg = this._Gradients3D[index1];
+						let yg = this._Gradients3D[index1 | 1];
+						let zg = this._Gradients3D[index1 | 2];
 						let value = x0 * xg + y0 * yg + z0 * zg;
-						let xgo = this.#RandVecs3D[index2];
-						let ygo = this.#RandVecs3D[index2 | 1];
-						let zgo = this.#RandVecs3D[index2 | 2];
+						let xgo = this._RandVecs3D[index2];
+						let ygo = this._RandVecs3D[index2 | 1];
+						let zgo = this._RandVecs3D[index2 | 2];
 						xo = value * xgo;
 						yo = value * ygo;
 						zo = value * zgo;
@@ -3060,15 +3082,15 @@ class FastNoise {
 				if (ax0 >= ay0 && ax0 >= az0) {
 					x1 += xNSign;
 					b = b + ax0 + ax0;
-					i1 -= xNSign * this.#PrimeX;
+					i1 -= xNSign * this._PrimeX;
 				} else if (ay0 > ax0 && ay0 >= az0) {
 					y1 += yNSign;
 					b = b + ay0 + ay0;
-					j1 -= yNSign * this.#PrimeY;
+					j1 -= yNSign * this._PrimeY;
 				} else {
 					z1 += zNSign;
 					b = b + az0 + az0;
-					k1 -= zNSign * this.#PrimeZ;
+					k1 -= zNSign * this._PrimeZ;
 				}
 
 				if (b > 1) {
@@ -3076,21 +3098,21 @@ class FastNoise {
 					let bbbb = b * b * (b * b);
 					let xo, yo, zo;
 					if (outGradOnly) {
-						let hash = this.#HashR3(seed, i1, j1, k1) & (255 << 2);
-						xo = this.#RandVecs3D[hash];
-						yo = this.#RandVecs3D[hash | 1];
-						zo = this.#RandVecs3D[hash | 2];
+						let hash = this._HashR3(seed, i1, j1, k1) & (255 << 2);
+						xo = this._RandVecs3D[hash];
+						yo = this._RandVecs3D[hash | 1];
+						zo = this._RandVecs3D[hash | 2];
 					} else {
-						let hash = this.#HashR3(seed, i1, j1, k1);
+						let hash = this._HashR3(seed, i1, j1, k1);
 						let index1 = hash & (63 << 2);
 						let index2 = (hash >> 6) & (255 << 2);
-						let xg = this.#Gradients3D[index1];
-						let yg = this.#Gradients3D[index1 | 1];
-						let zg = this.#Gradients3D[index1 | 2];
+						let xg = this._Gradients3D[index1];
+						let yg = this._Gradients3D[index1 | 1];
+						let zg = this._Gradients3D[index1 | 2];
 						let value = x1 * xg + y1 * yg + z1 * zg;
-						let xgo = this.#RandVecs3D[index2];
-						let ygo = this.#RandVecs3D[index2 | 1];
-						let zgo = this.#RandVecs3D[index2 | 2];
+						let xgo = this._RandVecs3D[index2];
+						let ygo = this._RandVecs3D[index2 | 1];
+						let zgo = this._RandVecs3D[index2 | 2];
 						xo = value * xgo;
 						yo = value * ygo;
 						zo = value * zgo;
@@ -3112,9 +3134,9 @@ class FastNoise {
 
 				a += 0.75 - ax0 - (ay0 + az0);
 
-				i += (xNSign >> 1) & this.#PrimeX;
-				j += (yNSign >> 1) & this.#PrimeY;
-				k += (zNSign >> 1) & this.#PrimeZ;
+				i += (xNSign >> 1) & this._PrimeX;
+				j += (yNSign >> 1) & this._PrimeY;
+				k += (zNSign >> 1) & this._PrimeZ;
 
 				xNSign = -xNSign;
 				yNSign = -yNSign;
