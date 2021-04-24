@@ -30,7 +30,7 @@ for (let y= 0; y < 128; y++) {
 // Do something with this data...
 ```
 
-Method overloading explained.
+# Internal Method Overloading
 
 Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
 between language versions.
