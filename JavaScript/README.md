@@ -1,4 +1,11 @@
+## Links
+
+* [npm](https://www.npmjs.com/package/fast-noise-lite)
+* [github](https://github.com/Auburn/FastNoiseLite)
+* [discord](https://discord.gg/SHVaVfV)
+
 ## Getting Started
+
 
 Here's an example for creating a 128x128 array of OpenSimplex2 noise
 

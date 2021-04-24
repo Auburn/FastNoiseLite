@@ -46,6 +46,8 @@
 //
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
+// https://www.npmjs.com/package/fast-noise-lite
+// https://discord.gg/SHVaVfV
 //
 // Ported to Javascript by storm (Patrick U):
 // Discord: storm_5279 | Email: storm1surge@gmail.com | Github: stormy482 (https://github.com/stormy482)
@@ -59,7 +61,8 @@
  * @version 1.0.1
  * @copyright Copyright(c) 2021 Jordan Peck, Contributors
  * @license MIT
- * @npm fast-noise-lite
+ * @git https://github.com/Auburn/FastNoise
+ * @npm https://www.npmjs.com/package/fast-noise-lite
  * @example
 // Create and configure FastNoise object
 let noise = new FastNoiseLite();
