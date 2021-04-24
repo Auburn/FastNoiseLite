@@ -4,10 +4,23 @@
 * [github](https://github.com/Auburn/FastNoiseLite)
 * [discord](https://discord.gg/SHVaVfV)
 
-## Getting Started
+# Getting Started
+
+### Using FastNoise with npm
+
+To begin install the npm package **fast-nose-lite** with
 
 
-Here's an example for creating a 128x128 array of OpenSimplex2 noise
+Note FastNoise does **not** support use with the node.js require(''); function.
+Instead, use ES6 modules and **import**.
+
+``` javascript
+import FastNoise from "fast-noise-lite";
+
+let noise = new FastNoiseLite();
+```
+
+### Creating a 128x128 Array of OpenSimplex2 Noise
 
 ``` javascript
 // Create and configure FastNoise object
@@ -30,7 +43,7 @@ for (let y= 0; y < 128; y++) {
 // Do something with this data...
 ```
 
-# Internal Method Overloading
+### Internal Method Overloading
 
 Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
 between language versions.
@@ -90,4 +103,4 @@ class FastNoise {
 
 ```
 
-DM storm#5279 on discord w/ any questions or email me :)
+####DM storm#0009 on discord or email w/ any questions or need any support or ask someone in our discord :D
