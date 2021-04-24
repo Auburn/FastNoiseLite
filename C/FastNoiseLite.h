@@ -2430,4 +2430,4 @@ void fnlDomainWarp3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 }
 #endif
 
-#endif FASTNOISELITE_H
+#endif // FASTNOISELITE_H
