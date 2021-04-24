@@ -83,7 +83,7 @@ for (let y= 0; y < 128; y++) {
 
 // Do something with this data...
  */
-class FastNoise {
+export default class FastNoise {
 	/**
 	 * @static
 	 * @enum {string}
