@@ -44,13 +44,13 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 1.0.1
+// VERSION: 0.0.1
 // https://github.com/Auburn/FastNoise
-// https://www.npmjs.com/package/fast-noise-lite
+// https://www.npmjs.com/package/fastnoise-lite
 // https://discord.gg/SHVaVfV
 //
 // Ported to Javascript by storm (Patrick U):
-// Discord: storm_5279 | Email: storm1surge@gmail.com | Github: stormy482 (https://github.com/stormy482)
+// Discord: storm#8888 (prefered) | Email: storm1surge@gmail.com | Github: stormy482 (https://github.com/stormy482)
 //
 
 
@@ -58,15 +58,20 @@
 /**
  * @description FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
  * @author stormy482, Jordan Peck
- * @version 1.0.1
+ * @version 0.0.1
  * @copyright Copyright(c) 2021 Jordan Peck, Contributors
  * @license MIT
  * @git https://github.com/Auburn/FastNoise
- * @npm https://www.npmjs.com/package/fast-noise-lite
+ * @npm https://www.npmjs.com/package/fastnoise-lite
  * @example
+// Import from npm (if you used npm)
+
+import FastNoise from "fastnoise-lite";
+
 // Create and configure FastNoise object
-let noise = new FastNoiseLite();
-noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+
+let noise = new FastNoise();
+noise.SetNoiseType(FastNoise.NoiseType.OpenSimplex2);
 
 // Gather noise data
 let noiseData = [];
