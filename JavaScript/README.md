@@ -11,11 +11,11 @@
 To begin install the npm package **fastnoise-lite** with
 
 
-Note FastNoise does **not** support the node.js require(''); function.
+Note FastNoiseLite does **not** support the node.js require(''); function.
 Instead, enable ES6 modules and **import**.
 
 ``` javascript
-import FastNoise from "fastnoise-lite";
+import FastNoiseLite from "fastnoise-lite";
 
 let noise = new FastNoiseLite();
 ```
@@ -30,14 +30,14 @@ noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 // Gather noise data
 let noiseData = [];
 
-for (let y= 0; y < 128; y++) {
-   for (let x= 0; x < 128; x++) {
-      if (typeof noiseData[x] == 'undefined']){
-         noiseData[x] = [];
-      }
+for (let y = 0; y < 128; y++) {
+    for (let x = 0; x < 128; x++) {
+        if (typeof noiseData[x] == 'undefined']) {
+            noiseData[x] = [];
+        }
 
-     noiseData[x][y] = noise.GetNoise(x,y);
-   }
+        noiseData[x][y] = noise.GetNoise(x,y);
+    }
 }
 
 // Do something with this data...
@@ -60,11 +60,11 @@ class FastNoiseLite {
      */
     Method() {
         let R2 = (Param1, Param2) => {
-            //do something 2D
+            // do something 2D
         }
 
         let R3 = (Param1, Param2, Param3) => {
-            //do something 3D
+            // do something 3D
         }
 
         if (arguments.lenght === 2) {
