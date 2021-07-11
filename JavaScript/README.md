@@ -6,9 +6,9 @@
 
 # Getting Started
 
-### Using FastNoise with npm
+### Using FastNoiseLite with npm
 
-To begin install the npm package **fastnose-lite** with
+To begin install the npm package **fastnoise-lite** with
 
 
 Note FastNoise does **not** support the node.js require(''); function.
@@ -17,15 +17,15 @@ Instead, enable ES6 modules and **import**.
 ``` javascript
 import FastNoise from "fastnoise-lite";
 
-let noise = new FastNoise();
+let noise = new FastNoiseLite();
 ```
 
 ### Creating a 128x128 Array of OpenSimplex2 Noise
 
 ``` javascript
-// Create and configure FastNoise object
-let noise = new NoiseLite();
-noise.SetNoiseType(FastNoise.NoiseType.OpenSimplex2);
+// Create and configure FastNoiseLite object
+let noise = new FastNoiseLite();
+noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 
 // Gather noise data
 let noiseData = [];
@@ -54,7 +54,7 @@ frequently used places eg the _Hash methods.
 Here is a template for the method overloading:
 
 ```javascript
-class FastNoise {
+class FastNoiseLite {
     /**
      * JSdoc
      */
