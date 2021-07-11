@@ -1,4 +1,5 @@
 [![discord](https://img.shields.io/discord/703636892901441577?style=flat-square&logo=discord "Discord")](https://discord.gg/SHVaVfV)
+[![npm](https://img.shields.io/npm/v/fast-noise-lite)](https://www.npmjs.com/package/fast-noise-lite)
 
 # FastNoise Lite
 
@@ -24,11 +25,12 @@ If you are looking for a more extensive noise generation library consider using 
 
 ### Supported Languages
 
-- C#
-- C++98
-- C99
-- Java
-- HLSL
+- [C#](/CSharp/README.md)
+- [C++98](/Cpp/README.md)
+- [C99](/C/README.md)
+- [Java](/Java/README.md)
+- [JavaScript](/JavaScript/README.md)
+- [HLSL](/HLSL/README.md)
 
 ## FastNoise Lite Preview App
 
