@@ -44,7 +44,7 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 0.0.1
+// VERSION: 1.0.1
 // https://github.com/Auburn/FastNoiseLite
 // https://www.npmjs.com/package/fastnoise-lite
 // https://discord.gg/SHVaVfV
@@ -58,7 +58,7 @@
 /**
  * @description FastNoiseLite Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
  * @author stormy482, Jordan Peck
- * @version 0.0.1
+ * @version 1.0.1
  * @copyright Copyright(c) 2021 Jordan Peck, Contributors
  * @license MIT
  * @git https://github.com/Auburn/FastNoiseLite
