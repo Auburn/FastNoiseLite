@@ -1,7 +1,7 @@
 {
   "name": "fastnoise-lite",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "an extremely portable open source noise generation library with a large selection of noise algorithms",
   "main": "FastNoiseLite.js",
   "scripts": {
@@ -12,14 +12,25 @@
     "url": "git+https://github.com/Auburn/FastNoiseLite.git"
   },
   "keywords": [
-    "coherent",
     "noise",
-    "perlin",
-    "noise",
-    "3D/2D",
+    "fastnoise",
+    "procedural",
     "simplex",
-    "noise",
-    "fractal"
+    "opensimplex",
+    "cellular",
+    "voronoi",
+    "perlin",
+    "value",
+    "cubic",
+    "fractal",
+    "domain-warping",
+    "2D",
+    "3D",
+    "heightmap",
+    "terrain",
+    "texture",
+    "random",
+    "generative"
   ],
   "author": "Patrick U & Jordan Peck",
   "license": "MIT",
