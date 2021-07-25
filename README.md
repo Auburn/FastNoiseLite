@@ -1,5 +1,5 @@
 [![discord](https://img.shields.io/discord/703636892901441577?style=flat-square&logo=discord "Discord")](https://discord.gg/SHVaVfV)
-[![npm](https://img.shields.io/npm/v/fast-noise-lite)](https://www.npmjs.com/package/fast-noise-lite)
+[![npm](https://img.shields.io/npm/v/fastnoise-lite)](https://www.npmjs.com/package/fastnoise-lite)
 
 # FastNoise Lite
 
@@ -31,6 +31,9 @@ If you are looking for a more extensive noise generation library consider using 
 - [Java](/Java/README.md)
 - [JavaScript](/JavaScript/README.md)
 - [HLSL](/HLSL/README.md)
+
+### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
+### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
 
 ## FastNoise Lite Preview App
 
