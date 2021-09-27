@@ -20,6 +20,7 @@ jobs:
             rid: linux-x64
           - os: macos-latest
             rid: osx-x64
+            args: /p:MacBundleDotNet=true
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -28,7 +29,7 @@ jobs:
         dotnet-version: '3.1.x'
 
     - name: Publish
-      run: dotnet publish PreviewApp -o publish -c Release -r ${{ matrix.rid }} --no-self-contained /p:PublishSingleFile=true /p:PublishTrimmed=false /p:AssemblyName=FastNoiseLiteGUI-${{ matrix.rid }}
+      run: dotnet publish PreviewApp -o publish -c Release -r ${{ matrix.rid }} --no-self-contained /p:PublishSingleFile=true /p:PublishTrimmed=false /p:AssemblyName=FastNoiseLiteGUI-${{ matrix.rid }} ${{ matrix.args }}
 
     - name: 'Upload artifact'
       uses: actions/upload-artifact@v2
