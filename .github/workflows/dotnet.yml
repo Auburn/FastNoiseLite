@@ -1,0 +1,37 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ci-matrix:
+    name: ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-x64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+
+    - name: Publish
+      run: dotnet publish publish PreviewApp/ -o publish -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:AssemblyName=FastNoiseLiteGUI-Win64
+
+    - name: 'Upload artifact'
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.rid }}
+        path: ${{ github.workspace }}/publish/
