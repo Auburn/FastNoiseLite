@@ -28,7 +28,7 @@ jobs:
         dotnet-version: '3.1.x'
 
     - name: Publish
-      run: dotnet publish publish PreviewApp -o publish -c Release -r ${{ matrix.rid }} --no-self-contained /p:PublishSingleFile=true /p:AssemblyName=FastNoiseLiteGUI-${{ matrix.rid }}
+      run: dotnet publish publish ${{ github.workspace }}/PreviewApp -o ${{ github.workspace }}/publish -c Release -r ${{ matrix.rid }} --no-self-contained /p:PublishSingleFile=true /p:AssemblyName=FastNoiseLiteGUI-${{ matrix.rid }}
 
     - name: 'Upload artifact'
       uses: actions/upload-artifact@v2
