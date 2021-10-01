@@ -51,9 +51,9 @@ Benchmarked using C++ version with [NoiseBenchmarking](https://github.com/Auburn
 - OS: Win10 x64
 - Compiler: clang-cl 10.0.0 -m64 /O2
 
-Million points of noise generated per second (higher = better)
+Million of points noise generated per second (higher = better)
 
-| 3D                 | Value  | Perlin | (*Open)Simplex | Cellular |
+| 3D                 | Values  | Perlin | (*Open)Simplex | Cellular |
 |--------------------|--------|--------|----------------|----------|
 | FastNoise Lite     | 64.13  | 47.93  | 36.83*         | 12.49    |
 | FastNoise (Legacy) | 49.34  | 37.75  | 44.74          | 13.27    |
@@ -61,7 +61,7 @@ Million points of noise generated per second (higher = better)
 | libnoise           |        | 27.35  |                | 0.65     |
 | stb perlin         |        | 34.32  |                |          |
 
-| 2D                 | Value  | Perlin | Simplex | Cellular |
+| 2D                 | Values  | Perlin | Simplex | Cellular |
 |--------------------|--------|--------|---------|----------|
 | FastNoise Lite     | 114.01 | 92.83  | 71.30   | 39.15    |
 | FastNoise (Legacy) | 102.12 | 87.99  | 65.29   | 36.84    |
