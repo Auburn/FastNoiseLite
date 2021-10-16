@@ -74,7 +74,7 @@ public class FastNoiseLiteGUI : Form
 
     public FastNoiseLiteGUI()
     {
-        Title = "FastNoise Lite GUI";
+        Title = "FastNoiseLite GUI";
         Resizable = false;
 
         ImageData = new int[1];
