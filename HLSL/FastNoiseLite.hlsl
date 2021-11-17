@@ -710,6 +710,7 @@ static void _fnlTransformDomainWarpCoordinate3D(fnl_state state, inout FNLfloat 
         default:
             break;
         }
+    break;
     }
 }
 
