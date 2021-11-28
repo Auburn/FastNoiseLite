@@ -1659,8 +1659,11 @@ public class FastNoiseLite
                 break;
         }
 
+        float distanceBound = 0.9685159f;
+
         if (mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType >= CellularReturnType.Distance)
         {
+            distanceBound = 1.39177f;
             distance0 = FastSqrt(distance0);
 
             if (mCellularReturnType >= CellularReturnType.Distance2)
@@ -1674,17 +1677,17 @@ public class FastNoiseLite
             case CellularReturnType.CellValue:
                 return closestHash * (1 / 2147483648.0f);
             case CellularReturnType.Distance:
-                return distance0 - 1;
+                return distance0 * distanceBound - 1;
             case CellularReturnType.Distance2:
-                return distance1 - 1;
+                return distance1 * distanceBound - 1;
             case CellularReturnType.Distance2Add:
-                return (distance1 + distance0) * 0.5f - 1;
+                return (distance1 + distance0) * (distanceBound * 0.5f) - 1;
             case CellularReturnType.Distance2Sub:
-                return distance1 - distance0 - 1;
+                return (distance1 - distance0) * distanceBound - 1;
             case CellularReturnType.Distance2Mul:
-                return distance1 * distance0 * 0.5f - 1;
+                return distance1 * distance0 * distanceBound * distanceBound - 1;
             case CellularReturnType.Distance2Div:
-                return distance0 / distance1 - 1;
+                return (distance0 / distance1) * 2 - 1;
             default:
                 return 0;
         }
@@ -2081,7 +2084,7 @@ public class FastNoiseLite
     private void DomainWarpSingle(ref FNLfloat x, ref FNLfloat y)
     {
         int seed = mSeed;
-        float amp = mDomainWarpAmp * mFractalBounding;
+        float amp = mDomainWarpAmp;
         float freq = mFrequency;
 
         FNLfloat xs = x;
@@ -2094,7 +2097,7 @@ public class FastNoiseLite
     private void DomainWarpSingle(ref FNLfloat x, ref FNLfloat y, ref FNLfloat z)
     {
         int seed = mSeed;
-        float amp = mDomainWarpAmp * mFractalBounding;
+        float amp = mDomainWarpAmp;
         float freq = mFrequency;
 
         FNLfloat xs = x;
