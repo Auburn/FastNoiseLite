@@ -124,7 +124,7 @@ public:
         mLacunarity = 2.0f;
         mGain = 0.5f;
         mWeightedStrength = 0.0f;
-        mPingPongStength = 2.0f;
+        mPingPongStrength = 2.0f;
 
         mFractalBounding = 1 / 1.75f;
 
@@ -235,7 +235,7 @@ public:
     /// <remarks>
     /// Default: 2.0
     /// </remarks>
-    void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStength = pingPongStrength; }
+    void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStrength = pingPongStrength; }
 
 
     /// <summary>
@@ -416,7 +416,7 @@ private:
     float mLacunarity;
     float mGain;
     float mWeightedStrength;
-    float mPingPongStength;
+    float mPingPongStrength;
 
     float mFractalBounding;
 
@@ -942,7 +942,7 @@ private:
 
         for (int i = 0; i < mOctaves; i++)
         {
-            float noise = PingPong((GenNoiseSingle(seed++, x, y) + 1) * mPingPongStength);
+            float noise = PingPong((GenNoiseSingle(seed++, x, y) + 1) * mPingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= Lerp(1.0f, noise, mWeightedStrength);
 
@@ -963,7 +963,7 @@ private:
 
         for (int i = 0; i < mOctaves; i++)
         {
-            float noise = PingPong((GenNoiseSingle(seed++, x, y, z) + 1) * mPingPongStength);
+            float noise = PingPong((GenNoiseSingle(seed++, x, y, z) + 1) * mPingPongStrength);
             sum += (noise - 0.5f) * 2 * amp;
             amp *= Lerp(1.0f, noise, mWeightedStrength);
 
