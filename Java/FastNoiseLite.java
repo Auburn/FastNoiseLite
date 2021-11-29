@@ -1508,7 +1508,11 @@ public class FastNoiseLite
         if (mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType != CellularReturnType.CellValue)
         {
             distance0 = FastSqrt(distance0);
-            distance1 = FastSqrt(distance1);
+
+            if (mCellularReturnType != CellularReturnType.Distance)
+            {
+                distance1 = FastSqrt(distance1);
+            }
         }
 
         switch (mCellularReturnType)
@@ -1657,7 +1661,11 @@ public class FastNoiseLite
         if (mCellularDistanceFunction == CellularDistanceFunction.Euclidean && mCellularReturnType != CellularReturnType.CellValue)
         {
             distance0 = FastSqrt(distance0);
-            distance1 = FastSqrt(distance1);
+
+            if (mCellularReturnType != CellularReturnType.Distance)
+            {
+                distance1 = FastSqrt(distance1);
+            }
         }
 
         switch (mCellularReturnType)
