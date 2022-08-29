@@ -8,7 +8,7 @@ FastNoiseLite noise;
 noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 
 // Gather noise data
-float[] noiseData = new float[128 * 128];
+std::vector<float> noiseData(128 * 128)
 int index = 0;
 
 for (int y = 0; y < 128; y++)
@@ -21,6 +21,4 @@ for (int y = 0; y < 128; y++)
 
 // Do something with this data...
 
-// Free data later
-delete[] noiseData;
 ```
