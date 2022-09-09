@@ -22,5 +22,5 @@ for (int y = 0; y < 128; y++)
 // Do something with this data...
 ```
 
-## Shader Toy Demo
+## ShaderToy Demo
 https://www.shadertoy.com/view/sttBz8
