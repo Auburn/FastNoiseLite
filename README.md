@@ -25,13 +25,13 @@ If you are looking for a more extensive noise generation library consider using 
 
 ### Supported Languages
 
-- [C#](/CSharp/README.md)
-- [C++98](/Cpp/README.md)
-- [C99](/C/README.md)
-- [Java](/Java/README.md)
-- [JavaScript](/JavaScript/README.md)
-- [HLSL](/HLSL/README.md)
-- [GLSL](/GLSL/README.md)
+- [C#](/CSharp/)
+- [C++98](/Cpp/)
+- [C99](/C/)
+- [Java](/Java/)
+- [JavaScript](/JavaScript/)
+- [HLSL](/HLSL/)
+- [GLSL](/GLSL/)
 
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
