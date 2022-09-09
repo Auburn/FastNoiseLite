@@ -31,6 +31,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [Java](/Java/README.md)
 - [JavaScript](/JavaScript/README.md)
 - [HLSL](/HLSL/README.md)
+- [GLSL](/GLSL/README.md)
 
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
