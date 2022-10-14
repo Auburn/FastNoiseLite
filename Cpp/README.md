@@ -15,7 +15,9 @@ for (int y = 0; y < 128; y++)
 {
     for (int x = 0; x < 128; x++)
     {
-        noiseData[index++] = noise.GetNoise((float)x, (float)y);
+        noiseData[index] = noise.GetNoise((float)x, (float)y);
+        
+        index++;
     }
 }
 
