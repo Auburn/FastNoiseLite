@@ -47,7 +47,7 @@
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
-// [flatten] switch between using floats or doubles for input position
+// Switch between using floats or doubles for input position
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
