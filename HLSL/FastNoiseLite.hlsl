@@ -47,9 +47,6 @@
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
 
-// Removes [0x80004005 - unknown error] 'internal error: no storage type for block output' 
-#define ENABLE_FLATTEN 1
-
 // [flatten] switch between using floats or doubles for input position
 typedef float FNLfloat;
 //typedef double FNLfloat;
@@ -99,14 +96,12 @@ typedef int fnl_cellular_return_type;
 typedef int fnl_domain_warp_type;
 
 // Removes [0x80004005 - unknown error] 'internal error: no storage type for block output' 
-#if ENABLE_FLATTEN
-    #define FNL_FLATTEN_SWITCH [flatten] switch
-    #define FNL_FLATTEN_IF [flatten] if
-    #define FNL_UNROLL_FOR [unroll(1)] for
+#if UNITY_VERSION
+    #define FNL_FLATTEN [flatten]
+    #define FNL_UNROLL [unroll(1)]
 #else
-    #define FNL_FLATTEN_SWITCH switch
-    #define FNL_FLATTEN_IF if
-    #define FNL_UNROLL_FOR for
+    #define FNL_FLATTEN
+    #define FNL_UNROLL
 #endif
 
 /**
@@ -551,7 +546,7 @@ static float _fnlSingleValue3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 
 static float _fnlGenNoiseSingle2D(fnl_state state, int seed, FNLfloat x, FNLfloat y)
 {
-    FNL_FLATTEN_SWITCH (state.noise_type)
+    FNL_FLATTEN switch (state.noise_type)
     {
     case FNL_NOISE_OPENSIMPLEX2:
         return _fnlSingleSimplex2D(seed, x, y);
@@ -572,7 +567,7 @@ static float _fnlGenNoiseSingle2D(fnl_state state, int seed, FNLfloat x, FNLfloa
 
 static float _fnlGenNoiseSingle3D(fnl_state state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
 {
-    FNL_FLATTEN_SWITCH (state.noise_type)
+    FNL_FLATTEN switch (state.noise_type)
     {
     case FNL_NOISE_OPENSIMPLEX2:
         return _fnlSingleOpenSimplex23D(seed, x, y, z);
@@ -966,7 +961,7 @@ static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat
     float value = 0;
     float a = (0.6f - x0 * x0) - (y0 * y0 + z0 * z0);
 
-    FNL_UNROLL_FOR (int l = 0; ; l++)
+    FNL_UNROLL for (int l = 0; ; l++)
     {
         if (a > 0)
         {
@@ -1305,7 +1300,7 @@ static float _fnlSingleCellular2D(fnl_state state, int seed, FNLfloat x, FNLfloa
     int xPrimed = (xr - 1) * PRIME_X;
     int yPrimedBase = (yr - 1) * PRIME_Y;
 
-    FNL_FLATTEN_SWITCH (state.cellular_distance_func)
+    FNL_FLATTEN switch (state.cellular_distance_func)
     {
     default:
     case FNL_CELLULAR_DISTANCE_EUCLIDEAN:
@@ -1394,7 +1389,7 @@ static float _fnlSingleCellular2D(fnl_state state, int seed, FNLfloat x, FNLfloa
     }
     }
 
-    FNL_FLATTEN_IF (state.cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state.cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE)
+    FNL_FLATTEN if (state.cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state.cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE)
     {
         distance0 = _fnlFastSqrt(distance0);
         if (state.cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE2)
@@ -1781,7 +1776,7 @@ static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, fl
 
 static void _fnlDoSingleDomainWarp2D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, inout FNLfloat xp, inout FNLfloat yp)
 {
-    FNL_FLATTEN_SWITCH (state.domain_warp_type)
+    FNL_FLATTEN switch (state.domain_warp_type)
     {
     case FNL_DOMAIN_WARP_OPENSIMPLEX2:
         _fnlSingleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375f, freq, x, y, xp, yp, false);
@@ -1797,7 +1792,7 @@ static void _fnlDoSingleDomainWarp2D(fnl_state state, int seed, float amp, float
 
 static void _fnlDoSingleDomainWarp3D(fnl_state state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat z, inout FNLfloat xp, inout FNLfloat yp, inout FNLfloat zp)
 {
-    FNL_FLATTEN_SWITCH (state.domain_warp_type)
+    FNL_FLATTEN switch (state.domain_warp_type)
     {
     case FNL_DOMAIN_WARP_OPENSIMPLEX2:
         _fnlSingleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125f, freq, x, y, z, xp, yp, zp, false);
@@ -2265,7 +2260,7 @@ float fnlGetNoise2D(fnl_state state, FNLfloat x, FNLfloat y)
 {
     _fnlTransformNoiseCoordinate2D(state, x, y);
 
-    FNL_FLATTEN_SWITCH(state.fractal_type)
+    FNL_FLATTEN switch (state.fractal_type)
     {
     default:
         return _fnlGenNoiseSingle2D(state, state.seed, x, y);
@@ -2283,7 +2278,7 @@ float fnlGetNoise3D(fnl_state state, FNLfloat x, FNLfloat y, FNLfloat z)
     _fnlTransformNoiseCoordinate3D(state, x, y, z);
 
     // Select a noise type
-    FNL_FLATTEN_SWITCH(state.fractal_type)
+    FNL_FLATTEN switch (state.fractal_type)
     {
     default:
         return _fnlGenNoiseSingle3D(state, state.seed, x, y, z);
@@ -2298,7 +2293,7 @@ float fnlGetNoise3D(fnl_state state, FNLfloat x, FNLfloat y, FNLfloat z)
 
 void fnlDomainWarp2D(fnl_state state, inout FNLfloat x, inout FNLfloat y)
 {
-    FNL_FLATTEN_SWITCH (state.fractal_type)
+    FNL_FLATTEN switch (state.fractal_type)
     {
     default:
         _fnlDomainWarpSingle2D(state, x, y);
@@ -2314,7 +2309,7 @@ void fnlDomainWarp2D(fnl_state state, inout FNLfloat x, inout FNLfloat y)
 
 void fnlDomainWarp3D(fnl_state state, inout FNLfloat x, inout FNLfloat y, inout FNLfloat z)
 {
-    FNL_FLATTEN_SWITCH(state.fractal_type)
+    FNL_FLATTEN switch (state.fractal_type)
     {
     default:
         _fnlDomainWarpSingle3D(state, x, y, z);
