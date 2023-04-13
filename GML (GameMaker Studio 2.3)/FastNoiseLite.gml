@@ -93,11 +93,11 @@ function FastNoiseLite(_seed) constructor {
 	@desc		Create new FastNoiseLite object with optional seed
 	@param {number}	seed : the seed to use for noise
 	*/#endregion
-		
+	
 	if (!is_undefined(_seed)) {
 		self._Seed = _seed;
 	}
-		
+	
 	#region "Enums"
 	static NoiseType = {
 		OpenSimplex2: "OpenSimplex2",
@@ -153,7 +153,7 @@ function FastNoiseLite(_seed) constructor {
 		DefaultOpenSimplex2: "DefaultOpenSimplex2",
 	};
 	#endregion
-		
+	
 	#region Public
 	
 	SetSeed = function(_seed) {
@@ -335,8 +335,6 @@ function FastNoiseLite(_seed) constructor {
 			switch (self._NoiseType) {
 				case FastNoiseLite.NoiseType.OpenSimplex2:
 				case FastNoiseLite.NoiseType.OpenSimplex2S:
-					var SQRT3 = 1.7320508075688772935274463415059;
-					var F2 = 0.5 * (SQRT3 - 1);
 					var t = (_x + _y) * F2;
 					_x += t;
 					_y += t;
@@ -423,21 +421,22 @@ function FastNoiseLite(_seed) constructor {
 			* @description 2D/3D warps the input position using current domain warp settings
 			* @param {Vector2|Vector3} coord
 			*/
+			
 		switch (self._FractalType) {
 			default:
-				self._DomainWarpSingle(_coord);
+				return self._DomainWarpSingle(_coord);
 			break;
 			case FastNoiseLite.FractalType.DomainWarpProgressive:
-				self._DomainWarpFractalProgressive(_coord);
+				return self._DomainWarpFractalProgressive(_coord);
 			break;
 			case FastNoiseLite.FractalType.DomainWarpIndependent:
-				self._DomainWarpFractalIndependent(_coord);
+				return self._DomainWarpFractalIndependent(_coord);
 			break;
 		}
 	}
 		
 	#endregion
-		
+	
 	#region Private
 	#region Private Variables
 	_Seed = 1337;
@@ -747,9 +746,10 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-
+		
+		var noise;
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = self._GenNoiseSingleR2(seed++, _x, _y);
+			noise = self._GenNoiseSingleR2(seed++, _x, _y);
 			sum += noise * amp;
 			amp *= FastNoiseLite._Lerp(1.0, min(noise + 1, 2) * 0.5, self._WeightedStrength);
 
@@ -771,9 +771,10 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-			
+		
+		var noise;
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = self._GenNoiseSingleR3(seed++, _x, _y, _z);
+			noise = self._GenNoiseSingleR3(seed++, _x, _y, _z);
 			sum += noise * amp;
 			amp *= FastNoiseLite._Lerp(1.0, (noise + 1) * 0.5, self._WeightedStrength);
 				
@@ -795,9 +796,10 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-
+		
+		var noise;
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = abs(self._GenNoiseSingleR2(seed++, _x, _y));
+			noise = abs(self._GenNoiseSingleR2(seed++, _x, _y));
 			sum += (noise * -2 + 1) * amp;
 			amp *= FastNoiseLite._Lerp(1.0, 1 - noise, self._WeightedStrength);
 							
@@ -819,9 +821,10 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-
+		
+		var noise;
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = abs(self._GenNoiseSingleR3(seed++, _x, _y, _z));
+			noise = abs(self._GenNoiseSingleR3(seed++, _x, _y, _z));
 			sum += (noise * -2 + 1) * amp;
 			amp *= FastNoiseLite._Lerp(1.0, 1 - noise, self._WeightedStrength);
 				
@@ -843,9 +846,11 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-
+		
+		var noise;
+		
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = FastNoiseLite._PingPong(
+			noise = FastNoiseLite._PingPong(
 					(self._GenNoiseSingleR2(seed++, _x, _y) + 1) * self._PingPongStrength
 			);
 			sum += (noise - 0.5) * 2 * amp;
@@ -869,9 +874,10 @@ function FastNoiseLite(_seed) constructor {
 		var seed = self._Seed;
 		var sum = 0;
 		var amp = self._FractalBounding;
-
+		
+		var noise;
 		for (var i = 0; i < self._Octaves; i++) {
-			var noise = FastNoiseLite._PingPong(
+			noise = FastNoiseLite._PingPong(
 					(self._GenNoiseSingleR3(seed++, _x, _y, _z) + 1) * self._PingPongStrength
 			);
 			sum += (noise - 0.5) * 2 * amp;
@@ -893,9 +899,7 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} y
 			* @returns {number}
 			*/
-		var SQRT3 = 1.7320508075688772935274463415059;
-		var G2 = (3 - SQRT3) / 6;
-
+		
 		var i = floor(_x);
 		var j = floor(_y);
 		var xi = _x - i;
@@ -984,14 +988,15 @@ function FastNoiseLite(_seed) constructor {
 
 			var value = 0;
 			var a = 0.6 - x0 * x0 - (y0 * y0 + z0 * z0);
-
-			for (var l = 0; ; l++) {
+			
+			var l, b;
+			for (l = 0; ; l++) {
 					if (a > 0) {
 							value += a * a * (a * a) * self._GradCoordR3(_seed, i, j, k, x0, y0, z0);
 					}
 
 					if (ax0 >= ay0 && ax0 >= az0) {
-							var b = a + ax0 + ax0;
+							b = a + ax0 + ax0;
 							if (b > 1) {
 									b -= 1;
 									value +=
@@ -1010,7 +1015,7 @@ function FastNoiseLite(_seed) constructor {
 							}
 					}
 					else if (ay0 > ax0 && ay0 >= az0) {
-							var b = a + ay0 + ay0;
+							b = a + ay0 + ay0;
 							if (b > 1) {
 									b -= 1;
 									value +=
@@ -1029,7 +1034,7 @@ function FastNoiseLite(_seed) constructor {
 							}
 					}
 					else {
-							var b = a + az0 + az0;
+							b = a + az0 + az0;
 							if (b > 1) {
 									b -= 1;
 									value +=
@@ -1086,9 +1091,7 @@ function FastNoiseLite(_seed) constructor {
 			*/
 		// 2D OpenSimplex2S case is a modified 2D simplex noise.
 
-		var SQRT3 = 1.7320508075688772935274463415059;
-		var G2 = (3 - SQRT3) / 6;
-
+		
 		/*
 			* --- Skew moved to TransformNoiseCoordinate method ---
 			* final FNLfloat F2 = 0.5f * (SQRT3 - 1);
@@ -1548,22 +1551,24 @@ function FastNoiseLite(_seed) constructor {
 
 		var xPrimed = (xr - 1) * self._PrimeX;
 		var yPrimedBase = (yr - 1) * self._PrimeY;
-
+		
+		var xi, yi, yPrimed, hash, idx, vecX, vecY, newDistance;
+		
 		switch (self._CellularDistanceFunction) {
 				default:
 				case FastNoiseLite.CellularDistanceFunction.Euclidean:
 				case FastNoiseLite.CellularDistanceFunction.EuclideanSq: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
 
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var hash = self._HashR2(_seed, xPrimed, yPrimed);
-							var idx = hash & (255 << 1);
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							hash = self._HashR2(_seed, xPrimed, yPrimed);
+							idx = hash & (255 << 1);
 
-							var vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
-							var vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
+							vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
+							vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
 
-							var newDistance = vecX * vecX + vecY * vecY;
+							newDistance = vecX * vecX + vecY * vecY;
 
 							distance1 = max(min(distance1, newDistance), distance0);
 							if (newDistance < distance0) {
@@ -1576,17 +1581,17 @@ function FastNoiseLite(_seed) constructor {
 					}
 				break;}
 				case FastNoiseLite.CellularDistanceFunction.Manhattan: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
 
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var hash = self._HashR2(_seed, xPrimed, yPrimed);
-							var idx = hash & (255 << 1);
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							hash = self._HashR2(_seed, xPrimed, yPrimed);
+							idx = hash & (255 << 1);
 
-							var vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
-							var vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
+							vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
+							vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
 
-							var newDistance = abs(vecX) + abs(vecY);
+							newDistance = abs(vecX) + abs(vecY);
 
 							distance1 = max(min(distance1, newDistance), distance0);
 							if (newDistance < distance0) {
@@ -1599,18 +1604,17 @@ function FastNoiseLite(_seed) constructor {
 					}
 				break;}
 				case FastNoiseLite.CellularDistanceFunction.Hybrid: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
 
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var hash = self._HashR2(_seed, xPrimed, yPrimed);
-							var idx = hash & (255 << 1);
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							hash = self._HashR2(_seed, xPrimed, yPrimed);
+							idx = hash & (255 << 1);
 
-							var vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
-							var vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
+							vecX = xi - _x + self._RandVecs2D[idx] * cellularJitter;
+							vecY = yi - _y + self._RandVecs2D[idx | 1] * cellularJitter;
 
-							var newDistance =
-									abs(vecX) + abs(vecY) + (vecX * vecX + vecY * vecY);
+							newDistance = abs(vecX) + abs(vecY) + (vecX * vecX + vecY * vecY);
 
 							distance1 = max(min(distance1, newDistance), distance0);
 							if (newDistance < distance0) {
@@ -1676,25 +1680,27 @@ function FastNoiseLite(_seed) constructor {
 		var xPrimed = (xr - 1) * self._PrimeX;
 		var yPrimedBase = (yr - 1) * self._PrimeY;
 		var zPrimedBase = (zr - 1) * self._PrimeZ;
-
+		
+		var xi, yi, zi, yPrimed, zPrimed, hash, idx, vecX, vecY, vecZ, newDistance;
+		
 		switch (self._CellularDistanceFunction) {
 				case FastNoiseLite.CellularDistanceFunction.Euclidean:
 				case FastNoiseLite.CellularDistanceFunction.EuclideanSq: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
+						
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							zPrimed = zPrimedBase;
+							
+							for (zi = zr - 1; zi <= zr + 1; zi++) {
+								hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
+								idx = hash & (255 << 2);
 
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var zPrimed = zPrimedBase;
+								vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
+								vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
+								vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
 
-							for (var zi = zr - 1; zi <= zr + 1; zi++) {
-								var hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
-								var idx = hash & (255 << 2);
-
-								var vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
-								var vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
-								var vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
-
-								var newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
+								newDistance = vecX * vecX + vecY * vecY + vecZ * vecZ;
 
 								distance1 = max(min(distance1, newDistance), distance0);
 								if (newDistance < distance0) {
@@ -1709,21 +1715,21 @@ function FastNoiseLite(_seed) constructor {
 					}
 				break;}
 				case FastNoiseLite.CellularDistanceFunction.Manhattan: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
-
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var zPrimed = zPrimedBase;
-
-							for (var zi = zr - 1; zi <= zr + 1; zi++) {
-								var hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
-								var idx = hash & (255 << 2);
-
-								var vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
-								var vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
-								var vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
-
-								var newDistance = abs(vecX) + abs(vecY) + abs(vecZ);
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
+						
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							zPrimed = zPrimedBase;
+							
+							for (zi = zr - 1; zi <= zr + 1; zi++) {
+								hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
+								idx = hash & (255 << 2);
+								
+								vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
+								vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
+								vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
+								
+								newDistance = abs(vecX) + abs(vecY) + abs(vecZ);
 
 								distance1 = max(min(distance1, newDistance), distance0);
 								if (newDistance < distance0) {
@@ -1738,25 +1744,25 @@ function FastNoiseLite(_seed) constructor {
 					}
 				break;}
 				case FastNoiseLite.CellularDistanceFunction.Hybrid: {
-					for (var xi = xr - 1; xi <= xr + 1; xi++) {
-						var yPrimed = yPrimedBase;
+					for (xi = xr - 1; xi <= xr + 1; xi++) {
+						yPrimed = yPrimedBase;
 
-						for (var yi = yr - 1; yi <= yr + 1; yi++) {
-							var zPrimed = zPrimedBase;
+						for (yi = yr - 1; yi <= yr + 1; yi++) {
+							zPrimed = zPrimedBase;
 
-							for (var zi = zr - 1; zi <= zr + 1; zi++) {
-								var hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
-								var idx = hash & (255 << 2);
+							for (zi = zr - 1; zi <= zr + 1; zi++) {
+								hash = self._HashR3(_seed, xPrimed, yPrimed, zPrimed);
+								idx = hash & (255 << 2);
 
-								var vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
-								var vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
-								var vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
+								vecX = xi - _x + self._RandVecs3D[idx] * cellularJitter;
+								vecY = yi - _y + self._RandVecs3D[idx | 1] * cellularJitter;
+								vecZ = zi - _z + self._RandVecs3D[idx | 2] * cellularJitter;
 
-								var newDistance =
-										abs(vecX) +
-										abs(vecY) +
-										abs(vecZ) +
-										(vecX * vecX + vecY * vecY + vecZ * vecZ);
+								newDistance =
+									abs(vecX) +
+									abs(vecY) +
+									abs(vecZ) +
+									(vecX * vecX + vecY * vecY + vecZ * vecZ);
 
 								distance1 = max(min(distance1, newDistance), distance0);
 								if (newDistance < distance0) {
@@ -2211,8 +2217,8 @@ function FastNoiseLite(_seed) constructor {
 				*/
 			switch (self._DomainWarpType) {
 				case FastNoiseLite.DomainWarpType.OpenSimplex2: {
-					self._SingleDomainWarpOpenSimplex2Gradient(
-							seed,
+					return self._SingleDomainWarpOpenSimplex2Gradient(
+							_seed,
 							amp * 38.283687591552734375,
 							freq,
 							coord,
@@ -2222,8 +2228,8 @@ function FastNoiseLite(_seed) constructor {
 					);
 				break;}
 				case FastNoiseLite.DomainWarpType.OpenSimplex2Reduced: {
-					self._SingleDomainWarpOpenSimplex2Gradient(
-							seed,
+					return self._SingleDomainWarpOpenSimplex2Gradient(
+							_seed,
 							amp * 16.0,
 							freq,
 							coord,
@@ -2233,7 +2239,7 @@ function FastNoiseLite(_seed) constructor {
 					);
 				break;}
 				case FastNoiseLite.DomainWarpType.BasicGrid:{
-					self._SingleDomainWarpBasicGrid(_seed, amp, freq, coord, _x, _y);
+					return self._SingleDomainWarpBasicGrid(_seed, amp, freq, coord, _x, _y);
 				break;}
 			}
 		};
@@ -2251,7 +2257,7 @@ function FastNoiseLite(_seed) constructor {
 			*/
 			switch (self._DomainWarpType) {
 				case FastNoiseLite.DomainWarpType.OpenSimplex2: {
-					self._SingleDomainWarpOpenSimplex2Gradient(
+					return self._SingleDomainWarpOpenSimplex2Gradient(
 							seed,
 							amp * 32.69428253173828125,
 							freq,
@@ -2263,7 +2269,7 @@ function FastNoiseLite(_seed) constructor {
 					);
 				break;}
 				case FastNoiseLite.DomainWarpType.OpenSimplex2Reduced: {
-					self._SingleDomainWarpOpenSimplex2Gradient(
+					return self._SingleDomainWarpOpenSimplex2Gradient(
 							seed,
 							amp * 7.71604938271605,
 							freq,
@@ -2275,7 +2281,7 @@ function FastNoiseLite(_seed) constructor {
 					);
 				break;}
 				case FastNoiseLite.DomainWarpType.BasicGrid: {
-					self._SingleDomainWarpBasicGrid(_seed, amp, freq, coord, _x, _y, _z);
+					return self._SingleDomainWarpBasicGrid(_seed, amp, freq, coord, _x, _y, _z);
 				break;}
 			}
 		};
@@ -2309,8 +2315,6 @@ function FastNoiseLite(_seed) constructor {
 			switch (self._DomainWarpType) {
 				case FastNoiseLite.DomainWarpType.OpenSimplex2:
 				case FastNoiseLite.DomainWarpType.OpenSimplex2Reduced: {
-					var SQRT3 = 1.7320508075688772935274463415059;
-					var F2 = 0.5 * (SQRT3 - 1);
 					var t = (xs + ys) * F2;
 					xs += t;
 					ys += t;
@@ -2319,7 +2323,7 @@ function FastNoiseLite(_seed) constructor {
 					break;
 			}
 
-			self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
+			return self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
 		};
 			
 		R3 = function(_coord) {
@@ -2362,7 +2366,7 @@ function FastNoiseLite(_seed) constructor {
 					break;
 			}
 
-			self._DoSingleDomainWarp(_seed, amp, freq, coord, xs, ys, zs);
+			return self._DoSingleDomainWarp(_seed, amp, freq, _coord, xs, ys, zs);
 		};
 
 		if (!is_undefined(_coord))
@@ -2388,16 +2392,16 @@ function FastNoiseLite(_seed) constructor {
 			var seed = self._Seed;
 			var amp = self._DomainWarpAmp * self._FractalBounding;
 			var freq = self._Frequency;
-
+			
+			var xs, ys, t;
+			
 			for (var i = 0; i < self._Octaves; i++) {
-				var xs = _coord.x;
-				var ys = _coord.y;
+				xs = _coord.x;
+				ys = _coord.y;
 				switch (self._DomainWarpType) {
 					case FastNoiseLite.DomainWarpType.OpenSimplex2:
 					case FastNoiseLite.DomainWarpType.OpenSimplex2Reduced:
-						var SQRT3 = 1.7320508075688772935274463415059;
-						var F2 = 0.5 * (SQRT3 - 1);
-						var t = (xs + ys) * F2;
+						t = (xs + ys) * F2;
 						xs += t;
 						ys += t;
 						break;
@@ -2405,12 +2409,14 @@ function FastNoiseLite(_seed) constructor {
 						break;
 				}
 
-				self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
+				_coord = self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
 
 				seed++;
 				amp *= self._Gain;
 				freq *= self._Lacunarity;
 			}
+			
+			return _coord;
 		};
 
 					
@@ -2422,23 +2428,25 @@ function FastNoiseLite(_seed) constructor {
 			var seed = self._Seed;
 			var amp = self._DomainWarpAmp * self._FractalBounding;
 			var freq = self._Frequency;
-
+			
+			var xs, ys, zs, xy, s2, xz, r;
+			
 			for (var i = 0; i < self._Octaves; i++) {
-					var xs = _coord.x;
-					var ys = _coord.y;
-					var zs = _coord.z;
+					xs = _coord.x;
+					ys = _coord.y;
+					zs = _coord.z;
 					switch (self._WarpTransformType3D) {
 						case FastNoiseLite.TransformType3D.ImproveXYPlanes: {
-							var xy = xs + ys;
-							var s2 = xy * -0.211324865405187;
+							xy = xs + ys;
+							s2 = xy * -0.211324865405187;
 							zs *= 0.577350269189626;
 							xs += s2 - zs;
 							ys = ys + s2 - zs;
 							zs += xy * 0.577350269189626;
 						break;}
 						case FastNoiseLite.TransformType3D.ImproveXZPlanes: {
-							var xz = xs + zs;
-							var s2 = xz * -0.211324865405187;
+							xz = xs + zs;
+							s2 = xz * -0.211324865405187;
 							ys *= 0.577350269189626;
 							xs += s2 - ys;
 							zs += s2 - ys;
@@ -2446,7 +2454,7 @@ function FastNoiseLite(_seed) constructor {
 						break;}
 						case FastNoiseLite.TransformType3D.DefaultOpenSimplex2: {
 							static R3 = 2.0 / 3.0;
-							var r = (xs + ys + zs) * R3; // Rotation, not skew
+							r = (xs + ys + zs) * R3; // Rotation, not skew
 							xs = r - xs;
 							ys = r - ys;
 							zs = r - zs;
@@ -2455,12 +2463,14 @@ function FastNoiseLite(_seed) constructor {
 							break;
 					}
 
-					self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys, zs);
+					_coord = self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys, zs);
 
 					seed++;
 					amp *= self._Gain;
 					freq *= self._Lacunarity;
 			}
+			
+			return _coord
 		};
 
 		if (!is_undefined(_coord))
@@ -2493,8 +2503,6 @@ function FastNoiseLite(_seed) constructor {
 			switch (self._DomainWarpType) {
 				case FastNoiseLite.DomainWarpType.OpenSimplex2:
 				case FastNoiseLite.DomainWarpType.OpenSimplex2Reduced:
-					var SQRT3 = 1.7320508075688772935274463415059;
-					var F2 = 0.5 * (SQRT3 - 1);
 					var t = (xs + ys) * F2;
 					xs += t;
 					ys += t;
@@ -2505,14 +2513,16 @@ function FastNoiseLite(_seed) constructor {
 			var seed = self._Seed;
 			var amp = self._DomainWarpAmp * self._FractalBounding;
 			var freq = self._Frequency;
-
+			
 			for (var i = 0; i < self._Octaves; i++) {
-				self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
+				_coord = self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys);
 
 				seed++;
 				amp *= self._Gain;
 				freq *= self._Lacunarity;
 			}
+			
+			return _coord;
 		};
 			
 		R3 = function(_coord) {
@@ -2556,12 +2566,13 @@ function FastNoiseLite(_seed) constructor {
 			var amp = self._DomainWarpAmp * self._FractalBounding;
 			var freq = self._Frequency;
 			for (var i = 0; i < self._Octaves; i++) {
-					self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys, zs);
+					_coord = self._DoSingleDomainWarp(seed, amp, freq, _coord, xs, ys, zs);
 
 					seed++;
 					amp *= self._Gain;
 					freq *= self._Lacunarity;
 			}
+			return _coord;
 		};
 			
 		if (!is_undefined(_coord))
@@ -2621,6 +2632,8 @@ function FastNoiseLite(_seed) constructor {
 
 			coord.x += FastNoiseLite._Lerp(lx0x, lx1x, ys) * warpAmp;
 			coord.y += FastNoiseLite._Lerp(ly0x, ly1x, ys) * warpAmp;
+			
+			return coord;
 		};
 
 			
@@ -2689,6 +2702,8 @@ function FastNoiseLite(_seed) constructor {
 			coord.x += FastNoiseLite._Lerp(lx0y, FastNoiseLite._Lerp(lx0x, lx1x, ys), zs) * warpAmp;
 			coord.y += FastNoiseLite._Lerp(ly0y, FastNoiseLite._Lerp(ly0x, ly1x, ys), zs) * warpAmp;
 			coord.z += FastNoiseLite._Lerp(lz0y, FastNoiseLite._Lerp(lz0x, lz1x, ys), zs) * warpAmp;
+			
+			return coord
 		};
 
 		if (is_undefined(_z)) {
@@ -2717,16 +2732,13 @@ function FastNoiseLite(_seed) constructor {
 				* @param {number} y
 				*/
 				
-			var SQRT3 = 1.7320508075688772935274463415059;
-			var G2 = (3 - SQRT3) / 6;
-
 			_x *= frequency;
 			_y *= frequency;
 
 			var i = floor(_x);
 			var j = floor(_y);
-			var xi = x - i;
-			var yi = y - j;
+			var xi = _x - i;
+			var yi = _y - j;
 
 			var t = (xi + yi) * G2;
 			var x0 = xi - t;
@@ -2736,7 +2748,8 @@ function FastNoiseLite(_seed) constructor {
 			j *= self._PrimeY;
 
 			var vx, vy;
-			vx = vy = 0;
+			vx = 0;
+			vy = 0;
 
 			var a = 0.5 - x0 * x0 - y0 * y0;
 			if (a > 0) {
@@ -2849,6 +2862,8 @@ function FastNoiseLite(_seed) constructor {
 
 			coord.x += vx * warpAmp;
 			coord.y += vy * warpAmp;
+			
+			return coord;
 		};
 			
 		R3 = function(_seed, warpAmp, frequency, coord, outGradOnly, _x, _y, _z) {
@@ -2892,27 +2907,29 @@ function FastNoiseLite(_seed) constructor {
 					vz = 0;
 				
 			var a = 0.6 - x0 * x0 - (y0 * y0 + z0 * z0);
+			
+			var aaaa, xo, yo, zo, hash, index1, index2, xg, yg, zg, value, xgo, ygo, zgo, b, i1, j1, k1, x1, y1, z1, bbbb
+			
 			for (var l = 0; ; l++) {
 					if (a > 0) {
-							var aaaa = a * a * (a * a);
-							var xo, yo, zo;
+							aaaa = a * a * (a * a);
 							if (outGradOnly) {
-									var hash = self._HashR3(_seed, i, j, k) & (255 << 2);
+									hash = self._HashR3(_seed, i, j, k) & (255 << 2);
 									xo = self._RandVecs3D[hash];
 									yo = self._RandVecs3D[hash | 1];
 									zo = self._RandVecs3D[hash | 2];
 							}
 							else {
-									var hash = self._HashR3(_seed, i, j, k);
-									var index1 = hash & (63 << 2);
-									var index2 = (hash >> 6) & (255 << 2);
-									var xg = self._Gradients3D[index1];
-									var yg = self._Gradients3D[index1 | 1];
-									var zg = self._Gradients3D[index1 | 2];
-									var value = x0 * xg + y0 * yg + z0 * zg;
-									var xgo = self._RandVecs3D[index2];
-									var ygo = self._RandVecs3D[index2 | 1];
-									var zgo = self._RandVecs3D[index2 | 2];
+									hash = self._HashR3(_seed, i, j, k);
+									index1 = hash & (63 << 2);
+									index2 = (hash >> 6) & (255 << 2);
+									xg = self._Gradients3D[index1];
+									yg = self._Gradients3D[index1 | 1];
+									zg = self._Gradients3D[index1 | 2];
+									value = x0 * xg + y0 * yg + z0 * zg;
+									xgo = self._RandVecs3D[index2];
+									ygo = self._RandVecs3D[index2 | 1];
+									zgo = self._RandVecs3D[index2 | 2];
 									xo = value * xgo;
 									yo = value * ygo;
 									zo = value * zgo;
@@ -2922,13 +2939,13 @@ function FastNoiseLite(_seed) constructor {
 							vz += aaaa * zo;
 					}
 
-					var b = a;
-					var i1 = i;
-					var j1 = j;
-					var k1 = k;
-					var x1 = x0;
-					var y1 = y0;
-					var z1 = z0;
+					b = a;
+					i1 = i;
+					j1 = j;
+					k1 = k;
+					x1 = x0;
+					y1 = y0;
+					z1 = z0;
 
 					if (ax0 >= ay0 && ax0 >= az0) {
 							x1 += xNSign;
@@ -2948,25 +2965,24 @@ function FastNoiseLite(_seed) constructor {
 
 					if (b > 1) {
 							b -= 1;
-							var bbbb = b * b * (b * b);
-							var xo, yo, zo;
+							bbbb = b * b * (b * b);
 							if (outGradOnly) {
-									var hash = self._HashR3(_seed, i1, j1, k1) & (255 << 2);
+									hash = self._HashR3(_seed, i1, j1, k1) & (255 << 2);
 									xo = self._RandVecs3D[hash];
 									yo = self._RandVecs3D[hash | 1];
 									zo = self._RandVecs3D[hash | 2];
 							}
 							else {
-									var hash = self._HashR3(_seed, i1, j1, k1);
-									var index1 = hash & (63 << 2);
-									var index2 = (hash >> 6) & (255 << 2);
-									var xg = self._Gradients3D[index1];
-									var yg = self._Gradients3D[index1 | 1];
-									var zg = self._Gradients3D[index1 | 2];
-									var value = x1 * xg + y1 * yg + z1 * zg;
-									var xgo = self._RandVecs3D[index2];
-									var ygo = self._RandVecs3D[index2 | 1];
-									var zgo = self._RandVecs3D[index2 | 2];
+									hash = self._HashR3(_seed, i1, j1, k1);
+									index1 = hash & (63 << 2);
+									index2 = (hash >> 6) & (255 << 2);
+									xg = self._Gradients3D[index1];
+									yg = self._Gradients3D[index1 | 1];
+									zg = self._Gradients3D[index1 | 2];
+									value = x1 * xg + y1 * yg + z1 * zg;
+									xgo = self._RandVecs3D[index2];
+									ygo = self._RandVecs3D[index2 | 1];
+									zgo = self._RandVecs3D[index2 | 2];
 									xo = value * xgo;
 									yo = value * ygo;
 									zo = value * zgo;
@@ -3002,14 +3018,16 @@ function FastNoiseLite(_seed) constructor {
 			coord.x += vx * warpAmp;
 			coord.y += vy * warpAmp;
 			coord.z += vz * warpAmp;
+			
+			return coord;
 		};
 
 		if (is_undefined(_z)) {
-				R2(_seed, warpAmp, frequency, coord, outGradOnly, _x, _y);
+			return R2(_seed, warpAmp, frequency, coord, outGradOnly, _x, _y);
 		}
 
 		if (!is_undefined(_z)) {
-				R3(_seed, warpAmp, frequency, coord, outGradOnly, _x, _y, _z);
+			return R3(_seed, warpAmp, frequency, coord, outGradOnly, _x, _y, _z);
 		}
 	}
 	#endregion
@@ -3144,12 +3162,16 @@ function FastNoiseLite(_seed) constructor {
 	static _PrimeX = 501125321;
 	static _PrimeY = 1136930381;
 	static _PrimeZ = 1720413743;
+	
+	static SQRT3 = 1.7320508075688772935274463415059;
+	static F2 = 0.5 * (SQRT3 - 1);
+	static G2 = (3 - SQRT3) / 6;
 	#endregion
 	#endregion
-		
+	
 }
 
-Vector2 = function(_x, _y) constructor {
+function Vector2(_x, _y) constructor {
 	/**
 		* 2d Vector
 		* @param {number} x
@@ -3159,7 +3181,7 @@ Vector2 = function(_x, _y) constructor {
 	self.y = _y;
 }
 
-Vector3 = function(_x, _y, _z) constructor {
+function Vector3(_x, _y, _z) constructor {
 	/**
 		* 3d Vector
 		* @param {number} x
