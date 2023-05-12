@@ -1,16 +1,20 @@
 /// @desc Draw the noise data
+draw_surface(noise_surface, 0, 0)
 
-for (var _x= 0; _x < array_length(noiseData); _x++) {
-		for (var _y= 0; _y < array_length(noiseData[_x]); _y++) {
-			
-			//Note: Not all noise algorithms will produce a value between -1 and 1,
-			// some will generate a value between 0-1. So be sure to update how you project the values.
-			
-			//convert the data into greyscale color
-			var _color = make_color_hsv(0, 0, (noiseData[_x][_y]+1)*128);
-			draw_set_color(_color);
-			
-			//draw the greyscaled point
-			draw_point(_x, _y);
+//draw_drop_shadow_text
+var _thickness = 2;
+var _color_bg = c_black;
+var _color = c_white;
+var _x = 8
+var _y = 8
+var _text = string("Seed: {0}\nFPS: {1}\nUnique Noise Generated: {2}\nTime to generate: {3}ms\nPress spacebar to regenerate noise", noise._Seed, fps_real, noise_width*noise_height, noise_generation_time)
+draw_set_color(_color_bg)
+
+for (var _xoff = -_thickness; _xoff <= _thickness; _xoff++) {
+		for (var _yoff = -_thickness; _yoff <= _thickness; _yoff++) {
+			draw_text(_x+_xoff, _y+_yoff, _text)
 		}
 }
+
+draw_set_color(_color)
+draw_text(_x, _y, _text)
