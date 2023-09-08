@@ -32,6 +32,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [JavaScript](/JavaScript/)
 - [HLSL](/HLSL/)
 - [GLSL](/GLSL/)
+- [Go](/Go/)
 
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
@@ -76,6 +77,7 @@ Million points of noise generated per second (higher = better)
 - [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
 - [@Stormy482](https://github.com/stormy482) for creating the Javascript port.
 - [@dotlogix](https://github.com/dotlogix) for creating the GLSL port.
+- [@ForeverZer0](https://github.com/ForeverZer0) for creating the Go port.
 
 # Examples
 
