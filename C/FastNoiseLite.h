@@ -1408,7 +1408,7 @@ static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLflo
     float distance1 = FLT_MAX;
     int closestHash = 0;
 
-    float cellularJitter = 0.5f * state->cellular_jitter_mod;
+    float cellularJitter = 0.43701595f * state->cellular_jitter_mod;
 
     int xPrimed = (xr - 1) * PRIME_X;
     int yPrimedBase = (yr - 1) * PRIME_Y;
