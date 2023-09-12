@@ -21,32 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-// .”,;:cldxkO00KKXXNNWWWNNXKOkxdollcc::::::;:::ccllloooolllllllllooollc:,'...        ...........',;cldxkO000Okxdlc::;;;,,;;;::cclllllll
+// .'',;:cldxkO00KKXXNNWWWNNXKOkxdollcc::::::;:::ccllloooolllllllllooollc:,'...        ...........',;cldxkO000Okxdlc::;;;,,;;;::cclllllll
 // ..',;:ldxO0KXXNNNNNNNNXXK0kxdolcc::::::;;;,,,,,,;;;;;;;;;;:::cclllllc:;'....       ...........',;:ldxO0KXXXK0Okxdolc::;;;;::cllodddddo
-// ...',:loxO0KXNNNNNXXKK0Okxdolc::;::::::::;;;,,””'.....”',;:clllllc:;,'............””””',;:loxO0KXNNNNNXK0Okxdollccccllodxxxxxxd
-// ....';:ldkO0KXXXKK00Okxdolcc:;;;;;::cclllcc:;;,”..... ....',;clooddolcc:;;;;,,;;;;;::::;;;;;;:cloxk0KXNWWWWWWNXKK0Okxddoooddxxkkkkkxx
+// ...',:loxO0KXNNNNNXXKK0Okxdolc::;::::::::;;;,,'''''.....''',;:clllllc:;,'............''''''''',;:loxO0KXNNNNNXK0Okxdollccccllodxxxxxxd
+// ....';:ldkO0KXXXKK00Okxdolcc:;;;;;::cclllcc:;;,''..... ....',;clooddolcc:;;;;,,;;;;;::::;;;;;;:cloxk0KXNWWWWWWNXKK0Okxddoooddxxkkkkkxx
 // .....';:ldxkOOOOOkxxdolcc:;;;,,,;;:cllooooolcc:;'...      ..,:codxkkkxddooollloooooooollcc:::::clodkO0KXNWWWWWWNNXK00Okxxxxxxxxkkkkxxx
 // . ....';:cloddddo___________,,,,;;:clooddddoolc:,...      ..,:ldx__00OOOkkk___kkkkkkxxdollc::::cclodkO0KXXNNNNNNXXK0OOkxxxxxxxxxxxxddd
 // .......',;:cccc:|           |,,,;;:cclooddddoll:;'..     ..';cox|  \KKK000|   |KK00OOkxdocc___;::clldxxkO0KKKKK00Okkxdddddddddddddddoo
-// .......”,,,,,”|   ________|',,;;::cclloooooolc:;'......___:ldk|   \KK000|   |XKKK0Okxolc|   |;;::cclodxxkkkkxxdoolllcclllooodddooooo
-// ”......””....|   |  ....”,,,,;;;::cclloooollc:;,”.'|   |oxk|    \OOO0|   |KKK00Oxdoll|___|;;;;;::ccllllllcc::;;,,;;;:cclloooooooo
-// ;;,”.......... |   |_____',,;;;____:___cllo________.___|   |___|     \xkk|   |KK_______ool___:::;________;;;_______...”,;;:ccclllloo
-// c:;,”......... |         |:::/     '   |lo/        |           |      \dx|   |0/       \d|   |cc/        |'/       \......',,;;:ccllo
-// ol:;,'..........|    _____|ll/    __    |o/   ______|____    ___|   |   \o|   |/   ___   \|   |o/   ______|/   ___   \ .......”,;:clo
+// .......'',,,,,''|   ________|',,;;::cclloooooolc:;'......___:ldk|   \KK000|   |XKKK0Okxolc|   |;;::cclodxxkkkkxxdoolllcclllooodddooooo
+// ''......''''....|   |  ....'',,,,;;;::cclloooollc:;,''.'|   |oxk|    \OOO0|   |KKK00Oxdoll|___|;;;;;::ccllllllcc::;;,,;;;:cclloooooooo
+// ;;,''.......... |   |_____',,;;;____:___cllo________.___|   |___|     \xkk|   |KK_______ool___:::;________;;;_______...'',;;:ccclllloo
+// c:;,''......... |         |:::/     '   |lo/        |           |      \dx|   |0/       \d|   |cc/        |'/       \......',,;;:ccllo
+// ol:;,'..........|    _____|ll/    __    |o/   ______|____    ___|   |   \o|   |/   ___   \|   |o/   ______|/   ___   \ .......'',;:clo
 // dlc;,...........|   |::clooo|    /  |   |x\___   \KXKKK0|   |dol|   |\   \|   |   |   |   |   |d\___   \..|   |  /   /       ....',:cl
 // xoc;'...  .....'|   |llodddd|    \__|   |_____\   \KKK0O|   |lc:|   |'\       |   |___|   |   |_____\   \.|   |_/___/...      ...',;:c
 // dlc;'... ....',;|   |oddddddo\          |          |Okkx|   |::;|   |..\      |\         /|   |          | \         |...    ....',;:c
 // ol:,'.......',:c|___|xxxddollc\_____,___|_________/ddoll|___|,,,|___|...\_____|:\ ______/l|___|_________/...\________|'........',;::cc
-// c:;'.......';:codxxkkkkxxolc::;::clodxkOO0OOkkxdollc::;;,,””',,,,”””””',,”””,;:loxkkOOkxol:;,””,,;:ccllcc:;,”””,;::ccll
-// ;,'.......',:codxkOO0OOkxdlc:;,,;;:cldxxkkxxdolc:;;,,”.....”,;;:::;;,,,””'........,;cldkO0KK0Okdoc::;;::cloodddoolc:;;;;;::ccllooo
-// .........',;:lodxOO0000Okdoc:,,',,;:clloddoolc:;,”.......”,;:clooollc:;;,,”.......',:ldkOKXNNXX0Oxdolllloddxxxxxxdolccccccllooodddd
-// .    .....';:cldxkO0000Okxol:;,”',,;::cccc:;,,'.......”,;:cldxxkkxxdolc:;;,'.......';coxOKXNWWWNXKOkxddddxxkkkkkkxdoollllooddxxxxkkk
-//
-//	....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
-//	....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
+// c:;'.......';:codxxkkkkxxolc::;::clodxkOO0OOkkxdollc::;;,,''''',,,,''''''''''',,'''''',;:loxkkOOkxol:;,'''',,;:ccllcc:;,'''''',;::ccll
+// ;,'.......',:codxkOO0OOkxdlc:;,,;;:cldxxkkxxdolc:;;,,''.....'',;;:::;;,,,'''''........,;cldkO0KK0Okdoc::;;::cloodddoolc:;;;;;::ccllooo
+// .........',;:lodxOO0000Okdoc:,,',,;:clloddoolc:;,''.......'',;:clooollc:;;,,''.......',:ldkOKXNNXX0Oxdolllloddxxxxxxdolccccccllooodddd
+// .    .....';:cldxkO0000Okxol:;,''',,;::cccc:;,,'.......'',;:cldxxkkxxdolc:;;,'.......';coxOKXNWWWNXKOkxddddxxkkkkkkxdoollllooddxxxxkkk
+//       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
+//       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
 // VERSION: 1.0.1
 // https://github.com/Auburn/FastNoise
+
 package fastnoise
 
 import (
@@ -205,7 +205,7 @@ type State[T Float] struct {
 
 // Constants
 
-var gradients2D = []float64{
+var gradients2D = []float32{
 	0.130526192220052, 0.99144486137381, 0.38268343236509, 0.923879532511287, 0.608761429008721, 0.793353340291235, 0.793353340291235, 0.608761429008721,
 	0.923879532511287, 0.38268343236509, 0.99144486137381, 0.130526192220051, 0.99144486137381, -0.130526192220051, 0.923879532511287, -0.38268343236509,
 	0.793353340291235, -0.60876142900872, 0.608761429008721, -0.793353340291235, 0.38268343236509, -0.923879532511287, 0.130526192220052, -0.99144486137381,
@@ -240,7 +240,7 @@ var gradients2D = []float64{
 	-0.38268343236509, -0.923879532511287, -0.923879532511287, -0.38268343236509, -0.923879532511287, 0.38268343236509, -0.38268343236509, 0.923879532511287,
 }
 
-var randVecs2D = []float64{
+var randVecs2D = []float32{
 	-0.2700222198, -0.9628540911, 0.3863092627, -0.9223693152,
 	0.04444859006, -0.999011673, -0.5992523158, -0.8005602176,
 	-0.7819280288, 0.6233687174, 0.9464672271, 0.3227999196,
@@ -371,7 +371,7 @@ var randVecs2D = []float64{
 	-0.5039610839, -0.8637263605, -0.7743120191, -0.6328039957,
 }
 
-var gradients3D = []float64{
+var gradients3D = []float32{
 	0, 1, 1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, -1, 0,
 	1, 0, 1, 0, -1, 0, 1, 0, 1, 0, -1, 0, -1, 0, -1, 0,
 	1, 1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0, -1, -1, 0, 0,
@@ -390,7 +390,7 @@ var gradients3D = []float64{
 	1, 1, 0, 0, 0, -1, 1, 0, -1, 1, 0, 0, 0, -1, -1, 0,
 }
 
-var randVecs3D = []float64{
+var randVecs3D = []float32{
 	-0.7292736885, -0.6618439697, 0.1735581948, 0,
 	0.790292081, -0.5480887466, -0.2739291014, 0,
 	0.7217578935, 0.6226212466, -0.3023380997, 0,
@@ -2055,7 +2055,6 @@ func singleValue3D[T Float](state *State[T], seed int, x, y, z T) T {
 // Domain Warp
 
 func doSingleDomainWarp2D[T Float](state *State[T], seed int, amp, freq, x, y T, xp, yp *T) {
-	// TODO: Convert to return
 	switch state.DomainWarpType {
 	case DomainWarpOpenSimplex2:
 		singleDomainWarpSimplexGradient(seed, amp*38.283687591552734375, freq, x, y, xp, yp, false)
@@ -2067,7 +2066,6 @@ func doSingleDomainWarp2D[T Float](state *State[T], seed int, amp, freq, x, y T,
 }
 
 func doSingleDomainWarp3D[T Float](state *State[T], seed int, amp, freq, x, y, z T, xp, yp, zp *T) {
-	// TODO: Convert to return
 	switch state.DomainWarpType {
 	case DomainWarpOpenSimplex2:
 		singleDomainWarpOpenSimplex2Gradient(seed, amp*32.69428253173828125, freq, x, y, z, xp, yp, zp, false)
@@ -2081,7 +2079,6 @@ func doSingleDomainWarp3D[T Float](state *State[T], seed int, amp, freq, x, y, z
 // Domain Warp Single Wrapper
 
 func domainWarpSingle2D[T Float](state *State[T], x, y *T) {
-	// TODO: Convert to return
 	seed := state.Seed
 	amp := state.DomainWarpAmp * calculateFractalBounding(state)
 	freq := state.Frequency
@@ -2094,7 +2091,6 @@ func domainWarpSingle2D[T Float](state *State[T], x, y *T) {
 }
 
 func domainWarpSingle3D[T Float](state *State[T], x, y, z *T) {
-	// TODO: Convert to return
 	seed := state.Seed
 	amp := state.DomainWarpAmp * calculateFractalBounding(state)
 	freq := state.Frequency
@@ -2110,7 +2106,6 @@ func domainWarpSingle3D[T Float](state *State[T], x, y, z *T) {
 // Domain Warp Fractal Progressive
 
 func domainWarpFractalProgressive2D[T Float](state *State[T], x, y *T) {
-	// TODO: Convert to return
 	seed := state.Seed
 	amp := state.DomainWarpAmp * calculateFractalBounding(state)
 	freq := state.Frequency
@@ -2129,7 +2124,6 @@ func domainWarpFractalProgressive2D[T Float](state *State[T], x, y *T) {
 }
 
 func domainWarpFractalProgressive3D[T Float](state *State[T], x, y, z *T) {
-	// TODO: Convert to return
 	seed := state.Seed
 	amp := state.DomainWarpAmp * calculateFractalBounding(state)
 	freq := state.Frequency
@@ -2151,7 +2145,6 @@ func domainWarpFractalProgressive3D[T Float](state *State[T], x, y, z *T) {
 // Domain Warp Fractal Independent
 
 func domainWarpFractalIndependent2D[T Float](state *State[T], x, y *T) {
-	// TODO: Convert to return
 	xs := *x
 	ys := *y
 	transformDomainWarpCoordinate2D(state, &xs, &ys)
@@ -2170,7 +2163,6 @@ func domainWarpFractalIndependent2D[T Float](state *State[T], x, y *T) {
 }
 
 func domainWarpFractalIndependent3D[T Float](state *State[T], x, y, z *T) {
-	// TODO: Convert to return
 	xs := *x
 	ys := *y
 	zs := *z
@@ -2192,7 +2184,6 @@ func domainWarpFractalIndependent3D[T Float](state *State[T], x, y, z *T) {
 // Domain Warp Basic Grid
 
 func singleDomainWarpBasicGrid2D[T Float](seed int, warpAmp, frequency, x, y T, xp, yp *T) {
-	// TODO: Convert to return
 	xf := x * frequency
 	yf := y * frequency
 
