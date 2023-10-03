@@ -1,0 +1,12 @@
+[package]
+name = "fastnoise-lite"
+version = "1.0.1"
+edition = "2021"
+license = "MIT"
+description = "FastNoiseLite Lite is an extremely portable open source noise generation library with a large selection of noise algorithms"
+repository = "https://github.com/Auburn/FastNoiseLite"
+readme = "README.md"
+authors = ["Jordan Peck", "Keavon Chambers"]
+
+[features]
+f64 = []

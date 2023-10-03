@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 //
 // Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
 // Copyright(c) 2020 Contributors
@@ -45,7 +45,7 @@
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
 // VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+// https://github.com/Auburn/FastNoiseLite
 
 using System;
 using System.Runtime.CompilerServices;

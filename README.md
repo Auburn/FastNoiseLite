@@ -1,5 +1,4 @@
-[![discord](https://img.shields.io/discord/703636892901441577?style=flat-square&logo=discord "Discord")](https://discord.gg/SHVaVfV)
-[![npm](https://img.shields.io/npm/v/fastnoise-lite)](https://www.npmjs.com/package/fastnoise-lite)
+[![discord](https://img.shields.io/discord/703636892901441577?logo=discord "Discord")](https://discord.gg/SHVaVfV)
 
 # FastNoise Lite
 
@@ -28,11 +27,14 @@ If you are looking for a more extensive noise generation library consider using 
 - [C#](/CSharp/)
 - [C++98](/Cpp/)
 - [C99](/C/)
-- [Java](/Java/)
-- [JavaScript](/JavaScript/)
 - [HLSL](/HLSL/)
 - [GLSL](/GLSL/)
 - [Go](/Go/)
+- [Java](/Java/)
+- [JavaScript](/JavaScript/)  
+  [![npm](https://img.shields.io/npm/v/fastnoise-lite?logo=npm "npm")](https://www.npmjs.com/package/fastnoise-lite)
+- [Rust](/Rust/)  
+  [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
 
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
@@ -72,12 +74,13 @@ Million points of noise generated per second (higher = better)
 ## Credits:
 
 - [OpenSimplex2](https://github.com/KdotJPG/OpenSimplex2) for the OpenSimplex2 noise algorithm
-- [@KdotJPG](https://github.com/KdotJPG) for implementing all the OpenSimplex alogrithms and the Java port
+- [@KdotJPG](https://github.com/KdotJPG) for implementing all the OpenSimplex algorithms and the Java port
 - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
 - [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
-- [@Stormy482](https://github.com/stormy482) for creating the Javascript port.
+- [@Stormy482](https://github.com/stormy482) for creating the JavaScript port.
 - [@dotlogix](https://github.com/dotlogix) for creating the GLSL port.
 - [@ForeverZer0](https://github.com/ForeverZer0) for creating the Go port.
+- [@Keavon](https://github.com/stormy482) for creating the Rust port.
 
 # Examples
 
