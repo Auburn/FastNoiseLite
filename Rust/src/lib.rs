@@ -1057,10 +1057,10 @@ impl FastNoiseLite {
 
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xi = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yi = y as f32 - j as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xi = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yi = (y - j as Float) as f32;
 
         let t = (xi + yi) * g2;
         let x0 = xi - t;
@@ -1139,12 +1139,12 @@ impl FastNoiseLite {
         let i = Self::fast_round(x);
         let j = Self::fast_round(y);
         let k = Self::fast_round(z);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut x0 = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut y0 = y as f32 - j as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut z0 = z as f32 - k as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut x0 = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut y0 = (y - j as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut z0 = (z - k as Float) as f32;
 
         let mut x_n_sign = (-1. - x0) as i32 | 1;
         let mut y_n_sign = (-1. - y0) as i32 | 1;
@@ -1264,10 +1264,10 @@ impl FastNoiseLite {
 
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xi = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yi = y as f32 - j as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xi = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yi = (y - j as Float) as f32;
 
         let i = i.wrapping_mul(Self::PRIME_X);
         let j = j.wrapping_mul(Self::PRIME_Y);
@@ -1399,12 +1399,12 @@ impl FastNoiseLite {
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
         let k = Self::fast_floor(z);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xi = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yi = y as f32 - j as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let zi = z as f32 - k as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xi = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yi = (y - j as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let zi = (z - k as Float) as f32;
 
         let i = i.wrapping_mul(Self::PRIME_X);
         let j = j.wrapping_mul(Self::PRIME_Y);
@@ -1709,13 +1709,11 @@ impl FastNoiseLite {
                         let hash = Self::hash_xy(seed, x_primed, y_primed);
                         let idx = hash & (255 << 1);
 
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = xi as f32 - x as f32
+                        let vec_x = (xi as Float - x) as f32
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = yi as f32 - y as f32
+                        let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance = vec_x * vec_x + vec_y * vec_y;
@@ -1738,13 +1736,11 @@ impl FastNoiseLite {
                         let hash = Self::hash_xy(seed, x_primed, y_primed);
                         let idx = hash & (255 << 1);
 
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = xi as f32 - x as f32
+                        let vec_x = (xi as Float - x) as f32
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = yi as f32 - y as f32
+                        let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance = vec_x.abs() + vec_y.abs();
@@ -1767,13 +1763,11 @@ impl FastNoiseLite {
                         let hash = Self::hash_xy(seed, x_primed, y_primed);
                         let idx = hash & (255 << 1);
 
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = xi as f32 - x as f32
+                        let vec_x = (xi as Float - x) as f32
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
-                        // Cast is necessary when the `f64` feature is enabled
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = yi as f32 - y as f32
+                        let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance =
@@ -1839,17 +1833,14 @@ impl FastNoiseLite {
                             let hash = Self::hash_xyz(seed, x_primed, y_primed, z_primed);
                             let idx = hash & (255 << 2);
 
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = xi as f32 - x as f32
+                            let vec_x = (xi as Float - x) as f32
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = yi as f32 - y as f32
+                            let vec_y = (yi as Float - y) as f32
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = zi as f32 - z as f32
+                            let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance = vec_x * vec_x + vec_y * vec_y + vec_z * vec_z;
@@ -1877,17 +1868,14 @@ impl FastNoiseLite {
                             let hash = Self::hash_xyz(seed, x_primed, y_primed, z_primed);
                             let idx = hash & (255 << 2);
 
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = xi as f32 - x as f32
+                            let vec_x = (xi as Float - x) as f32
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = yi as f32 - y as f32
+                            let vec_y = (yi as Float - y) as f32
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = zi as f32 - z as f32
+                            let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance = vec_x.abs() + vec_y.abs() + vec_z.abs();
@@ -1915,17 +1903,14 @@ impl FastNoiseLite {
                             let hash = Self::hash_xyz(seed, x_primed, y_primed, z_primed);
                             let idx = hash & (255 << 2);
 
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = xi as f32 - x as f32
+                            let vec_x = (xi as Float - x) as f32
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = yi as f32 - y as f32
+                            let vec_y = (yi as Float - y) as f32
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
-                            // Cast is necessary when the `f64` feature is enabled
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = zi as f32 - z as f32
+                            let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance = (vec_x.abs() + vec_y.abs() + vec_z.abs())
@@ -1972,10 +1957,10 @@ impl FastNoiseLite {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xd0 = x as f32 - x0 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yd0 = y as f32 - y0 as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xd0 = (x - x0 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yd0 = (y - y0 as Float) as f32;
         let xd1 = xd0 - 1.;
         let yd1 = yd0 - 1.;
 
@@ -2006,12 +1991,12 @@ impl FastNoiseLite {
         let y0 = Self::fast_floor(y);
         let z0 = Self::fast_floor(z);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xd0 = x as f32 - x0 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yd0 = y as f32 - y0 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let zd0 = z as f32 - z0 as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xd0 = (x - x0 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yd0 = (y - y0 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let zd0 = (z - z0 as Float) as f32;
         let xd1 = xd0 - 1.;
         let yd1 = yd0 - 1.;
         let zd1 = zd0 - 1.;
@@ -2060,10 +2045,10 @@ impl FastNoiseLite {
         let x1 = Self::fast_floor(x);
         let y1 = Self::fast_floor(y);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = x as f32 - x1 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = y as f32 - y1 as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xs = (x - x1 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let ys = (y - y1 as Float) as f32;
 
         let x1 = x1.wrapping_mul(Self::PRIME_X);
         let y1 = y1.wrapping_mul(Self::PRIME_Y);
@@ -2112,12 +2097,12 @@ impl FastNoiseLite {
         let y1 = Self::fast_floor(y);
         let z1 = Self::fast_floor(z);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = x as f32 - x1 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = y as f32 - y1 as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let zs = z as f32 - z1 as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xs = (x - x1 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let ys = (y - y1 as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let zs = (z - z1 as Float) as f32;
 
         let x1 = x1.wrapping_mul(Self::PRIME_X);
         let y1 = y1.wrapping_mul(Self::PRIME_Y);
@@ -2268,10 +2253,10 @@ impl FastNoiseLite {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = Self::interp_hermite(x as f32 - x0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = Self::interp_hermite(y as f32 - y0 as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let xs = Self::interp_hermite((x - x0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let ys = Self::interp_hermite((y - y0 as Float) as f32);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2297,12 +2282,12 @@ impl FastNoiseLite {
         let y0 = Self::fast_floor(y);
         let z0 = Self::fast_floor(z);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = Self::interp_hermite(x as f32 - x0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = Self::interp_hermite(y as f32 - y0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let zs = Self::interp_hermite(z as f32 - z0 as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let xs = Self::interp_hermite((x - x0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let ys = Self::interp_hermite((y - y0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let zs = Self::interp_hermite((z - z0 as Float) as f32);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2562,10 +2547,10 @@ impl FastNoiseLite {
         let x0 = Self::fast_floor(xf);
         let y0 = Self::fast_floor(yf);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = Self::interp_hermite(xf as f32 - x0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = Self::interp_hermite(yf as f32 - y0 as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let xs = Self::interp_hermite((xf - x0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let ys = Self::interp_hermite((yf - y0 as Float) as f32);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2627,12 +2612,12 @@ impl FastNoiseLite {
         let y0 = Self::fast_floor(yf);
         let z0 = Self::fast_floor(zf);
 
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xs = Self::interp_hermite(xf as f32 - x0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let ys = Self::interp_hermite(yf as f32 - y0 as f32);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let zs = Self::interp_hermite(zf as f32 - z0 as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let xs = Self::interp_hermite((xf - x0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let ys = Self::interp_hermite((yf - y0 as Float) as f32);
+        #[allow(clippy::unnecessary_cast)]
+        let zs = Self::interp_hermite((zf - z0 as Float) as f32);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2756,10 +2741,10 @@ impl FastNoiseLite {
 
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let xi = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let yi = y as f32 - j as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let xi = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let yi = (y - j as Float) as f32;
 
         let t = (xi + yi) * G2;
         let x0 = xi - t;
@@ -2874,12 +2859,12 @@ impl FastNoiseLite {
         let i = Self::fast_round(x);
         let j = Self::fast_round(y);
         let k = Self::fast_round(z);
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut x0 = x as f32 - i as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut y0 = y as f32 - j as f32;
-        #[allow(clippy::unnecessary_cast)] // Cast is necessary when the `f64` feature is enabled
-        let mut z0 = z as f32 - k as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut x0 = (x - i as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut y0 = (y - j as Float) as f32;
+        #[allow(clippy::unnecessary_cast)]
+        let mut z0 = (z - k as Float) as f32;
 
         let mut x_n_sign = (-x0 - 1.) as i32 | 1;
         let mut y_n_sign = (-y0 - 1.) as i32 | 1;
