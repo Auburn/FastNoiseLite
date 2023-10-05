@@ -42,7 +42,7 @@ for y in 0..HEIGHT {
     for x in 0..WIDTH {
         // Enable `features = ["f64"]` in Cargo.toml to pass f64 values here instead of f32.
         // Use `noise.get_noise_3d(x, y, z)` for 3D noise instead of 2D.
-        noise_data[WIDTH * y + x] = noise.get_noise(x as f32, y as f32);
+        noise_data[WIDTH * y + x] = noise.get_noise_2d(x as f32, y as f32);
     }
 }
 
