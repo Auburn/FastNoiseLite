@@ -675,7 +675,7 @@ export default class FastNoiseLite {
      * @returns {number}
      */
     static _PingPong(t) {
-        t -= Math.trunc(t * 0.5 * 2);
+        t -= Math.trunc(t * 0.5) * 2;
         return t < 1 ? t : 2 - t;
     }
 
@@ -701,8 +701,8 @@ export default class FastNoiseLite {
      * @returns {number}
      */
     _HashR2(seed, xPrimed, yPrimed) {
-        let hash = Math.trunc(seed ^ xPrimed ^ yPrimed);
-        hash = (hash * 0x27d4eb2d) >>> 0;
+        let hash = seed ^ xPrimed ^ yPrimed;
+        hash = Math.imul(hash, 0x27d4eb2d);
         return hash;
     }
 
@@ -715,8 +715,8 @@ export default class FastNoiseLite {
      * @returns {number}
      */
     _HashR3(seed, xPrimed, yPrimed, zPrimed){
-        let hash = Math.trunc(seed ^ xPrimed ^ yPrimed ^ zPrimed);
-        hash = (hash * 0x27d4eb2d) >>> 0;
+        let hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
+        hash = Math.imul(hash, 0x27d4eb2d);
         return hash;
     }
 
@@ -730,7 +730,7 @@ export default class FastNoiseLite {
     _ValCoordR2(seed, xPrimed, yPrimed) {
         let hash = this._HashR2(seed, xPrimed, yPrimed);
 
-        hash *= hash;
+        hash = Math.imul(hash, hash);
         hash ^= hash << 19;
         return hash * (1 / 2147483648.0);
     }
@@ -746,7 +746,7 @@ export default class FastNoiseLite {
     _ValCoordR3(seed, xPrimed, yPrimed, zPrimed){
         let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 
-        hash *= hash;
+        hash = Math.imul(hash, hash);
         hash ^= hash << 19;
         return hash * (1 / 2147483648.0);
     }
@@ -1065,8 +1065,8 @@ export default class FastNoiseLite {
         let x0 = xi - t;
         let y0 = yi - t;
 
-        i *= this._PrimeX;
-        j *= this._PrimeY;
+        i = Math.imul(i, this._PrimeX);
+        j = Math.imul(j, this._PrimeY);
 
         let n0, n1, n2;
 
@@ -1133,9 +1133,9 @@ export default class FastNoiseLite {
         let ax0 = xNSign * -x0;
         let ay0 = yNSign * -y0;
         let az0 = zNSign * -z0;
-        i *= this._PrimeX;
-        j *= this._PrimeY;
-        k *= this._PrimeZ;
+        i = Math.imul(i, this._PrimeX);
+        j = Math.imul(j, this._PrimeY);
+        k = Math.imul(k, this._PrimeZ);
 
         let value = 0;
         let a = 0.6 - x0 * x0 - (y0 * y0 + z0 * z0);
@@ -1253,8 +1253,8 @@ export default class FastNoiseLite {
         let xi = x - i;
         let yi = y - j;
 
-        i *= this._PrimeX;
-        j *= this._PrimeY;
+        i = Math.imul(i, this._PrimeX);
+        j = Math.imul(j, this._PrimeY);
         let i1 = i + this._PrimeX;
         let j1 = j + this._PrimeY;
 
@@ -1379,9 +1379,9 @@ export default class FastNoiseLite {
         let yi = y - j;
         let zi = z - k;
 
-        i *= this._PrimeX;
-        j *= this._PrimeY;
-        k *= this._PrimeZ;
+        i = Math.imul(i, this._PrimeX);
+        j = Math.imul(j, this._PrimeY);
+        k = Math.imul(k, this._PrimeZ);
         let seed2 = seed + 1293373;
 
         let xNMask = Math.trunc(-0.5 - xi);
@@ -1976,8 +1976,8 @@ export default class FastNoiseLite {
         let xs = FastNoiseLite._InterpQuintic(xd0);
         let ys = FastNoiseLite._InterpQuintic(yd0);
 
-        x0 *= this._PrimeX;
-        y0 *= this._PrimeY;
+        x0 = Math.imul(x0, this._PrimeX);
+        y0 = Math.imul(y0, this._PrimeY);
         let x1 = x0 + this._PrimeX;
         let y1 = y0 + this._PrimeY;
 
@@ -2019,9 +2019,9 @@ export default class FastNoiseLite {
         let ys = FastNoiseLite._InterpQuintic(yd0);
         let zs = FastNoiseLite._InterpQuintic(zd0);
 
-        x0 *= this._PrimeX;
-        y0 *= this._PrimeY;
-        z0 *= this._PrimeZ;
+        x0 = Math.imul(x0, this._PrimeX);
+        y0 = Math.imul(y0, this._PrimeY);
+        z0 = Math.imul(z0, this._PrimeZ);
         let x1 = x0 + this._PrimeX;
         let y1 = y0 + this._PrimeY;
         let z1 = z0 + this._PrimeZ;
@@ -2067,8 +2067,8 @@ export default class FastNoiseLite {
         let xs = x - x1;
         let ys = y - y1;
 
-        x1 *= this._PrimeX;
-        y1 *= this._PrimeY;
+        x1 = Math.imul(x1, this._PrimeX);
+        y1 = Math.imul(y1, this._PrimeY);
         let x0 = x1 - this._PrimeX;
         let y0 = y1 - this._PrimeY;
         let x2 = x1 + this._PrimeX;
@@ -2129,9 +2129,9 @@ export default class FastNoiseLite {
         let ys = y - y1;
         let zs = z - z1;
 
-        x1 *= this._PrimeX;
-        y1 *= this._PrimeY;
-        z1 *= this._PrimeZ;
+        x1 = Math.imul(x1, this._PrimeX);
+        y1 = Math.imul(y1, this._PrimeY);
+        z1 = Math.imul(z1, this._PrimeZ);
 
         let x0 = x1 - this._PrimeX;
         let y0 = y1 - this._PrimeY;
@@ -2289,8 +2289,8 @@ export default class FastNoiseLite {
         let xs = FastNoiseLite._InterpHermite(x - x0);
         let ys = FastNoiseLite._InterpHermite(y - y0);
 
-        x0 *= this._PrimeX;
-        y0 *= this._PrimeY;
+        x0 = Math.imul(x0, this._PrimeX);
+        y0 = Math.imul(y0, this._PrimeY);
         let x1 = x0 + this._PrimeX;
         let y1 = y0 + this._PrimeY;
 
@@ -2317,9 +2317,9 @@ export default class FastNoiseLite {
         let ys = FastNoiseLite._InterpHermite(y - y0);
         let zs = FastNoiseLite._InterpHermite(z - z0);
 
-        x0 *= this._PrimeX;
-        y0 *= this._PrimeY;
-        z0 *= this._PrimeZ;
+        x0 = Math.imul(x0, this._PrimeX);
+        y0 = Math.imul(y0, this._PrimeY);
+        z0 = Math.imul(z0, this._PrimeZ);
         let x1 = x0 + this._PrimeX;
         let y1 = y0 + this._PrimeY;
         let z1 = z0 + this._PrimeZ;
@@ -2762,8 +2762,8 @@ export default class FastNoiseLite {
             let xs = FastNoiseLite._InterpHermite(xf - x0);
             let ys = FastNoiseLite._InterpHermite(yf - y0);
 
-            x0 *= this._PrimeX;
-            y0 *= this._PrimeY;
+            x0 = Math.imul(x0, this._PrimeX);
+            y0 = Math.imul(y0, this._PrimeY);
             let x1 = x0 + this._PrimeX;
             let y1 = y0 + this._PrimeY;
 
@@ -2806,9 +2806,9 @@ export default class FastNoiseLite {
             let ys = FastNoiseLite._InterpHermite(yf - y0);
             let zs = FastNoiseLite._InterpHermite(zf - z0);
 
-            x0 *= this._PrimeX;
-            y0 *= this._PrimeY;
-            z0 *= this._PrimeZ;
+            x0 = Math.imul(x0, this._PrimeX);
+            y0 = Math.imul(y0, this._PrimeY);
+            z0 = Math.imul(z0, this._PrimeZ);
             let x1 = x0 + this._PrimeX;
             let y1 = y0 + this._PrimeY;
             let z1 = z0 + this._PrimeZ;
@@ -2897,8 +2897,8 @@ export default class FastNoiseLite {
             let x0 = xi - t;
             let y0 = yi - t;
 
-            i *= this._PrimeX;
-            j *= this._PrimeY;
+            i = Math.imul(i, this._PrimeX);
+            j = Math.imul(j, this._PrimeY);
 
             let vx, vy;
             vx = vy = 0;
@@ -3042,9 +3042,9 @@ export default class FastNoiseLite {
             let ay0 = yNSign * -y0;
             let az0 = zNSign * -z0;
 
-            i *= this._PrimeX;
-            j *= this._PrimeY;
-            k *= this._PrimeZ;
+            i = Math.imul(i, this._PrimeX);
+            j = Math.imul(j, this._PrimeY);
+            k = Math.imul(k, this._PrimeZ);
 
             let vx, vy, vz;
             vx = vy = vz = 0;
