@@ -39,3 +39,5 @@ msbuild.wrn
 
 # JS stuff
 node_modules
+
+emsdk
