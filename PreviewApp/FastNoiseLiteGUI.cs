@@ -377,7 +377,7 @@ public class FastNoiseLiteGUI : Form
                 stack.Items.Add(new StackLayoutItem(save));
 
                 var github = new Button { Text = "GitHub" };
-                github.Click += (sender, e) => { Process.Start(new ProcessStartInfo("https://github.com/Auburn/FastNoise") { UseShellExecute = true }); };
+                github.Click += (sender, e) => { Process.Start(new ProcessStartInfo("https://github.com/Auburn/FastNoiseLite") { UseShellExecute = true }); };
                 stack.Items.Add(new StackLayoutItem(github));
 
                 controlPanel.Items.Add(stack);

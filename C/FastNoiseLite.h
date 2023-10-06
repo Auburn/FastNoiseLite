@@ -45,7 +45,7 @@
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
 // VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+// https://github.com/Auburn/FastNoiseLite
 
 // In *one* C or C++ file, use #define FNL_IMPL to generate implementation
 

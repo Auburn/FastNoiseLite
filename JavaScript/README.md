@@ -48,12 +48,12 @@ for (let y = 0; y < 128; y++) {
 Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
 between language versions.
 
-Some of the code has been changed to use switch statments since it provided a minor preformance boost in some small 
+Some of the code has been changed to use switch statements since it provided a minor performance boost in some small 
 frequently used places eg the _Hash methods.
 
 Here is a template for the method overloading:
 
-```javascript
+```js
 class FastNoiseLite {
     /**
      * JSdoc
@@ -77,7 +77,6 @@ class FastNoiseLite {
     }
 
 }
-
 ```
 
-### DM storm#8888 on discord or email w/ any questions or need any support or ask someone in our discord :D
+### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D

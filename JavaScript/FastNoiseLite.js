@@ -49,8 +49,8 @@
 // https://www.npmjs.com/package/fastnoise-lite
 // https://discord.gg/SHVaVfV
 //
-// Ported to Javascript by storm (Patrick U):
-// Discord: storm#8888 (prefered) | Email: storm1surge@gmail.com | Github: stormy482 (https://github.com/stormy482)
+// Ported to JavaScript by Stormy482 (Patrick U):
+// Discord: dev_storm (preferred) | Email: storm1surge@gmail.com | GitHub: stormy482 (https://github.com/stormy482)
 //
 
 

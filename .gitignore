@@ -23,6 +23,7 @@ nupkg/
 [Rr]elease/
 [Rr]eleases/
 [Pp]ublish/
+[Tt]arget/
 x64/
 x86/
 build/

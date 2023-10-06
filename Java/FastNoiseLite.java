@@ -45,7 +45,7 @@
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
 // VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+// https://github.com/Auburn/FastNoiseLite
 
 // To switch between using floats or doubles for input position,
 // perform a file-wide replace on the following strings (including /*FNLfloat*/)
