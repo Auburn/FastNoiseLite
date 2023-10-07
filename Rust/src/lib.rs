@@ -52,6 +52,7 @@
 // Ported to Rust by Keavon Chambers:
 // Discord: Keavon (preferred) | Email: see <https://keavon.com> for the address | GitHub: Keavon (https://github.com/Keavon)
 
+#![no_std]
 #![allow(clippy::excessive_precision)]
 
 // Switch between using floats or doubles for input position
@@ -497,6 +498,24 @@ impl FastNoiseLite {
     ];
 
     #[inline(always)]
+    fn fast_abs(f: f32) -> f32 {
+        if f < 0. {
+            -f
+        } else {
+            f
+        }
+    }
+
+    /// Accurate to within roughly 6% at worst.
+    ///
+    /// Note: Requires f >= 0.
+    #[inline(always)]
+    fn fast_sqrt(f: f32) -> f32 {
+        // Explanation: https://stackoverflow.com/questions/41785416/how-does-this-sqrt-approximation-inline-assembly-function-work
+        f32::from_bits((f.to_bits() + 0x3f80_0000) >> 1)
+    }
+
+    #[inline(always)]
     fn fast_floor(f: Float) -> i32 {
         if f >= 0. {
             f as i32
@@ -537,7 +556,15 @@ impl FastNoiseLite {
 
     #[inline(always)]
     fn ping_pong(t: f32) -> f32 {
-        let t = t - (t * 0.5).trunc() * 2.;
+        let half_t = t * 0.5;
+        let half_t_truncated = if half_t >= 0.0 {
+            half_t as u32 as f32
+        } else {
+            -(Self::fast_abs(half_t) as u32 as f32)
+        };
+        let half_t_truncated_doubled = half_t_truncated * 2.;
+
+        let t = t - half_t_truncated_doubled;
         if t < 1. {
             t
         } else {
@@ -546,7 +573,7 @@ impl FastNoiseLite {
     }
 
     fn calculate_fractal_bounding(&mut self) {
-        let gain = self.gain.abs();
+        let gain = Self::fast_abs(self.gain);
         let mut amp = gain;
         let mut amp_fractal = 1.;
         for _ in 1..self.octaves {
@@ -945,7 +972,7 @@ impl FastNoiseLite {
         let mut amp = self.fractal_bounding;
 
         for _ in 0..self.octaves {
-            let noise = self.gen_noise_single_2d(seed, x, y).abs();
+            let noise = Self::fast_abs(self.gen_noise_single_2d(seed, x, y));
             seed += 1;
 
             sum += (noise * -2. + 1.) * amp;
@@ -969,7 +996,7 @@ impl FastNoiseLite {
         let mut amp = self.fractal_bounding;
 
         for _ in 0..self.octaves {
-            let noise = self.gen_noise_single_3d(seed, x, y, z).abs();
+            let noise = Self::fast_abs(self.gen_noise_single_3d(seed, x, y, z));
             seed += 1;
 
             sum += (noise * -2. + 1.) * amp;
@@ -1741,7 +1768,7 @@ impl FastNoiseLite {
                         let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
-                        let new_distance = vec_x.abs() + vec_y.abs();
+                        let new_distance = Self::fast_abs(vec_x) + Self::fast_abs(vec_y);
 
                         distance1 = distance1.min(new_distance).max(distance0);
                         if new_distance < distance0 {
@@ -1768,8 +1795,8 @@ impl FastNoiseLite {
                         let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
-                        let new_distance =
-                            (vec_x.abs() + vec_y.abs()) + (vec_x * vec_x + vec_y * vec_y);
+                        let new_distance = (Self::fast_abs(vec_x) + Self::fast_abs(vec_y))
+                            + (vec_x * vec_x + vec_y * vec_y);
 
                         distance1 = distance1.min(new_distance).max(distance0);
                         if new_distance < distance0 {
@@ -1786,10 +1813,10 @@ impl FastNoiseLite {
         if self.cellular_distance_function == CellularDistanceFunction::Euclidean
             && self.cellular_return_type >= CellularReturnType::Distance
         {
-            distance0 = distance0.sqrt();
+            distance0 = Self::fast_sqrt(distance0);
 
             if self.cellular_return_type >= CellularReturnType::Distance2 {
-                distance1 = distance1.sqrt();
+                distance1 = Self::fast_sqrt(distance1);
             }
         }
 
@@ -1876,7 +1903,9 @@ impl FastNoiseLite {
                             let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
-                            let new_distance = vec_x.abs() + vec_y.abs() + vec_z.abs();
+                            let new_distance = Self::fast_abs(vec_x)
+                                + Self::fast_abs(vec_y)
+                                + Self::fast_abs(vec_z);
 
                             distance1 = distance1.min(new_distance).max(distance0);
                             if new_distance < distance0 {
@@ -1911,7 +1940,9 @@ impl FastNoiseLite {
                             let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
-                            let new_distance = (vec_x.abs() + vec_y.abs() + vec_z.abs())
+                            let new_distance = (Self::fast_abs(vec_x)
+                                + Self::fast_abs(vec_y)
+                                + Self::fast_abs(vec_z))
                                 + (vec_x * vec_x + vec_y * vec_y + vec_z * vec_z);
 
                             distance1 = distance1.min(new_distance).max(distance0);
@@ -1931,10 +1962,10 @@ impl FastNoiseLite {
         if self.cellular_distance_function == CellularDistanceFunction::Euclidean
             && self.cellular_return_type >= CellularReturnType::Distance
         {
-            distance0 = distance0.sqrt();
+            distance0 = Self::fast_sqrt(distance0);
 
             if self.cellular_return_type >= CellularReturnType::Distance2 {
-                distance1 = distance1.sqrt();
+                distance1 = Self::fast_sqrt(distance1);
             }
         }
 
