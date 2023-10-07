@@ -52,7 +52,7 @@
 // Ported to Rust by Keavon Chambers:
 // Discord: Keavon (preferred) | Email: see <https://keavon.com> for the address | GitHub: Keavon (https://github.com/Keavon)
 
-#![no_std]
+#![cfg_attr(feature = "no_std", no_std)]
 #![allow(clippy::excessive_precision)]
 
 // Switch between using floats or doubles for input position
@@ -499,20 +499,43 @@ impl FastNoiseLite {
 
     #[inline(always)]
     fn fast_abs(f: f32) -> f32 {
-        if f < 0. {
-            -f
-        } else {
-            f
-        }
+        #[cfg(not(feature = "no_std"))]
+        let result = f.abs();
+
+        #[cfg(feature = "no_std")]
+        let result = if f < 0. { -f } else { f };
+
+        result
     }
 
-    /// Accurate to within roughly 6% at worst.
-    ///
-    /// Note: Requires f >= 0.
     #[inline(always)]
     fn fast_sqrt(f: f32) -> f32 {
-        // Explanation: https://stackoverflow.com/questions/41785416/how-does-this-sqrt-approximation-inline-assembly-function-work
-        f32::from_bits((f.to_bits() + 0x3f80_0000) >> 1)
+        #[cfg(feature = "no_std")]
+        // Result is often identical, or otherwise extremely close to, std::f32::sqrt.
+        // In testing, the worst error seems to be around the order of magnitude of 0.00001% off.
+        let result = {
+            if f == 0. {
+                return 0.;
+            }
+
+            // Explanation: https://stackoverflow.com/questions/41785416/how-does-this-sqrt-approximation-inline-assembly-function-work
+            let mut guess = f32::from_bits((f.to_bits() + 0x3f80_0000) >> 1);
+
+            loop {
+                let new_guess = 0.5 * (guess + f / guess);
+                if new_guess == guess {
+                    break;
+                }
+                guess = new_guess;
+            }
+
+            guess
+        };
+
+        #[cfg(not(feature = "no_std"))]
+        let result = f.sqrt();
+
+        result
     }
 
     #[inline(always)]
@@ -556,15 +579,22 @@ impl FastNoiseLite {
 
     #[inline(always)]
     fn ping_pong(t: f32) -> f32 {
-        let half_t = t * 0.5;
-        let half_t_truncated = if half_t >= 0.0 {
-            half_t as u32 as f32
-        } else {
-            -(Self::fast_abs(half_t) as u32 as f32)
-        };
-        let half_t_truncated_doubled = half_t_truncated * 2.;
+        #[cfg(feature = "no_std")]
+        let t = {
+            let half_t = t * 0.5;
+            let half_t_truncated = if half_t >= 0.0 {
+                half_t as u32 as f32
+            } else {
+                -(Self::fast_abs(half_t) as u32 as f32)
+            };
+            let half_t_truncated_doubled = half_t_truncated * 2.;
 
-        let t = t - half_t_truncated_doubled;
+            t - half_t_truncated_doubled
+        };
+
+        #[cfg(not(feature = "no_std"))]
+        let t = t - (t * 0.5).trunc() * 2.;
+
         if t < 1. {
             t
         } else {

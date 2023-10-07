@@ -38,3 +38,4 @@ keywords = [
 
 [features]
 f64 = []
+no_std = []
