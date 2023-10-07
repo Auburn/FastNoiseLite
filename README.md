@@ -77,10 +77,10 @@ Million points of noise generated per second (higher = better)
 - [@KdotJPG](https://github.com/KdotJPG) for implementing all the OpenSimplex algorithms and the Java port
 - [CubicNoise](https://github.com/jobtalle/CubicNoise) for the Value (Cubic) noise algorithm
 - [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
-- [@Stormy482](https://github.com/stormy482) for creating the JavaScript port.
+- [@snowfoxsh](https://github.com/snowfoxsh) for creating the JavaScript port.
 - [@dotlogix](https://github.com/dotlogix) for creating the GLSL port.
 - [@ForeverZer0](https://github.com/ForeverZer0) for creating the Go port.
-- [@Keavon](https://github.com/stormy482) for creating the Rust port.
+- [@Keavon](https://github.com/Keavon) for creating the Rust port.
 
 # Examples
 
