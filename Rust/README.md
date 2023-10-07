@@ -1,4 +1,4 @@
-[crates.io](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) • [repo](https://github.com/GraphiteEditor/Graphite/tree/master/libraries/fastnoise-lite)
+[crates.io](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) • [repo](https://github.com/Auburn/FastNoiseLite)
 
 # FastNoise Lite
 
