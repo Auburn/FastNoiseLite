@@ -68,7 +68,24 @@ use num_traits::float::Float as NumFloat;
 use Float as NumFloat;
 
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
-use ToUseThisCrateEnableEitherTheStdOrLibmFeature as NumFloat;
+compile_error!("Either the std or libm feature must be enabled");
+#[cfg(all(not(feature = "std"), not(feature = "libm")))]
+use Float as NumFloat;
+#[cfg(all(not(feature = "std"), not(feature = "libm")))]
+impl DummyFloatExt for Float {}
+
+// Dummy trait to allow compilation without std or libm
+trait DummyFloatExt: Sized {
+    fn sqrt(self) -> Self {
+        unimplemented!()
+    }
+    fn trunc(self) -> Self {
+        unimplemented!()
+    }
+    fn abs(self) -> Self {
+        unimplemented!()
+    }
+}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum NoiseType {
