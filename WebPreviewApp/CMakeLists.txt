@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.7.1)
+cmake_minimum_required(VERSION 3.12)
 
-project(FastNoiseLitePreview VERSION 1.0)
-SET(CMAKE_CXX_STANDARD 11)
+project(FastNoiseLitePreview VERSION 1.1.0)
+SET(CMAKE_CXX_STANDARD 17)
 
 include(FetchContent)
 
@@ -12,6 +12,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui_application)
 
+FetchContent_Declare(
+    emscripten-browser-file
+    GIT_REPOSITORY https://github.com/Armchair-Software/emscripten-browser-file
+    GIT_TAG 2ff8f8f791c0e7177b40e621ee3f758e03b31bf5
+)
+FetchContent_MakeAvailable(emscripten-browser-file)
 # ----------------------------------------------------------
 
 add_executable(${CMAKE_PROJECT_NAME}
@@ -20,7 +26,12 @@ add_executable(${CMAKE_PROJECT_NAME}
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     ${IMGUI_APPLICATION_INCLUDE_DIRECTORIES}
+    ${emscripten-browser-file_SOURCE_DIR}
     ../Cpp
+)
+
+target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
+    FNL_VERSION="v${CMAKE_PROJECT_VERSION}"
 )
 
 if(EMSCRIPTEN)
@@ -36,6 +47,9 @@ if(EMSCRIPTEN)
 
         -sUSE_WEBGL2=1
         #-sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 # Only target for WebGL2 (drop support for WebGL1 to save code size)
+
+        -sEXPORTED_RUNTIME_METHODS=[ccall]
+        -sEXPORTED_FUNCTIONS=[_main,_malloc,_free]
 
         -sALLOW_MEMORY_GROWTH=1
         -sDISABLE_EXCEPTION_CATCHING=1 -sNO_EXIT_RUNTIME=0 -sASSERTIONS=1
