@@ -40,7 +40,7 @@ keywords = [
 f64 = []
 std = ["num-traits/std"]
 libm = ["num-traits/libm"]
-defaut = ["std"]
+default = ["std"]
 
 [dependencies]
 num-traits = { version = "0.2.16", optional = true, default-features = false }
