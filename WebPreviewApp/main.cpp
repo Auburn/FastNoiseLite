@@ -30,18 +30,27 @@ public:
 
     uint32_t noiseTex = 0;
     ImVec2 noiseTexSize;
-    ImVec2 noiseTexSizeDesired = { 768, 768 };
+    int noiseTexSizeGenX;
+    int noiseTexSizeGenY;
+    int previewSize[2] = { 768, 768 };
     bool preview3d = false;
     float previewScroll = 0;
     double previewPosZ = 0;
     bool previewInvert = false;
     bool previewDomainWarp = false;
+    bool previewAutoSize = false;
 
     float previewGenTime = 0;
+    float previewGenTimeFinal = 0;
     float previewMin = 0;
+    float previewMinFinal = 0;
     float previewMax = 0;
+    float previewMaxFinal = 0;
     float previewMean = 0;
+    float previewMeanFinal = 0;
     bool previewTriggerSave = false;
+    int previewPixelY = 0;
+    unsigned char* previewPixelArray = nullptr;
 
     FastNoiseLite fnl;
     FastNoiseLite fnlWarp;
@@ -114,7 +123,7 @@ public:
                 fnl.SetSeed(fnlSeed);
                 texUpdate = true;
             }
-            if (ImGui::DragFloat("Frequency", &fnlFrequency, 0.001f))
+            if (ImGui::DragFloat("Frequency", &fnlFrequency, 0.0002f))
             {
                 fnl.SetFrequency(fnlFrequency);
                 texUpdate = true;
@@ -129,7 +138,7 @@ public:
                 texUpdate = true;
             }
             ImGui::BeginDisabled(fnlFractalType == 0);
-            if (ImGui::DragInt("Octaves", &fnlFractalOctaves, 0.1f))
+            if (ImGui::DragInt("Octaves", &fnlFractalOctaves, 0.1f, 1, 20))
             {
                 fnl.SetFractalOctaves(fnlFractalOctaves);
                 texUpdate = true;
@@ -217,7 +226,7 @@ public:
                 texUpdate = true;
             }
             ImGui::BeginDisabled(fnlDomainWarpFractalType == 0);
-            if (ImGui::DragInt("Octaves", &fnlDomainWarpFractalOctaves, 0.1f))
+            if (ImGui::DragInt("Octaves", &fnlDomainWarpFractalOctaves, 0.1f, 1, 20))
             {
                 fnlWarp.SetFractalOctaves(fnlDomainWarpFractalOctaves);
                 texUpdate = true;
@@ -246,11 +255,10 @@ public:
         {
             int sizeXY[] = { (int)noiseTexSize.x, (int)noiseTexSize.y };
 
-            if (ImGui::DragInt2("Size", sizeXY, 1, 32, 4096))
-            {
-                noiseTexSizeDesired.x = sizeXY[0];
-                noiseTexSizeDesired.y = sizeXY[1];
-            }
+            ImGui::Checkbox("Auto Size", &previewAutoSize);
+            ImGui::BeginDisabled(previewAutoSize);
+            ImGui::DragInt2("Size", previewSize, 1, 32, 4096);
+            ImGui::EndDisabled();
             if (ImGui::Checkbox("Invert", &previewInvert))
             {
                 texUpdate = true;
@@ -274,14 +282,12 @@ public:
                 ImGui::EndDisabled();
 
                 ImGui::Unindent();
-                texUpdate = true;
             }
 
             ImGui::NewLine();
             if (ImGui::Button("Save Preview"))
             {
                 previewTriggerSave = true;
-                texUpdate = true;
             }
 
             ImGui::EndTabItem();
@@ -292,20 +298,32 @@ public:
 
         ImGui::Begin("Noise Texture");
 
-        // noiseTexSizeDesired = ImGui::GetContentRegionAvail();
-        if (noiseTexSizeDesired.x != noiseTexSize.x || noiseTexSizeDesired.y != noiseTexSize.y)
+        if (previewAutoSize)
         {
-            noiseTexSize = noiseTexSizeDesired;
-            texUpdate = true;
+            ImVec2 autoSize = ImGui::GetContentRegionAvail();
+            previewSize[0] = autoSize.x;
+            previewSize[1] = autoSize.y;
         }
-        if (previewScroll != 0)
+        if (previewPixelY == 0)
         {
-            previewPosZ += previewScroll;
-            texUpdate = true;
+            if (noiseTexSizeGenX != previewSize[0] || noiseTexSizeGenY != previewSize[1])
+            {
+                texUpdate = true;
+            }
+            if (preview3d && previewScroll != 0)
+            {
+                previewPosZ += previewScroll;
+                texUpdate = true;
+            }
         }
-        if (texUpdate)
+
+        UpdateTexture(texUpdate);
+
+        if (previewTriggerSave && previewPixelArray && previewPixelY == 0)
         {
-            UpdateTexture();
+            previewTriggerSave = false;
+            std::string bmpFile = EncodeBMP((int)noiseTexSize.x, (int)noiseTexSize.y, previewPixelArray).str();
+            emscripten_browser_file::download("FastNoiseLite.bmp", "image/bmp", bmpFile);
         }
 
         ImGui::Image((void*)(intptr_t)noiseTex, noiseTexSize);
@@ -313,13 +331,13 @@ public:
 
         ImGui::BeginViewportSideBar("status", ImGui::GetMainViewport(), ImGuiDir_Down, 32, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         float textOffset = 0;
-        ImGui::Text("Preview Stats: %0.02fms", previewGenTime);
+        ImGui::Text("Preview Stats: %0.02fms", previewGenTimeFinal);
         ImGui::SameLine(textOffset += 200);
-        ImGui::Text("Min: %0.04f", previewMin);
+        ImGui::Text("Min: %0.04f", previewMinFinal);
         ImGui::SameLine(textOffset += 100);
-        ImGui::Text("Max: %0.04f", previewMax);
+        ImGui::Text("Max: %0.04f", previewMaxFinal);
         ImGui::SameLine(textOffset += 100);
-        ImGui::Text("Mean: %0.04f", previewMean);
+        ImGui::Text("Mean: %0.04f", previewMeanFinal);
 
         ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::CalcTextSize("GitHub").x - 15);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 2);
@@ -460,32 +478,44 @@ public:
         return file;
     }
 
-    void UpdateTexture()
+    void UpdateTexture(bool newPreview)
     {
-        if (noiseTex != 0)
+        if (previewPixelY == 0 && !newPreview)
         {
-            glDeleteTextures(1, &noiseTex);
+            return;
         }
 
-        previewMin = INFINITY;
-        previewMax = -INFINITY;
-        previewMean = 0;
+        if (newPreview)
+        {
+            if (previewPixelArray)
+            {
+                delete[] previewPixelArray;
+            }
+            previewPixelY = 0;
+            previewGenTime = 0;
 
-        unsigned char* pixelArray = new unsigned char[(int)noiseTexSize.x * (int)noiseTexSize.y * 4];
-        int index = 0;
-        int sizeX = (int)noiseTexSize.x;
-        int sizeY = (int)noiseTexSize.y;
+            noiseTexSizeGenX = previewSize[0];
+            noiseTexSizeGenY = previewSize[1];
+
+            previewMin = INFINITY;
+            previewMax = -INFINITY;
+            previewMean = 0;
+            previewPixelArray = new unsigned char[noiseTexSizeGenX * noiseTexSizeGenY * 4];
+        }
+
+        int index = noiseTexSizeGenX * previewPixelY * 4;
         float invert = 1 - ((int)previewInvert * 2);
 
         auto timer = std::chrono::high_resolution_clock::now();
 
-        for (int y = 0; y < sizeY; y++)
+        for (int y = previewPixelY; y < noiseTexSizeGenY; y++)
         {
-            for (int x = 0; x < sizeX; x++)
+            previewPixelY = y + 1;
+            for (int x = 0; x < noiseTexSizeGenX; x++)
             {
                 float noise;
-                double posX = (double)(x - sizeX / 2);
-                double posY = (double)(y - sizeY / 2);
+                double posX = (double)(x - noiseTexSizeGenX / 2);
+                double posY = (double)(y - noiseTexSizeGenY / 2);
 
                 if (preview3d)
                 {
@@ -506,40 +536,52 @@ public:
                 }
 
                 unsigned char cNoise = (unsigned char)std::max(0.0f, std::min(255.0f, noise * invert * 127.5f + 127.5f));
-                pixelArray[index++] = cNoise;
-                pixelArray[index++] = cNoise;
-                pixelArray[index++] = cNoise;
-                pixelArray[index++] = 255;
+                previewPixelArray[index++] = cNoise;
+                previewPixelArray[index++] = cNoise;
+                previewPixelArray[index++] = cNoise;
+                previewPixelArray[index++] = 255;
 
                 previewMin = std::min(previewMin, noise);
                 previewMax = std::max(previewMax, noise);
                 previewMean += noise;
             }
+
+            if ((y % 8) == 0 && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - timer).count() >= 80)
+            {
+                break;
+            }
         }
 
-        previewGenTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - timer).count() / 1000000.f;
-        previewMean /= noiseTexSize.x * noiseTexSize.y;
+        previewGenTime += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - timer).count() / 1000000.f;
 
-        if (previewTriggerSave)
+        if (previewPixelY >= noiseTexSizeGenY)
         {
-            previewTriggerSave = false;
-            std::string bmpFile = EncodeBMP(sizeX, sizeY, pixelArray).str();
-            emscripten_browser_file::download("FastNoiseLite.bmp", "image/bmp", bmpFile);
+            noiseTexSize.x = noiseTexSizeGenX;
+            noiseTexSize.y = noiseTexSizeGenY;
+            previewPixelY = 0;
+            previewMeanFinal = previewMean / (noiseTexSize.x * noiseTexSize.y);
+            previewMinFinal = previewMin;
+            previewMaxFinal = previewMax;
+            previewGenTimeFinal = previewGenTime;
+
+            if (noiseTex != 0)
+            {
+                glDeleteTextures(1, &noiseTex);
+            }
+
+            // Create a OpenGL texture identifier
+            glGenTextures(1, &noiseTex);
+            glBindTexture(GL_TEXTURE_2D, noiseTex);
+
+            // Setup filtering parameters for display
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+            // Upload pixels into texture
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, noiseTexSizeGenX, noiseTexSizeGenY, 0, GL_RGBA, GL_UNSIGNED_BYTE, previewPixelArray);
         }
-
-        // Create a OpenGL texture identifier
-        glGenTextures(1, &noiseTex);
-        glBindTexture(GL_TEXTURE_2D, noiseTex);
-
-        // Setup filtering parameters for display
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-
-        // Upload pixels into texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)noiseTexSize.x, (int)noiseTexSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelArray);
-        delete[] pixelArray;
     }
 };
 
