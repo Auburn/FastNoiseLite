@@ -342,7 +342,7 @@ impl FastNoiseLite {
     /// let (x, y) = domain_warp_2d(x, y);
     /// let noise = get_noise_2d(x, y);
     /// ```
-    pub fn domain_warp(&mut self, x: Float, y: Float) -> (Float, Float) {
+    pub fn domain_warp_2d(&mut self, x: Float, y: Float) -> (Float, Float) {
         match self.fractal_type {
             FractalType::DomainWarpProgressive => self.domain_warp_fractal_progressive_2d(x, y),
             FractalType::DomainWarpIndependent => self.domain_warp_fractal_independent_2d(x, y),
