@@ -1,9 +1,23 @@
-## Links
+[![npm](https://img.shields.io/npm/v/fastnoise-lite?logo=npm "npm")](https://www.npmjs.com/package/fastnoise-lite) • [GitHub](https://github.com/Auburn/FastNoiseLite)
 
-* [npm](https://www.npmjs.com/package/fastnoise-lite)
-* [github](https://github.com/Auburn/FastNoiseLite)
+# FastNoise Lite
 
-# Getting Started
+FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
+
+## Features
+
+- 2D & 3D
+- OpenSimplex2 Noise
+- OpenSimplex2S Noise
+- Cellular (Voronoi) Noise
+- Perlin Noise
+- Value Noise
+- Value Cubic Noise
+- OpenSimplex2-based Domain Warp
+- Basic Grid Gradient Domain Warp
+- Multiple fractal options for all of the above
+
+## Getting Started
 
 ### Using FastNoiseLite with npm
 
@@ -50,7 +64,7 @@ frequently used places eg the _Hash methods.
 
 Here is a template for the method overloading:
 
-```js
+```javascript
 class FastNoiseLite {
     /**
      * JSdoc
