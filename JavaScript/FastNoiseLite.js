@@ -1,7 +1,7 @@
 // MIT License
 //
-// Copyright(c) 2021 Jordan Peck (jordan.me2@gmail.com)
-// Copyright(c) 2021 Contributors
+// Copyright(c) 2023 Jordan Peck (jordan.me2@gmail.com)
+// Copyright(c) 2023 Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -44,22 +44,19 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 1.0.1
+// VERSION: 1.1.0
 // https://github.com/Auburn/FastNoiseLite
 // https://www.npmjs.com/package/fastnoise-lite
-// https://discord.gg/SHVaVfV
 //
-// Ported to JavaScript by Stormy482 (Patrick U):
-// Discord: dev_storm (preferred) | Email: storm1surge@gmail.com | GitHub: stormy482 (https://github.com/stormy482)
+// Ported to JavaScript by snowfoxsh (Patrick U):
+// Discord: dev_storm (preferred) | Email: storm1surge@gmail.com | GitHub: snowfoxsh (https://github.com/snowfoxsh)
 //
-
-
 
 /**
  * @description FastNoiseLite Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
- * @author stormy482, Jordan Peck
- * @version 1.0.1
- * @copyright Copyright(c) 2021 Jordan Peck, Contributors
+ * @author Jordan Peck, snowfoxsh
+ * @version 1.1.0
+ * @copyright Copyright(c) 2023 Jordan Peck, Contributors
  * @license MIT
  * @git https://github.com/Auburn/FastNoiseLite
  * @npm https://www.npmjs.com/package/fastnoise-lite
@@ -76,14 +73,12 @@ noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 // Gather noise data
 let noiseData = [];
 
-for (let y= 0; y < 128; y++) {
-    for (let x= 0; x < 128; x++) {
-      if (typeof noiseData[x] == 'undefined']){
-         noiseData[x] = [];
-      }
+for (let x = 0; x < 128; x++) {
+    noiseData[x] = [];
 
-     noiseData[x][y] = noise.GetNoise(x,y);
-   }
+    for (let y = 0; y < 128; y++) {        
+        noiseData[x][y] = noise.GetNoise(x,y);
+    }
 }
 
 // Do something with this data...

@@ -3,7 +3,8 @@ name: Update WebPreviewApp
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master"]
+    branches:  
+      - master
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,13 +36,9 @@ jobs:
         run: './build.ps1'
         working-directory: './WebPreviewApp'
         shell: powershell
-        
-      - name: Create Pages Directory
-        run: 'New-Item pagesbuild -ItemType Directory'
-        shell: powershell
 
       - name: Copy WebPreviewApp HTML
-        run: 'Copy-Item ./WebPreviewApp/build/FastNoiseLitePreview.html -Destination ./pagesbuild/'
+        run: 'Copy-Item ./WebPreviewApp/build/FastNoiseLitePreview.html -Destination ./pagesbuild/index.html -Force'
         shell: powershell
 
       - name: Setup Pages

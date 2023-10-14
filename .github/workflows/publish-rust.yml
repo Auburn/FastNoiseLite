@@ -5,6 +5,9 @@ on:
     paths:
       - 'Rust/Cargo.toml' # The version number must be bumped in order to publish to crates.io
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
 name: Publish Rust (crates.io)
 
 jobs:
