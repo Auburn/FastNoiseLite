@@ -38,4 +38,9 @@ keywords = [
 
 [features]
 f64 = []
-no_std = []
+std = ["num-traits/std"]
+libm = ["num-traits/libm"]
+default = ["std"]
+
+[dependencies]
+num-traits = { version = "0.2.16", optional = true, default-features = false }
