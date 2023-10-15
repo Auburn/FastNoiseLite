@@ -5,6 +5,9 @@ on:
   push:
     branches:  
       - master
+    paths:
+      - 'WebPreviewApp/**'
+      - 'Cpp/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
