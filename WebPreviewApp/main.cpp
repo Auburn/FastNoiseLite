@@ -32,11 +32,12 @@ public:
     ImVec2 noiseTexSize;
     int noiseTexSizeGenX;
     int noiseTexSizeGenY;
+    float noiseTexMin = -1;
+    float noiseTexMax = 1;
     int previewSize[2] = { 768, 768 };
     bool preview3d = false;
     float previewScroll = 0;
     double previewPosZ = 0;
-    bool previewInvert = false;
     bool previewDomainWarp = false;
     bool previewAutoSize = false;
 
@@ -71,10 +72,11 @@ public:
     int fnlCellularReturnType = 1;
     float fnlCellularJitter = 1.0f;
 
+    int fnlDomainWarpSeed = 1337;
+    float fnlDomainWarpFrequency = 0.01f;
     int fnlDomainWarpType = 0;
     int fnlDomainWarpRotationType = 0;
     float fnlDomainWarpAmplitude = 1.0f;
-    float fnlDomainWarpFrequency = 0.01f;
 
     int fnlDomainWarpFractalType = 0;
     int fnlDomainWarpFractalOctaves = 3;
@@ -210,6 +212,11 @@ public:
                 fnlWarp.SetDomainWarpAmp(fnlDomainWarpAmplitude);
                 texUpdate = true;
             }
+            if (ImGui::DragInt("Seed", &fnlDomainWarpSeed))
+            {
+                fnlWarp.SetSeed(fnlDomainWarpSeed);
+                texUpdate = true;
+            }
             if (ImGui::DragFloat("Frequency", &fnlDomainWarpFrequency, 0.001f))
             {
                 fnlWarp.SetFrequency(fnlDomainWarpFrequency);
@@ -259,7 +266,11 @@ public:
             ImGui::BeginDisabled(previewAutoSize);
             ImGui::DragInt2("Size", previewSize, 1, 32, 4096);
             ImGui::EndDisabled();
-            if (ImGui::Checkbox("Invert", &previewInvert))
+            if (ImGui::DragFloat("Black Point", &noiseTexMin, 0.01f))
+            {
+                texUpdate = true;
+            }
+            if (ImGui::DragFloat("White Point", &noiseTexMax, 0.01f))
             {
                 texUpdate = true;
             }
@@ -504,7 +515,7 @@ public:
         }
 
         int index = noiseTexSizeGenX * previewPixelY * 4;
-        float invert = 1 - ((int)previewInvert * 2);
+        float scale = 255 / (noiseTexMax - noiseTexMin);
 
         auto timer = std::chrono::high_resolution_clock::now();
 
@@ -535,7 +546,7 @@ public:
                     noise = fnl.GetNoise(posX, posY);
                 }
 
-                unsigned char cNoise = (unsigned char)std::max(0.0f, std::min(255.0f, noise * invert * 127.5f + 127.5f));
+                unsigned char cNoise = (unsigned char)std::max(0.0f, std::min(255.0f, (noise - noiseTexMin) * scale));
                 previewPixelArray[index++] = cNoise;
                 previewPixelArray[index++] = cNoise;
                 previewPixelArray[index++] = cNoise;
