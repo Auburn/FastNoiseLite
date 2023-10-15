@@ -5,6 +5,7 @@ AccessModifierOffset: -4
 AlignOperands: false
 AlignTrailingComments: false
 AlwaysBreakTemplateDeclarations: Yes
+PointerAlignment: Left
 BraceWrapping: 
   AfterCaseLabel: true
   AfterClass: true

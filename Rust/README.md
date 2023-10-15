@@ -1,4 +1,4 @@
-[crates.io](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) • [repo](https://github.com/Auburn/FastNoiseLite)
+[![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) • [GitHub](https://github.com/Auburn/FastNoiseLite)
 
 # FastNoise Lite
 
@@ -32,17 +32,16 @@ use fastnoise_lite::*;
 let mut noise = FastNoiseLite::new();
 noise.SetNoiseType(NoiseType::OpenSimplex2);
 
-// Gather noise data
 const WIDTH: usize = 128;
 const HEIGHT: usize = 128;
+let mut noise_data = [[0.; HEIGHT]; WIDTH];
 
-let mut noise_data = [0.; WIDTH * HEIGHT];
-
-for y in 0..HEIGHT {
-    for x in 0..WIDTH {
-        // Enable `features = ["f64"]` in Cargo.toml to pass f64 values here instead of f32.
-        // Use `noise.get_noise_3d(x, y, z)` for 3D noise instead of 2D.
-        noise_data[WIDTH * y + x] = noise.get_noise_2d(x as f32, y as f32);
+// Gather noise data
+for x in 0..WIDTH {
+    for y in 0..HEIGHT {
+        // Assuming `noise.get_noise_2d(x, y)` returns a float, and takes f32 parameters.
+        // Adapt accordingly if the function signature is different.
+        noise_data[x][y] = noise.get_noise_2d(x as f32, y as f32);
     }
 }
 

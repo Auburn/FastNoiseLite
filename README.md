@@ -36,6 +36,8 @@ If you are looking for a more extensive noise generation library consider using 
 - [Rust](/Rust/)  
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
 
+If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
+
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
 
