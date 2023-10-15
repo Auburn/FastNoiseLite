@@ -16,24 +16,10 @@ categories = [
 ]
 keywords = [
 	"noise",
-	"fastnoise",
-	"procedural",
 	"simplex",
-	"opensimplex",
-	"cellular",
-	"voronoi",
 	"perlin",
-	"value",
-	"cubic",
-	"fractal",
-	"domain-warping",
-	"2D",
-	"3D",
-	"heightmap",
+	"procedural",
 	"terrain",
-	"texture",
-	"random",
-	"generative",
 ]
 
 [features]
