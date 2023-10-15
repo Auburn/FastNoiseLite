@@ -1,4 +1,4 @@
-[![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) • [GitHub](https://github.com/Auburn/FastNoiseLite)
+[![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite) • [docs.rs](https://docs.rs/fastnoise-lite/latest/fastnoise_lite/) • [GitHub](https://github.com/Auburn/FastNoiseLite)
 
 # FastNoise Lite
 
@@ -23,7 +23,7 @@ FastNoise Lite is an extremely portable open source noise generation library wit
 
 Below is an example for creating a 128x128 array of OpenSimplex2 noise.
 
-Additional documentation is available at [docs.rs](https://docs.rs/fastnoise-lite/latest/bezier_rs/) and the project's [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started) and [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation) pages from its GitHub wiki.
+Additional documentation is available at [docs.rs](https://docs.rs/fastnoise-lite/latest/fastnoise_lite/) and the project's [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started) and [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation) pages from its GitHub wiki.
 
 ```rs
 use fastnoise_lite::*;
