@@ -41,13 +41,13 @@ If you want to port FastNoise Lite to a new language create a pull request or di
 ### [Getting Started](https://github.com/Auburn/FastNoiseLite/wiki#getting-started)
 ### [Documentation](https://github.com/Auburn/FastNoiseLite/wiki/Documentation)
 
-## FastNoise Lite Preview App
+## FastNoise Lite Web Preview App
 
-A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes and testing noise settings.
+A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes, testing noise settings and generating noise textures for export.
 
-Download links can be found in the [Releases](https://github.com/Auburns/FastNoise/releases). Build instructions can be found in the PreviewApp directory.
+Link: [http://auburn.github.io/FastNoiseLite](http://auburn.github.io/FastNoiseLite). Source code can be found in the [WebPreviewApp](/WebPreviewApp/) directory.
 
-![FastNoise GUI](https://user-images.githubusercontent.com/1349548/93670916-b19b3a00-fa96-11ea-9990-e866bc3d719e.png)
+![Simplex FBm](https://user-images.githubusercontent.com/1349548/275292148-242e95c7-94e7-4801-bc4a-d683a8822382.png)
 
 ## Performance Comparisons
 
@@ -86,16 +86,12 @@ Million points of noise generated per second (higher = better)
 
 # Examples
 
-![Ridged Fractal](https://user-images.githubusercontent.com/1349548/93671180-b2cd6680-fa98-11ea-9026-0fb58b346c23.png)
+![Ridged Fractal](https://user-images.githubusercontent.com/1349548/275292765-498f804b-96f8-4187-860f-7d6c49f6fc88.png)
 
-![Cellular](https://user-images.githubusercontent.com/1349548/93670968-12c30d80-fa97-11ea-87ee-452173e784e0.png)
+![Cellular](https://user-images.githubusercontent.com/1349548/275292225-4e5a0379-834d-4e6e-ab2d-2c0e8e2ee209.png)
 
-![Cellular Fractal](https://user-images.githubusercontent.com/1349548/93671060-dfcd4980-fa97-11ea-9792-da7df5cc7fa9.png)
+![Cellular Fractal](https://user-images.githubusercontent.com/1349548/275292294-ebb3bb00-757f-46c3-9e18-3bdc73f96719.png)
 
-![Cellular Warped](https://user-images.githubusercontent.com/1349548/93671113-3470c480-fa98-11ea-9da8-a279538ef7c2.png)
+![Cellular Value Warped](https://user-images.githubusercontent.com/1349548/275292149-42a42aa7-d1b1-4c2f-856f-02fd80e84c78.png)
 
-![Value Warped](https://user-images.githubusercontent.com/1349548/93671571-ff667100-fa9b-11ea-934c-1f1ab1f8d3f4.png)
-
-![Cellular Scrolling](https://user-images.githubusercontent.com/1349548/93672159-97665980-faa0-11ea-9fcc-f5309b1a3a4b.gif)
-
-![OpenSimplex2 Warp](https://user-images.githubusercontent.com/1349548/93671333-f674a000-fa99-11ea-8a34-1338b104dd82.png)
+![Value Warped](https://user-images.githubusercontent.com/1349548/275293046-724b3aa4-1a6f-4b08-b421-8d32b6a69311.png)
