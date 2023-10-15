@@ -43,9 +43,11 @@ If you want to port FastNoise Lite to a new language create a pull request or di
 
 ## FastNoise Lite Web Preview App
 
+Link: [http://auburn.github.io/FastNoiseLite](http://auburn.github.io/FastNoiseLite)
+
 A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes, testing noise settings and generating noise textures for export.
 
-Link: [http://auburn.github.io/FastNoiseLite](http://auburn.github.io/FastNoiseLite). Source code can be found in the [WebPreviewApp](/WebPreviewApp/) directory.
+Source code can be found in the [WebPreviewApp](/WebPreviewApp/) directory.
 
 ![Simplex FBm](https://user-images.githubusercontent.com/1349548/275292148-242e95c7-94e7-4801-bc4a-d683a8822382.png)
 
