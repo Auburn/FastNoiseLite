@@ -339,7 +339,7 @@ impl FastNoiseLite {
     /// 2D noise at given position using current settings.
     ///
     /// Noise output bounded between -1..1.
-    pub fn get_noise_2d(&mut self, x: Float, y: Float) -> f32 {
+    pub fn get_noise_2d(&self, x: Float, y: Float) -> f32 {
         let (x, y) = self.transform_noise_coordinate_2d(x, y);
 
         match self.fractal_type {
@@ -353,7 +353,7 @@ impl FastNoiseLite {
     /// 3D noise at given position using current settings.
     ///
     /// Noise output is bounded between -1..1.
-    pub fn get_noise_3d(&mut self, x: Float, y: Float, z: Float) -> f32 {
+    pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> f32 {
         let (x, y, z) = self.transform_noise_coordinate_3d(x, y, z);
 
         match self.fractal_type {
@@ -371,7 +371,7 @@ impl FastNoiseLite {
     /// let (x, y) = domain_warp_2d(x, y);
     /// let noise = get_noise_2d(x, y); // Value in the -1..1 range
     /// ```
-    pub fn domain_warp_2d(&mut self, x: Float, y: Float) -> (Float, Float) {
+    pub fn domain_warp_2d(&self, x: Float, y: Float) -> (Float, Float) {
         match self.fractal_type {
             FractalType::DomainWarpProgressive => self.domain_warp_fractal_progressive_2d(x, y),
             FractalType::DomainWarpIndependent => self.domain_warp_fractal_independent_2d(x, y),
@@ -386,7 +386,7 @@ impl FastNoiseLite {
     /// let (x, y, z) = domain_warp_3d(x, y, z);
     /// let noise = get_noise_3d(x, y, z); // Value in the -1..1 range
     /// ```
-    pub fn domain_warp_3d(&mut self, x: Float, y: Float, z: Float) -> (Float, Float, Float) {
+    pub fn domain_warp_3d(&self, x: Float, y: Float, z: Float) -> (Float, Float, Float) {
         match self.fractal_type {
             FractalType::DomainWarpProgressive => self.domain_warp_fractal_progressive_3d(x, y, z),
             FractalType::DomainWarpIndependent => self.domain_warp_fractal_independent_3d(x, y, z),
@@ -913,7 +913,7 @@ impl FastNoiseLite {
 
     // Fractal FBm
 
-    fn gen_fractal_fbm_2d(&mut self, x: Float, y: Float) -> f32 {
+    fn gen_fractal_fbm_2d(&self, x: Float, y: Float) -> f32 {
         let mut x = x;
         let mut y = y;
 
