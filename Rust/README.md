@@ -30,7 +30,7 @@ use fastnoise_lite::*;
 
 // Create and configure FastNoise object
 let mut noise = FastNoiseLite::new();
-noise.set_noise_type(NoiseType::OpenSimplex2);
+noise.set_noise_type(Some(NoiseType::OpenSimplex2));
 
 const WIDTH: usize = 128;
 const HEIGHT: usize = 128;
