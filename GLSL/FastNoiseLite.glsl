@@ -787,8 +787,8 @@ float _fnlSingleOpenSimplex2S2D(int seed, FNLfloat x, FNLfloat y)
     float y0 = yi - t;
 
     int aMask = int((xi + yi + 1.f) * -0.5f);
-    int bMask = int((xi - float(aMask) + 2.f) * 0.5f - yi);
-    int cMask = int((yi - float(aMask) + 2.f) * 0.5f - xi);
+    int bMask = int((xi - (float(aMask) + 2.f)) * 0.5f - yi);
+    int cMask = int((yi - (float(aMask) + 2.f)) * 0.5f - xi);
 
     float a0 = (2.f / 3.f) - x0 * x0 - y0 * y0;
     float value = (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0);
