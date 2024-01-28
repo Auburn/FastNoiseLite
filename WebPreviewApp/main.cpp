@@ -243,7 +243,7 @@ public:
                 fnlWarp.SetFractalLacunarity(fnlDomainWarpFractalLacunarity);
                 texUpdate = true;
             }
-            if (ImGui::DragFloat("Gain", &fnlFractalGain, 0.01f))
+            if (ImGui::DragFloat("Gain", &fnlDomainWarpFractalGain, 0.01f))
             {
                 fnlWarp.SetFractalGain(fnlDomainWarpFractalGain);
                 texUpdate = true;
