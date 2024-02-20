@@ -174,13 +174,13 @@ struct fnl_state
 
     /**
      * The distance function used in cellular noise calculations.
-     * @remark Default: FNL_CELLULAR_FUNC_DISTANCE
+     * @remark Default: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ
      */
     fnl_cellular_distance_func cellular_distance_func;
 
     /**
      * The cellular return type from cellular noise calculations.
-     * @remark Default: FNL_CELLULAR_RETURN_TYPE_EUCLIEANSQ
+     * @remark Default: FNL_CELLULAR_RETURN_TYPE_DISTANCE
      */
     fnl_cellular_return_type cellular_return_type;
 
