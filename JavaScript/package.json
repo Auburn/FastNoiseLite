@@ -2,7 +2,7 @@
   "name": "fastnoise-lite",
   "type": "module",
   "version": "1.1.0",
-  "description": "FastNoiseLite is an extremely portable open source noise generation library with a large selection of noise algorithms",
+  "description": "FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms",
   "main": "FastNoiseLite.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

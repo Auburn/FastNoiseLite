@@ -1,9 +1,9 @@
 [package]
 name = "fastnoise-lite"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2021"
 license = "MIT"
-description = "FastNoiseLite is an extremely portable open source noise generation library with a large selection of noise algorithms"
+description = "FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms"
 repository = "https://github.com/Auburn/FastNoiseLite"
 readme = "README.md"
 authors = ["Jordan Peck", "Keavon Chambers"]
@@ -14,19 +14,13 @@ categories = [
 	"multimedia::images",
 	"rendering",
 ]
-keywords = [
-	"noise",
-	"simplex",
-	"perlin",
-	"procedural",
-	"terrain",
-]
+keywords = ["noise", "simplex", "perlin", "procedural", "terrain"]
 
 [features]
+default = ["std"]
 f64 = []
 std = ["num-traits/std"]
 libm = ["num-traits/libm"]
-default = ["std"]
 
 [dependencies]
-num-traits = { version = "0.2.16", optional = true, default-features = false }
+num-traits = { version = "0.2.18", optional = true, default-features = false }

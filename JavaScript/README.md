@@ -19,12 +19,12 @@ FastNoise Lite is an extremely portable open source noise generation library wit
 
 ## Getting Started
 
-### Using FastNoiseLite with npm
+### Using FastNoise Lite with npm
 
 To begin install the npm package **fastnoise-lite** with
 
 
-Note FastNoiseLite does **not** support the node.js require(''); function.
+Note FastNoise Lite does **not** support the node.js require(''); function.
 Instead, enable ES6 modules and **import**.
 
 ```javascript
