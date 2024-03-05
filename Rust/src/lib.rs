@@ -44,37 +44,53 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 1.1.0
+// VERSION: 1.1.1
 // https://github.com/Auburn/FastNoiseLite
 // https://crates.io/crates/fastnoise-lite
 //
 // Ported to Rust by Keavon Chambers:
 // Discord: Keavon (preferred) | Email: see <https://keavon.com> for the address | GitHub: Keavon (https://github.com/Keavon)
 
+#![doc = include_str!("../README.md")]
+
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::excessive_precision)]
 
-// Switch between using floats or doubles for input position
+// ===================================================================================
+// "f64" feature flag:
+// For choosing the desired floating point precision of input position X/Y coordinates
+// ===================================================================================
+
+// Switch between using floats or doubles for input X/Y coordinate positions
 #[cfg(not(feature = "f64"))]
 type Float = f32;
 #[cfg(feature = "f64")]
 type Float = f64;
 
+// ===========================================================================================================================================================
+// "std" and "libm" feature flags:
+// Ensures access to `sqrt()`, `trunc()`, and `abs()` floating point functions from either the Rust standard library, or the `libm` crate for `no_std` support
+// ===========================================================================================================================================================
+
+// Use the `num-traits` crate's `Float` trait if the user has enabled the `libm` feature flag
 #[cfg(feature = "libm")]
-use num_traits::float::Float as NumFloat;
+use num_traits::float::Float as FloatOps;
 
+// Use the standard library's `f32` type for floating point math operators if we're in an `std` (not `no_std`) context and the user hasn't enabled the `libm` feature flag
 #[cfg(all(feature = "std", not(feature = "libm")))]
-use Float as NumFloat;
+use f32 as FloatOps;
 
+// Ensures a user-facing compile error if this crate is misused by having neither the "std" or "libm" feature flags
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
-compile_error!("Either the std or libm feature must be enabled");
+compile_error!("`fastnoise-lite` crate: either the "std" or "libm" feature must be enabled");
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
-use Float as NumFloat;
+use Float as FloatOps;
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
 impl DummyFloatExt for Float {}
-
-// Dummy trait to allow compilation without std or libm
+#[cfg(all(not(feature = "std"), not(feature = "libm")))]
 trait DummyFloatExt: Sized {
+    // Dummy trait to allow compilation without std or libm
+
     fn sqrt(self) -> Self {
         unimplemented!()
     }
@@ -85,6 +101,10 @@ trait DummyFloatExt: Sized {
         unimplemented!()
     }
 }
+
+// ========================================
+// Option enums for FastNoise Lite settings
+// ========================================
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum NoiseType {
@@ -147,6 +167,46 @@ pub enum TransformType3D {
     DefaultOpenSimplex2,
 }
 
+// ========================================
+// FastNoise Lite settings/generator object
+// ========================================
+
+/// The object you construct, configure, and then use to sample the noise.
+///
+/// 1. Construct this with [`FastNoiseLite::new`] or [`FastNoiseLite::with_seed`].
+/// 2. Configure it from its defaults with the various `set_*` functions.
+/// 3. Optionally, use [`FastNoiseLite::domain_warp_2d`] or [`FastNoiseLite::domain_warp_3d`] to translate the input coordinates to their warped positions.
+/// 4. Use [`FastNoiseLite::get_noise_2d`] or [`FastNoiseLite::get_noise_3d`] to sample the noise at the (ordinary or warped) input coordinates.
+///
+/// # Example
+///
+/// ```rs
+/// use fastnoise_lite::*;
+/// 
+/// // Create and configure the FastNoise object
+/// let mut noise = FastNoiseLite::new();
+/// noise.set_noise_type(Some(NoiseType::OpenSimplex2));
+/// 
+/// const WIDTH: usize = 128;
+/// const HEIGHT: usize = 128;
+/// let mut noise_data = [[0.; HEIGHT]; WIDTH];
+/// 
+/// // Sample noise pixels
+/// for x in 0..WIDTH {
+///     for y in 0..HEIGHT {
+///         // Domain warp can optionally be employed to transform the coordinates before sampling:
+///         // let (x, y) = noise.domain_warp_2d(x as f32, y as f32);
+///         
+///         let negative_1_to_1 = noise.get_noise_2d(x as f32, y as f32);
+///         // You may want to remap the -1..1 range data to the 0..1 range:
+///         noise_data[x][y] = (neg_1_to_1 + 1.) / 2.;
+///         
+///         // (Uses of `as f32` above should become `as f64` if you're using FNL with the "f64" feature flag)
+///     }
+/// }
+///
+/// // Do something with this data...
+/// ```
 pub struct FastNoiseLite {
     pub seed: i32,
     pub frequency: f32,
@@ -179,7 +239,7 @@ impl Default for FastNoiseLite {
             frequency: 0.01,
             noise_type: NoiseType::OpenSimplex2,
             rotation_type_3d: RotationType3D::None,
-            transform_type_3d: TransformType3D::DefaultOpenSimplex2,
+            /* private */ transform_type_3d: TransformType3D::DefaultOpenSimplex2,
 
             fractal_type: FractalType::None,
             octaves: 3,
@@ -188,20 +248,26 @@ impl Default for FastNoiseLite {
             weighted_strength: 0.,
             ping_pong_strength: 2.,
 
-            fractal_bounding: 1. / 1.75,
+            /* private */ fractal_bounding: 1. / 1.75,
 
             cellular_distance_function: CellularDistanceFunction::EuclideanSq,
             cellular_return_type: CellularReturnType::Distance,
             cellular_jitter_modifier: 1.,
 
             domain_warp_type: DomainWarpType::OpenSimplex2,
-            warp_transform_type_3d: TransformType3D::DefaultOpenSimplex2,
+            /* private */ warp_transform_type_3d: TransformType3D::DefaultOpenSimplex2,
             domain_warp_amp: 1.,
         }
     }
 }
 
 impl FastNoiseLite {
+    // =====================
+    // Constructor functions
+    // =====================
+
+    /// # Constructor
+    ///
     /// Create new FastNoise object with the default seed of `1337`.
     pub fn new() -> Self {
         Self::default()
@@ -214,25 +280,29 @@ impl FastNoiseLite {
         fnl
     }
 
+    // ============================
+    // Setter convenience functions
+    // ============================
+
     /// Sets seed used for all noise types.
     ///
     /// If set to [`None`], it is reset to its default: `1337`.
     pub fn set_seed(&mut self, seed: Option<i32>) {
-        self.seed = seed.unwrap_or(1337);
+        self.seed = seed.unwrap_or(Self::default().seed);
     }
 
     /// Sets frequency used for all noise types.
     ///
     /// If set to [`None`], it is reset to its default: `0.01`.
     pub fn set_frequency(&mut self, frequency: Option<f32>) {
-        self.frequency = frequency.unwrap_or(0.01);
+        self.frequency = frequency.unwrap_or(Self::default().frequency);
     }
 
     /// Sets noise algorithm used for [`get_noise_2d`](Self::get_noise_2d)/[`get_noise_3d`](Self::get_noise_3d).
     ///
     /// If set to [`None`], it is reset to its default: [`NoiseType::OpenSimplex2`].
     pub fn set_noise_type(&mut self, noise_type: Option<NoiseType>) {
-        self.noise_type = noise_type.unwrap_or(NoiseType::OpenSimplex2);
+        self.noise_type = noise_type.unwrap_or(Self::default().noise_type);
         self.update_transform_type_3d();
     }
 
@@ -241,7 +311,7 @@ impl FastNoiseLite {
     ///
     /// If set to [`None`], it is reset to its default: [`RotationType3D::None`].
     pub fn set_rotation_type_3d(&mut self, rotation_type_3d: Option<RotationType3D>) {
-        self.rotation_type_3d = rotation_type_3d.unwrap_or(RotationType3D::None);
+        self.rotation_type_3d = rotation_type_3d.unwrap_or(Self::default().rotation_type_3d);
         self.update_transform_type_3d();
         self.update_warp_transform_type_3d();
     }
@@ -252,14 +322,14 @@ impl FastNoiseLite {
     ///
     /// Note: [`FractalType::DomainWarpProgressive`]/[`FractalType::DomainWarpIndependent`] only affects [`domain_warp_2d`](Self::domain_warp_2d).
     pub fn set_fractal_type(&mut self, fractal_type: Option<FractalType>) {
-        self.fractal_type = fractal_type.unwrap_or(FractalType::None);
+        self.fractal_type = fractal_type.unwrap_or(Self::default().fractal_type);
     }
 
     /// Sets octave count for all fractal noise types.
     ///
     /// If set to [`None`], it is reset to its default: `3`.
     pub fn set_fractal_octaves(&mut self, octaves: Option<i32>) {
-        self.octaves = octaves.unwrap_or(3);
+        self.octaves = octaves.unwrap_or(Self::default().octaves);
         self.calculate_fractal_bounding();
     }
 
@@ -267,14 +337,14 @@ impl FastNoiseLite {
     ///
     /// If set to [`None`], it is reset to its default: `2.0`.
     pub fn set_fractal_lacunarity(&mut self, lacunarity: Option<f32>) {
-        self.lacunarity = lacunarity.unwrap_or(2.);
+        self.lacunarity = lacunarity.unwrap_or(Self::default().lacunarity);
     }
 
     /// Sets octave gain for all fractal noise types.
     ///
     /// If set to [`None`], it is reset to its default: `0.5`.
     pub fn set_fractal_gain(&mut self, gain: Option<f32>) {
-        self.gain = gain.unwrap_or(0.5);
+        self.gain = gain.unwrap_or(Self::default().gain);
         self.calculate_fractal_bounding();
     }
 
@@ -284,14 +354,14 @@ impl FastNoiseLite {
     ///
     /// Note: Keep between 0..1 to maintain -1..1 output bounding.
     pub fn set_fractal_weighted_strength(&mut self, weighted_strength: Option<f32>) {
-        self.weighted_strength = weighted_strength.unwrap_or(0.);
+        self.weighted_strength = weighted_strength.unwrap_or(Self::default().weighted_strength);
     }
 
     /// Sets strength of the fractal ping pong effect.
     ///
     /// If set to [`None`], it is reset to its default: `2.0`.
     pub fn set_fractal_ping_pong_strength(&mut self, ping_pong_strength: Option<f32>) {
-        self.ping_pong_strength = ping_pong_strength.unwrap_or(2.);
+        self.ping_pong_strength = ping_pong_strength.unwrap_or(Self::default().ping_pong_strength);
     }
 
     /// Sets distance function used in cellular noise calculations.
@@ -302,14 +372,15 @@ impl FastNoiseLite {
         cellular_distance_function: Option<CellularDistanceFunction>,
     ) {
         self.cellular_distance_function =
-            cellular_distance_function.unwrap_or(CellularDistanceFunction::EuclideanSq);
+            cellular_distance_function.unwrap_or(Self::default().cellular_distance_function);
     }
 
     /// Sets return type from cellular noise calculations.
     ///
     /// If set to [`None`], it is reset to its default: [`CellularReturnType::Distance`].
     pub fn set_cellular_return_type(&mut self, cellular_return_type: Option<CellularReturnType>) {
-        self.cellular_return_type = cellular_return_type.unwrap_or(CellularReturnType::Distance);
+        self.cellular_return_type =
+            cellular_return_type.unwrap_or(Self::default().cellular_return_type);
     }
 
     /// Sets the maximum distance a cellular point can move from its grid position.
@@ -318,14 +389,15 @@ impl FastNoiseLite {
     ///
     /// Note: Setting this higher than 1 will cause artifacts.
     pub fn set_cellular_jitter(&mut self, cellular_jitter: Option<f32>) {
-        self.cellular_jitter_modifier = cellular_jitter.unwrap_or(1.);
+        self.cellular_jitter_modifier =
+            cellular_jitter.unwrap_or(Self::default().cellular_jitter_modifier);
     }
 
     /// Sets the warp algorithm when using [`domain_warp_2d`](Self::domain_warp_2d).
     ///
     /// If set to [`None`], it is reset to its default: [`DomainWarpType::OpenSimplex2`].
     pub fn set_domain_warp_type(&mut self, domain_warp_type: Option<DomainWarpType>) {
-        self.domain_warp_type = domain_warp_type.unwrap_or(DomainWarpType::OpenSimplex2);
+        self.domain_warp_type = domain_warp_type.unwrap_or(Self::default().domain_warp_type);
         self.update_warp_transform_type_3d();
     }
 
@@ -333,12 +405,22 @@ impl FastNoiseLite {
     ///
     /// If set to [`None`], it is reset to its default: `1.0`.
     pub fn set_domain_warp_amp(&mut self, domain_warp_amp: Option<f32>) {
-        self.domain_warp_amp = domain_warp_amp.unwrap_or(1.);
+        self.domain_warp_amp = domain_warp_amp.unwrap_or(Self::default().domain_warp_amp);
     }
+
+    // =========================
+    // Noise generator functions
+    // =========================
 
     /// 2D noise at given position using current settings.
     ///
     /// Noise output bounded between -1..1.
+    ///
+    /// Example usage:
+    /// ```rs
+    /// let noise = get_noise_2d(x, y); // Value in the -1..1 range
+    /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
+    /// ```
     pub fn get_noise_2d(&self, x: Float, y: Float) -> f32 {
         let (x, y) = self.transform_noise_coordinate_2d(x, y);
 
@@ -353,6 +435,12 @@ impl FastNoiseLite {
     /// 3D noise at given position using current settings.
     ///
     /// Noise output is bounded between -1..1.
+    ///
+    /// Example usage:
+    /// ```rs
+    /// let noise = get_noise_3d(x, y, z); // Value in the -1..1 range
+    /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
+    /// ```
     pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> f32 {
         let (x, y, z) = self.transform_noise_coordinate_3d(x, y, z);
 
@@ -364,12 +452,17 @@ impl FastNoiseLite {
         }
     }
 
+    // ===============================================
+    // Domain warp coordinate transformation functions
+    // ===============================================
+
     /// 2D warps the input position using current domain warp settings.
     ///
     /// Example usage:
     /// ```rs
     /// let (x, y) = domain_warp_2d(x, y);
     /// let noise = get_noise_2d(x, y); // Value in the -1..1 range
+    /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
     pub fn domain_warp_2d(&self, x: Float, y: Float) -> (Float, Float) {
         match self.fractal_type {
@@ -385,6 +478,7 @@ impl FastNoiseLite {
     /// ```rs
     /// let (x, y, z) = domain_warp_3d(x, y, z);
     /// let noise = get_noise_3d(x, y, z); // Value in the -1..1 range
+    /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
     pub fn domain_warp_3d(&self, x: Float, y: Float, z: Float) -> (Float, Float, Float) {
         match self.fractal_type {
@@ -394,6 +488,10 @@ impl FastNoiseLite {
         }
     }
 
+    // =================
+    // Lookup table data
+    // =================
+    
     #[rustfmt::skip]
     const GRADIENTS_2D: [f32; 256] = [
          0.130526192220052,  0.99144486137381,   0.38268343236509,   0.923879532511287,  0.608761429008721,  0.793353340291235,  0.793353340291235,  0.608761429008721,
@@ -522,6 +620,10 @@ impl FastNoiseLite {
         -0.7870349638, 0.03447489231, 0.6159443543, 0., -0.2015596421, 0.6859872284, 0.6991389226, 0., -0.08581082512, -0.10920836, -0.9903080513, 0., 0.5532693395, 0.7325250401, -0.396610771, 0., -0.1842489331, -0.9777375055, -0.1004076743, 0., 0.0775473789, -0.9111505856, 0.4047110257, 0., 0.1399838409, 0.7601631212, -0.6344734459, 0., 0.4484419361, -0.845289248, 0.2904925424, 0.,
     ];
 
+    // ==============
+    // Math functions
+    // ==============
+
     #[inline(always)]
     fn fast_floor(f: Float) -> i32 {
         if f >= 0. {
@@ -563,7 +665,7 @@ impl FastNoiseLite {
 
     #[inline(always)]
     fn ping_pong(t: f32) -> f32 {
-        let t = t - NumFloat::trunc(t * 0.5) * 2.;
+        let t = t - FloatOps::trunc(t * 0.5) * 2.;
 
         if t < 1. {
             t
@@ -573,7 +675,7 @@ impl FastNoiseLite {
     }
 
     fn calculate_fractal_bounding(&mut self) {
-        let gain = NumFloat::abs(self.gain);
+        let gain = FloatOps::abs(self.gain);
         let mut amp = gain;
         let mut amp_fractal = 1.;
         for _ in 1..self.octaves {
@@ -583,7 +685,11 @@ impl FastNoiseLite {
         self.fractal_bounding = 1. / amp_fractal;
     }
 
-    // Hashing
+    // ==============
+    // Hash functions
+    // ==============
+
+    // Primes for hashing
     const PRIME_X: i32 = 501125321;
     const PRIME_Y: i32 = 1136930381;
     const PRIME_Z: i32 = 1720413743;
@@ -602,6 +708,10 @@ impl FastNoiseLite {
         let hash = seed ^ x_primed ^ y_primed ^ z_primed;
         hash.wrapping_mul(0x27d4eb2d)
     }
+
+    // ===================================
+    // Internal noise generator algorithms
+    // ===================================
 
     #[inline(always)]
     fn val_coord_2d(seed: i32, x_primed: i32, y_primed: i32) -> f32 {
@@ -972,7 +1082,7 @@ impl FastNoiseLite {
         let mut amp = self.fractal_bounding;
 
         for _ in 0..self.octaves {
-            let noise = NumFloat::abs(self.gen_noise_single_2d(seed, x, y));
+            let noise = FloatOps::abs(self.gen_noise_single_2d(seed, x, y));
             seed += 1;
 
             sum += (noise * -2. + 1.) * amp;
@@ -996,7 +1106,7 @@ impl FastNoiseLite {
         let mut amp = self.fractal_bounding;
 
         for _ in 0..self.octaves {
-            let noise = NumFloat::abs(self.gen_noise_single_3d(seed, x, y, z));
+            let noise = FloatOps::abs(self.gen_noise_single_3d(seed, x, y, z));
             seed += 1;
 
             sum += (noise * -2. + 1.) * amp;
@@ -1768,7 +1878,7 @@ impl FastNoiseLite {
                         let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
-                        let new_distance = NumFloat::abs(vec_x) + NumFloat::abs(vec_y);
+                        let new_distance = FloatOps::abs(vec_x) + FloatOps::abs(vec_y);
 
                         distance1 = distance1.min(new_distance).max(distance0);
                         if new_distance < distance0 {
@@ -1795,7 +1905,7 @@ impl FastNoiseLite {
                         let vec_y = (yi as Float - y) as f32
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
-                        let new_distance = (NumFloat::abs(vec_x) + NumFloat::abs(vec_y))
+                        let new_distance = (FloatOps::abs(vec_x) + FloatOps::abs(vec_y))
                             + (vec_x * vec_x + vec_y * vec_y);
 
                         distance1 = distance1.min(new_distance).max(distance0);
@@ -1813,10 +1923,10 @@ impl FastNoiseLite {
         if self.cellular_distance_function == CellularDistanceFunction::Euclidean
             && self.cellular_return_type >= CellularReturnType::Distance
         {
-            distance0 = NumFloat::sqrt(distance0);
+            distance0 = FloatOps::sqrt(distance0);
 
             if self.cellular_return_type >= CellularReturnType::Distance2 {
-                distance1 = NumFloat::sqrt(distance1);
+                distance1 = FloatOps::sqrt(distance1);
             }
         }
 
@@ -1904,7 +2014,7 @@ impl FastNoiseLite {
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance =
-                                NumFloat::abs(vec_x) + NumFloat::abs(vec_y) + NumFloat::abs(vec_z);
+                                FloatOps::abs(vec_x) + FloatOps::abs(vec_y) + FloatOps::abs(vec_z);
 
                             distance1 = distance1.min(new_distance).max(distance0);
                             if new_distance < distance0 {
@@ -1939,9 +2049,9 @@ impl FastNoiseLite {
                             let vec_z = (zi as Float - z) as f32
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
-                            let new_distance = (NumFloat::abs(vec_x)
-                                + NumFloat::abs(vec_y)
-                                + NumFloat::abs(vec_z))
+                            let new_distance = (FloatOps::abs(vec_x)
+                                + FloatOps::abs(vec_y)
+                                + FloatOps::abs(vec_z))
                                 + (vec_x * vec_x + vec_y * vec_y + vec_z * vec_z);
 
                             distance1 = distance1.min(new_distance).max(distance0);
@@ -1961,10 +2071,10 @@ impl FastNoiseLite {
         if self.cellular_distance_function == CellularDistanceFunction::Euclidean
             && self.cellular_return_type >= CellularReturnType::Distance
         {
-            distance0 = NumFloat::sqrt(distance0);
+            distance0 = FloatOps::sqrt(distance0);
 
             if self.cellular_return_type >= CellularReturnType::Distance2 {
-                distance1 = NumFloat::sqrt(distance1);
+                distance1 = FloatOps::sqrt(distance1);
             }
         }
 
@@ -2508,6 +2618,7 @@ impl FastNoiseLite {
     }
 
     // Domain Warp Fractal Independant
+
     fn domain_warp_fractal_independent_2d(&self, x: Float, y: Float) -> (Float, Float) {
         let mut x = x;
         let mut y = y;

@@ -53,7 +53,7 @@
 //
 
 /**
- * @description FastNoiseLite Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
+ * @description FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms
  * @author Jordan Peck, snowfoxsh
  * @version 1.1.0
  * @copyright Copyright(c) 2023 Jordan Peck, Contributors
