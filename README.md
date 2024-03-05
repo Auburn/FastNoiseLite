@@ -2,7 +2,7 @@
 
 # FastNoise Lite
 
-[Web Preview App](http://auburn.github.io/FastNoiseLite)
+[Web Preview App](https://auburn.github.io/FastNoiseLite)
 
 FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
@@ -45,7 +45,7 @@ If you want to port FastNoise Lite to a new language create a pull request or di
 
 ## FastNoise Lite Web Preview App
 
-Link: [http://auburn.github.io/FastNoiseLite](http://auburn.github.io/FastNoiseLite)
+Link: [https://auburn.github.io/FastNoiseLite](https://auburn.github.io/FastNoiseLite)
 
 A compact testing application is available for testing all features included in FastNoise Lite with a visual representation. This can be used for development purposes, testing noise settings and generating noise textures for export.
 
