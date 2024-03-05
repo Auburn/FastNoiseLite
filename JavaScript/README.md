@@ -6,15 +6,15 @@ FastNoise Lite is an extremely portable open source noise generation library wit
 
 ## Features
 
-- 2D & 3D
-- OpenSimplex2 Noise
-- OpenSimplex2S Noise
-- Cellular (Voronoi) Noise
-- Perlin Noise
-- Value Noise
-- Value Cubic Noise
-- OpenSimplex2-based Domain Warp
-- Basic Grid Gradient Domain Warp
+- 2D & 3D sampling
+- OpenSimplex2 noise
+- OpenSimplex2S noise
+- Cellular (Voronoi) noise
+- Perlin noise
+- Value noise
+- Value Cubic noise
+- OpenSimplex2-based domain warp
+- Basic Grid Gradient domain warp
 - Multiple fractal options for all of the above
 
 ## Getting Started
