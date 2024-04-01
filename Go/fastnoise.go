@@ -682,34 +682,34 @@ func New[T Float]() *State[T] {
 func (state *State[T]) apply() {
 	switch state.fractalType {
 	case FractalFBm:
-		state.noise2D = genFractalFBM2D
-		state.noise3D = genFractalFBM3D
+		state.noise2D = genFractalFBM2D[T]
+		state.noise3D = genFractalFBM3D[T]
 	case FractalRidged:
-		state.noise2D = genFractalRidged2D
-		state.noise3D = genFractalRidged3D
+		state.noise2D = genFractalRidged2D[T]
+		state.noise3D = genFractalRidged3D[T]
 	case FractalPingPong:
-		state.noise2D = genFractalPingPong2D
-		state.noise3D = genFractalPingPong3D
+		state.noise2D = genFractalPingPong2D[T]
+		state.noise3D = genFractalPingPong3D[T]
 	default:
 		switch state.noiseType {
 		case OpenSimplex2:
-			state.noise2D = singleSimplex2D
-			state.noise3D = singleOpenSimplex23D
+			state.noise2D = singleSimplex2D[T]
+			state.noise3D = singleOpenSimplex23D[T]
 		case OpenSimplex2S:
-			state.noise2D = singleOpenSimplex2S2D
-			state.noise3D = singleOpenSimplex2S3D
+			state.noise2D = singleOpenSimplex2S2D[T]
+			state.noise3D = singleOpenSimplex2S3D[T]
 		case Cellular:
-			state.noise2D = singleCellular2D
-			state.noise3D = singleCellular3D
+			state.noise2D = singleCellular2D[T]
+			state.noise3D = singleCellular3D[T]
 		case Perlin:
-			state.noise2D = singlePerlin2D
-			state.noise3D = singlePerlin3D
+			state.noise2D = singlePerlin2D[T]
+			state.noise3D = singlePerlin3D[T]
 		case ValueCubic:
-			state.noise2D = singleValueCubic2D
-			state.noise3D = singleValueCubic3D
+			state.noise2D = singleValueCubic2D[T]
+			state.noise3D = singleValueCubic3D[T]
 		case Value:
-			state.noise2D = singleValue2D
-			state.noise3D = singleValue3D
+			state.noise2D = singleValue2D[T]
+			state.noise3D = singleValue3D[T]
 		default:
 			state.noise2D = func(_ *State[T], _ int, _, _ T) T { return 0 }
 			state.noise3D = func(_ *State[T], _ int, _, _, _ T) T { return 0 }
