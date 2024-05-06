@@ -206,7 +206,7 @@ pub enum TransformType3D {
 ///
 /// // Do something with this data...
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FastNoiseLite {
     pub seed: i32,
     pub frequency: f32,
