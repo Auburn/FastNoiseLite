@@ -52,7 +52,6 @@
 // Discord: Keavon (preferred) | Email: see <https://keavon.com> for the address | GitHub: Keavon (https://github.com/Keavon)
 
 #![doc = include_str!("../README.md")]
-
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::excessive_precision)]
 
@@ -182,15 +181,15 @@ pub enum TransformType3D {
 ///
 /// ```rs
 /// use fastnoise_lite::*;
-/// 
+///
 /// // Create and configure the FastNoise object
 /// let mut noise = FastNoiseLite::new();
 /// noise.set_noise_type(Some(NoiseType::OpenSimplex2));
-/// 
+///
 /// const WIDTH: usize = 128;
 /// const HEIGHT: usize = 128;
 /// let mut noise_data = [[0.; HEIGHT]; WIDTH];
-/// 
+///
 /// // Sample noise pixels
 /// for x in 0..WIDTH {
 ///     for y in 0..HEIGHT {
@@ -207,6 +206,7 @@ pub enum TransformType3D {
 ///
 /// // Do something with this data...
 /// ```
+#[derive(Clone, Debug)]
 pub struct FastNoiseLite {
     pub seed: i32,
     pub frequency: f32,
