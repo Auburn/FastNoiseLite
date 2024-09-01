@@ -68,104 +68,51 @@ module fast_noise_lite
 
   ! Enums
 
-  public :: fnl_noise_type
-  public :: FNL_NOISE_OPENSIMPLEX2
-  public :: FNL_NOISE_OPENSIMPLEX2S
-  public :: FNL_NOISE_CELLULAR
-  public :: FNL_NOISE_PERLIN
-  public :: FNL_NOISE_VALUE_CUBIC
-  public :: FNL_NOISE_VALUE
-
-  enum, bind(c)
-    enumerator :: fnl_noise_type = 0
-    enumerator :: FNL_NOISE_OPENSIMPLEX2 = 1
-    enumerator :: FNL_NOISE_OPENSIMPLEX2S = 2
-    enumerator :: FNL_NOISE_CELLULAR = 3
-    enumerator :: FNL_NOISE_PERLIN = 4
-    enumerator :: FNL_NOISE_VALUE_CUBIC = 5
-    enumerator :: FNL_NOISE_VALUE = 6
-  end enum
+  integer(c_int), parameter :: fnl_noise_type = 0
+  integer(c_int), parameter, public :: FNL_NOISE_OPENSIMPLEX2 = 1
+  integer(c_int), parameter, public :: FNL_NOISE_OPENSIMPLEX2S = 2
+  integer(c_int), parameter, public :: FNL_NOISE_CELLULAR = 3
+  integer(c_int), parameter, public :: FNL_NOISE_PERLIN = 4
+  integer(c_int), parameter, public :: FNL_NOISE_VALUE_CUBIC = 5
+  integer(c_int), parameter, public :: FNL_NOISE_VALUE = 6
 
 
-  public :: fnl_rotation_type_3d
-  public :: FNL_ROTATION_NONE
-  public :: FNL_ROTATION_IMPROVE_XY_PLANES
-  public :: FNL_ROTATION_IMPROVE_XZ_PLANES
-
-  enum, bind(c)
-    enumerator :: fnl_rotation_type_3d = 7
-    enumerator :: FNL_ROTATION_NONE = 8
-    enumerator :: FNL_ROTATION_IMPROVE_XY_PLANES = 9
-    enumerator :: FNL_ROTATION_IMPROVE_XZ_PLANES = 10
-  end enum
+  integer(c_int), parameter :: fnl_rotation_type_3d = 7
+  integer(c_int), parameter, public :: FNL_ROTATION_NONE = 8
+  integer(c_int), parameter, public :: FNL_ROTATION_IMPROVE_XY_PLANES = 9
+  integer(c_int), parameter, public :: FNL_ROTATION_IMPROVE_XZ_PLANES = 10
 
 
-  public :: fnl_fractal_type
-  public :: FNL_FRACTAL_NONE
-  public :: FNL_FRACTAL_FBM
-  public :: FNL_FRACTAL_RIDGED
-  public :: FNL_FRACTAL_PINGPONG
-  public :: FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE
-  public :: FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT
-
-  enum, bind(c)
-    enumerator :: fnl_fractal_type = 11
-    enumerator :: FNL_FRACTAL_NONE = 12
-    enumerator :: FNL_FRACTAL_FBM = 13
-    enumerator :: FNL_FRACTAL_RIDGED = 14
-    enumerator :: FNL_FRACTAL_PINGPONG = 15
-    enumerator :: FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE = 16
-    enumerator :: FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT = 17
-  end enum
+  integer(c_int), parameter :: fnl_fractal_type = 11
+  integer(c_int), parameter, public :: FNL_FRACTAL_NONE = 12
+  integer(c_int), parameter, public :: FNL_FRACTAL_FBM = 13
+  integer(c_int), parameter, public :: FNL_FRACTAL_RIDGED = 14
+  integer(c_int), parameter, public :: FNL_FRACTAL_PINGPONG = 15
+  integer(c_int), parameter, public :: FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE = 16
+  integer(c_int), parameter, public :: FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT = 17
 
 
-  public :: fnl_cellular_distance_func
-  public :: FNL_CELLULAR_DISTANCE_EUCLIDEAN
-  public :: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ
-  public :: FNL_CELLULAR_DISTANCE_MANHATTAN
-  public :: FNL_CELLULAR_DISTANCE_HYBRID
-
-  enum, bind(c)
-    enumerator :: fnl_cellular_distance_func = 18
-    enumerator :: FNL_CELLULAR_DISTANCE_EUCLIDEAN = 19
-    enumerator :: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ = 20
-    enumerator :: FNL_CELLULAR_DISTANCE_MANHATTAN = 21
-    enumerator :: FNL_CELLULAR_DISTANCE_HYBRID = 22
-  end enum
+  integer(c_int), parameter :: fnl_cellular_distance_func = 18
+  integer(c_int), parameter, public :: FNL_CELLULAR_DISTANCE_EUCLIDEAN = 19
+  integer(c_int), parameter, public :: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ = 20
+  integer(c_int), parameter, public :: FNL_CELLULAR_DISTANCE_MANHATTAN = 21
+  integer(c_int), parameter, public :: FNL_CELLULAR_DISTANCE_HYBRID = 22
 
 
-  public :: fnl_cellular_return_type
-  public :: FNL_CELLULAR_RETURN_TYPE_CELLVALUE
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL
-  public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV
-
-  enum, bind(c)
-    enumerator :: fnl_cellular_return_type = 23
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_CELLVALUE = 24
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE = 25
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2 = 26
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD = 27
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB = 28
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL = 29
-    enumerator :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV = 30
-  end enum
+  integer(c_int), parameter :: fnl_cellular_return_type = 23
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_CELLVALUE = 24
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE = 25
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2 = 26
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD = 27
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB = 28
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL = 29
+  integer(c_int), parameter, public :: FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV = 30
 
 
-  public :: fnl_domain_warp_type
-  public :: FNL_DOMAIN_WARP_OPENSIMPLEX2
-  public :: FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED
-  public :: FNL_DOMAIN_WARP_BASICGRID
-
-  enum, bind(c)
-    enumerator :: fnl_domain_warp_type = 31
-    enumerator :: FNL_DOMAIN_WARP_OPENSIMPLEX2 = 32
-    enumerator :: FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED = 33
-    enumerator :: FNL_DOMAIN_WARP_BASICGRID = 34
-  end enum
+  integer(c_int), parameter :: fnl_domain_warp_type = 31
+  integer(c_int), parameter, public :: FNL_DOMAIN_WARP_OPENSIMPLEX2 = 32
+  integer(c_int), parameter, public :: FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED = 33
+  integer(c_int), parameter, public :: FNL_DOMAIN_WARP_BASICGRID = 34
 
 
   !*
@@ -271,7 +218,7 @@ module fast_noise_lite
 
   interface fnl_state
     module procedure :: constructor_fnl_state
-  end interface
+  end interface fnl_state
 
 
   ! Expose public api.
