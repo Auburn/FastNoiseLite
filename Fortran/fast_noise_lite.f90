@@ -2627,8 +2627,8 @@ contains
 
     type(fnl_state), intent(in) :: state
     real(fnl_float), intent(inout) :: x, y, z
-    select case (state%fractal_type)
 
+    select case (state%fractal_type)
      case (FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE)
       call internal_fnl_domain_warp_fractal_progressive_3d(state, x, y, z)
      case (FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT)
