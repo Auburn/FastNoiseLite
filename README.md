@@ -87,6 +87,7 @@ Million points of noise generated per second (higher = better)
 - [@dotlogix](https://github.com/dotlogix) for creating the GLSL port.
 - [@ForeverZer0](https://github.com/ForeverZer0) for creating the Go port.
 - [@Keavon](https://github.com/Keavon) for creating the Rust port.
+- [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
 
 # Examples
 
