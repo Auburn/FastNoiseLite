@@ -37,6 +37,7 @@ If you are looking for a more extensive noise generation library consider using 
   [![npm](https://img.shields.io/npm/v/fastnoise-lite?logo=npm "npm")](https://www.npmjs.com/package/fastnoise-lite)
 - [Rust](/Rust/)  
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
+- [Fortran](/Fortran/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
