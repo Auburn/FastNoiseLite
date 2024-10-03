@@ -91,6 +91,12 @@ Million points of noise generated per second (higher = better)
 - [@Keavon](https://github.com/Keavon) for creating the Rust port.
 - [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
 
+## Contributing
+
+New ports of FastNoise Lite are always welcome, create a PR or come discuss the port with me on the discord linked above.
+I'm not an expert or even familiar with every language FastNoise lite has been ported to, so if you see something that could be improved please contribute or create a GitHub issue.
+
+
 # Examples
 
 ![Ridged Fractal](https://user-images.githubusercontent.com/1349548/275292765-498f804b-96f8-4187-860f-7d6c49f6fc88.png)
