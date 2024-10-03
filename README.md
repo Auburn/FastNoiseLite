@@ -38,6 +38,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [Rust](/Rust/)  
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
 - [Fortran](/Fortran/)
+- [Zig](/Zig/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
@@ -86,7 +87,7 @@ Million points of noise generated per second (higher = better)
 - [@Rover656](https://github.com/Rover656) for creating the preview GUI and porting FastNoise Lite to C and HLSL.
 - [@snowfoxsh](https://github.com/snowfoxsh) for creating the JavaScript port.
 - [@dotlogix](https://github.com/dotlogix) for creating the GLSL port.
-- [@ForeverZer0](https://github.com/ForeverZer0) for creating the Go port.
+- [@ForeverZer0](https://github.com/ForeverZer0) for creating the Zig and Go ports.
 - [@Keavon](https://github.com/Keavon) for creating the Rust port.
 - [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
 
