@@ -98,7 +98,7 @@ Cellular_Return_Type :: enum {
     Distance2_Div,
 }
 
-fnl_domain_warp_type :: enum {
+Domain_Warp_Type :: enum {
     Open_Simplex_2,
     Open_Simplex_2_Reduced,
     Basic_Grid,
@@ -109,7 +109,7 @@ fnl_domain_warp_type :: enum {
  * Structure containing entire noise system state.
  * @note Must only be created using fnlCreateState(optional: seed). To ensure defaults are set.
  */
-fnl_state :: struct {
+FNL_State :: struct {
     /**
     * Seed used for all noise types.
     * @remark Default: 1337
@@ -195,7 +195,7 @@ fnl_state :: struct {
     * The warp algorithm when using fnlDomainWarp...
     * @remark Default: OpenSimplex2
     */
-    domain_warp_type: fnl_domain_warp_type,
+    domain_warp_type: Domain_Warp_Type,
 
     /**
     * The maximum warp distance from original position when using fnlDomainWarp...
@@ -376,7 +376,7 @@ _fnlPingPong :: #force_inline proc (t: f32) -> f32 {
 }
 
 @private
-_fnlCalculateFractalBounding :: proc(state : ^fnl_state) -> f32 {
+_fnlCalculateFractalBounding :: proc(state : ^FNL_State) -> f32 {
     gain: f32 = math.abs(state.gain)
     amp: f32 = gain
     ampFractal: f32 = 1.0
@@ -498,7 +498,7 @@ _fnlGradCoordDual3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f
 // Generic Noise Gen
 
 @private
-_fnlGenNoiseSingle2D :: proc (state: ^fnl_state, seed: int,  x, y: f32) -> f32 {
+_fnlGenNoiseSingle2D :: proc (state: ^FNL_State, seed: int,  x, y: f32) -> f32 {
     switch (state.noise_type)
     {
     case .Open_Simplex_2:
@@ -519,7 +519,7 @@ _fnlGenNoiseSingle2D :: proc (state: ^fnl_state, seed: int,  x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenNoiseSingle3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32 {
+_fnlGenNoiseSingle3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
     switch (state.noise_type)
     {
     case .Open_Simplex_2:
@@ -542,7 +542,7 @@ _fnlGenNoiseSingle3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
 // Noise Coordinate Transforms (frequency, and possible skew or rotation)
 
 @private
-_fnlTransformNoiseCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
+_fnlTransformNoiseCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
     x^ *= state.frequency
     y^ *= state.frequency
 
@@ -558,7 +558,7 @@ _fnlTransformNoiseCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
 }
 
 @private
-_fnlTransformNoiseCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
+_fnlTransformNoiseCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
     x^ *= state.frequency
     y^ *= state.frequency
     z^ *= state.frequency
@@ -595,7 +595,7 @@ _fnlTransformNoiseCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 // Domain Warp Coordinate Transforms
 
 @private
-_fnlTransformDomainWarpCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
+_fnlTransformDomainWarpCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
     #partial switch (state.domain_warp_type)
     {
     case .Open_Simplex_2, .Open_Simplex_2_Reduced:
@@ -608,7 +608,7 @@ _fnlTransformDomainWarpCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
 }
 
 @private
-_fnlTransformDomainWarpCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
+_fnlTransformDomainWarpCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
     #partial switch (state.rotation_type_3d)
     {
     case .Improve_XY_Planes:
@@ -640,7 +640,7 @@ _fnlTransformDomainWarpCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 
 // Fractal FBm
 @private
-_fnlGenFractalFBM2D :: proc(state: ^fnl_state, x, y: f32) -> f32 {
+_fnlGenFractalFBM2D :: proc(state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum  :f32= 0.0
@@ -662,7 +662,7 @@ _fnlGenFractalFBM2D :: proc(state: ^fnl_state, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalFBM3D :: proc (state: ^fnl_state, x, y, z: f32) -> f32 {
+_fnlGenFractalFBM3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     seed := state.seed
     sum :f32= 0
@@ -687,7 +687,7 @@ _fnlGenFractalFBM3D :: proc (state: ^fnl_state, x, y, z: f32) -> f32 {
 // Fractal Ridged
 
 @private
-_fnlGenFractalRidged2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
+_fnlGenFractalRidged2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum: f32 = 0
@@ -709,7 +709,7 @@ _fnlGenFractalRidged2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalRidged3D :: proc(state: ^fnl_state, x, y, z: f32) -> f32 {
+_fnlGenFractalRidged3D :: proc(state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     seed := state.seed
     sum: f32 = 0
@@ -733,7 +733,7 @@ _fnlGenFractalRidged3D :: proc(state: ^fnl_state, x, y, z: f32) -> f32 {
 
 // Fractal PingPong
 @private
-_fnlGenFractalPingPong2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
+_fnlGenFractalPingPong2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum: f32 = 0
@@ -755,7 +755,7 @@ _fnlGenFractalPingPong2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalPingPong3D :: proc (state: ^fnl_state, x, y, z: f32)  -> f32{
+_fnlGenFractalPingPong3D :: proc (state: ^FNL_State, x, y, z: f32)  -> f32{
     x := x; y := y; z := z
     seed := state.seed
     sum: f32 = 0
@@ -1195,7 +1195,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
 // Cellular Noise
 
 @private
-_fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
+_fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
     xr := _fnlFastRound(x)
     yr := _fnlFastRound(y)
 
@@ -1308,7 +1308,7 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
 }
 
 @private
-_fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32 {
+_fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
     xr := _fnlFastRound(x)
     yr := _fnlFastRound(y)
     zr := _fnlFastRound(z)
@@ -1635,7 +1635,7 @@ _fnlSingleValue3D :: proc (seed: int, x, y, z: f32) -> f32  {
 
 // Domain Warp
 @private
-_fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^fnl_state, seed: int, amp, freq, x, y: f32, xp, yp: ^f32) {
+_fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y: f32, xp, yp: ^f32) {
     switch (state.domain_warp_type)
     {
     case .Open_Simplex_2:
@@ -1648,7 +1648,7 @@ _fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^fnl_state, seed: int, am
 }
 
 @private
-_fnlDoSingleDomainWarp3D :: #force_inline proc (state: ^fnl_state, seed: int, amp, freq, x, y, z: f32, xp, yp, zp: ^f32) {
+_fnlDoSingleDomainWarp3D :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y, z: f32, xp, yp, zp: ^f32) {
     switch (state.domain_warp_type)
     {
     case .Open_Simplex_2:
@@ -1663,7 +1663,7 @@ _fnlDoSingleDomainWarp3D :: #force_inline proc (state: ^fnl_state, seed: int, am
 // Domain Warp Single Wrapper
 
 @private
-_fnlDomainWarpSingle2D :: proc (state: ^fnl_state, x, y: ^f32) {
+_fnlDomainWarpSingle2D :: proc (state: ^FNL_State, x, y: ^f32) {
     seed := state.seed
     amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
     freq := state.frequency
@@ -1676,7 +1676,7 @@ _fnlDomainWarpSingle2D :: proc (state: ^fnl_state, x, y: ^f32) {
 }
 
 @private
-_fnlDomainWarpSingle3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
+_fnlDomainWarpSingle3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
     seed := state.seed
     amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
     freq := state.frequency
@@ -1692,7 +1692,7 @@ _fnlDomainWarpSingle3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 // Domain Warp Fractal Progressive
 
 @private
-_fnlDomainWarpFractalProgressive2D :: proc (state: ^fnl_state, x, y: ^f32) {
+_fnlDomainWarpFractalProgressive2D :: proc (state: ^FNL_State, x, y: ^f32) {
     seed := state.seed
     amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
     freq := state.frequency
@@ -1713,7 +1713,7 @@ _fnlDomainWarpFractalProgressive2D :: proc (state: ^fnl_state, x, y: ^f32) {
 
 
 @private
-_fnlDomainWarpFractalProgressive3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
+_fnlDomainWarpFractalProgressive3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
     seed := state.seed
     amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
     freq := state.frequency
@@ -1735,7 +1735,7 @@ _fnlDomainWarpFractalProgressive3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 // Domain Warp Fractal Independent
 
 @private
-_fnlDomainWarpFractalIndependent2D :: proc (state: ^fnl_state, x, y: ^f32) {
+_fnlDomainWarpFractalIndependent2D :: proc (state: ^FNL_State, x, y: ^f32) {
     xs := x^
     ys := y^
     _fnlTransformDomainWarpCoordinate2D(state, &xs, &ys)
@@ -1754,7 +1754,7 @@ _fnlDomainWarpFractalIndependent2D :: proc (state: ^fnl_state, x, y: ^f32) {
 }
 
 @private
-_fnlDomainWarpFractalIndependent3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
+_fnlDomainWarpFractalIndependent3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
     xs := x^
     ys := y^
     zs := z^
@@ -2060,7 +2060,7 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
 // ====================
 // Public API
 // ====================
-fnlCreateState :: proc(seed : int = 1337) -> fnl_state {
+fnlCreateState :: proc(seed : int = 1337) -> FNL_State {
     return {
         seed                   = seed,
         frequency              = 0.01,
@@ -2081,7 +2081,7 @@ fnlCreateState :: proc(seed : int = 1337) -> fnl_state {
 }
 
 
-fnlGetNoise2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
+fnlGetNoise2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     _fnlTransformNoiseCoordinate2D(state, &x, &y)
 
@@ -2098,7 +2098,7 @@ fnlGetNoise2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
     }
 }
 
-fnlGetNoise3D :: proc (state: ^fnl_state, x, y, z: f32) -> f32 {
+fnlGetNoise3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     _fnlTransformNoiseCoordinate3D(state, &x, &y, &z)
 
@@ -2116,7 +2116,7 @@ fnlGetNoise3D :: proc (state: ^fnl_state, x, y, z: f32) -> f32 {
     }
 }
 
-fnlDomainWarp2D :: proc(state: ^fnl_state, x, y: ^f32) {
+fnlDomainWarp2D :: proc(state: ^FNL_State, x, y: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
@@ -2128,7 +2128,7 @@ fnlDomainWarp2D :: proc(state: ^fnl_state, x, y: ^f32) {
     }
 }
 
-fnlDomainWarp3D :: proc(state: ^fnl_state, x, y, z: ^f32) {
+fnlDomainWarp3D :: proc(state: ^FNL_State, x, y, z: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
