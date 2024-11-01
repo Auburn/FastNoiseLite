@@ -57,51 +57,51 @@ import "core:math/linalg"
 // f32 :: f64
 
 // Enums
-fnl_noise_type :: enum {
-    FNL_NOISE_OPENSIMPLEX2,
-    FNL_NOISE_OPENSIMPLEX2S,
-    FNL_NOISE_CELLULAR,
-    FNL_NOISE_PERLIN,
-    FNL_NOISE_VALUE_CUBIC,
-    FNL_NOISE_VALUE,
+Noise_type :: enum {
+    Open_Simplex_2,
+    Open_Simplex_2S,
+    Cellular,
+    Perlin,
+    Value_Cubic,
+    Value,
 }
 
-fnl_rotation_type_3d :: enum {
-    FNL_ROTATION_NONE,
-    FNL_ROTATION_IMPROVE_XY_PLANES,
-    FNL_ROTATION_IMPROVE_XZ_PLANES,
+Rotation_Type_3d :: enum {
+    None,
+    Improve_XY_Planes,
+    Improve_XZ_Planes,
 }
 
-fnl_fractal_type :: enum {
-    FNL_FRACTAL_NONE,
-    FNL_FRACTAL_FBM,
-    FNL_FRACTAL_RIDGED,
-    FNL_FRACTAL_PINGPONG,
-    FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE,
-    FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT,
+Fractal_Type :: enum {
+    None,
+    FBM,
+    Ridged,
+    Ping_Pong,
+    Domain_Warp_Progressive,
+    Domain_Warp_Independent,
 }
 
-fnl_cellular_distance_func :: enum {
-    FNL_CELLULAR_DISTANCE_EUCLIDEAN,
-    FNL_CELLULAR_DISTANCE_EUCLIDEANSQ,
-    FNL_CELLULAR_DISTANCE_MANHATTAN,
-    FNL_CELLULAR_DISTANCE_HYBRID,
+Cellular_Distance_Func :: enum {
+    Euclidean,
+    Euclidean_SQ,
+    Manhattan,
+    Hybrid,
 }
 
-fnl_cellular_return_type :: enum {
-    FNL_CELLULAR_RETURN_TYPE_CELLVALUE,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE2,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL,
-    FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV,
+Cellular_Return_Type :: enum {
+    Cellvalue,
+    Distance,
+    Distance2,
+    Distance2_Add,
+    Distance2_Sub,
+    Distance2_Mul,
+    Distance2_Div,
 }
 
 fnl_domain_warp_type :: enum {
-    FNL_DOMAIN_WARP_OPENSIMPLEX2,
-    FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED,
-    FNL_DOMAIN_WARP_BASICGRID,
+    Open_Simplex_2,
+    Open_Simplex_2_Reduced,
+    Basic_Grid,
 }
 
 
@@ -124,22 +124,22 @@ fnl_state :: struct {
 
     /**
     * The noise algorithm to be used by GetNoise(...).
-    * @remark Default: FNL_NOISE_OPENSIMPLEX2
+    * @remark Default: Open_Simplex_2
     */
-    noise_type: fnl_noise_type,
+    noise_type: Noise_type,
 
     /**
     * Sets noise rotation type for 3D.
-    * @remark Default: FNL_ROTATION_NONE
+    * @remark Default: None
     */
-    rotation_type_3d: fnl_rotation_type_3d,
+    rotation_type_3d: Rotation_Type_3d,
 
     /**
     * The method used for combining octaves for all fractal noise types.
     * @remark Default: None
     * @remark FNL_FRACTAL_DOMAIN_WARP_... only effects fnlDomainWarp...
     */
-    fractal_type: fnl_fractal_type,
+    fractal_type: Fractal_Type,
 
     /**
     * The octave count for all fractal noise types.
@@ -174,15 +174,15 @@ fnl_state :: struct {
 
     /**
     * The distance function used in cellular noise calculations.
-    * @remark Default: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ
+    * @remark Default: Euclidean_SQ
     */
-    cellular_distance_func: fnl_cellular_distance_func,
+    cellular_distance_func: Cellular_Distance_Func,
 
     /**
     * The cellular return type from cellular noise calculations.
-    * @remark Default: FNL_CELLULAR_RETURN_TYPE_DISTANCE
+    * @remark Default: Distance
     */
-    cellular_return_type: fnl_cellular_return_type,
+    cellular_return_type: Cellular_Return_Type,
 
     /**
     * The maximum distance a cellular point can move from it's grid position.
@@ -205,7 +205,7 @@ fnl_state :: struct {
 }
 
 //constants
-
+@private
 GRADIENTS_2D := [256]f64 {
     0.130526192220052, 0.99144486137381, 0.38268343236509, 0.923879532511287, 0.608761429008721, 0.793353340291235, 0.793353340291235, 0.608761429008721,
     0.923879532511287, 0.38268343236509, 0.99144486137381, 0.130526192220051, 0.99144486137381, -0.130526192220051, 0.923879532511287, -0.38268343236509,
@@ -241,6 +241,7 @@ GRADIENTS_2D := [256]f64 {
     -0.38268343236509, -0.923879532511287, -0.923879532511287, -0.38268343236509, -0.923879532511287, 0.38268343236509, -0.38268343236509, 0.923879532511287,
 }
 
+@private
 RAND_VECS_2D := [512]f64 {
     -0.2700222198, -0.9628540911, 0.3863092627, -0.9223693152, 0.04444859006, -0.999011673, -0.5992523158, -0.8005602176, -0.7819280288, 0.6233687174, 0.9464672271, 0.3227999196, -0.6514146797, -0.7587218957, 0.9378472289, 0.347048376,
     -0.8497875957, -0.5271252623, -0.879042592, 0.4767432447, -0.892300288, -0.4514423508, -0.379844434, -0.9250503802, -0.9951650832, 0.0982163789, 0.7724397808, -0.6350880136, 0.7573283322, -0.6530343002, -0.9928004525, -0.119780055,
@@ -276,6 +277,7 @@ RAND_VECS_2D := [512]f64 {
     0.01426758847, -0.9998982128, -0.6734383991, 0.7392433447, 0.639412098, -0.7688642071, 0.9211571421, 0.3891908523, -0.146637214, -0.9891903394, -0.782318098, 0.6228791163, -0.5039610839, -0.8637263605, -0.7743120191, -0.6328039957,
 }
 
+@private
 GRADIENTS_3D := [256]f32 {
     0, 1, 1, 0,  0,-1, 1, 0,  0, 1,-1, 0,  0,-1,-1, 0,
     1, 0, 1, 0, -1, 0, 1, 0,  1, 0,-1, 0, -1, 0,-1, 0,
@@ -295,6 +297,7 @@ GRADIENTS_3D := [256]f32 {
     1, 1, 0, 0,  0,-1, 1, 0, -1, 1, 0, 0,  0,-1,-1, 0,
 }
 
+@private
 RAND_VECS_3D := [1024]f64 { 
     -0.7292736885, -0.6618439697, 0.1735581948, 0, 0.790292081, -0.5480887466, -0.2739291014, 0, 0.7217578935, 0.6226212466, -0.3023380997, 0, 0.565683137, -0.8208298145, -0.0790000257, 0, 0.760049034, -0.5555979497, -0.3370999617, 0, 0.3713945616, 0.5011264475, 0.7816254623, 0, -0.1277062463, -0.4254438999, -0.8959289049, 0, -0.2881560924, -0.5815838982, 0.7607405838, 0,
     0.5849561111, -0.662820239, -0.4674352136, 0, 0.3307171178, 0.0391653737, 0.94291689, 0, 0.8712121778, -0.4113374369, -0.2679381538, 0, 0.580981015, 0.7021915846, 0.4115677815, 0, 0.503756873, 0.6330056931, -0.5878203852, 0, 0.4493712205, 0.601390195, 0.6606022552, 0, -0.6878403724, 0.09018890807, -0.7202371714, 0, -0.5958956522, -0.6469350577, 0.475797649, 0,
@@ -498,17 +501,17 @@ _fnlGradCoordDual3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f
 _fnlGenNoiseSingle2D :: proc (state: ^fnl_state, seed: int,  x, y: f32) -> f32 {
     switch (state.noise_type)
     {
-    case .FNL_NOISE_OPENSIMPLEX2:
+    case .Open_Simplex_2:
         return _fnlSingleSimplex2D(seed, x, y)
-    case .FNL_NOISE_OPENSIMPLEX2S:
+    case .Open_Simplex_2S:
         return _fnlSingleOpenSimplex2S2D(seed, x, y)
-    case .FNL_NOISE_CELLULAR:
+    case .Cellular:
         return _fnlSingleCellular2D(state, seed, x, y)
-    case .FNL_NOISE_PERLIN:
+    case .Perlin:
         return _fnlSinglePerlin2D(seed, x, y)
-    case .FNL_NOISE_VALUE_CUBIC:
+    case .Value_Cubic:
         return _fnlSingleValueCubic2D(seed, x, y)
-    case .FNL_NOISE_VALUE:
+    case .Value:
         return _fnlSingleValue2D(seed, x, y)
     case:
         return 0
@@ -519,17 +522,17 @@ _fnlGenNoiseSingle2D :: proc (state: ^fnl_state, seed: int,  x, y: f32) -> f32 {
 _fnlGenNoiseSingle3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32 {
     switch (state.noise_type)
     {
-    case .FNL_NOISE_OPENSIMPLEX2:
+    case .Open_Simplex_2:
         return _fnlSingleOpenSimplex23D(seed, x, y, z)
-    case .FNL_NOISE_OPENSIMPLEX2S:
+    case .Open_Simplex_2S:
         return _fnlSingleOpenSimplex2S3D(seed, x, y, z)
-    case .FNL_NOISE_CELLULAR:
+    case .Cellular:
         return _fnlSingleCellular3D(state, seed, x, y, z)
-    case .FNL_NOISE_PERLIN:
+    case .Perlin:
         return _fnlSinglePerlin3D(seed, x, y, z)
-    case .FNL_NOISE_VALUE_CUBIC:
+    case .Value_Cubic:
         return _fnlSingleValueCubic3D(seed, x, y, z)
-    case .FNL_NOISE_VALUE:
+    case .Value:
         return _fnlSingleValue3D(seed, x, y, z)
     case:
         return 0
@@ -545,7 +548,7 @@ _fnlTransformNoiseCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
 
     #partial switch (state.noise_type)
     {
-    case .FNL_NOISE_OPENSIMPLEX2, .FNL_NOISE_OPENSIMPLEX2S:
+    case .Open_Simplex_2, .Open_Simplex_2S:
         SQRT3 :: f32(1.7320508075688772935274463415059)
         F2 :f32: 0.5 * (SQRT3 - 1)
         t := (x^ + y^) * F2
@@ -562,14 +565,14 @@ _fnlTransformNoiseCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 
     #partial switch (state.rotation_type_3d)
     {
-    case .FNL_ROTATION_IMPROVE_XY_PLANES:
+    case .Improve_XY_Planes:
         xy :f32 = x^ + y^
         s2 :f32 = xy * -f32(0.211324865405187)
         z^ *= f32(0.577350269189626)
         x^ += s2 - z^
         y^ = y^ + s2 - z^
         z^ += xy * f32(0.577350269189626)
-    case .FNL_ROTATION_IMPROVE_XZ_PLANES:
+    case .Improve_XZ_Planes:
         xz :f32 = x^ + z^
         s2 :f32 = xz * -f32(0.211324865405187)
         y^ *= f32(0.577350269189626)
@@ -579,7 +582,7 @@ _fnlTransformNoiseCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
     case:
         #partial switch (state.noise_type)
         {
-        case .FNL_NOISE_OPENSIMPLEX2, .FNL_NOISE_OPENSIMPLEX2S:
+        case .Open_Simplex_2, .Open_Simplex_2S:
             R3  :f32: 2.0 / 3.0
             r   :f32= (x^ + y^ + z^) * R3 // Rotation, not skew
             x^ = r - x^
@@ -595,7 +598,7 @@ _fnlTransformNoiseCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
 _fnlTransformDomainWarpCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
     #partial switch (state.domain_warp_type)
     {
-    case .FNL_DOMAIN_WARP_OPENSIMPLEX2, .FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
+    case .Open_Simplex_2, .Open_Simplex_2_Reduced:
         SQRT3   :: f32(1.7320508075688772935274463415059)
         F2      :f32: 0.5 * (SQRT3 - 1)
         t       :f32= (x^ + y^) * F2
@@ -608,14 +611,14 @@ _fnlTransformDomainWarpCoordinate2D :: proc (state: ^fnl_state, x, y: ^f32) {
 _fnlTransformDomainWarpCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
     #partial switch (state.rotation_type_3d)
     {
-    case .FNL_ROTATION_IMPROVE_XY_PLANES:
+    case .Improve_XY_Planes:
         xy := x^ + y^
         s2 := xy * -f32(0.211324865405187)
         z^ *= f32(0.577350269189626)
         x^ += s2 - z^
         y^ = y^ + s2 - z^
         z^ += xy * f32(0.577350269189626)
-    case .FNL_ROTATION_IMPROVE_XZ_PLANES:
+    case .Improve_XZ_Planes:
         xz := x^ + z^
         s2 := xz * -f32(0.211324865405187)
         y^ *= f32(0.577350269189626)
@@ -625,7 +628,7 @@ _fnlTransformDomainWarpCoordinate3D :: proc (state: ^fnl_state, x, y, z: ^f32) {
     case:
         #partial switch (state.domain_warp_type)
         {
-        case .FNL_DOMAIN_WARP_OPENSIMPLEX2, .FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
+        case .Open_Simplex_2, .Open_Simplex_2_Reduced:
             R3 :f32: f32(2.0 / 3.0)
             r :f32= (x^ + y^ + z^) * R3 // Rotation, not skew
             x^ = r - x^
@@ -1208,8 +1211,8 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
     switch state.cellular_distance_func
     {
     case: fallthrough
-    case .FNL_CELLULAR_DISTANCE_EUCLIDEAN,
-         .FNL_CELLULAR_DISTANCE_EUCLIDEANSQ:
+    case .Euclidean,
+         .Euclidean_SQ:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1231,7 +1234,7 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
             }
             xPrimed += PRIME_X
         }
-    case .FNL_CELLULAR_DISTANCE_MANHATTAN:
+    case .Manhattan:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1253,7 +1256,7 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
             }
             xPrimed += PRIME_X
         }
-    case .FNL_CELLULAR_DISTANCE_HYBRID:
+    case .Hybrid:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1277,27 +1280,27 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
         }
     }
 
-    if (state.cellular_distance_func == .FNL_CELLULAR_DISTANCE_EUCLIDEAN && 
-    state.cellular_return_type >= .FNL_CELLULAR_RETURN_TYPE_DISTANCE) {
+    if (state.cellular_distance_func == .Euclidean && 
+    state.cellular_return_type >= .Distance) {
         distance0 := _fnlFastSqrt(distance0)
-        if state.cellular_return_type >= .FNL_CELLULAR_RETURN_TYPE_DISTANCE2 do distance1 = _fnlFastSqrt(distance1)
+        if state.cellular_return_type >= .Distance2 do distance1 = _fnlFastSqrt(distance1)
     }
 
     switch (state.cellular_return_type)
     {
-    case .FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
+    case .Cellvalue:
         return f32(closestHash) * (1.0 / 2147483648.0)
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE:
+    case .Distance:
         return distance0 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2:
+    case .Distance2:
         return distance1 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD:
+    case .Distance2_Add:
         return (distance1 + distance0) * 0.5 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB:
+    case .Distance2_Sub:
         return distance1 - distance0 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL:
+    case .Distance2_Mul:
         return distance1 * distance0 * 0.5 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV:
+    case .Distance2_Div:
         return distance0 / distance1 - 1
     case:
         return 0
@@ -1323,8 +1326,8 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
     switch (state.cellular_distance_func)
     {
     case: fallthrough
-    case .FNL_CELLULAR_DISTANCE_EUCLIDEAN, 
-    .FNL_CELLULAR_DISTANCE_EUCLIDEANSQ:
+    case .Euclidean, 
+    .Euclidean_SQ:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1352,7 +1355,7 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
             }
             xPrimed += PRIME_X
         }
-    case .FNL_CELLULAR_DISTANCE_MANHATTAN:
+    case .Manhattan:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1380,7 +1383,7 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
             }
             xPrimed += PRIME_X
         }
-    case .FNL_CELLULAR_DISTANCE_HYBRID:
+    case .Hybrid:
         for xi := xr - 1; xi <= xr + 1; xi += 1 {
             yPrimed := yPrimedBase
 
@@ -1410,27 +1413,27 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
         }
     }
 
-    if state.cellular_distance_func == .FNL_CELLULAR_DISTANCE_EUCLIDEAN &&
-    state.cellular_return_type >= .FNL_CELLULAR_RETURN_TYPE_DISTANCE {
+    if state.cellular_distance_func == .Euclidean &&
+    state.cellular_return_type >= .Distance {
         distance0 = _fnlFastSqrt(distance0)
-        if state.cellular_return_type >= .FNL_CELLULAR_RETURN_TYPE_DISTANCE2 do distance1 = _fnlFastSqrt(distance1)
+        if state.cellular_return_type >= .Distance2 do distance1 = _fnlFastSqrt(distance1)
     }
 
     switch (state.cellular_return_type)
     {
-    case .FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
+    case .Cellvalue:
         return f32(closestHash) * (1 / 2147483648.0)
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE:
+    case .Distance:
         return distance0 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2:
+    case .Distance2:
         return distance1 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD:
+    case .Distance2_Add:
         return (distance1 + distance0) * 0.5 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB:
+    case .Distance2_Sub:
         return distance1 - distance0 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL:
+    case .Distance2_Mul:
         return distance1 * distance0 * 0.5 - 1
-    case .FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV:
+    case .Distance2_Div:
         return distance0 / distance1 - 1
     case:
         return 0
@@ -1635,11 +1638,11 @@ _fnlSingleValue3D :: proc (seed: int, x, y, z: f32) -> f32  {
 _fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^fnl_state, seed: int, amp, freq, x, y: f32, xp, yp: ^f32) {
     switch (state.domain_warp_type)
     {
-    case .FNL_DOMAIN_WARP_OPENSIMPLEX2:
+    case .Open_Simplex_2:
         _fnlSingleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375, freq, x, y, xp, yp, false)
-    case .FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
+    case .Open_Simplex_2_Reduced:
         _fnlSingleDomainWarpSimplexGradient(seed, amp * 16.0, freq, x, y, xp, yp, true)
-    case .FNL_DOMAIN_WARP_BASICGRID:
+    case .Basic_Grid:
         _fnlSingleDomainWarpBasicGrid2D(seed, amp, freq, x, y, xp, yp)
     }
 }
@@ -1648,11 +1651,11 @@ _fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^fnl_state, seed: int, am
 _fnlDoSingleDomainWarp3D :: #force_inline proc (state: ^fnl_state, seed: int, amp, freq, x, y, z: f32, xp, yp, zp: ^f32) {
     switch (state.domain_warp_type)
     {
-    case .FNL_DOMAIN_WARP_OPENSIMPLEX2:
+    case .Open_Simplex_2:
         _fnlSingleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125, freq, x, y, z, xp, yp, zp, false)
-    case .FNL_DOMAIN_WARP_OPENSIMPLEX2_REDUCED:
+    case .Open_Simplex_2_Reduced:
         _fnlSingleDomainWarpOpenSimplex2Gradient(seed, amp * 7.71604938271605, freq, x, y, z, xp, yp, zp, true)
-    case .FNL_DOMAIN_WARP_BASICGRID:
+    case .Basic_Grid:
         _fnlSingleDomainWarpBasicGrid3D(seed, amp, freq, x, y, z, xp, yp, zp)
     }
 }
@@ -2057,23 +2060,23 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
 // ====================
 // Public API
 // ====================
-fnlCreateState :: proc() -> fnl_state {
+fnlCreateState :: proc(seed : int = 1337) -> fnl_state {
     return {
-        seed                   = 1337,
+        seed                   = seed,
         frequency              = 0.01,
-        noise_type             = .FNL_NOISE_OPENSIMPLEX2,
-        rotation_type_3d       = .FNL_ROTATION_NONE,
-        fractal_type           = .FNL_FRACTAL_NONE,
+        noise_type             = .Open_Simplex_2,
+        rotation_type_3d       = .None,
+        fractal_type           = .None,
         octaves                = 3,
         lacunarity             = 2.0,
         gain                   = 0.5,
         weighted_strength      = 0.0,
         ping_pong_strength     = 2.0,
-        cellular_distance_func = .FNL_CELLULAR_DISTANCE_EUCLIDEANSQ,
-        cellular_return_type   = .FNL_CELLULAR_RETURN_TYPE_DISTANCE,
+        cellular_distance_func = .Euclidean_SQ,
+        cellular_return_type   = .Distance,
         cellular_jitter_mod    = 1.0,
         domain_warp_amp        = 30.0,
-        domain_warp_type       = .FNL_DOMAIN_WARP_OPENSIMPLEX2,
+        domain_warp_type       = .Open_Simplex_2,
     }
 }
 
@@ -2086,11 +2089,11 @@ fnlGetNoise2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
     {
     case:
         return _fnlGenNoiseSingle2D(state, state.seed, x, y)
-    case .FNL_FRACTAL_FBM:
+    case .FBM:
         return _fnlGenFractalFBM2D(state, x, y)
-    case .FNL_FRACTAL_RIDGED:
+    case .Ridged:
         return _fnlGenFractalRidged2D(state, x, y)
-    case .FNL_FRACTAL_PINGPONG:
+    case .Ping_Pong:
         return _fnlGenFractalPingPong2D(state, x, y)
     }
 }
@@ -2104,11 +2107,11 @@ fnlGetNoise3D :: proc (state: ^fnl_state, x, y, z: f32) -> f32 {
     {
     case:
         return _fnlGenNoiseSingle3D(state, state.seed, x, y, z)
-    case .FNL_FRACTAL_FBM:
+    case .FBM:
         return _fnlGenFractalFBM3D(state, x, y, z)
-    case .FNL_FRACTAL_RIDGED:
+    case .Ridged:
         return _fnlGenFractalRidged3D(state, x, y, z)
-    case .FNL_FRACTAL_PINGPONG:
+    case .Ping_Pong:
         return _fnlGenFractalPingPong3D(state, x, y, z)
     }
 }
@@ -2118,9 +2121,9 @@ fnlDomainWarp2D :: proc(state: ^fnl_state, x, y: ^f32) {
     {
     case:
         _fnlDomainWarpSingle2D(state, x, y)
-    case .FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
+    case .Domain_Warp_Progressive:
         _fnlDomainWarpFractalProgressive2D(state, x, y)
-    case .FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT:
+    case .Domain_Warp_Independent:
         _fnlDomainWarpFractalIndependent2D(state, x, y)
     }
 }
@@ -2130,9 +2133,9 @@ fnlDomainWarp3D :: proc(state: ^fnl_state, x, y, z: ^f32) {
     {
     case:
         _fnlDomainWarpSingle3D(state, x, y, z)
-    case .FNL_FRACTAL_DOMAIN_WARP_PROGRESSIVE:
+    case .Domain_Warp_Progressive:
         _fnlDomainWarpFractalProgressive3D(state, x, y, z)
-    case .FNL_FRACTAL_DOMAIN_WARP_INDEPENDENT:
+    case .Domain_Warp_Independent:
         _fnlDomainWarpFractalIndependent3D(state, x, y, z)
     }
 }
