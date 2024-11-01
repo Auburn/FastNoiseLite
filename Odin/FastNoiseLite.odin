@@ -207,10 +207,6 @@ fnl_state :: struct {
 //constants
 
 GRADIENTS_2D := [256]f64 {
-    //TODO: remove
-    //orig = 0.130526192220052
-    //f64 = 0.13052619222005199
-    //f32 = 0.13052619
     0.130526192220052, 0.99144486137381, 0.38268343236509, 0.923879532511287, 0.608761429008721, 0.793353340291235, 0.793353340291235, 0.608761429008721,
     0.923879532511287, 0.38268343236509, 0.99144486137381, 0.130526192220051, 0.99144486137381, -0.130526192220051, 0.923879532511287, -0.38268343236509,
     0.793353340291235, -0.60876142900872, 0.608761429008721, -0.793353340291235, 0.38268343236509, -0.923879532511287, 0.130526192220052, -0.99144486137381,
@@ -336,43 +332,10 @@ RAND_VECS_3D := [1024]f64 {
 
 // Utilities
 
-//TODO: replace with math proc
-@private
-_fnlFastMin :: #force_inline proc (x, y: f32) -> f32 {
-    return math.min(x,y)
-    //  return x < y ? x : y; 
-}
-
-//TODO: replace with math proc
-@private
-_fnlFastMax :: #force_inline proc (x, y: f32) -> f32 {
-    return math.max(x,y)
-    //  return x > y ? x : y; 
-}
-
-//TODO: replace with math proc
-@private
-_fnlFastAbs :: #force_inline proc (f: f32) -> f32 {
-    return math.abs(f)
-    // return f < 0 ? -f : f; 
-}
-
-
-//TODO: replace with linalg proc
-@private
-_fnlInvSqrt :: #force_inline proc(a: f32) -> f32 {
-    return linalg.inverse_sqrt(a)
-    // xhalf :f32 = 0.5 * a
-    // a := f32(0x5f3759df - (int(a) >> 1))
-    // a = a * (1.5 - xhalf * a * a);
-    // return a;
-}
-
-//TODO: should this also be replace with linalg?
 // NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
 @private
 _fnlFastSqrt :: #force_inline proc(a: f32) -> f32 {
-    return a * _fnlInvSqrt(a)
+    return a * linalg.inverse_sqrt(a)
 }
 
 @private
@@ -411,7 +374,7 @@ _fnlPingPong :: #force_inline proc (t: f32) -> f32 {
 
 @private
 _fnlCalculateFractalBounding :: proc(state : ^fnl_state) -> f32 {
-    gain: f32 = _fnlFastAbs(state.gain)
+    gain: f32 = math.abs(state.gain)
     amp: f32 = gain
     ampFractal: f32 = 1.0
     for i in 1..<state.octaves {
@@ -463,8 +426,6 @@ _fnlGradCoord2D :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32) -> f32 {
     hash := _fnlHash2D(seed, xPrimed, yPrimed)
     hash ~= hash >> 15
     hash &= 127 << 1
-    //TODO: find out if we actually need f64 type in gradients_2d
-    //orig: xd * GRADIENTS_2D[hash] + yd * GRADIENTS_2D[hash | 1];
     return xd * f32(GRADIENTS_2D[hash]) + yd * f32(GRADIENTS_2D[hash | 1])
 }
 
@@ -480,7 +441,6 @@ _fnlGradCoord3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f32) 
 _fnlGradCoordOut2D :: proc (seed, xPrimed, yPrimed: int, xo, yo : ^f32) {
     hash := _fnlHash2D(seed, xPrimed, yPrimed) & (255 << 1)
 
-    //TODO: find out if we actually need f64 type in rand_vecs_2d
     xo^ = f32(RAND_VECS_2D[hash])
     yo^ = f32(RAND_VECS_2D[hash | 1])
 }
@@ -489,13 +449,11 @@ _fnlGradCoordOut2D :: proc (seed, xPrimed, yPrimed: int, xo, yo : ^f32) {
 _fnlGradCoordOut3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xo, yo, zo: ^f32) {
     hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2)
 
-    //TODO: find out if we actually need f64 type in rand_vecs_3d
     xo^ = f32(RAND_VECS_3D[hash])
     yo^ = f32(RAND_VECS_3D[hash | 1])
     zo^ = f32(RAND_VECS_3D[hash | 2])
 }
 
-//TODO: find out if we acutally need f64 type (also in pro params)
 @private
 _fnlGradCoordDual2D :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32, xo, yo: ^f32) {
     hash := _fnlHash2D(seed, xPrimed, yPrimed)
@@ -524,7 +482,6 @@ _fnlGradCoordDual3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f
     zg := GRADIENTS_3D[index1 | 2]
     value := xd * xg + yd * yg + zd * zg
 
-    //TODO: find out if we actually need f64 type in rand_vecs_3d
     xgo := f32(RAND_VECS_3D[index2])
     ygo := f32(RAND_VECS_3D[index2 | 1])
     zgo := f32(RAND_VECS_3D[index2 | 2])
@@ -691,7 +648,7 @@ _fnlGenFractalFBM2D :: proc(state: ^fnl_state, x, y: f32) -> f32 {
         noise := _fnlGenNoiseSingle2D(state, seed, x, y)
         seed  += 1
         sum   += noise * amp
-        amp   *= _fnlLerp(1.0, _fnlFastMin(noise + 1, 2) * 0.5, state.weighted_strength)
+        amp   *= _fnlLerp(1.0, math.min(noise + 1, 2) * 0.5, state.weighted_strength)
 
         x   *= lacunarity
         y   *= lacunarity
@@ -735,7 +692,7 @@ _fnlGenFractalRidged2D :: proc (state: ^fnl_state, x, y: f32) -> f32 {
     lacunarity := f32(state.lacunarity)
 
     for  i in 0..<state.octaves {
-        noise := _fnlFastAbs(_fnlGenNoiseSingle2D(state, seed, x, y))
+        noise := math.abs(_fnlGenNoiseSingle2D(state, seed, x, y))
         seed += 1
         sum += (noise * -2 + 1) * amp
         amp *= _fnlLerp(1.0, 1 - noise, state.weighted_strength)
@@ -757,7 +714,7 @@ _fnlGenFractalRidged3D :: proc(state: ^fnl_state, x, y, z: f32) -> f32 {
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := _fnlFastAbs(_fnlGenNoiseSingle3D(state, seed, x, y, z))
+        noise := math.abs(_fnlGenNoiseSingle3D(state, seed, x, y, z))
         seed += 1
         sum += (noise * -2 + 1) * amp
         amp *= _fnlLerp(1.0, 1 - noise, state.weighted_strength)
@@ -958,7 +915,7 @@ _fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
         yNSign = -yNSign
         zNSign = -zNSign
 
-        seed = ~seed//TODO: check bit flip / negation
+        seed = ~seed
     }
 
     return value * 32.69428253173828125
@@ -999,59 +956,58 @@ _fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
     a0      := (2.0 / 3.0) - x0 * x0 - y0 * y0
     value   := (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0)
     
-    //TODO: fix castings in this function (we have removed the fnlfloat type)
-    a1      := f32(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + (f32(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0)
-    x1      := x0 - f32(1 - 2 * G2)
-    y1      := y0 - f32(1 - 2 * G2)
+    a1      := (2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0)
+    x1      := x0 - (1 - 2 * G2)
+    y1      := y0 - (1 - 2 * G2)
     value   += (a1 * a1) * (a1 * a1) * _fnlGradCoord2D(seed, i1, j1, x1, y1)
 
     // Nested conditionals were faster than compact bit logic/arithmetic.
     xmyi    := xi - yi
     if t > G2 {
         if xi + xmyi > 1 {
-            x2 := x0 + f32(3 * G2 - 2)
-            y2 := y0 + f32(3 * G2 - 1)
+            x2 := x0 + (3 * G2 - 2)
+            y2 := y0 + (3 * G2 - 1)
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i + (PRIME_X << 1), j + PRIME_Y, x2, y2)
         } else {
-            x2 := x0 + f32(G2)
-            y2 := y0 + f32(G2 - 1)
+            x2 := x0 + G2
+            y2 := y0 + G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j + PRIME_Y, x2, y2)
         }
 
         if yi - xmyi > 1 {
-            x3 := x0 + f32(3 * G2 - 1)
-            y3 := y0 + f32(3 * G2 - 2)
+            x3 := x0 + (3 * G2 - 1)
+            y3 := y0 + (3 * G2 - 2)
             a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
             if a3 > 0 do value += (a3 * a3) * (a3 * a3) * _fnlGradCoord2D(seed, i + PRIME_X, j + (PRIME_Y << 1), x3, y3)
         } else {
-            x3 := x0 + f32(G2 - 1)
-            y3 := y0 + f32(G2)
+            x3 := x0 + G2 - 1
+            y3 := y0 + G2
             a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
             if a3 > 0 do value += (a3 * a3) * (a3 * a3) * _fnlGradCoord2D(seed, i + PRIME_X, j, x3, y3)
         }
     } else {
         if xi + xmyi < 0 {
-            x2 := x0 + f32(1 - G2)
-            y2 := y0 - f32(G2)
+            x2 := x0 + 1 - G2
+            y2 := y0 - G2
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i - PRIME_X, j, x2, y2)
-        } else{
-            x2 := x0 + f32(G2 - 1)
-            y2 := y0 + f32(G2)
+        } else {
+            x2 := x0 + G2 - 1
+            y2 := y0 + G2
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i + PRIME_X, j, x2, y2)
         }
 
         if yi < xmyi {
-            x2 := x0 - f32(G2)
-            y2 := y0 - f32(G2 - 1)
+            x2 := x0 - G2
+            y2 := y0 - G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j - PRIME_Y, x2, y2)
         } else {
-            x2 := x0 + f32(G2)
-            y2 := y0 + f32(G2 - 1)
+            x2 := x0 + G2
+            y2 := y0 + G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
             if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j + PRIME_Y, x2, y2)
         }
@@ -1266,7 +1222,7 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
 
                 newDistance := vecX * vecX + vecY * vecY
 
-                distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                distance1 = math.max(math.min(distance1, newDistance), distance0)
                 if newDistance < distance0 {
                     distance0 = newDistance
                     closestHash = hash
@@ -1286,9 +1242,9 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
                 vecX := f32(xi) - x + f32(RAND_VECS_2D[idx]) * cellularJitter
                 vecY := f32(yi) - y + f32(RAND_VECS_2D[idx | 1]) * cellularJitter
 
-                newDistance := _fnlFastAbs(vecX) + _fnlFastAbs(vecY)
+                newDistance := math.abs(vecX) + math.abs(vecY)
 
-                distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                distance1 = math.max(math.min(distance1, newDistance), distance0)
                 if newDistance < distance0 {
                     distance0 = newDistance
                     closestHash = hash
@@ -1308,9 +1264,9 @@ _fnlSingleCellular2D :: proc (state: ^fnl_state, seed: int, x, y: f32) -> f32 {
                 vecX := f32(xi) - x + f32(RAND_VECS_2D[idx]) * cellularJitter
                 vecY := f32(yi) - y + f32(RAND_VECS_2D[idx | 1]) * cellularJitter
 
-                newDistance := (_fnlFastAbs(vecX) + _fnlFastAbs(vecY)) + (vecX * vecX + vecY * vecY)
+                newDistance := (math.abs(vecX) + math.abs(vecY)) + (vecX * vecX + vecY * vecY)
 
-                distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                distance1 = math.max(math.min(distance1, newDistance), distance0)
                 if newDistance < distance0 {
                     distance0 = newDistance
                     closestHash = hash
@@ -1385,7 +1341,7 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
 
                     newDistance := vecX * vecX + vecY * vecY + vecZ * vecZ
 
-                    distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                    distance1 = math.max(math.min(distance1, newDistance), distance0)
                     if newDistance < distance0 {
                         distance0 = newDistance
                         closestHash = hash
@@ -1411,9 +1367,9 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
                     vecY := f32(yi) - y + f32(RAND_VECS_3D[idx | 1]) * cellularJitter
                     vecZ := f32(zi) - z + f32(RAND_VECS_3D[idx | 2]) * cellularJitter
 
-                    newDistance := _fnlFastAbs(vecX) + _fnlFastAbs(vecY) + _fnlFastAbs(vecZ)
+                    newDistance := math.abs(vecX) + math.abs(vecY) + math.abs(vecZ)
 
-                    distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                    distance1 = math.max(math.min(distance1, newDistance), distance0)
                     if newDistance < distance0 {
                         distance0 = newDistance
                         closestHash = hash
@@ -1439,9 +1395,9 @@ _fnlSingleCellular3D :: proc (state: ^fnl_state, seed: int, x, y, z: f32) -> f32
                     vecY := f32(yi) - y + f32(RAND_VECS_3D[idx | 1]) * cellularJitter
                     vecZ := f32(zi) - z + f32(RAND_VECS_3D[idx | 2]) * cellularJitter
 
-                    newDistance := (_fnlFastAbs(vecX) + _fnlFastAbs(vecY) + _fnlFastAbs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ)
+                    newDistance := (math.abs(vecX) + math.abs(vecY) + math.abs(vecZ)) + (vecX * vecX + vecY * vecY + vecZ * vecZ)
 
-                    distance1 = _fnlFastMax(_fnlFastMin(distance1, newDistance), distance0)
+                    distance1 = math.max(math.min(distance1, newDistance), distance0)
                     if newDistance < distance0 {
                         distance0 = newDistance
                         closestHash = hash
