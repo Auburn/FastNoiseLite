@@ -2083,7 +2083,7 @@ create_state :: proc(seed : int = 1337) -> FNL_State {
 }
 
 
-fnlGetNoise2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
+get_noise_2d :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     transform_noise_coordinate_2d(state, &x, &y)
 
@@ -2100,7 +2100,7 @@ fnlGetNoise2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     }
 }
 
-fnlGetNoise3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
+get_noise_3d :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     transform_noise_coordinate_3d(state, &x, &y, &z)
 
@@ -2118,7 +2118,7 @@ fnlGetNoise3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     }
 }
 
-fnlDomainWarp2D :: proc(state: ^FNL_State, x, y: ^f32) {
+domain_warp_2d :: proc(state: ^FNL_State, x, y: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
@@ -2130,7 +2130,7 @@ fnlDomainWarp2D :: proc(state: ^FNL_State, x, y: ^f32) {
     }
 }
 
-fnlDomainWarp3D :: proc(state: ^FNL_State, x, y, z: ^f32) {
+domain_warp_3d :: proc(state: ^FNL_State, x, y, z: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
