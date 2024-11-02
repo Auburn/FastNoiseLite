@@ -59,7 +59,7 @@ FNL_Float :: f32
 // FNL_Float :: f64
 
 // Enums
-Noise_type :: enum {
+Noise_Type :: enum u8 {
     Open_Simplex_2,
     Open_Simplex_2S,
     Cellular,
@@ -68,13 +68,13 @@ Noise_type :: enum {
     Value,
 }
 
-Rotation_Type_3d :: enum {
+Rotation_Type_3d :: enum u8 {
     None,
     Improve_XY_Planes,
     Improve_XZ_Planes,
 }
 
-Fractal_Type :: enum {
+Fractal_Type :: enum u8 {
     None,
     FBM,
     Ridged,
@@ -83,14 +83,14 @@ Fractal_Type :: enum {
     Domain_Warp_Independent,
 }
 
-Cellular_Distance_Func :: enum {
+Cellular_Distance_Func :: enum u8 {
     Euclidean,
     Euclidean_SQ,
     Manhattan,
     Hybrid,
 }
 
-Cellular_Return_Type :: enum {
+Cellular_Return_Type :: enum u8 {
     Cellvalue,
     Distance,
     Distance2,
@@ -100,7 +100,7 @@ Cellular_Return_Type :: enum {
     Distance2_Div,
 }
 
-Domain_Warp_Type :: enum {
+Domain_Warp_Type :: enum u8 {
     Open_Simplex_2,
     Open_Simplex_2_Reduced,
     Basic_Grid,
@@ -128,7 +128,7 @@ FNL_State :: struct {
     * The noise algorithm to be used by GetNoise(...).
     * @remark Default: Open_Simplex_2
     */
-    noise_type: Noise_type,
+    noise_type: Noise_Type,
 
     /**
     * Sets noise rotation type for 3D.
