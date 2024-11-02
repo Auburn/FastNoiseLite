@@ -107,7 +107,7 @@ Domain_Warp_Type :: enum {
 
 /**
  * Structure containing entire noise system state.
- * @note Must only be created using fnlCreateState(optional: seed). To ensure defaults are set.
+ * @note Must only be created using create_state(optional: seed). To ensure defaults are set.
  */
 FNL_State :: struct {
     /**
@@ -337,46 +337,46 @@ RAND_VECS_3D := [1024]f64 {
 
 // NOTE: If your language does not support this method (seen above), then simply use the native sqrt function.
 @private
-_fnlFastSqrt :: #force_inline proc(a: f32) -> f32 {
+fast_sqrt :: #force_inline proc(a: f32) -> f32 {
     return a * linalg.inverse_sqrt(a)
 }
 
 @private
-_fnlFastFloor :: #force_inline proc(f: f32) -> int {
+fast_floor :: #force_inline proc(f: f32) -> int {
     return (f >= 0 ? int(f) : int(f) - 1)
 }
 
 @private
-_fnlFastRound :: #force_inline proc(f: f32) -> int {
+fast_round :: #force_inline proc(f: f32) -> int {
      return (f >= 0) ? int(f + 0.5) : int(f - 0.5)
 }
 
 @private
-_fnlLerp :: #force_inline proc(a, b, t : f32) -> f32 {
+lerp :: #force_inline proc(a, b, t : f32) -> f32 {
     return a + t * (b - a)
 }
 
 @private
-_fnlInterpHermite :: #force_inline  proc(t: f32) -> f32 { return t * t * (3 - 2 * t) }
+interp_hermite :: #force_inline  proc(t: f32) -> f32 { return t * t * (3 - 2 * t) }
 
 @private
-_fnlInterpQuintic :: #force_inline proc(t: f32) -> f32 { return t * t * t * (t * (t * 6 - 15) + 10) }
+interp_quintic :: #force_inline proc(t: f32) -> f32 { return t * t * t * (t * (t * 6 - 15) + 10) }
 
 @private
-_fnlCubicLerp :: #force_inline proc(a, b, c, d, t: f32) -> f32 {
+cubic_lerp :: #force_inline proc(a, b, c, d, t: f32) -> f32 {
     p: f32 = (d - c) - (a - b)
     return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b
 }
 
 @private
-_fnlPingPong :: #force_inline proc (t: f32) -> f32 {
+ping_pong :: #force_inline proc (t: f32) -> f32 {
     t := t
     t -= f32(int(t * 0.5) * 2)
     return t < 1 ? t : 2 - t
 }
 
 @private
-_fnlCalculateFractalBounding :: proc(state : ^FNL_State) -> f32 {
+calculate_fractal_bounding :: proc(state : ^FNL_State) -> f32 {
     gain: f32 = math.abs(state.gain)
     amp: f32 = gain
     ampFractal: f32 = 1.0
@@ -393,14 +393,14 @@ PRIME_Y : int : 1136930381
 PRIME_Z : int : 1720413743
 
 @private
-_fnlHash2D :: #force_inline proc (seed, xPrimed, yPrimed: int) -> int {
+hash_2d :: #force_inline proc (seed, xPrimed, yPrimed: int) -> int {
     hash := seed ~ xPrimed ~ yPrimed
     hash *= 0x27d4eb2d
     return hash
 }
 
 @private
-_fnlHash3D :: #force_inline proc(seed, xPrimed, yPrimed, zPrimed: int) -> int {
+hash_3d :: #force_inline proc(seed, xPrimed, yPrimed, zPrimed: int) -> int {
     hash := seed ~ xPrimed ~ yPrimed ~ zPrimed
 
     hash *= 0x27d4eb2d
@@ -408,16 +408,16 @@ _fnlHash3D :: #force_inline proc(seed, xPrimed, yPrimed, zPrimed: int) -> int {
 }
 
 @private
-_fnlValCoord2D :: proc(seed, xPrimed, yPrimed: int) -> f32 {
-    hash := _fnlHash2D(seed, xPrimed, yPrimed)
+val_coord_2d :: proc(seed, xPrimed, yPrimed: int) -> f32 {
+    hash := hash_2d(seed, xPrimed, yPrimed)
     hash *= hash
     hash ~= hash << 19
     return f32(hash) * (1 / 2147483648.0)
 }
 
 @private
-_fnlValCoord3D :: proc(seed, xPrimed, yPrimed, zPrimed: int) -> f32 {
-    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+val_coord_3D :: proc(seed, xPrimed, yPrimed, zPrimed: int) -> f32 {
+    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
     hash *= hash
     hash ~= hash << 19
     return f32(hash) * (1 / 2147483648.0)
@@ -425,32 +425,32 @@ _fnlValCoord3D :: proc(seed, xPrimed, yPrimed, zPrimed: int) -> f32 {
 
 
 @private
-_fnlGradCoord2D :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32) -> f32 {
-    hash := _fnlHash2D(seed, xPrimed, yPrimed)
+grad_coord_2d :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32) -> f32 {
+    hash := hash_2d(seed, xPrimed, yPrimed)
     hash ~= hash >> 15
     hash &= 127 << 1
     return xd * f32(GRADIENTS_2D[hash]) + yd * f32(GRADIENTS_2D[hash | 1])
 }
 
 @private
-_fnlGradCoord3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f32) -> f32 {
-    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+grad_coord_3d :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f32) -> f32 {
+    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
     hash ~= hash >> 15
     hash &= 63 << 2
     return xd * GRADIENTS_3D[hash] + yd * GRADIENTS_3D[hash | 1] + zd * GRADIENTS_3D[hash | 2]
 }
 
 @private
-_fnlGradCoordOut2D :: proc (seed, xPrimed, yPrimed: int, xo, yo : ^f32) {
-    hash := _fnlHash2D(seed, xPrimed, yPrimed) & (255 << 1)
+grad_coord_out_2d :: proc (seed, xPrimed, yPrimed: int, xo, yo : ^f32) {
+    hash := hash_2d(seed, xPrimed, yPrimed) & (255 << 1)
 
     xo^ = f32(RAND_VECS_2D[hash])
     yo^ = f32(RAND_VECS_2D[hash | 1])
 }
 
 @private
-_fnlGradCoordOut3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xo, yo, zo: ^f32) {
-    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed) & (255 << 2)
+grad_coord_out_3d :: proc (seed, xPrimed, yPrimed, zPrimed: int, xo, yo, zo: ^f32) {
+    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed) & (255 << 2)
 
     xo^ = f32(RAND_VECS_3D[hash])
     yo^ = f32(RAND_VECS_3D[hash | 1])
@@ -458,8 +458,8 @@ _fnlGradCoordOut3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xo, yo, zo: ^f
 }
 
 @private
-_fnlGradCoordDual2D :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32, xo, yo: ^f32) {
-    hash := _fnlHash2D(seed, xPrimed, yPrimed)
+grad_coord_dual_2d :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32, xo, yo: ^f32) {
+    hash := hash_2d(seed, xPrimed, yPrimed)
     index1 := hash & (127 << 1)
     index2 := (hash >> 7) & (255 << 1)
 
@@ -475,8 +475,8 @@ _fnlGradCoordDual2D :: proc (seed, xPrimed, yPrimed: int, xd, yd: f32, xo, yo: ^
 }
 
 @private
-_fnlGradCoordDual3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f32, xo, yo, zo: ^f32) {
-    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+grad_coord_dual_3d :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f32, xo, yo, zo: ^f32) {
+    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
     index1 := hash & (63 << 2)
     index2 := (hash >> 6) & (255 << 2)
 
@@ -498,42 +498,42 @@ _fnlGradCoordDual3D :: proc (seed, xPrimed, yPrimed, zPrimed: int, xd, yd, zd: f
 // Generic Noise Gen
 
 @private
-_fnlGenNoiseSingle2D :: proc (state: ^FNL_State, seed: int,  x, y: f32) -> f32 {
+gen_noise_single_2d :: proc (state: ^FNL_State, seed: int,  x, y: f32) -> f32 {
     switch (state.noise_type)
     {
     case .Open_Simplex_2:
-        return _fnlSingleSimplex2D(seed, x, y)
+        return single_simplex_2d(seed, x, y)
     case .Open_Simplex_2S:
-        return _fnlSingleOpenSimplex2S2D(seed, x, y)
+        return single_open_simplex2s_2d(seed, x, y)
     case .Cellular:
-        return _fnlSingleCellular2D(state, seed, x, y)
+        return single_cellular_2d(state, seed, x, y)
     case .Perlin:
-        return _fnlSinglePerlin2D(seed, x, y)
+        return single_perlin_2d(seed, x, y)
     case .Value_Cubic:
-        return _fnlSingleValueCubic2D(seed, x, y)
+        return single_value_cubic_2d(seed, x, y)
     case .Value:
-        return _fnlSingleValue2D(seed, x, y)
+        return single_value_2d(seed, x, y)
     case:
         return 0
     }
 }
 
 @private
-_fnlGenNoiseSingle3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
+gen_noise_single_3d :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
     switch (state.noise_type)
     {
     case .Open_Simplex_2:
-        return _fnlSingleOpenSimplex23D(seed, x, y, z)
+        return single_open_simplex2_3d(seed, x, y, z)
     case .Open_Simplex_2S:
-        return _fnlSingleOpenSimplex2S3D(seed, x, y, z)
+        return single_open_simplex2s_3d(seed, x, y, z)
     case .Cellular:
-        return _fnlSingleCellular3D(state, seed, x, y, z)
+        return single_cellular_3d(state, seed, x, y, z)
     case .Perlin:
-        return _fnlSinglePerlin3D(seed, x, y, z)
+        return single_perlin_3d(seed, x, y, z)
     case .Value_Cubic:
-        return _fnlSingleValueCubic3D(seed, x, y, z)
+        return single_value_cubic_3d(seed, x, y, z)
     case .Value:
-        return _fnlSingleValue3D(seed, x, y, z)
+        return single_value_3d(seed, x, y, z)
     case:
         return 0
     }
@@ -542,7 +542,7 @@ _fnlGenNoiseSingle3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
 // Noise Coordinate Transforms (frequency, and possible skew or rotation)
 
 @private
-_fnlTransformNoiseCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
+transform_noise_coordinate_2d :: proc (state: ^FNL_State, x, y: ^f32) {
     x^ *= state.frequency
     y^ *= state.frequency
 
@@ -558,7 +558,7 @@ _fnlTransformNoiseCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
 }
 
 @private
-_fnlTransformNoiseCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
+transform_noise_coordinate_3d :: proc (state: ^FNL_State, x, y, z: ^f32) {
     x^ *= state.frequency
     y^ *= state.frequency
     z^ *= state.frequency
@@ -595,7 +595,7 @@ _fnlTransformNoiseCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
 // Domain Warp Coordinate Transforms
 
 @private
-_fnlTransformDomainWarpCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
+transform_domain_warp_coordinate_2d :: proc (state: ^FNL_State, x, y: ^f32) {
     #partial switch (state.domain_warp_type)
     {
     case .Open_Simplex_2, .Open_Simplex_2_Reduced:
@@ -608,7 +608,7 @@ _fnlTransformDomainWarpCoordinate2D :: proc (state: ^FNL_State, x, y: ^f32) {
 }
 
 @private
-_fnlTransformDomainWarpCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
+transform_domain_warp_coordinate_3d :: proc (state: ^FNL_State, x, y, z: ^f32) {
     #partial switch (state.rotation_type_3d)
     {
     case .Improve_XY_Planes:
@@ -640,18 +640,18 @@ _fnlTransformDomainWarpCoordinate3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
 
 // Fractal FBm
 @private
-_fnlGenFractalFBM2D :: proc(state: ^FNL_State, x, y: f32) -> f32 {
+gen_fractal_fbm_2d :: proc(state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum  :f32= 0.0
-    amp  := _fnlCalculateFractalBounding(state)
+    amp  := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := _fnlGenNoiseSingle2D(state, seed, x, y)
+        noise := gen_noise_single_2d(state, seed, x, y)
         seed  += 1
         sum   += noise * amp
-        amp   *= _fnlLerp(1.0, math.min(noise + 1, 2) * 0.5, state.weighted_strength)
+        amp   *= lerp(1.0, math.min(noise + 1, 2) * 0.5, state.weighted_strength)
 
         x   *= lacunarity
         y   *= lacunarity
@@ -662,18 +662,18 @@ _fnlGenFractalFBM2D :: proc(state: ^FNL_State, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalFBM3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
+gen_fractal_fbm_3d :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     seed := state.seed
     sum :f32= 0
-    amp := _fnlCalculateFractalBounding(state)
+    amp := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := _fnlGenNoiseSingle3D(state, seed, x, y, z)
+        noise := gen_noise_single_3d(state, seed, x, y, z)
         seed += 1
         sum += noise * amp
-        amp *= _fnlLerp(1.0, (noise + 1) * 0.5, state.weighted_strength)
+        amp *= lerp(1.0, (noise + 1) * 0.5, state.weighted_strength)
 
         x *= lacunarity
         y *= lacunarity
@@ -687,18 +687,18 @@ _fnlGenFractalFBM3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
 // Fractal Ridged
 
 @private
-_fnlGenFractalRidged2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
+gen_fractal_ridged_2d :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum: f32 = 0
-    amp := _fnlCalculateFractalBounding(state)
+    amp := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for  i in 0..<state.octaves {
-        noise := math.abs(_fnlGenNoiseSingle2D(state, seed, x, y))
+        noise := math.abs(gen_noise_single_2d(state, seed, x, y))
         seed += 1
         sum += (noise * -2 + 1) * amp
-        amp *= _fnlLerp(1.0, 1 - noise, state.weighted_strength)
+        amp *= lerp(1.0, 1 - noise, state.weighted_strength)
 
         x *= lacunarity
         y *= lacunarity
@@ -709,18 +709,18 @@ _fnlGenFractalRidged2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalRidged3D :: proc(state: ^FNL_State, x, y, z: f32) -> f32 {
+gen_fractal_ridged_3d :: proc(state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
     seed := state.seed
     sum: f32 = 0
-    amp := _fnlCalculateFractalBounding(state)
+    amp := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := math.abs(_fnlGenNoiseSingle3D(state, seed, x, y, z))
+        noise := math.abs(gen_noise_single_3d(state, seed, x, y, z))
         seed += 1
         sum += (noise * -2 + 1) * amp
-        amp *= _fnlLerp(1.0, 1 - noise, state.weighted_strength)
+        amp *= lerp(1.0, 1 - noise, state.weighted_strength)
 
         x *= lacunarity
         y *= lacunarity
@@ -733,18 +733,18 @@ _fnlGenFractalRidged3D :: proc(state: ^FNL_State, x, y, z: f32) -> f32 {
 
 // Fractal PingPong
 @private
-_fnlGenFractalPingPong2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
+gen_fractal_ping_pong_2d :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
     seed := state.seed
     sum: f32 = 0
-    amp := _fnlCalculateFractalBounding(state)
+    amp := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := _fnlPingPong((_fnlGenNoiseSingle2D(state, seed, x, y) + 1) * state.ping_pong_strength)
+        noise := ping_pong((gen_noise_single_2d(state, seed, x, y) + 1) * state.ping_pong_strength)
         seed += 1
         sum += (noise - 0.5) * 2 * amp
-        amp *= _fnlLerp(1.0, noise, state.weighted_strength)
+        amp *= lerp(1.0, noise, state.weighted_strength)
 
         x *= lacunarity
         y *= lacunarity
@@ -755,18 +755,18 @@ _fnlGenFractalPingPong2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
 }
 
 @private
-_fnlGenFractalPingPong3D :: proc (state: ^FNL_State, x, y, z: f32)  -> f32{
+gen_fractal_ping_pong_3d :: proc (state: ^FNL_State, x, y, z: f32)  -> f32{
     x := x; y := y; z := z
     seed := state.seed
     sum: f32 = 0
-    amp := _fnlCalculateFractalBounding(state)
+    amp := calculate_fractal_bounding(state)
     lacunarity := f32(state.lacunarity)
 
     for i in 0..<state.octaves {
-        noise := _fnlPingPong((_fnlGenNoiseSingle3D(state, seed, x, y, z) + 1) * state.ping_pong_strength)
+        noise := ping_pong((gen_noise_single_3d(state, seed, x, y, z) + 1) * state.ping_pong_strength)
         seed += 1
         sum += (noise - 0.5) * 2 * amp
-        amp *= _fnlLerp(1.0, noise, state.weighted_strength)
+        amp *= lerp(1.0, noise, state.weighted_strength)
 
         x *= lacunarity
         y *= lacunarity
@@ -780,7 +780,7 @@ _fnlGenFractalPingPong3D :: proc (state: ^FNL_State, x, y, z: f32)  -> f32{
 // Simplex/OpenSimplex2 Noise
 
 @private
-_fnlSingleSimplex2D :: proc (seed: int, x, y: f32) -> f32 {
+single_simplex_2d :: proc (seed: int, x, y: f32) -> f32 {
     // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
 
     SQRT3 :: f32(1.7320508075688772935274463415059)
@@ -793,8 +793,8 @@ _fnlSingleSimplex2D :: proc (seed: int, x, y: f32) -> f32 {
      * x += s; y += s;
      */
 
-    i  := _fnlFastFloor(x)
-    j  := _fnlFastFloor(y)
+    i  := fast_floor(x)
+    j  := fast_floor(y)
     xi := f32(x - f32(i))
     yi := f32(y - f32(j))
 
@@ -809,14 +809,14 @@ _fnlSingleSimplex2D :: proc (seed: int, x, y: f32) -> f32 {
 
     a := f32(0.5 - x0 * x0 - y0 * y0)
     if a <= 0 do n0 = 0
-    else do n0 = (a * a) * (a * a) * f32(_fnlGradCoord2D(seed, i, j, f32(x0), f32(y0)))
+    else do n0 = (a * a) * (a * a) * f32(grad_coord_2d(seed, i, j, f32(x0), f32(y0)))
 
     c := f32(2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + (f32(-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a)
     if c <= 0 do n2 = 0
     else {
         x2 := x0 + (2 * G2 - 1)
         y2 := y0 + (2 * G2 - 1)
-        n2 := (c * c) * (c * c) * f32(_fnlGradCoord2D(seed, i + PRIME_X, j + PRIME_Y, f32(x2), f32(y2)))
+        n2 := (c * c) * (c * c) * f32(grad_coord_2d(seed, i + PRIME_X, j + PRIME_Y, f32(x2), f32(y2)))
     }
 
     if y0 > x0 {
@@ -824,20 +824,20 @@ _fnlSingleSimplex2D :: proc (seed: int, x, y: f32) -> f32 {
         y1 := y0 + (G2 - 1)
         b  := 0.5 - x1 * x1 - y1 * y1
         if b <= 0 do n1 = 0
-        else do n1 = (b * b) * (b * b) * _fnlGradCoord2D(seed, i, j + PRIME_Y, x1, y1)
+        else do n1 = (b * b) * (b * b) * grad_coord_2d(seed, i, j + PRIME_Y, x1, y1)
     } else {
         x1 := x0 + (G2 - 1)
         y1 := y0 + G2
         b  := 0.5 - x1 * x1 - y1 * y1
         if b <= 0 do n1 = 0
-        else do n1 = (b * b) * (b * b) * _fnlGradCoord2D(seed, i + PRIME_X, j, x1, y1)
+        else do n1 = (b * b) * (b * b) * grad_coord_2d(seed, i + PRIME_X, j, x1, y1)
     }
 
     return (n0 + n1 + n2) * 99.83685446303647
 }
 
 @private
-_fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
+single_open_simplex2_3d :: proc (seed : int, x, y, z: f32) -> f32 {
     // 3D OpenSimplex2 case uses two offset rotated cube grids.
 
     /*
@@ -849,9 +849,9 @@ _fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
 
     seed := seed
 
-    i := _fnlFastRound(x)
-    j := _fnlFastRound(y)
-    k := _fnlFastRound(z)
+    i := fast_round(x)
+    j := fast_round(y)
+    k := fast_round(z)
 
     x0 := x - f32(i)
     y0 := y - f32(j)
@@ -873,7 +873,7 @@ _fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
     a:     f32 = (0.6 - x0 * x0) - (y0 * y0 + z0 * z0)
 
     for l := 0; ; l+=1 {
-        if a > 0 do value += (a * a) * (a * a) * _fnlGradCoord3D(seed, i, j, k, x0, y0, z0)
+        if a > 0 do value += (a * a) * (a * a) * grad_coord_3d(seed, i, j, k, x0, y0, z0)
 
         b := a + 1
         i1 := i
@@ -896,7 +896,7 @@ _fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
             k1 -= zNSign * PRIME_Z
         }
 
-        if b > 0 do value += (b * b) * (b * b) * _fnlGradCoord3D(seed, i1, j1, k1, x1, y1, z1)
+        if b > 0 do value += (b * b) * (b * b) * grad_coord_3d(seed, i1, j1, k1, x1, y1, z1)
 
         if l == 1 do break
 
@@ -927,7 +927,7 @@ _fnlSingleOpenSimplex23D :: proc (seed : int, x, y, z: f32) -> f32 {
 // OpenSimplex2S Noise
 
 @private
-_fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
+single_open_simplex2s_2d :: proc (seed: int, x, y: f32) -> f32 {
     // 2D OpenSimplex2S case is a modified 2D simplex noise.
 
     SQRT3 :: f32(1.7320508075688772935274463415059)
@@ -941,8 +941,8 @@ _fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
     */
 
 
-    i := _fnlFastFloor(x)
-    j := _fnlFastFloor(y)
+    i := fast_floor(x)
+    j := fast_floor(y)
     xi := x - f32(i)
     yi := y - f32(j)
     
@@ -957,12 +957,12 @@ _fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
     y0      := yi - t
     
     a0      := (2.0 / 3.0) - x0 * x0 - y0 * y0
-    value   := (a0 * a0) * (a0 * a0) * _fnlGradCoord2D(seed, i, j, x0, y0)
+    value   := (a0 * a0) * (a0 * a0) * grad_coord_2d(seed, i, j, x0, y0)
     
     a1      := (2 * (1 - 2 * G2) * (1 / G2 - 2)) * t + ((-2 * (1 - 2 * G2) * (1 - 2 * G2)) + a0)
     x1      := x0 - (1 - 2 * G2)
     y1      := y0 - (1 - 2 * G2)
-    value   += (a1 * a1) * (a1 * a1) * _fnlGradCoord2D(seed, i1, j1, x1, y1)
+    value   += (a1 * a1) * (a1 * a1) * grad_coord_2d(seed, i1, j1, x1, y1)
 
     // Nested conditionals were faster than compact bit logic/arithmetic.
     xmyi    := xi - yi
@@ -971,48 +971,48 @@ _fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
             x2 := x0 + (3 * G2 - 2)
             y2 := y0 + (3 * G2 - 1)
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i + (PRIME_X << 1), j + PRIME_Y, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i + (PRIME_X << 1), j + PRIME_Y, x2, y2)
         } else {
             x2 := x0 + G2
             y2 := y0 + G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j + PRIME_Y, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i, j + PRIME_Y, x2, y2)
         }
 
         if yi - xmyi > 1 {
             x3 := x0 + (3 * G2 - 1)
             y3 := y0 + (3 * G2 - 2)
             a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
-            if a3 > 0 do value += (a3 * a3) * (a3 * a3) * _fnlGradCoord2D(seed, i + PRIME_X, j + (PRIME_Y << 1), x3, y3)
+            if a3 > 0 do value += (a3 * a3) * (a3 * a3) * grad_coord_2d(seed, i + PRIME_X, j + (PRIME_Y << 1), x3, y3)
         } else {
             x3 := x0 + G2 - 1
             y3 := y0 + G2
             a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
-            if a3 > 0 do value += (a3 * a3) * (a3 * a3) * _fnlGradCoord2D(seed, i + PRIME_X, j, x3, y3)
+            if a3 > 0 do value += (a3 * a3) * (a3 * a3) * grad_coord_2d(seed, i + PRIME_X, j, x3, y3)
         }
     } else {
         if xi + xmyi < 0 {
             x2 := x0 + 1 - G2
             y2 := y0 - G2
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i - PRIME_X, j, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i - PRIME_X, j, x2, y2)
         } else {
             x2 := x0 + G2 - 1
             y2 := y0 + G2
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i + PRIME_X, j, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i + PRIME_X, j, x2, y2)
         }
 
         if yi < xmyi {
             x2 := x0 - G2
             y2 := y0 - G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j - PRIME_Y, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i, j - PRIME_Y, x2, y2)
         } else {
             x2 := x0 + G2
             y2 := y0 + G2 - 1
             a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
-            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * _fnlGradCoord2D(seed, i, j + PRIME_Y, x2, y2)
+            if a2 > 0 do value += (a2 * a2) * (a2 * a2) * grad_coord_2d(seed, i, j + PRIME_Y, x2, y2)
         }
     }
 
@@ -1020,7 +1020,7 @@ _fnlSingleOpenSimplex2S2D :: proc (seed: int, x, y: f32) -> f32 {
 }
 
 @private
-_fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
+single_open_simplex2s_3d :: proc(seed: int, x, y, z: f32) -> f32 {
     // 3D OpenSimplex2S case uses two offset rotated cube grids.
 
     /*
@@ -1030,9 +1030,9 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
      * x = r - x; y = r - y; z = r - z;
      */
 
-    i := _fnlFastFloor(x)
-    j := _fnlFastFloor(y)
-    k := _fnlFastFloor(z)
+    i := fast_floor(x)
+    j := fast_floor(y)
+    k := fast_floor(z)
 
     xi := x - f32(i)
     yi := y - f32(j)
@@ -1051,14 +1051,14 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
     y0 := yi + f32(yNMask)
     z0 := zi + f32(zNMask)
     a0 := 0.75 - x0 * x0 - y0 * y0 - z0 * z0
-    value := (a0 * a0) * (a0 * a0) * _fnlGradCoord3D(seed,
+    value := (a0 * a0) * (a0 * a0) * grad_coord_3d(seed,
         i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x0, y0, z0)
 
     x1 := xi - 0.5
     y1 := yi - 0.5
     z1 := zi - 0.5
     a1 := 0.75 - x1 * x1 - y1 * y1 - z1 * z1
-    value += (a1 * a1) * (a1 * a1) * _fnlGradCoord3D(seed2,
+    value += (a1 * a1) * (a1 * a1) * grad_coord_3d(seed2,
         i + PRIME_X, j + PRIME_Y, k + PRIME_Z, x1, y1, z1)
 
     //TODO: unsure about the float cast here - see zig version
@@ -1075,7 +1075,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
         x2 := x0 - f32(xNMask | 1)
         y2 := y0
         z2 := z0
-        value += (a2 * a2) * (a2 * a2) * _fnlGradCoord3D(seed,
+        value += (a2 * a2) * (a2 * a2) * grad_coord_3d(seed,
             i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x2, y2, z2)
     } else {
         a3 := yAFlipMask0 + zAFlipMask0 + a0
@@ -1083,7 +1083,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x3 := x0
             y3 := y0 - f32(yNMask | 1)
             z3 := z0 - f32(zNMask | 1)
-            value += (a3 * a3) * (a3 * a3) * _fnlGradCoord3D(seed,
+            value += (a3 * a3) * (a3 * a3) * grad_coord_3d(seed,
                 i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x3, y3, z3)
         }
 
@@ -1092,7 +1092,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x4 := f32(xNMask | 1) + x1
             y4 := y1
             z4 := z1
-            value += (a4 * a4) * (a4 * a4) * _fnlGradCoord3D(seed2,
+            value += (a4 * a4) * (a4 * a4) * grad_coord_3d(seed2,
                 i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + PRIME_Z, x4, y4, z4)
             skip5 = true
         }
@@ -1104,7 +1104,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
         x6 := x0
         y6 := y0 - f32(yNMask | 1)
         z6 := z0
-        value += (a6 * a6) * (a6 * a6) * _fnlGradCoord3D(seed,
+        value += (a6 * a6) * (a6 * a6) * grad_coord_3d(seed,
             i + (xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), x6, y6, z6)
     } else {
         a7 := xAFlipMask0 + zAFlipMask0 + a0
@@ -1112,7 +1112,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x7 := x0 - f32(xNMask | 1)
             y7 := y0
             z7 := z0 - f32(zNMask | 1)
-            value += (a7 * a7) * (a7 * a7) * _fnlGradCoord3D(seed,
+            value += (a7 * a7) * (a7 * a7) * grad_coord_3d(seed,
                 i + (~xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), x7, y7, z7)
         }
 
@@ -1121,7 +1121,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x8 := x1
             y8 := f32(yNMask | 1) + y1
             z8 := z1
-            value += (a8 * a8) * (a8 * a8) * _fnlGradCoord3D(seed2,
+            value += (a8 * a8) * (a8 * a8) * grad_coord_3d(seed2,
                 i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, x8, y8, z8)
             skip9 = true
         }
@@ -1133,7 +1133,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
         xA := x0
         yA := y0
         zA := z0 - f32(zNMask | 1)
-        value += (aA * aA) * (aA * aA) * _fnlGradCoord3D(seed,
+        value += (aA * aA) * (aA * aA) * grad_coord_3d(seed,
             i + (xNMask & PRIME_X), j + (yNMask & PRIME_Y), k + (~zNMask & PRIME_Z), xA, yA, zA)
     } else {
         aB := xAFlipMask0 + yAFlipMask0 + a0
@@ -1141,7 +1141,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             xB := x0 - f32(xNMask | 1)
             yB := y0 - f32(yNMask | 1)
             zB := z0
-            value += (aB * aB) * (aB * aB) * _fnlGradCoord3D(seed,
+            value += (aB * aB) * (aB * aB) * grad_coord_3d(seed,
                 i + (~xNMask & PRIME_X), j + (~yNMask & PRIME_Y), k + (zNMask & PRIME_Z), xB, yB, zB)
         }
 
@@ -1150,7 +1150,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             xC := x1
             yC := y1
             zC := f32(zNMask | 1) + z1
-            value += (aC * aC) * (aC * aC) * _fnlGradCoord3D(seed2,
+            value += (aC * aC) * (aC * aC) * grad_coord_3d(seed2,
                 i + PRIME_X, j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), xC, yC, zC)
             skipD = true
         }
@@ -1162,7 +1162,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x5 := x1
             y5 := f32(yNMask | 1) + y1
             z5 := f32(zNMask | 1) + z1
-            value += (a5 * a5) * (a5 * a5) * _fnlGradCoord3D(seed2,
+            value += (a5 * a5) * (a5 * a5) * grad_coord_3d(seed2,
                 i + PRIME_X, j + (yNMask & (PRIME_Y << 1)), k + (zNMask & (PRIME_Z << 1)), x5, y5, z5)
         }
     }
@@ -1173,7 +1173,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             x9 := f32(xNMask | 1) + x1
             y9 := y1
             z9 := f32(zNMask | 1) + z1
-            value += (a9 * a9) * (a9 * a9) * _fnlGradCoord3D(seed2, 
+            value += (a9 * a9) * (a9 * a9) * grad_coord_3d(seed2, 
                 i + (xNMask & (PRIME_X * 2)), j + PRIME_Y, k + (zNMask & (PRIME_Z << 1)), x9, y9, z9)
         }
     }
@@ -1184,7 +1184,7 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
             xD := f32(xNMask | 1) + x1
             yD := f32(yNMask | 1) + y1
             zD := z1
-            value += (aD * aD) * (aD * aD) * _fnlGradCoord3D(seed2,
+            value += (aD * aD) * (aD * aD) * grad_coord_3d(seed2,
                 i + (xNMask & (PRIME_X << 1)), j + (yNMask & (PRIME_Y << 1)), k + PRIME_Z, xD, yD, zD)
         }
     }
@@ -1195,9 +1195,9 @@ _fnlSingleOpenSimplex2S3D :: proc(seed: int, x, y, z: f32) -> f32 {
 // Cellular Noise
 
 @private
-_fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
-    xr := _fnlFastRound(x)
-    yr := _fnlFastRound(y)
+single_cellular_2d :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
+    xr := fast_round(x)
+    yr := fast_round(y)
 
     distance0: f32 = math.F32_MAX
     distance1: f32 = math.F32_MAX
@@ -1217,7 +1217,7 @@ _fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
             yPrimed := yPrimedBase
 
             for yi := yr - 1; yi <= yr + 1; yi += 1 {
-                hash := _fnlHash2D(seed, xPrimed, yPrimed)
+                hash := hash_2d(seed, xPrimed, yPrimed)
                 idx  := hash & (255 << 1)
 
                 vecX := f32(xi) - x + f32(RAND_VECS_2D[idx]) * cellularJitter
@@ -1239,7 +1239,7 @@ _fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
             yPrimed := yPrimedBase
 
             for yi := yr - 1; yi <= yr + 1; yi += 1 {
-                hash := _fnlHash2D(seed, xPrimed, yPrimed)
+                hash := hash_2d(seed, xPrimed, yPrimed)
                 idx := hash & (255 << 1)
 
                 vecX := f32(xi) - x + f32(RAND_VECS_2D[idx]) * cellularJitter
@@ -1261,7 +1261,7 @@ _fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
             yPrimed := yPrimedBase
 
             for yi := yr - 1; yi <= yr + 1; yi += 1 {
-                hash := _fnlHash2D(seed, xPrimed, yPrimed)
+                hash := hash_2d(seed, xPrimed, yPrimed)
                 idx := hash & (255 << 1)
 
                 vecX := f32(xi) - x + f32(RAND_VECS_2D[idx]) * cellularJitter
@@ -1282,8 +1282,8 @@ _fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
 
     if (state.cellular_distance_func == .Euclidean && 
     state.cellular_return_type >= .Distance) {
-        distance0 := _fnlFastSqrt(distance0)
-        if state.cellular_return_type >= .Distance2 do distance1 = _fnlFastSqrt(distance1)
+        distance0 := fast_sqrt(distance0)
+        if state.cellular_return_type >= .Distance2 do distance1 = fast_sqrt(distance1)
     }
 
     switch (state.cellular_return_type)
@@ -1308,10 +1308,10 @@ _fnlSingleCellular2D :: proc (state: ^FNL_State, seed: int, x, y: f32) -> f32 {
 }
 
 @private
-_fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
-    xr := _fnlFastRound(x)
-    yr := _fnlFastRound(y)
-    zr := _fnlFastRound(z)
+single_cellular_3d :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32 {
+    xr := fast_round(x)
+    yr := fast_round(y)
+    zr := fast_round(z)
 
     distance0: f32 = math.F32_MAX
     distance1: f32 = math.F32_MAX
@@ -1335,7 +1335,7 @@ _fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
                 zPrimed := zPrimedBase
 
                 for zi := zr - 1; zi <= zr + 1; zi += 1 {
-                    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+                    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
                     idx := hash & (255 << 2)
 
                     vecX := f32(xi) - x + f32(RAND_VECS_3D[idx]) * cellularJitter
@@ -1363,7 +1363,7 @@ _fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
                 zPrimed := zPrimedBase
 
                 for zi := zr - 1; zi <= zr + 1; zi += 1 {
-                    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+                    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
                     idx := hash & (255 << 2)
 
                     vecX := f32(xi) - x + f32(RAND_VECS_3D[idx]) * cellularJitter
@@ -1391,7 +1391,7 @@ _fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
                 zPrimed := zPrimedBase
 
                 for zi := zr - 1; zi <= zr + 1; zi += 1 {
-                    hash := _fnlHash3D(seed, xPrimed, yPrimed, zPrimed)
+                    hash := hash_3d(seed, xPrimed, yPrimed, zPrimed)
                     idx := hash & (255 << 2)
 
                     vecX := f32(xi) - x + f32(RAND_VECS_3D[idx]) * cellularJitter
@@ -1415,8 +1415,8 @@ _fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
 
     if state.cellular_distance_func == .Euclidean &&
     state.cellular_return_type >= .Distance {
-        distance0 = _fnlFastSqrt(distance0)
-        if state.cellular_return_type >= .Distance2 do distance1 = _fnlFastSqrt(distance1)
+        distance0 = fast_sqrt(distance0)
+        if state.cellular_return_type >= .Distance2 do distance1 = fast_sqrt(distance1)
     }
 
     switch (state.cellular_return_type)
@@ -1442,34 +1442,34 @@ _fnlSingleCellular3D :: proc (state: ^FNL_State, seed: int, x, y, z: f32) -> f32
 // Perlin Noise
 
 @private
-_fnlSinglePerlin2D :: proc (seed: int, x, y: f32) -> f32 {
-    x0 := _fnlFastFloor(x)
-    y0 := _fnlFastFloor(y)
+single_perlin_2d :: proc (seed: int, x, y: f32) -> f32 {
+    x0 := fast_floor(x)
+    y0 := fast_floor(y)
 
     xd0 := x - f32(x0)
     yd0 := y - f32(y0)
     xd1 := xd0 - 1
     yd1 := yd0 - 1
 
-    xs := _fnlInterpQuintic(xd0)
-    ys := _fnlInterpQuintic(yd0)
+    xs := interp_quintic(xd0)
+    ys := interp_quintic(yd0)
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
     x1 := x0 + PRIME_X
     y1 := y0 + PRIME_Y
 
-    xf0 := _fnlLerp(_fnlGradCoord2D(seed, x0, y0, xd0, yd0), _fnlGradCoord2D(seed, x1, y0, xd1, yd0), xs)
-    xf1 := _fnlLerp(_fnlGradCoord2D(seed, x0, y1, xd0, yd1), _fnlGradCoord2D(seed, x1, y1, xd1, yd1), xs)
+    xf0 := lerp(grad_coord_2d(seed, x0, y0, xd0, yd0), grad_coord_2d(seed, x1, y0, xd1, yd0), xs)
+    xf1 := lerp(grad_coord_2d(seed, x0, y1, xd0, yd1), grad_coord_2d(seed, x1, y1, xd1, yd1), xs)
 
-    return _fnlLerp(xf0, xf1, ys) * 1.4247691104677813
+    return lerp(xf0, xf1, ys) * 1.4247691104677813
 }
 
 @private
-_fnlSinglePerlin3D :: proc (seed: int, x, y, z: f32) -> f32 {
-    x0 := _fnlFastFloor(x)
-    y0 := _fnlFastFloor(y)
-    z0 := _fnlFastFloor(z)
+single_perlin_3d :: proc (seed: int, x, y, z: f32) -> f32 {
+    x0 := fast_floor(x)
+    y0 := fast_floor(y)
+    z0 := fast_floor(z)
 
     xd0 := x - f32(x0)
     yd0 := y - f32(y0)
@@ -1478,9 +1478,9 @@ _fnlSinglePerlin3D :: proc (seed: int, x, y, z: f32) -> f32 {
     yd1 := yd0 - 1
     zd1 := zd0 - 1
 
-    xs := _fnlInterpQuintic(xd0)
-    ys := _fnlInterpQuintic(yd0)
-    zs := _fnlInterpQuintic(zd0)
+    xs := interp_quintic(xd0)
+    ys := interp_quintic(yd0)
+    zs := interp_quintic(zd0)
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
@@ -1489,23 +1489,23 @@ _fnlSinglePerlin3D :: proc (seed: int, x, y, z: f32) -> f32 {
     y1 := y0 + PRIME_Y
     z1 := z0 + PRIME_Z
 
-    xf00 := _fnlLerp(_fnlGradCoord3D(seed, x0, y0, z0, xd0, yd0, zd0), _fnlGradCoord3D(seed, x1, y0, z0, xd1, yd0, zd0), xs)
-    xf10 := _fnlLerp(_fnlGradCoord3D(seed, x0, y1, z0, xd0, yd1, zd0), _fnlGradCoord3D(seed, x1, y1, z0, xd1, yd1, zd0), xs)
-    xf01 := _fnlLerp(_fnlGradCoord3D(seed, x0, y0, z1, xd0, yd0, zd1), _fnlGradCoord3D(seed, x1, y0, z1, xd1, yd0, zd1), xs)
-    xf11 := _fnlLerp(_fnlGradCoord3D(seed, x0, y1, z1, xd0, yd1, zd1), _fnlGradCoord3D(seed, x1, y1, z1, xd1, yd1, zd1), xs)
+    xf00 := lerp(grad_coord_3d(seed, x0, y0, z0, xd0, yd0, zd0), grad_coord_3d(seed, x1, y0, z0, xd1, yd0, zd0), xs)
+    xf10 := lerp(grad_coord_3d(seed, x0, y1, z0, xd0, yd1, zd0), grad_coord_3d(seed, x1, y1, z0, xd1, yd1, zd0), xs)
+    xf01 := lerp(grad_coord_3d(seed, x0, y0, z1, xd0, yd0, zd1), grad_coord_3d(seed, x1, y0, z1, xd1, yd0, zd1), xs)
+    xf11 := lerp(grad_coord_3d(seed, x0, y1, z1, xd0, yd1, zd1), grad_coord_3d(seed, x1, y1, z1, xd1, yd1, zd1), xs)
 
-    yf0 := _fnlLerp(xf00, xf10, ys)
-    yf1 := _fnlLerp(xf01, xf11, ys)
+    yf0 := lerp(xf00, xf10, ys)
+    yf1 := lerp(xf01, xf11, ys)
 
-    return _fnlLerp(yf0, yf1, zs) * 0.964921414852142333984375
+    return lerp(yf0, yf1, zs) * 0.964921414852142333984375
 }
 
 // Value Cubic
 
 @private
-_fnlSingleValueCubic2D :: proc (seed: int, x, y: f32) -> f32 {
-    x1 := _fnlFastFloor(x)
-    y1 := _fnlFastFloor(y)
+single_value_cubic_2d :: proc (seed: int, x, y: f32) -> f32 {
+    x1 := fast_floor(x)
+    y1 := fast_floor(y)
 
     xs := x - f32(x1)
     ys := y - f32(y1)
@@ -1520,23 +1520,23 @@ _fnlSingleValueCubic2D :: proc (seed: int, x, y: f32) -> f32 {
     x3 := x1 + int(i64(PRIME_X) << 1)
     y3 := y1 + int(i64(PRIME_Y) << 1)
 
-    return _fnlCubicLerp(
-        _fnlCubicLerp(_fnlValCoord2D(seed, x0, y0), _fnlValCoord2D(seed, x1, y0), _fnlValCoord2D(seed, x2, y0), _fnlValCoord2D(seed, x3, y0),
+    return cubic_lerp(
+        cubic_lerp(val_coord_2d(seed, x0, y0), val_coord_2d(seed, x1, y0), val_coord_2d(seed, x2, y0), val_coord_2d(seed, x3, y0),
                       xs),
-        _fnlCubicLerp(_fnlValCoord2D(seed, x0, y1), _fnlValCoord2D(seed, x1, y1), _fnlValCoord2D(seed, x2, y1), _fnlValCoord2D(seed, x3, y1),
+        cubic_lerp(val_coord_2d(seed, x0, y1), val_coord_2d(seed, x1, y1), val_coord_2d(seed, x2, y1), val_coord_2d(seed, x3, y1),
                       xs),
-        _fnlCubicLerp(_fnlValCoord2D(seed, x0, y2), _fnlValCoord2D(seed, x1, y2), _fnlValCoord2D(seed, x2, y2), _fnlValCoord2D(seed, x3, y2),
+        cubic_lerp(val_coord_2d(seed, x0, y2), val_coord_2d(seed, x1, y2), val_coord_2d(seed, x2, y2), val_coord_2d(seed, x3, y2),
                       xs),
-        _fnlCubicLerp(_fnlValCoord2D(seed, x0, y3), _fnlValCoord2D(seed, x1, y3), _fnlValCoord2D(seed, x2, y3), _fnlValCoord2D(seed, x3, y3),
+        cubic_lerp(val_coord_2d(seed, x0, y3), val_coord_2d(seed, x1, y3), val_coord_2d(seed, x2, y3), val_coord_2d(seed, x3, y3),
                       xs),
         ys) * (1 / (1.5 * 1.5))
 }
 
 @private
-_fnlSingleValueCubic3D :: proc (seed: int, x, y, z: f32) -> f32 {
-    x1 := _fnlFastFloor(x)
-    y1 := _fnlFastFloor(y)
-    z1 := _fnlFastFloor(z)
+single_value_cubic_3d :: proc (seed: int, x, y, z: f32) -> f32 {
+    x1 := fast_floor(x)
+    y1 := fast_floor(y)
+    z1 := fast_floor(z)
 
     xs := x - f32(x1)
     ys := y - f32(y1)
@@ -1556,30 +1556,30 @@ _fnlSingleValueCubic3D :: proc (seed: int, x, y, z: f32) -> f32 {
     y3 := y1 + int(i64(PRIME_Y) << 1)
     z3 := z1 + int(i64(PRIME_Z) << 1)
 
-    return _fnlCubicLerp(
-        _fnlCubicLerp(
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y0, z0), _fnlValCoord3D(seed, x1, y0, z0), _fnlValCoord3D(seed, x2, y0, z0), _fnlValCoord3D(seed, x3, y0, z0), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y1, z0), _fnlValCoord3D(seed, x1, y1, z0), _fnlValCoord3D(seed, x2, y1, z0), _fnlValCoord3D(seed, x3, y1, z0), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y2, z0), _fnlValCoord3D(seed, x1, y2, z0), _fnlValCoord3D(seed, x2, y2, z0), _fnlValCoord3D(seed, x3, y2, z0), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y3, z0), _fnlValCoord3D(seed, x1, y3, z0), _fnlValCoord3D(seed, x2, y3, z0), _fnlValCoord3D(seed, x3, y3, z0), xs),
+    return cubic_lerp(
+        cubic_lerp(
+            cubic_lerp(val_coord_3D(seed, x0, y0, z0), val_coord_3D(seed, x1, y0, z0), val_coord_3D(seed, x2, y0, z0), val_coord_3D(seed, x3, y0, z0), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y1, z0), val_coord_3D(seed, x1, y1, z0), val_coord_3D(seed, x2, y1, z0), val_coord_3D(seed, x3, y1, z0), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y2, z0), val_coord_3D(seed, x1, y2, z0), val_coord_3D(seed, x2, y2, z0), val_coord_3D(seed, x3, y2, z0), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y3, z0), val_coord_3D(seed, x1, y3, z0), val_coord_3D(seed, x2, y3, z0), val_coord_3D(seed, x3, y3, z0), xs),
             ys),
-        _fnlCubicLerp(
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y0, z1), _fnlValCoord3D(seed, x1, y0, z1), _fnlValCoord3D(seed, x2, y0, z1), _fnlValCoord3D(seed, x3, y0, z1), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y1, z1), _fnlValCoord3D(seed, x1, y1, z1), _fnlValCoord3D(seed, x2, y1, z1), _fnlValCoord3D(seed, x3, y1, z1), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y2, z1), _fnlValCoord3D(seed, x1, y2, z1), _fnlValCoord3D(seed, x2, y2, z1), _fnlValCoord3D(seed, x3, y2, z1), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y3, z1), _fnlValCoord3D(seed, x1, y3, z1), _fnlValCoord3D(seed, x2, y3, z1), _fnlValCoord3D(seed, x3, y3, z1), xs),
+        cubic_lerp(
+            cubic_lerp(val_coord_3D(seed, x0, y0, z1), val_coord_3D(seed, x1, y0, z1), val_coord_3D(seed, x2, y0, z1), val_coord_3D(seed, x3, y0, z1), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y1, z1), val_coord_3D(seed, x1, y1, z1), val_coord_3D(seed, x2, y1, z1), val_coord_3D(seed, x3, y1, z1), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y2, z1), val_coord_3D(seed, x1, y2, z1), val_coord_3D(seed, x2, y2, z1), val_coord_3D(seed, x3, y2, z1), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y3, z1), val_coord_3D(seed, x1, y3, z1), val_coord_3D(seed, x2, y3, z1), val_coord_3D(seed, x3, y3, z1), xs),
             ys),
-        _fnlCubicLerp(
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y0, z2), _fnlValCoord3D(seed, x1, y0, z2), _fnlValCoord3D(seed, x2, y0, z2), _fnlValCoord3D(seed, x3, y0, z2), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y1, z2), _fnlValCoord3D(seed, x1, y1, z2), _fnlValCoord3D(seed, x2, y1, z2), _fnlValCoord3D(seed, x3, y1, z2), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y2, z2), _fnlValCoord3D(seed, x1, y2, z2), _fnlValCoord3D(seed, x2, y2, z2), _fnlValCoord3D(seed, x3, y2, z2), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y3, z2), _fnlValCoord3D(seed, x1, y3, z2), _fnlValCoord3D(seed, x2, y3, z2), _fnlValCoord3D(seed, x3, y3, z2), xs),
+        cubic_lerp(
+            cubic_lerp(val_coord_3D(seed, x0, y0, z2), val_coord_3D(seed, x1, y0, z2), val_coord_3D(seed, x2, y0, z2), val_coord_3D(seed, x3, y0, z2), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y1, z2), val_coord_3D(seed, x1, y1, z2), val_coord_3D(seed, x2, y1, z2), val_coord_3D(seed, x3, y1, z2), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y2, z2), val_coord_3D(seed, x1, y2, z2), val_coord_3D(seed, x2, y2, z2), val_coord_3D(seed, x3, y2, z2), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y3, z2), val_coord_3D(seed, x1, y3, z2), val_coord_3D(seed, x2, y3, z2), val_coord_3D(seed, x3, y3, z2), xs),
             ys),
-        _fnlCubicLerp(
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y0, z3), _fnlValCoord3D(seed, x1, y0, z3), _fnlValCoord3D(seed, x2, y0, z3), _fnlValCoord3D(seed, x3, y0, z3), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y1, z3), _fnlValCoord3D(seed, x1, y1, z3), _fnlValCoord3D(seed, x2, y1, z3), _fnlValCoord3D(seed, x3, y1, z3), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y2, z3), _fnlValCoord3D(seed, x1, y2, z3), _fnlValCoord3D(seed, x2, y2, z3), _fnlValCoord3D(seed, x3, y2, z3), xs),
-            _fnlCubicLerp(_fnlValCoord3D(seed, x0, y3, z3), _fnlValCoord3D(seed, x1, y3, z3), _fnlValCoord3D(seed, x2, y3, z3), _fnlValCoord3D(seed, x3, y3, z3), xs),
+        cubic_lerp(
+            cubic_lerp(val_coord_3D(seed, x0, y0, z3), val_coord_3D(seed, x1, y0, z3), val_coord_3D(seed, x2, y0, z3), val_coord_3D(seed, x3, y0, z3), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y1, z3), val_coord_3D(seed, x1, y1, z3), val_coord_3D(seed, x2, y1, z3), val_coord_3D(seed, x3, y1, z3), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y2, z3), val_coord_3D(seed, x1, y2, z3), val_coord_3D(seed, x2, y2, z3), val_coord_3D(seed, x3, y2, z3), xs),
+            cubic_lerp(val_coord_3D(seed, x0, y3, z3), val_coord_3D(seed, x1, y3, z3), val_coord_3D(seed, x2, y3, z3), val_coord_3D(seed, x3, y3, z3), xs),
             ys),
         zs) * (1 / 1.5 * 1.5 * 1.5)
 }
@@ -1587,33 +1587,33 @@ _fnlSingleValueCubic3D :: proc (seed: int, x, y, z: f32) -> f32 {
 // Value noise
 
 @private
-_fnlSingleValue2D :: proc(seed: int, x, y: f32) -> f32 {
-    x0 := _fnlFastFloor(x)
-    y0 := _fnlFastFloor(y)
+single_value_2d :: proc(seed: int, x, y: f32) -> f32 {
+    x0 := fast_floor(x)
+    y0 := fast_floor(y)
 
-    xs := _fnlInterpHermite(x - f32(x0))
-    ys := _fnlInterpHermite(y - f32(y0))
+    xs := interp_hermite(x - f32(x0))
+    ys := interp_hermite(y - f32(y0))
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
     x1 := x0 + PRIME_X
     y1 := y0 + PRIME_Y
 
-    xf0 := _fnlLerp(_fnlValCoord2D(seed, x0, y0), _fnlValCoord2D(seed, x1, y0), xs)
-    xf1 := _fnlLerp(_fnlValCoord2D(seed, x0, y1), _fnlValCoord2D(seed, x1, y1), xs)
+    xf0 := lerp(val_coord_2d(seed, x0, y0), val_coord_2d(seed, x1, y0), xs)
+    xf1 := lerp(val_coord_2d(seed, x0, y1), val_coord_2d(seed, x1, y1), xs)
 
-    return _fnlLerp(xf0, xf1, ys)
+    return lerp(xf0, xf1, ys)
 }
 
 @private
-_fnlSingleValue3D :: proc (seed: int, x, y, z: f32) -> f32  {
-    x0 := _fnlFastFloor(x)
-    y0 := _fnlFastFloor(y)
-    z0 := _fnlFastFloor(z)
+single_value_3d :: proc (seed: int, x, y, z: f32) -> f32  {
+    x0 := fast_floor(x)
+    y0 := fast_floor(y)
+    z0 := fast_floor(z)
 
-    xs := _fnlInterpHermite(x - f32(x0))
-    ys := _fnlInterpHermite(y - f32(y0))
-    zs := _fnlInterpHermite(z - f32(z0))
+    xs := interp_hermite(x - f32(x0))
+    ys := interp_hermite(y - f32(y0))
+    zs := interp_hermite(z - f32(z0))
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
@@ -1622,88 +1622,88 @@ _fnlSingleValue3D :: proc (seed: int, x, y, z: f32) -> f32  {
     y1 := y0 + PRIME_Y
     z1 := z0 + PRIME_Z
 
-    xf00 := _fnlLerp(_fnlValCoord3D(seed, x0, y0, z0), _fnlValCoord3D(seed, x1, y0, z0), xs)
-    xf10 := _fnlLerp(_fnlValCoord3D(seed, x0, y1, z0), _fnlValCoord3D(seed, x1, y1, z0), xs)
-    xf01 := _fnlLerp(_fnlValCoord3D(seed, x0, y0, z1), _fnlValCoord3D(seed, x1, y0, z1), xs)
-    xf11 := _fnlLerp(_fnlValCoord3D(seed, x0, y1, z1), _fnlValCoord3D(seed, x1, y1, z1), xs)
+    xf00 := lerp(val_coord_3D(seed, x0, y0, z0), val_coord_3D(seed, x1, y0, z0), xs)
+    xf10 := lerp(val_coord_3D(seed, x0, y1, z0), val_coord_3D(seed, x1, y1, z0), xs)
+    xf01 := lerp(val_coord_3D(seed, x0, y0, z1), val_coord_3D(seed, x1, y0, z1), xs)
+    xf11 := lerp(val_coord_3D(seed, x0, y1, z1), val_coord_3D(seed, x1, y1, z1), xs)
 
-    yf0 := _fnlLerp(xf00, xf10, ys)
-    yf1 := _fnlLerp(xf01, xf11, ys)
+    yf0 := lerp(xf00, xf10, ys)
+    yf1 := lerp(xf01, xf11, ys)
 
-    return _fnlLerp(yf0, yf1, zs)
+    return lerp(yf0, yf1, zs)
 }
 
 // Domain Warp
 @private
-_fnlDoSingleDomainWarp2D :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y: f32, xp, yp: ^f32) {
+do_single_domain_warp_2d :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y: f32, xp, yp: ^f32) {
     switch (state.domain_warp_type)
     {
     case .Open_Simplex_2:
-        _fnlSingleDomainWarpSimplexGradient(seed, amp * 38.283687591552734375, freq, x, y, xp, yp, false)
+        single_domain_warp_simplex_gradient(seed, amp * 38.283687591552734375, freq, x, y, xp, yp, false)
     case .Open_Simplex_2_Reduced:
-        _fnlSingleDomainWarpSimplexGradient(seed, amp * 16.0, freq, x, y, xp, yp, true)
+        single_domain_warp_simplex_gradient(seed, amp * 16.0, freq, x, y, xp, yp, true)
     case .Basic_Grid:
-        _fnlSingleDomainWarpBasicGrid2D(seed, amp, freq, x, y, xp, yp)
+        single_domain_warp_basic_grid_2d(seed, amp, freq, x, y, xp, yp)
     }
 }
 
 @private
-_fnlDoSingleDomainWarp3D :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y, z: f32, xp, yp, zp: ^f32) {
+do_single_domain_warp_3d :: #force_inline proc (state: ^FNL_State, seed: int, amp, freq, x, y, z: f32, xp, yp, zp: ^f32) {
     switch (state.domain_warp_type)
     {
     case .Open_Simplex_2:
-        _fnlSingleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125, freq, x, y, z, xp, yp, zp, false)
+        single_domain_warp_open_simplex2_gradient(seed, amp * 32.69428253173828125, freq, x, y, z, xp, yp, zp, false)
     case .Open_Simplex_2_Reduced:
-        _fnlSingleDomainWarpOpenSimplex2Gradient(seed, amp * 7.71604938271605, freq, x, y, z, xp, yp, zp, true)
+        single_domain_warp_open_simplex2_gradient(seed, amp * 7.71604938271605, freq, x, y, z, xp, yp, zp, true)
     case .Basic_Grid:
-        _fnlSingleDomainWarpBasicGrid3D(seed, amp, freq, x, y, z, xp, yp, zp)
+        single_domain_warp_basic_grid_3d(seed, amp, freq, x, y, z, xp, yp, zp)
     }
 }
 
 // Domain Warp Single Wrapper
 
 @private
-_fnlDomainWarpSingle2D :: proc (state: ^FNL_State, x, y: ^f32) {
+domain_warp_single_2d :: proc (state: ^FNL_State, x, y: ^f32) {
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     xs := x^
     ys := y^
-    _fnlTransformDomainWarpCoordinate2D(state, &xs, &ys)
+    transform_domain_warp_coordinate_2d(state, &xs, &ys)
 
-    _fnlDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y)
+    do_single_domain_warp_2d(state, seed, amp, freq, xs, ys, x, y)
 }
 
 @private
-_fnlDomainWarpSingle3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
+domain_warp_single_3d :: proc (state: ^FNL_State, x, y, z: ^f32) {
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     xs := x^
     ys := y^
     zs := z^
-    _fnlTransformDomainWarpCoordinate3D(state, &xs, &ys, &zs)
+    transform_domain_warp_coordinate_3d(state, &xs, &ys, &zs)
 
-    _fnlDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z)
+    do_single_domain_warp_3d(state, seed, amp, freq, xs, ys, zs, x, y, z)
 }
 
 // Domain Warp Fractal Progressive
 
 @private
-_fnlDomainWarpFractalProgressive2D :: proc (state: ^FNL_State, x, y: ^f32) {
+domain_warp_fractal_progressive_2d :: proc (state: ^FNL_State, x, y: ^f32) {
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     
     for i := 0; i < state.octaves; i += 1 {
         xs := x^
         ys := y^
-        _fnlTransformDomainWarpCoordinate2D(state, &xs, &ys)
+        transform_domain_warp_coordinate_2d(state, &xs, &ys)
 
-        _fnlDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y)
+        do_single_domain_warp_2d(state, seed, amp, freq, xs, ys, x, y)
 
         seed +=1
         amp *= state.gain
@@ -1713,18 +1713,18 @@ _fnlDomainWarpFractalProgressive2D :: proc (state: ^FNL_State, x, y: ^f32) {
 
 
 @private
-_fnlDomainWarpFractalProgressive3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
+domain_warp_fractal_progressive_3d :: proc (state: ^FNL_State, x, y, z: ^f32) {
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     for i := 0; i < state.octaves; i += 1 {
         xs := x^
         ys := y^
         zs := z^
-        _fnlTransformDomainWarpCoordinate3D(state, &xs, &ys, &zs)
+        transform_domain_warp_coordinate_3d(state, &xs, &ys, &zs)
 
-        _fnlDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z)
+        do_single_domain_warp_3d(state, seed, amp, freq, xs, ys, zs, x, y, z)
 
         seed +=1
         amp *= state.gain
@@ -1735,17 +1735,17 @@ _fnlDomainWarpFractalProgressive3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
 // Domain Warp Fractal Independent
 
 @private
-_fnlDomainWarpFractalIndependent2D :: proc (state: ^FNL_State, x, y: ^f32) {
+domain_warp_fractal_independent_2d :: proc (state: ^FNL_State, x, y: ^f32) {
     xs := x^
     ys := y^
-    _fnlTransformDomainWarpCoordinate2D(state, &xs, &ys)
+    transform_domain_warp_coordinate_2d(state, &xs, &ys)
 
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     for i := 0; i < state.octaves; i += 1 {
-        _fnlDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y)
+        do_single_domain_warp_2d(state, seed, amp, freq, xs, ys, x, y)
 
         seed +=1
         amp *= state.gain
@@ -1754,18 +1754,18 @@ _fnlDomainWarpFractalIndependent2D :: proc (state: ^FNL_State, x, y: ^f32) {
 }
 
 @private
-_fnlDomainWarpFractalIndependent3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
+domain_warp_fractal_independent_3d :: proc (state: ^FNL_State, x, y, z: ^f32) {
     xs := x^
     ys := y^
     zs := z^
-    _fnlTransformDomainWarpCoordinate3D(state, &xs, &ys, &zs)
+    transform_domain_warp_coordinate_3d(state, &xs, &ys, &zs)
 
     seed := state.seed
-    amp := state.domain_warp_amp * _fnlCalculateFractalBounding(state)
+    amp := state.domain_warp_amp * calculate_fractal_bounding(state)
     freq := state.frequency
 
     for i := 0; i < state.octaves; i += 1 {
-        _fnlDoSingleDomainWarp3D(state, seed, amp, freq, xs, ys, zs, x, y, z)
+        do_single_domain_warp_3d(state, seed, amp, freq, xs, ys, zs, x, y, z)
 
         seed +=1
         amp *= state.gain
@@ -1776,50 +1776,50 @@ _fnlDomainWarpFractalIndependent3D :: proc (state: ^FNL_State, x, y, z: ^f32) {
 // Domain Warp Basic Grid
 
 @private
-_fnlSingleDomainWarpBasicGrid2D :: proc (seed: int, warpAmp, frequency: f32, x,  y: f32, xp, yp: ^f32) {
+single_domain_warp_basic_grid_2d :: proc (seed: int, warpAmp, frequency: f32, x,  y: f32, xp, yp: ^f32) {
     xf := x * frequency
     yf := y * frequency
 
-    x0 := _fnlFastFloor(xf)
-    y0 := _fnlFastFloor(yf)
+    x0 := fast_floor(xf)
+    y0 := fast_floor(yf)
 
-    xs := _fnlInterpHermite(xf - f32(x0))
-    ys := _fnlInterpHermite(yf - f32(y0))
+    xs := interp_hermite(xf - f32(x0))
+    ys := interp_hermite(yf - f32(y0))
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
     x1 := x0 + PRIME_X
     y1 := y0 + PRIME_Y
 
-    idx0 := _fnlHash2D(seed, x0, y0) & (255 << 1)
-    idx1 := _fnlHash2D(seed, x1, y0) & (255 << 1)
+    idx0 := hash_2d(seed, x0, y0) & (255 << 1)
+    idx1 := hash_2d(seed, x1, y0) & (255 << 1)
 
-    lx0x := _fnlLerp(f32(RAND_VECS_2D[idx0]), f32(RAND_VECS_2D[idx1]), xs)
-    ly0x := _fnlLerp(f32(RAND_VECS_2D[idx0 | 1]), f32(RAND_VECS_2D[idx1 | 1]), xs)
+    lx0x := lerp(f32(RAND_VECS_2D[idx0]), f32(RAND_VECS_2D[idx1]), xs)
+    ly0x := lerp(f32(RAND_VECS_2D[idx0 | 1]), f32(RAND_VECS_2D[idx1 | 1]), xs)
 
-    idx0 = _fnlHash2D(seed, x0, y1) & (255 << 1)
-    idx1 = _fnlHash2D(seed, x1, y1) & (255 << 1)
+    idx0 = hash_2d(seed, x0, y1) & (255 << 1)
+    idx1 = hash_2d(seed, x1, y1) & (255 << 1)
 
-    lx1x := _fnlLerp(f32(RAND_VECS_2D[idx0]), f32(RAND_VECS_2D[idx1]), xs)
-    ly1x := _fnlLerp(f32(RAND_VECS_2D[idx0 | 1]), f32(RAND_VECS_2D[idx1 | 1]), xs)
+    lx1x := lerp(f32(RAND_VECS_2D[idx0]), f32(RAND_VECS_2D[idx1]), xs)
+    ly1x := lerp(f32(RAND_VECS_2D[idx0 | 1]), f32(RAND_VECS_2D[idx1 | 1]), xs)
 
-    xp^ += _fnlLerp(lx0x, lx1x, ys) * warpAmp
-    yp^ += _fnlLerp(ly0x, ly1x, ys) * warpAmp
+    xp^ += lerp(lx0x, lx1x, ys) * warpAmp
+    yp^ += lerp(ly0x, ly1x, ys) * warpAmp
 }
 
 @private
-_fnlSingleDomainWarpBasicGrid3D :: proc (seed: int, warpAmp, frequency: f32, x,  y, z: f32, xp, yp, zp: ^f32) {
+single_domain_warp_basic_grid_3d :: proc (seed: int, warpAmp, frequency: f32, x,  y, z: f32, xp, yp, zp: ^f32) {
     xf := x * frequency
     yf := y * frequency
     zf := z * frequency
 
-    x0 := _fnlFastFloor(xf)
-    y0 := _fnlFastFloor(yf)
-    z0 := _fnlFastFloor(zf)
+    x0 := fast_floor(xf)
+    y0 := fast_floor(yf)
+    z0 := fast_floor(zf)
 
-    xs := _fnlInterpHermite(xf - f32(x0))
-    ys := _fnlInterpHermite(yf - f32(y0))
-    zs := _fnlInterpHermite(zf - f32(z0))
+    xs := interp_hermite(xf - f32(x0))
+    ys := interp_hermite(yf - f32(y0))
+    zs := interp_hermite(zf - f32(z0))
 
     x0 *= PRIME_X
     y0 *= PRIME_Y
@@ -1828,47 +1828,47 @@ _fnlSingleDomainWarpBasicGrid3D :: proc (seed: int, warpAmp, frequency: f32, x, 
     y1 := y0 + PRIME_Y
     z1 := z0 + PRIME_Z
 
-    idx0 := _fnlHash3D(seed, x0, y0, z0) & (255 << 2)
-    idx1 := _fnlHash3D(seed, x1, y0, z0) & (255 << 2)
+    idx0 := hash_3d(seed, x0, y0, z0) & (255 << 2)
+    idx1 := hash_3d(seed, x1, y0, z0) & (255 << 2)
 
-    lx0x := _fnlLerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
-    ly0x := _fnlLerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
-    lz0x := _fnlLerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
+    lx0x := lerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
+    ly0x := lerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
+    lz0x := lerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
 
-    idx0 = _fnlHash3D(seed, x0, y1, z0) & (255 << 2)
-    idx1 = _fnlHash3D(seed, x1, y1, z0) & (255 << 2)
+    idx0 = hash_3d(seed, x0, y1, z0) & (255 << 2)
+    idx1 = hash_3d(seed, x1, y1, z0) & (255 << 2)
 
-    lx1x := _fnlLerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
-    ly1x := _fnlLerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
-    lz1x := _fnlLerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
+    lx1x := lerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
+    ly1x := lerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
+    lz1x := lerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
 
-    lx0y := _fnlLerp(lx0x, lx1x, ys)
-    ly0y := _fnlLerp(ly0x, ly1x, ys)
-    lz0y := _fnlLerp(lz0x, lz1x, ys)
+    lx0y := lerp(lx0x, lx1x, ys)
+    ly0y := lerp(ly0x, ly1x, ys)
+    lz0y := lerp(lz0x, lz1x, ys)
 
-    idx0 = _fnlHash3D(seed, x0, y0, z1) & (255 << 2)
-    idx1 = _fnlHash3D(seed, x1, y0, z1) & (255 << 2)
+    idx0 = hash_3d(seed, x0, y0, z1) & (255 << 2)
+    idx1 = hash_3d(seed, x1, y0, z1) & (255 << 2)
 
-    lx0x = _fnlLerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
-    ly0x = _fnlLerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
-    lz0x = _fnlLerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
+    lx0x = lerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
+    ly0x = lerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
+    lz0x = lerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
 
-    idx0 = _fnlHash3D(seed, x0, y1, z1) & (255 << 2)
-    idx1 = _fnlHash3D(seed, x1, y1, z1) & (255 << 2)
+    idx0 = hash_3d(seed, x0, y1, z1) & (255 << 2)
+    idx1 = hash_3d(seed, x1, y1, z1) & (255 << 2)
 
-    lx1x = _fnlLerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
-    ly1x = _fnlLerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
-    lz1x = _fnlLerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
+    lx1x = lerp(f32(RAND_VECS_3D[idx0]), f32(RAND_VECS_3D[idx1]), xs)
+    ly1x = lerp(f32(RAND_VECS_3D[idx0 | 1]), f32(RAND_VECS_3D[idx1 | 1]), xs)
+    lz1x = lerp(f32(RAND_VECS_3D[idx0 | 2]), f32(RAND_VECS_3D[idx1 | 2]), xs)
 
-    xp^ += _fnlLerp(lx0y, _fnlLerp(lx0x, lx1x, ys), zs) * warpAmp
-    yp^ += _fnlLerp(ly0y, _fnlLerp(ly0x, ly1x, ys), zs) * warpAmp
-    zp^ += _fnlLerp(lz0y, _fnlLerp(lz0x, lz1x, ys), zs) * warpAmp
+    xp^ += lerp(lx0y, lerp(lx0x, lx1x, ys), zs) * warpAmp
+    yp^ += lerp(ly0y, lerp(ly0x, ly1x, ys), zs) * warpAmp
+    zp^ += lerp(lz0y, lerp(lz0x, lz1x, ys), zs) * warpAmp
 }
 
 // Domain Warp Simplex/OpenSimplex2
 
 @private
-_fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32, x, y: f32,  xr, yr: ^f32, outGradOnly: bool) {
+single_domain_warp_simplex_gradient :: proc (seed: int, warpAmp, frequency: f32, x, y: f32,  xr, yr: ^f32, outGradOnly: bool) {
     SQRT3 : f32 : 1.7320508075688772935274463415059
     G2    : f32 : (3 - SQRT3) / 6
 
@@ -1883,8 +1883,8 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
      * x += s; y += s;
      */
 
-    i := _fnlFastFloor(x)
-    j := _fnlFastFloor(y)
+    i := fast_floor(x)
+    j := fast_floor(y)
     xi := x - f32(i)
     yi := y - f32(j)
 
@@ -1901,8 +1901,8 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
     if a > 0 {
         aaaa := (a * a) * (a * a)
         xo, yo: f32
-        if outGradOnly do _fnlGradCoordOut2D(seed, i, j, &xo, &yo)
-        else do _fnlGradCoordDual2D(seed, i, j, x0, y0, &xo, &yo)
+        if outGradOnly do grad_coord_out_2d(seed, i, j, &xo, &yo)
+        else do grad_coord_dual_2d(seed, i, j, x0, y0, &xo, &yo)
         vx += aaaa * xo
         vy += aaaa * yo
     }
@@ -1913,8 +1913,8 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
         y2 := y0 + (2 * G2 - 1)
         cccc := (c * c) * (c * c)
         xo, yo: f32
-        if outGradOnly do _fnlGradCoordOut2D(seed, i + PRIME_X, j + PRIME_Y, &xo, &yo)
-        else do _fnlGradCoordDual2D(seed, i + PRIME_X, j + PRIME_Y, x2, y2, &xo, &yo)
+        if outGradOnly do grad_coord_out_2d(seed, i + PRIME_X, j + PRIME_Y, &xo, &yo)
+        else do grad_coord_dual_2d(seed, i + PRIME_X, j + PRIME_Y, x2, y2, &xo, &yo)
         vx += cccc * xo
         vy += cccc * yo
     }
@@ -1926,8 +1926,8 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
         if b > 0 {
             bbbb := (b * b) * (b * b)
             xo, yo: f32
-            if outGradOnly do _fnlGradCoordOut2D(seed, i, j + PRIME_Y, &xo, &yo)
-            else do _fnlGradCoordDual2D(seed, i, j + PRIME_Y, x1, y1, &xo, &yo)
+            if outGradOnly do grad_coord_out_2d(seed, i, j + PRIME_Y, &xo, &yo)
+            else do grad_coord_dual_2d(seed, i, j + PRIME_Y, x1, y1, &xo, &yo)
             vx += bbbb * xo
             vy += bbbb * yo
         }
@@ -1938,8 +1938,8 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
         if b > 0 {
             bbbb := (b * b) * (b * b)
             xo, yo: f32
-            if outGradOnly do _fnlGradCoordOut2D(seed, i + PRIME_X, j, &xo, &yo)
-            else do _fnlGradCoordDual2D(seed, i + PRIME_X, j, x1, y1, &xo, &yo)
+            if outGradOnly do grad_coord_out_2d(seed, i + PRIME_X, j, &xo, &yo)
+            else do grad_coord_dual_2d(seed, i + PRIME_X, j, x1, y1, &xo, &yo)
             vx += bbbb * xo
             vy += bbbb * yo
         }
@@ -1950,7 +1950,7 @@ _fnlSingleDomainWarpSimplexGradient :: proc (seed: int, warpAmp, frequency: f32,
 }
 
 @private
-_fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency: f32, x, y, z: f32, xr, yr, zr: ^f32, outGradOnly: bool) {
+single_domain_warp_open_simplex2_gradient :: proc (seed: int, warpAmp, frequency: f32, x, y, z: f32, xr, yr, zr: ^f32, outGradOnly: bool) {
     seed := seed; x := x; y := y; z := z
     
     x *= frequency
@@ -1964,9 +1964,9 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
      * x = r - x; y = r - y; z = r - z;
      */
 
-    i := _fnlFastRound(x)
-    j := _fnlFastRound(y)
-    k := _fnlFastRound(z)
+    i := fast_round(x)
+    j := fast_round(y)
+    k := fast_round(z)
     x0 := x - f32(i)
     y0 := y - f32(j)
     z0 := z - f32(k)
@@ -1991,8 +1991,8 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
         if a > 0 {
             aaaa := (a * a) * (a * a)
             xo, yo, zo: f32
-            if outGradOnly do _fnlGradCoordOut3D(seed, i, j, k, &xo, &yo, &zo)
-            else do _fnlGradCoordDual3D(seed, i, j, k, x0, y0, z0, &xo, &yo, &zo)
+            if outGradOnly do grad_coord_out_3d(seed, i, j, k, &xo, &yo, &zo)
+            else do grad_coord_dual_3d(seed, i, j, k, x0, y0, z0, &xo, &yo, &zo)
             vx += aaaa * xo
             vy += aaaa * yo
             vz += aaaa * zo
@@ -2022,8 +2022,8 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
         if b > 0 {
             bbbb := (b * b) * (b * b)
             xo, yo, zo: f32
-            if outGradOnly do _fnlGradCoordOut3D(seed, i1, j1, k1, &xo, &yo, &zo)
-            else do _fnlGradCoordDual3D(seed, i1, j1, k1, x1, y1, z1, &xo, &yo, &zo)
+            if outGradOnly do grad_coord_out_3d(seed, i1, j1, k1, &xo, &yo, &zo)
+            else do grad_coord_dual_3d(seed, i1, j1, k1, x1, y1, z1, &xo, &yo, &zo)
             vx += bbbb * xo
             vy += bbbb * yo
             vz += bbbb * zo
@@ -2060,7 +2060,7 @@ _fnlSingleDomainWarpOpenSimplex2Gradient :: proc (seed: int, warpAmp, frequency:
 // ====================
 // Public API
 // ====================
-fnlCreateState :: proc(seed : int = 1337) -> FNL_State {
+create_state :: proc(seed : int = 1337) -> FNL_State {
     return {
         seed                   = seed,
         frequency              = 0.01,
@@ -2083,36 +2083,36 @@ fnlCreateState :: proc(seed : int = 1337) -> FNL_State {
 
 fnlGetNoise2D :: proc (state: ^FNL_State, x, y: f32) -> f32 {
     x := x; y := y
-    _fnlTransformNoiseCoordinate2D(state, &x, &y)
+    transform_noise_coordinate_2d(state, &x, &y)
 
     #partial switch (state.fractal_type)
     {
     case:
-        return _fnlGenNoiseSingle2D(state, state.seed, x, y)
+        return gen_noise_single_2d(state, state.seed, x, y)
     case .FBM:
-        return _fnlGenFractalFBM2D(state, x, y)
+        return gen_fractal_fbm_2d(state, x, y)
     case .Ridged:
-        return _fnlGenFractalRidged2D(state, x, y)
+        return gen_fractal_ridged_2d(state, x, y)
     case .Ping_Pong:
-        return _fnlGenFractalPingPong2D(state, x, y)
+        return gen_fractal_ping_pong_2d(state, x, y)
     }
 }
 
 fnlGetNoise3D :: proc (state: ^FNL_State, x, y, z: f32) -> f32 {
     x := x; y := y; z := z
-    _fnlTransformNoiseCoordinate3D(state, &x, &y, &z)
+    transform_noise_coordinate_3d(state, &x, &y, &z)
 
     // Select a noise type
     #partial switch (state.fractal_type)
     {
     case:
-        return _fnlGenNoiseSingle3D(state, state.seed, x, y, z)
+        return gen_noise_single_3d(state, state.seed, x, y, z)
     case .FBM:
-        return _fnlGenFractalFBM3D(state, x, y, z)
+        return gen_fractal_fbm_3d(state, x, y, z)
     case .Ridged:
-        return _fnlGenFractalRidged3D(state, x, y, z)
+        return gen_fractal_ridged_3d(state, x, y, z)
     case .Ping_Pong:
-        return _fnlGenFractalPingPong3D(state, x, y, z)
+        return gen_fractal_ping_pong_3d(state, x, y, z)
     }
 }
 
@@ -2120,11 +2120,11 @@ fnlDomainWarp2D :: proc(state: ^FNL_State, x, y: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
-        _fnlDomainWarpSingle2D(state, x, y)
+        domain_warp_single_2d(state, x, y)
     case .Domain_Warp_Progressive:
-        _fnlDomainWarpFractalProgressive2D(state, x, y)
+        domain_warp_fractal_progressive_2d(state, x, y)
     case .Domain_Warp_Independent:
-        _fnlDomainWarpFractalIndependent2D(state, x, y)
+        domain_warp_fractal_independent_2d(state, x, y)
     }
 }
 
@@ -2132,10 +2132,10 @@ fnlDomainWarp3D :: proc(state: ^FNL_State, x, y, z: ^f32) {
     #partial switch (state.fractal_type)
     {
     case:
-        _fnlDomainWarpSingle3D(state, x, y, z)
+        domain_warp_single_3d(state, x, y, z)
     case .Domain_Warp_Progressive:
-        _fnlDomainWarpFractalProgressive3D(state, x, y, z)
+        domain_warp_fractal_progressive_3d(state, x, y, z)
     case .Domain_Warp_Independent:
-        _fnlDomainWarpFractalIndependent3D(state, x, y, z)
+        domain_warp_fractal_independent_3d(state, x, y, z)
     }
 }
