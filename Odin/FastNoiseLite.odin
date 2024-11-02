@@ -47,14 +47,16 @@
 // VERSION: 1.1.1
 // https://github.com/Auburn/FastNoiseLite
 
+// Developed using odin version dev-2024-10:7c1922b0a
+
 package fast_noise_lite
 import "core:math"
 import "core:math/linalg"
 
 //TODO: re-integrate
 // Switch between using f32 or f64 for input position
-// f32 :: f32
-// f32 :: f64
+FNL_Float :: f32
+// FNL_Float :: f64
 
 // Enums
 Noise_type :: enum {
