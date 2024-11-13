@@ -39,7 +39,7 @@ If you are looking for a more extensive noise generation library consider using 
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
 - [Fortran](/Fortran/)
 - [Zig](/Zig/)
-- [PowerSheel](/PowerShell/)
+- [PowerShell](/PowerShell/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
