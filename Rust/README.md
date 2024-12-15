@@ -27,6 +27,7 @@ Optionally enable these in your `Cargo.toml` file with your `fastnoise-lite` dep
 - `"f64"`: Uses `f64`, instead of the default `f32`, X/Y coordinate sampling inputs.
 - `"std"`: Uses Rust's standard library for floating point operations (`sqrt()`, `trunc()`, and `abs()`). Either this or `"libm"` must be enabled. This is enabled by default if no feature flags are specified (but note that specifying `"f64"` will mean this is no longer default, and must be specified too).
 - `"libm"`: Enables `no_std` support. Either this or `"std"` must be enabled. Uses the [libm](https://crates.io/crates/libm) optional dependency (through the [num-traits](https://crates.io/crates/num-traits) optional dependency) to allow floating point operations (`sqrt()`, `trunc()`, and `abs()`) without relying on the Rust standard library's implementations. FNL is dependency-free except when using this feature flag, which pulls in these optional dependencies.
+- `"serde"`: Enables (de)serialization with [`serde`](https://serde.rs/).
 
 ## Getting Started
 
