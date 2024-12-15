@@ -101,11 +101,20 @@ trait DummyFloatExt: Sized {
     }
 }
 
+// ===================================================================================
+// "serde" feature flag:
+// For serialization and deserialization using serde
+// ===================================================================================
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ========================================
 // Option enums for FastNoise Lite settings
 // ========================================
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum NoiseType {
     OpenSimplex2,
     OpenSimplex2S,
@@ -116,6 +125,7 @@ pub enum NoiseType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum RotationType3D {
     None,
     ImproveXYPlanes,
@@ -123,6 +133,7 @@ pub enum RotationType3D {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum FractalType {
     None,
     FBm,
@@ -133,6 +144,7 @@ pub enum FractalType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum CellularDistanceFunction {
     Euclidean,
     EuclideanSq,
@@ -141,6 +153,7 @@ pub enum CellularDistanceFunction {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum CellularReturnType {
     CellValue = 0,
     Distance = 1,
@@ -152,6 +165,7 @@ pub enum CellularReturnType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum DomainWarpType {
     OpenSimplex2,
     OpenSimplex2Reduced,
@@ -159,6 +173,7 @@ pub enum DomainWarpType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum TransformType3D {
     None,
     ImproveXYPlanes,
@@ -207,6 +222,7 @@ pub enum TransformType3D {
 /// // Do something with this data...
 /// ```
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FastNoiseLite {
     pub seed: i32,
     pub frequency: f32,
