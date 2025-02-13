@@ -1172,7 +1172,7 @@ single_cellular_2d :: proc (state: FNL_State, seed: i32, x, y: FNL_Float) -> f32
     distance1: f32 = math.F32_MAX
     closestHash: i32
 
-    cellularJitter: f64 = 0.43701595 * state.cellular_jitter_mod
+    cellularJitter: f64 = 0.43701595 * f64(state.cellular_jitter_mod)
 
     xPrimed := (xr - 1) * PRIME_X
     yPrimedBase := (yr - 1) * PRIME_Y
