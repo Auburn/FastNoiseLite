@@ -39,6 +39,7 @@ If you are looking for a more extensive noise generation library consider using 
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)
 - [Fortran](/Fortran/)
 - [Zig](/Zig/)
+- [PowerShell](/PowerShell/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
@@ -90,6 +91,7 @@ Million points of noise generated per second (higher = better)
 - [@ForeverZer0](https://github.com/ForeverZer0) for creating the Zig and Go ports.
 - [@Keavon](https://github.com/Keavon) for creating the Rust port.
 - [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
+- [@gregoryfmartin](https://github.com/gregoryfmartin) for creating the Powershell port.
 
 ## Contributing
 
