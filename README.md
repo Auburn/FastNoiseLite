@@ -40,6 +40,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [Fortran](/Fortran/)
 - [Zig](/Zig/)
 - [PowerShell](/PowerShell/)
+- [Odin](/Odin/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
@@ -92,6 +93,7 @@ Million points of noise generated per second (higher = better)
 - [@Keavon](https://github.com/Keavon) for creating the Rust port.
 - [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
 - [@gregoryfmartin](https://github.com/gregoryfmartin) for creating the Powershell port.
+- [@itsdanott](https://github.com/itsdanott) for creating the Odin port.
 
 ## Contributing
 
