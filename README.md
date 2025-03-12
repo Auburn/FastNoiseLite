@@ -41,6 +41,8 @@ If you are looking for a more extensive noise generation library consider using 
 - [Zig](/Zig/)
 - [PowerShell](/PowerShell/)
 - [Odin](/Odin/)
+- [Haxe](/Haxe/)
+- [Pascal](/Pascal/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
@@ -94,6 +96,8 @@ Million points of noise generated per second (higher = better)
 - [@jordan4ibanez](https://github.com/jordan4ibanez) for creating the Fortran port.
 - [@gregoryfmartin](https://github.com/gregoryfmartin) for creating the Powershell port.
 - [@itsdanott](https://github.com/itsdanott) for creating the Odin port.
+- [@Zylann](https://github.com/Zylann) for creating the Haxe port.
+- [@CptnRoughnight](https://github.com/CptnRoughnight) for creating the Pascal port.
 
 ## Contributing
 
