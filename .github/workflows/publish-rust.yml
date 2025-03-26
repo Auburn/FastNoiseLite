@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'Rust/Cargo.toml' # The version number must be bumped in order to publish to crates.io
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+name: Publish Rust (crates.io)
+
+jobs:
+  publish:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Publish to crates.io
+        run: cd Rust && cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

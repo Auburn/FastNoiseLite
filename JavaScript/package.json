@@ -1,8 +1,8 @@
 {
   "name": "fastnoise-lite",
   "type": "module",
-  "version": "1.0.1",
-  "description": "an extremely portable open source noise generation library with a large selection of noise algorithms",
+  "version": "1.1.1",
+  "description": "FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms",
   "main": "FastNoiseLite.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -32,7 +32,7 @@
     "random",
     "generative"
   ],
-  "author": "Patrick U & Jordan Peck",
+  "contributors": ["Jordan Peck", "Patrick U"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Auburn/FastNoiseLite/issues"

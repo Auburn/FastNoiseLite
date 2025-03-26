@@ -2,7 +2,7 @@
 
 Here's an example for creating a 128x128 array of OpenSimplex2 noise
 
-```
+```cpp
 // Create and configure FastNoise object
 FastNoiseLite noise;
 noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
@@ -20,5 +20,4 @@ for (int y = 0; y < 128; y++)
 }
 
 // Do something with this data...
-
 ```

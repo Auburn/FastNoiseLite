@@ -1,20 +1,33 @@
-## Links
+[![npm](https://img.shields.io/npm/v/fastnoise-lite?logo=npm "npm")](https://www.npmjs.com/package/fastnoise-lite) • [GitHub](https://github.com/Auburn/FastNoiseLite)
 
-* [npm](https://www.npmjs.com/package/fastnoise-lite)
-* [github](https://github.com/Auburn/FastNoiseLite)
-* [discord](https://discord.gg/SHVaVfV)
+# FastNoise Lite
 
-# Getting Started
+FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. This library focuses on high performance while avoiding platform/language specific features, allowing for easy ports to as many possible languages.
 
-### Using FastNoiseLite with npm
+## Features
+
+- 2D & 3D sampling
+- OpenSimplex2 noise
+- OpenSimplex2S noise
+- Cellular (Voronoi) noise
+- Perlin noise
+- Value noise
+- Value Cubic noise
+- OpenSimplex2-based domain warp
+- Basic Grid Gradient domain warp
+- Multiple fractal options for all of the above
+
+## Getting Started
+
+### Using FastNoise Lite with npm
 
 To begin install the npm package **fastnoise-lite** with
 
 
-Note FastNoiseLite does **not** support the node.js require(''); function.
+Note FastNoise Lite does **not** support the node.js require(''); function.
 Instead, enable ES6 modules and **import**.
 
-``` javascript
+```javascript
 import FastNoiseLite from "fastnoise-lite";
 
 let noise = new FastNoiseLite();
@@ -22,7 +35,7 @@ let noise = new FastNoiseLite();
 
 ### Creating a 128x128 Array of OpenSimplex2 Noise
 
-``` javascript
+```javascript
 // Create and configure FastNoiseLite object
 let noise = new FastNoiseLite();
 noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
@@ -30,12 +43,10 @@ noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 // Gather noise data
 let noiseData = [];
 
-for (let y = 0; y < 128; y++) {
-    for (let x = 0; x < 128; x++) {
-        if (typeof noiseData[x] == 'undefined']) {
-            noiseData[x] = [];
-        }
+for (let x = 0; x < 128; x++) {
+    noiseData[x] = [];
 
+    for (let y = 0; y < 128; y++) {        
         noiseData[x][y] = noise.GetNoise(x,y);
     }
 }
@@ -48,7 +59,7 @@ for (let y = 0; y < 128; y++) {
 Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
 between language versions.
 
-Some of the code has been changed to use switch statments since it provided a minor preformance boost in some small 
+Some of the code has been changed to use switch statements since it provided a minor performance boost in some small 
 frequently used places eg the _Hash methods.
 
 Here is a template for the method overloading:
@@ -77,7 +88,6 @@ class FastNoiseLite {
     }
 
 }
-
 ```
 
-### DM storm#8888 on discord or email w/ any questions or need any support or ask someone in our discord :D
+### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D

@@ -23,6 +23,7 @@ nupkg/
 [Rr]elease/
 [Rr]eleases/
 [Pp]ublish/
+[Tt]arget/
 x64/
 x86/
 build/
@@ -39,3 +40,5 @@ msbuild.wrn
 
 # JS stuff
 node_modules
+
+emsdk

@@ -1,7 +1,7 @@
 // MIT License
 //
-// Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
-// Copyright(c) 2020 Contributors
+// Copyright(c) 2023 Jordan Peck (jordan.me2@gmail.com)
+// Copyright(c) 2023 Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -44,8 +44,8 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+// VERSION: 1.1.1
+// https://github.com/Auburn/FastNoiseLite
 
 // To switch between using floats or doubles for input position,
 // perform a file-wide replace on the following strings (including /*FNLfloat*/)

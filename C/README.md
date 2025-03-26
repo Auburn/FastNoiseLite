@@ -1,8 +1,10 @@
+Add `#define FNL_IMPL` before including `FastNoiseLite.h` in exactly one source file, or you will get linker errors
+
 ## Getting Started
 
 Here's an example for creating a 128x128 array of OpenSimplex2 noise
 
-```
+```c
 // Create and configure noise state
 fnl_state noise = fnlCreateState();
 noise.noise_type = FNL_NOISE_OPENSIMPLEX2;

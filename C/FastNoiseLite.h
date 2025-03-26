@@ -1,7 +1,7 @@
 // MIT License
 //
-// Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
-// Copyright(c) 2020 Contributors
+// Copyright(c) 2023 Jordan Peck (jordan.me2@gmail.com)
+// Copyright(c) 2023 Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -44,8 +44,8 @@
 //       ....',;:codxkO000OOxdoc:;,''',,,;;;;,''.......',,;:clodkO00000Okxolc::;,,''..',;:ldxOKXNWWWNNK0OkkkkkkkkkkkxxddooooodxxkOOOOO000
 //       ....',;;clodxkkOOOkkdolc:;,,,,,,,,'..........,;:clodxkO0KKXKK0Okxdolcc::;;,,,;;:codkO0XXNNNNXKK0OOOOOkkkkxxdoollloodxkO0KKKXXXXX
 //
-// VERSION: 1.0.1
-// https://github.com/Auburn/FastNoise
+// VERSION: 1.1.1
+// https://github.com/Auburn/FastNoiseLite
 
 // In *one* C or C++ file, use #define FNL_IMPL to generate implementation
 
@@ -103,13 +103,13 @@ typedef enum
 
 typedef enum
 {
-    FNL_CELLULAR_RETURN_VALUE_CELLVALUE,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE2,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE2ADD,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE2SUB,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE2MUL,
-    FNL_CELLULAR_RETURN_VALUE_DISTANCE2DIV,
+    FNL_CELLULAR_RETURN_TYPE_CELLVALUE,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE2,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL,
+    FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV,
 } fnl_cellular_return_type;
 
 typedef enum
@@ -189,13 +189,13 @@ typedef struct fnl_state
 
     /**
      * The distance function used in cellular noise calculations.
-     * @remark Default: FNL_CELLULAR_FUNC_DISTANCE
+     * @remark Default: FNL_CELLULAR_DISTANCE_EUCLIDEANSQ
      */
     fnl_cellular_distance_func cellular_distance_func;
 
     /**
      * The cellular return type from cellular noise calculations.
-     * @remark Default: FNL_CELLULAR_RETURN_VALUE_EUCLIEANSQ
+     * @remark Default: FNL_CELLULAR_RETURN_TYPE_DISTANCE
      */
     fnl_cellular_return_type cellular_return_type;
 
@@ -1408,7 +1408,7 @@ static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLflo
     float distance1 = FLT_MAX;
     int closestHash = 0;
 
-    float cellularJitter = 0.5f * state->cellular_jitter_mod;
+    float cellularJitter = 0.43701595f * state->cellular_jitter_mod;
 
     int xPrimed = (xr - 1) * PRIME_X;
     int yPrimedBase = (yr - 1) * PRIME_Y;
@@ -1496,28 +1496,28 @@ static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLflo
         break;
     }
 
-    if (state->cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state->cellular_return_type >= FNL_CELLULAR_RETURN_VALUE_DISTANCE)
+    if (state->cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state->cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE)
     {
         distance0 = _fnlFastSqrt(distance0);
-        if (state->cellular_return_type >= FNL_CELLULAR_RETURN_VALUE_DISTANCE2)
+        if (state->cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE2)
             distance1 = _fnlFastSqrt(distance1);
     }
 
     switch (state->cellular_return_type)
     {
-    case FNL_CELLULAR_RETURN_VALUE_CELLVALUE:
+    case FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
         return closestHash * (1 / 2147483648.0f);
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE:
         return distance0 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2:
         return distance1 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2ADD:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD:
         return (distance1 + distance0) * 0.5f - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2SUB:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB:
         return distance1 - distance0 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2MUL:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL:
         return distance1 * distance0 * 0.5f - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2DIV:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV:
         return distance0 / distance1 - 1;
     default:
         return 0;
@@ -1645,28 +1645,28 @@ static float _fnlSingleCellular3D(fnl_state *state, int seed, FNLfloat x, FNLflo
         break;
     }
 
-    if (state->cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state->cellular_return_type >= FNL_CELLULAR_RETURN_VALUE_DISTANCE)
+    if (state->cellular_distance_func == FNL_CELLULAR_DISTANCE_EUCLIDEAN && state->cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE)
     {
         distance0 = _fnlFastSqrt(distance0);
-        if (state->cellular_return_type >= FNL_CELLULAR_RETURN_VALUE_DISTANCE2)
+        if (state->cellular_return_type >= FNL_CELLULAR_RETURN_TYPE_DISTANCE2)
             distance1 = _fnlFastSqrt(distance1);
     }
 
     switch (state->cellular_return_type)
     {
-    case FNL_CELLULAR_RETURN_VALUE_CELLVALUE:
+    case FNL_CELLULAR_RETURN_TYPE_CELLVALUE:
         return closestHash * (1 / 2147483648.0f);
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE:
         return distance0 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2:
         return distance1 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2ADD:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2ADD:
         return (distance1 + distance0) * 0.5f - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2SUB:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2SUB:
         return distance1 - distance0 - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2MUL:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2MUL:
         return distance1 * distance0 * 0.5f - 1;
-    case FNL_CELLULAR_RETURN_VALUE_DISTANCE2DIV:
+    case FNL_CELLULAR_RETURN_TYPE_DISTANCE2DIV:
         return distance0 / distance1 - 1;
     default:
         return 0;
@@ -2350,7 +2350,7 @@ fnl_state fnlCreateState()
     newState.weighted_strength = 0.0f;
     newState.ping_pong_strength = 2.0f;
     newState.cellular_distance_func = FNL_CELLULAR_DISTANCE_EUCLIDEANSQ;
-    newState.cellular_return_type = FNL_CELLULAR_RETURN_VALUE_DISTANCE;
+    newState.cellular_return_type = FNL_CELLULAR_RETURN_TYPE_DISTANCE;
     newState.cellular_jitter_mod = 1.0f;
     newState.domain_warp_amp = 30.0f;
     newState.domain_warp_type = FNL_DOMAIN_WARP_OPENSIMPLEX2;
