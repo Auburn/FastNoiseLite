@@ -1,9 +1,0 @@
-{
-  "FolderOrderSettings": [
-    {"name":"_Libraries","order":1,"path":"folders/_Libraries.yy",},
-    {"name":"FastNoise","order":1,"path":"folders/_Libraries/FastNoise.yy",},
-  ],
-  "ResourceOrderSettings": [
-    {"name":"obj_fast_noise_lite","order":2,"path":"objects/obj_fast_noise_lite/obj_fast_noise_lite.yy",},
-  ],
-}
