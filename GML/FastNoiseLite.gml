@@ -556,7 +556,7 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} t
 			* @returns {number}
 			*/
-		_t -= (_t * 0.5 * 2)// div 1;
+		_t -= (_t * 0.5 * 2)
 		return _t < 1 ? _t : 2 - _t;
 	}
 		
@@ -597,7 +597,7 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} zPrimed
 			* @returns {number}
 			*/
-		var hash = (_seed ^ _xPrimed ^ _yPrimed ^ _zPrimed)// div 1;
+		var hash = (_seed ^ _xPrimed ^ _yPrimed ^ _zPrimed)
 		//hash = (hash * 0x27d4eb2d) >>> 0;
 		hash *= int64(0x27d4eb2d)
 		return hash;
@@ -1028,9 +1028,9 @@ function FastNoiseLite(_seed) constructor {
 			var y0 = _y - j;
 			var z0 = _z - k;
 			
-			var yNSign = ((-1.0 - y0) | 1)// div 1;
-			var xNSign = ((-1.0 - x0) | 1)// div 1;
-			var zNSign = ((-1.0 - z0) | 1)// div 1;
+			var yNSign = ((-1.0 - y0) | 1)
+			var xNSign = ((-1.0 - x0) | 1)
+			var zNSign = ((-1.0 - z0) | 1)
 
 			var ax0 = xNSign * -x0;
 			var ay0 = yNSign * -y0;
@@ -1296,9 +1296,9 @@ function FastNoiseLite(_seed) constructor {
 		
 		var seed2 = _seed + 1293373;
 
-		var xNMask = (-0.5 - xi)// div 1;
-		var yNMask = (-0.5 - yi)// div 1;
-		var zNMask = (-0.5 - zi)// div 1;
+		var xNMask = (-0.5 - xi)
+		var yNMask = (-0.5 - yi)
+		var zNMask = (-0.5 - zi)
 
 		var x0 = xi + xNMask;
 		var y0 = yi + yNMask;
