@@ -556,7 +556,7 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} t
 			* @returns {number}
 			*/
-		_t -= (_t * 0.5 * 2) div 1;
+		_t -= (_t * 0.5 * 2)// div 1;
 		return _t < 1 ? _t : 2 - _t;
 	}
 		
@@ -582,9 +582,9 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} yPrimed
 			* @returns {number}
 			*/
-		var hash = (_seed ^ _xPrimed ^ _yPrimed) div 1;
+		var hash = _seed ^ _xPrimed ^ _yPrimed;
 		//hash = (hash * 0x27d4eb2d) >>> 0;
-		hash = (hash * 0x27d4eb2d) & 0x7FFFFFFF; //convert to an unsigned 32 bit int
+		hash *= int64(0x27d4eb2d)
 		return hash;
 	}
 		
@@ -597,9 +597,9 @@ function FastNoiseLite(_seed) constructor {
 			* @param {number} zPrimed
 			* @returns {number}
 			*/
-		var hash = (_seed ^ _xPrimed ^ _yPrimed ^ _zPrimed) div 1;
+		var hash = (_seed ^ _xPrimed ^ _yPrimed ^ _zPrimed)// div 1;
 		//hash = (hash * 0x27d4eb2d) >>> 0;
-		hash = (hash * 0x27d4eb2d) & 0x7FFFFFFF; //convert to an unsigned 32 bit int
+		hash *= int64(0x27d4eb2d)
 		return hash;
 	}
 		
@@ -613,7 +613,7 @@ function FastNoiseLite(_seed) constructor {
 			*/
 		var hash = _HashR2(_seed, _xPrimed, _yPrimed);
 					
-		hash *= hash;
+		hash *= hash
 		hash ^= hash << 19;
 		return hash * (1 / 2147483648.0);
 	}
@@ -629,7 +629,7 @@ function FastNoiseLite(_seed) constructor {
 			*/
 		var hash = _HashR3(_seed, _xPrimed, _yPrimed, _zPrimed);
 			
-		hash *= hash;
+		hash *= hash
 		hash ^= hash << 19;
 		return hash * (1 / 2147483648.0);
 	}
@@ -647,7 +647,7 @@ function FastNoiseLite(_seed) constructor {
 		var hash = _HashR2(_seed, _xPrimed, _yPrimed);
 		hash ^= hash >> 15;
 		hash &= 127 << 1;
-			
+		
 		var xg = _Gradients2D[hash];
 		var yg = _Gradients2D[hash | 1];
 			
@@ -955,7 +955,7 @@ function FastNoiseLite(_seed) constructor {
 
 		i *= _PrimeX;
 		j *= _PrimeY;
-
+		
 		var n0, n1, n2;
 
 		var a = 0.5 - x0 * x0 - y0 * y0;
@@ -975,7 +975,9 @@ function FastNoiseLite(_seed) constructor {
 		else {
 				var x2 = x0 + (2 * G2 - 1);
 				var y2 = y0 + (2 * G2 - 1);
-				n2 = c * c * (c * c) * _GradCoordR2(_seed, i + _PrimeX, j + _PrimeY, x2, y2);
+				var _grad = _GradCoordR2(_seed, i + _PrimeX, j + _PrimeY, x2, y2)
+				//if (count > 100_000) && (count < 110_000) show_debug_message($"[{count}] {string_format(_seed,8,16)} | {string_format(_x,1,16)} | {string_format(_y,1,16)} | {string_format(x2,1,16)} | {string_format(y2,1,16)} | {string_format(_grad,1,16)}")
+				n2 = c * c * (c * c) * _grad;
 		}
 
 		if (y0 > x0) {
@@ -1000,7 +1002,14 @@ function FastNoiseLite(_seed) constructor {
 						n1 = b * b * (b * b) * _GradCoordR2(_seed, i + _PrimeX, j, x1, y1);
 				}
 		}
-		return (n0 + n1 + n2) * 99.83685446303647;
+		
+		var _r = (n0 + n1 + n2) * 99.83685446303647;
+		
+		//static count = 0;
+		//if (count > 100_000) && (count < 110_000) show_debug_message($"[{count}] {string_format(_seed,8,16)} | {string_format(_x,1,16)} | {string_format(_y,1,16)} | {string_format(i,1,16)} | {string_format(j,1,16)} | {string_format(xi,1,16)} | {string_format(yi,1,16)} | {string_format(t,1,16)} | {string_format(x0,1,16)} | {string_format(y0,1,16)} | {string_format(n0,1,16)} | {string_format(n1,1,16)} | {string_format(n2,1,16)} | {string_format(_r,1,16)}")
+		//count++
+		
+		return _r;
 	}
 		
 	static _SingleOpenSimplex2R3 = function(_seed, _x, _y, _z) {
@@ -1018,18 +1027,19 @@ function FastNoiseLite(_seed) constructor {
 			var x0 = _x - i;
 			var y0 = _y - j;
 			var z0 = _z - k;
-
-			var yNSign = ((-1.0 - y0) | 1) div 1;
-			var xNSign = ((-1.0 - x0) | 1) div 1;
-			var zNSign = ((-1.0 - z0) | 1) div 1;
+			
+			var yNSign = ((-1.0 - y0) | 1)// div 1;
+			var xNSign = ((-1.0 - x0) | 1)// div 1;
+			var zNSign = ((-1.0 - z0) | 1)// div 1;
 
 			var ax0 = xNSign * -x0;
 			var ay0 = yNSign * -y0;
 			var az0 = zNSign * -z0;
+			
 			i *= _PrimeX;
 			j *= _PrimeY;
 			k *= _PrimeZ;
-
+			
 			var value = 0;
 			var a = 0.6 - x0 * x0 - (y0 * y0 + z0 * z0);
 			
@@ -1147,7 +1157,7 @@ function FastNoiseLite(_seed) constructor {
 		var j = floor(_y);
 		var xi = _x - i;
 		var yi = _y - j;
-
+		
 		i *= _PrimeX;
 		j *= _PrimeY;
 		var i1 = i + _PrimeX;
@@ -1283,11 +1293,12 @@ function FastNoiseLite(_seed) constructor {
 		i *= _PrimeX;
 		j *= _PrimeY;
 		k *= _PrimeZ;
+		
 		var seed2 = _seed + 1293373;
 
-		var xNMask = (-0.5 - xi) div 1;
-		var yNMask = (-0.5 - yi) div 1;
-		var zNMask = (-0.5 - zi) div 1;
+		var xNMask = (-0.5 - xi)// div 1;
+		var yNMask = (-0.5 - yi)// div 1;
+		var zNMask = (-0.5 - zi)// div 1;
 
 		var x0 = xi + xNMask;
 		var y0 = yi + yNMask;
@@ -1871,7 +1882,7 @@ function FastNoiseLite(_seed) constructor {
 
 		var xs = _InterpQuintic(xd0);
 		var ys = _InterpQuintic(yd0);
-
+		
 		x0 *= _PrimeX;
 		y0 *= _PrimeY;
 		var x1 = x0 + _PrimeX;
@@ -1962,7 +1973,7 @@ function FastNoiseLite(_seed) constructor {
 			
 		var xs = _x - x1;
 		var ys = _y - y1;
-
+		
 		x1 *= _PrimeX;
 		y1 *= _PrimeY;
 		var x0 = x1 - _PrimeX;
@@ -2028,11 +2039,11 @@ function FastNoiseLite(_seed) constructor {
 		var xs = _x - x1;
 		var ys = _y - y1;
 		var zs = _z - z1;
-
+		
 		x1 *= _PrimeX;
 		y1 *= _PrimeY;
 		z1 *= _PrimeZ;
-
+		
 		var x0 = x1 - _PrimeX;
 		var y0 = y1 - _PrimeY;
 		var z0 = z1 - _PrimeZ;
@@ -2189,10 +2200,10 @@ function FastNoiseLite(_seed) constructor {
 			*/
 		var x0 = floor(_x);
 		var y0 = floor(_y);
-
+		
 		var xs = _InterpHermite(_x - x0);
 		var ys = _InterpHermite(_y - y0);
-
+		
 		x0 *= _PrimeX;
 		y0 *= _PrimeY;
 		var x1 = x0 + _PrimeX;
@@ -2664,7 +2675,7 @@ function FastNoiseLite(_seed) constructor {
 
 			var xs = _InterpHermite(xf - x0);
 			var ys = _InterpHermite(yf - y0);
-
+			
 			x0 *= _PrimeX;
 			y0 *= _PrimeY;
 			var x1 = x0 + _PrimeX;
@@ -2798,7 +2809,7 @@ function FastNoiseLite(_seed) constructor {
 
 			i *= _PrimeX;
 			j *= _PrimeY;
-
+			
 			var vx, vy;
 			vx = 0;
 			vy = 0;
@@ -2953,7 +2964,7 @@ function FastNoiseLite(_seed) constructor {
 			i *= _PrimeX;
 			j *= _PrimeY;
 			k *= _PrimeZ;
-
+			
 			var vx = 0,
 					vy = 0,
 					vz = 0;
