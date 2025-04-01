@@ -43,6 +43,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [Odin](/Odin/)
 - [Haxe](/Haxe/)
 - [Pascal](/Pascal/)
+- [GML](/GML/)
 
 If you want to port FastNoise Lite to a new language create a pull request or discuss it on the discord linked above
 
@@ -98,6 +99,7 @@ Million points of noise generated per second (higher = better)
 - [@itsdanott](https://github.com/itsdanott) for creating the Odin port.
 - [@Zylann](https://github.com/Zylann) for creating the Haxe port.
 - [@CptnRoughnight](https://github.com/CptnRoughnight) for creating the Pascal port.
+- [@Tinkerer_Red]([https://github.com/CptnRoughnight](https://github.com/tinkerer-red)) for creating the GameMaker port.
 
 ## Contributing
 
