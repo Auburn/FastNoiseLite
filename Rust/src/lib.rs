@@ -223,6 +223,7 @@ pub enum TransformType3D {
 /// ```
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct FastNoiseLite {
     pub seed: i32,
     pub frequency: f32,
