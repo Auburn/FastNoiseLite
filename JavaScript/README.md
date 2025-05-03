@@ -61,7 +61,7 @@ for (let x = 0; x < 128; x++) {
 
 ### BYO Vector2 / Vector3 classes
 
-The DomainWarp method takes in and modifies a `Vector2 | Vector3` instance, but this library does not provide implementations of Vector classes.
+The DomainWarp method takes in a `Vector2 | Vector3` instance, but this library does not provide implementations of Vector classes.
 
 You can use Vector classes from any other math library (like three.js), or just plain objects. Anything with x, y propeties (for 2D) or x, y, z properties (for 3D) will work. Input vectors are treated as 3D if they have a `z` property.
 
@@ -110,6 +110,20 @@ class FastNoiseLite {
     }
 
 }
+```
+
+## Testing
+
+There's a test script for the JS version. It generates a collection of noise images.
+
+When making changes, you can compare the output between your branch and the master version.
+
+(It requires node version 23.6+)
+
+```sh
+npm install
+node test.mts
+# it outputs test-output.png
 ```
 
 ### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D

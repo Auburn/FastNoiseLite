@@ -1,10 +1,10 @@
-import FastNoiseLite, { CellularDistanceFunction, CellularReturnType, DomainWarpType, FractalType, NoiseType, type Vector2, type Vector3 } from "./dist/FastNoiseLite.js";
+import FastNoiseLite, { CellularDistanceFunction, CellularReturnType, DomainWarpType, FractalType, NoiseType, RotationType3D, type Vector2, type Vector3 } from "./dist/FastNoiseLite.js";
 import { PNG } from "pngjs";
 import { createWriteStream } from "node:fs";
 
 /*
  * This script generates an image with various types of noise.
- * Ensure the image does not change when changing the code.
+ * Use this to check if the noise output has changed.
  */
 
 const testCases: { noise: FastNoiseLite, warp?: FastNoiseLite }[] = [];
@@ -63,13 +63,16 @@ for (const warpType of [
     DomainWarpType.OpenSimplex2Reduced,
 ]) {
     for (const warpFractalType of [
+        FractalType.None,
         FractalType.DomainWarpIndependent,
         FractalType.DomainWarpProgressive,
     ]) {
         const noise = new FastNoiseLite();
         const warp = new FastNoiseLite();
+        warp.SetFrequency(0.05);
         warp.SetDomainWarpType(warpType);
         warp.SetFractalType(warpFractalType);
+        warp.SetRotationType3D(RotationType3D.ImproveXYPlanes);
         warp.SetDomainWarpAmp(50);
         testCases.push({ noise, warp });
     }
@@ -95,23 +98,26 @@ for (const testCase of testCases) {
     for (let dims = 2; dims <= 3; dims++) {
         const yBase = Math.floor(tcIndex / ROWS) * TEST_CASE_SIZE;
         const xBase = (tcIndex % ROWS) * TEST_CASE_SIZE;
-        console.log(tcIndex, dims, xBase, yBase)
         for (let y = 0; y < TEST_CASE_SIZE; y++) {
             for (let x = 0; x < TEST_CASE_SIZE; x++) {
                 const idx = (png.width * (yBase + y) + (xBase + x)) << 2;
 
-                const p: Vector2 | Vector3 = dims === 2 ? pos2 : pos3;
-                p.x = x * SCALE;
-                p.y = y * SCALE;
-                if (testCase.warp) testCase.warp.DomainWrap(p);
                 let v;
                 if (dims === 2) {
-                    v = testCase.noise.GetNoise(p.x, p.y);
+                    pos2.x = x * SCALE;
+                    pos2.y = y * SCALE;
+                    if (testCase.warp)testCase.warp.DomainWrap(pos2);
+                    v = testCase.noise.GetNoise(pos2.x, pos2.y);
                 } else {
-                    v = testCase.noise.GetNoise(p.x, p.y, (p as Vector3).z);
+                    pos3.x = x * SCALE;
+                    pos3.y = y * SCALE;
+                    pos3.z = Z;
+                    if (testCase.warp)testCase.warp.DomainWrap(pos3);
+                    v = testCase.noise.GetNoise(pos3.x, pos3.y, (pos3 as Vector3).z);
                 }
 
-                const color = (v + 1) * 128;
+                let color = (v + 1) * 128;
+                color = Math.max(0, Math.min(color, 255));
                 png.data[idx] = color; // red
                 png.data[idx + 1] = color; // green
                 png.data[idx + 2] = color; // blue
