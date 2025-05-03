@@ -21,27 +21,32 @@ FastNoise Lite is an extremely portable open source noise generation library wit
 
 ### Using FastNoise Lite with npm
 
-To begin install the npm package **fastnoise-lite** with
+To begin install the npm package **fastnoise-lite**.
 
+```sh
+npm install fastnoise-lite
+```
 
-Note FastNoise Lite does **not** support the node.js require(''); function.
-Instead, enable ES6 modules and **import**.
+And import as follows:
 
-```javascript
+```typescript
+// using ESM
 import FastNoiseLite from "fastnoise-lite";
+// using CJS
+const FastNoiseLite = require("fastnoise-lite").default;
 
 let noise = new FastNoiseLite();
 ```
 
 ### Creating a 128x128 Array of OpenSimplex2 Noise
 
-```javascript
+```typescript
 // Create and configure FastNoiseLite object
 let noise = new FastNoiseLite();
 noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
 
 // Gather noise data
-let noiseData = [];
+let noiseData: number[] = [];
 
 for (let x = 0; x < 128; x++) {
     noiseData[x] = [];
@@ -54,6 +59,25 @@ for (let x = 0; x < 128; x++) {
 // Do something with this data...
 ```
 
+### BYO Vector2 / Vector3 classes
+
+The DomainWarp method takes in and modifies a `Vector2 | Vector3` instance, but this library does not provide implementations of Vector classes.
+
+You can use Vector classes from any other math library (like three.js), or just plain objects. Anything with x, y propeties (for 2D) or x, y, z properties (for 3D) will work. Input vectors are treated as 3D if they have a `z` property.
+
+```typescript
+let noise = new FastNoiseLite();
+noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
+noise.SetDomainWarpAmp(1.5);
+
+let vec1 = new THREE.Vector2(1, 2);
+noise.DomainWarp(vec);
+
+let vec2 = {x: 1, y: 2};
+noise.DomainWarp(vec);
+```
+
+
 ### Internal Method Overloading
 
 Since JavaScript does not support method overloading it has been simulated to make the user experience more continuous
@@ -64,26 +88,24 @@ frequently used places eg the _Hash methods.
 
 Here is a template for the method overloading:
 
-```javascript
+```typescript
 class FastNoiseLite {
     /**
      * JSdoc
      */
-    Method() {
-        let R2 = (Param1, Param2) => {
+    Method(coord: Vector2 | Vector3) {
+        let R2 = (coord: Vector2) => {
             // do something 2D
         }
 
-        let R3 = (Param1, Param2, Param3) => {
+        let R3 = (coord: Vector3) => {
             // do something 3D
         }
 
-        if (arguments.lenght === 2) {
-            return R2(arguments[0], arguments[1]);
-        }
-
-        if (arguments.length === 3) {
-            return R3(arguments[0], arguments[1], arguments[2])
+        if ("z" in coord) {
+            return R3(coord);
+        } else {
+            return R2(coord);
         }
     }
 

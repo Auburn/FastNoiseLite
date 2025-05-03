@@ -3,9 +3,15 @@
   "type": "module",
   "version": "1.1.1",
   "description": "FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms",
-  "main": "FastNoiseLite.js",
+  "main": "dist/FastNoiseLite.js",
+  "exports": {
+    ".": {
+      "types": "./dist/FastNoiseLite.d.ts",
+      "default": "./dist/FastNoiseLite.js"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -32,10 +38,16 @@
     "random",
     "generative"
   ],
-  "contributors": ["Jordan Peck", "Patrick U"],
+  "contributors": [
+    "Jordan Peck",
+    "Patrick U"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Auburn/FastNoiseLite/issues"
   },
-  "homepage": "https://github.com/Auburn/FastNoiseLite#readme"
+  "homepage": "https://github.com/Auburn/FastNoiseLite#readme",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }

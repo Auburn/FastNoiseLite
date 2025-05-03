@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      "target": "ES2023",
+      "module": "es2022",
+      "moduleResolution": "node",
+      "noEmit": false,
+      "declaration": true,
+      "sourceMap": true,
+      "strict": true,
+      "incremental": false,
+      "allowSyntheticDefaultImports": true,
+      "verbatimModuleSyntax": true,
+      "noUncheckedIndexedAccess": true,
+      "exactOptionalPropertyTypes": true,
+      "isolatedModules": true,
+      "allowJs": false,
+      "skipDefaultLibCheck": true,
+      "skipLibCheck": true,
+      "outDir": "dist"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
+  }
+  
