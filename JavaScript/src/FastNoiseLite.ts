@@ -2108,10 +2108,10 @@ export default class FastNoiseLite {
             }
         };
 
-        if ("z" in coord) {
-            return R3(seed, amp, freq, coord, x, y, z!);
+        if (z === undefined) {
+            return R2(seed, amp, freq, coord as Vector2, x, y);
         } else {
-            return R2(seed, amp, freq, coord, x, y);
+            return R3(seed, amp, freq, coord as Vector3, x, y, z);
         }
     }
 
@@ -2183,10 +2183,10 @@ export default class FastNoiseLite {
             this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
         };
 
-        if ("z" in coord) {
-            return R3(coord);
+        if ((coord as any).z === undefined) {
+            return R2(coord as Vector2);
         } else {
-            return R2(coord);
+            return R3(coord as Vector3);
         }
     }
 
@@ -2271,10 +2271,10 @@ export default class FastNoiseLite {
             }
         };
 
-        if ("z" in coord) {
-            return R3(coord);
+        if ((coord as any).z === undefined) {
+            return R2(coord as Vector2);
         } else {
-            return R2(coord);
+            return R3(coord as Vector3);
         }
     }
 
@@ -2357,10 +2357,10 @@ export default class FastNoiseLite {
             }
         };
 
-        if ("z" in coord) {
-            return R3(coord);
-        } else {
+        if ((coord as any).z === undefined) {
             return R2(coord);
+        } else {
+            return R3(coord as any);
         }
     }
 
@@ -2453,10 +2453,10 @@ export default class FastNoiseLite {
             coord.z += FastNoiseLite._Lerp(lz0y, FastNoiseLite._Lerp(lz0x, lz1x, ys), zs) * warpAmp;
         };
 
-        if ("z" in coord) {
-            R3(seed, warpAmp, frequency, coord, x, y, z!);
+        if (z === undefined) {
+            R2(seed, warpAmp, frequency, coord as Vector2, x, y);
         } else {
-            R2(seed, warpAmp, frequency, coord, x, y);
+            R3(seed, warpAmp, frequency, coord as Vector3, x, y, z);
         }
     }
 
@@ -2727,10 +2727,10 @@ export default class FastNoiseLite {
             coord.z += vz * warpAmp;
         };
 
-        if ("z" in coord) {
-            R3(seed, warpAmp, frequency, coord, outGradOnly, x, y, z!);
+        if (z === undefined) {
+            R2(seed, warpAmp, frequency, coord as Vector2, outGradOnly, x, y);
         } else {
-            R2(seed, warpAmp, frequency, coord, outGradOnly, x, y);
+            R3(seed, warpAmp, frequency, coord as Vector3, outGradOnly, x, y, z);
         }
     }
 }

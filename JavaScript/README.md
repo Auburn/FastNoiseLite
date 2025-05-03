@@ -102,10 +102,10 @@ class FastNoiseLite {
             // do something 3D
         }
 
-        if ("z" in coord) {
-            return R3(coord);
+        if ((coord as any).z === undefined) {
+            return R2(coord as Vector3);
         } else {
-            return R2(coord);
+            return R3(coord as Vector2);
         }
     }
 

@@ -1531,11 +1531,11 @@ export default class FastNoiseLite {
                     break;
             }
         };
-        if ("z" in coord) {
-            return R3(seed, amp, freq, coord, x, y, z);
+        if (z === undefined) {
+            return R2(seed, amp, freq, coord, x, y);
         }
         else {
-            return R2(seed, amp, freq, coord, x, y);
+            return R3(seed, amp, freq, coord, x, y, z);
         }
     }
     _DomainWarpSingle(coord) {
@@ -1599,11 +1599,11 @@ export default class FastNoiseLite {
             }
             this._DoSingleDomainWarp(seed, amp, freq, coord, xs, ys, zs);
         };
-        if ("z" in coord) {
-            return R3(coord);
+        if (coord.z === undefined) {
+            return R2(coord);
         }
         else {
-            return R2(coord);
+            return R3(coord);
         }
     }
     _DomainWarpFractalProgressive(coord) {
@@ -1679,11 +1679,11 @@ export default class FastNoiseLite {
                 freq *= this._Lacunarity;
             }
         };
-        if ("z" in coord) {
-            return R3(coord);
+        if (coord.z === undefined) {
+            return R2(coord);
         }
         else {
-            return R2(coord);
+            return R3(coord);
         }
     }
     _DomainWarpFractalIndependent(coord) {
@@ -1759,11 +1759,11 @@ export default class FastNoiseLite {
                 freq *= this._Lacunarity;
             }
         };
-        if ("z" in coord) {
-            return R3(coord);
+        if (coord.z === undefined) {
+            return R2(coord);
         }
         else {
-            return R2(coord);
+            return R3(coord);
         }
     }
     _SingleDomainWarpBasicGrid(seed, warpAmp, frequency, coord, x, y, z) {
@@ -1832,11 +1832,11 @@ export default class FastNoiseLite {
             coord.y += FastNoiseLite._Lerp(ly0y, FastNoiseLite._Lerp(ly0x, ly1x, ys), zs) * warpAmp;
             coord.z += FastNoiseLite._Lerp(lz0y, FastNoiseLite._Lerp(lz0x, lz1x, ys), zs) * warpAmp;
         };
-        if ("z" in coord) {
-            R3(seed, warpAmp, frequency, coord, x, y, z);
+        if (z === undefined) {
+            R2(seed, warpAmp, frequency, coord, x, y);
         }
         else {
-            R2(seed, warpAmp, frequency, coord, x, y);
+            R3(seed, warpAmp, frequency, coord, x, y, z);
         }
     }
     _SingleDomainWarpOpenSimplex2Gradient(seed, warpAmp, frequency, coord, outGradOnly, x, y, z) {
@@ -2088,11 +2088,11 @@ export default class FastNoiseLite {
             coord.y += vy * warpAmp;
             coord.z += vz * warpAmp;
         };
-        if ("z" in coord) {
-            R3(seed, warpAmp, frequency, coord, outGradOnly, x, y, z);
+        if (z === undefined) {
+            R2(seed, warpAmp, frequency, coord, outGradOnly, x, y);
         }
         else {
-            R2(seed, warpAmp, frequency, coord, outGradOnly, x, y);
+            R3(seed, warpAmp, frequency, coord, outGradOnly, x, y, z);
         }
     }
 }
