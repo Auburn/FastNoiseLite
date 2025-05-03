@@ -48,6 +48,11 @@
   },
   "homepage": "https://github.com/Auburn/FastNoiseLite#readme",
   "devDependencies": {
+    "@types/node": "^22.15.3",
+    "pngjs": "7.0.0",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/pngjs": "^6.0.5"
   }
 }

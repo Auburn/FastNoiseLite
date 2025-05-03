@@ -109,7 +109,6 @@ export enum TransformType3D {
 export interface Vector2 {
     x: number,
     y: number,
-    z: never,
 }
 
 export interface Vector3 {
