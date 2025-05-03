@@ -130,7 +130,7 @@ export default class FastNoiseLite {
      * @description Sets noise algorithm used for GetNoise(...)
      * @remarks Default: OpenSimplex2
      */
-    SetNoiseType(noiseType: number): void;
+    SetNoiseType(noiseType: NoiseType): void;
     /**
      * @description Sets domain rotation type for 3D Noise and 3D DomainWarp.
      * @description Can aid in reducing directional artifacts when sampling a 2D plane in 3D

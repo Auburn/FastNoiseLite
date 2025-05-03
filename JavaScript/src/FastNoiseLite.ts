@@ -211,7 +211,7 @@ export default class FastNoiseLite {
      * @description Sets noise algorithm used for GetNoise(...)
      * @remarks Default: OpenSimplex2
      */
-    SetNoiseType(noiseType: number) {
+    SetNoiseType(noiseType: NoiseType) {
         this._NoiseType = noiseType;
         this._UpdateTransformType3D();
     }
