@@ -17,8 +17,8 @@ const noise = fastnoise.Noise(f32) {
   .frequency = 0.025,
   .gain = 0.40,
   .fractal_type = .fbm,
-  .lucunarity = 0.40,
-  .cellular_distance = .euclidian,
+  .lacunarity = 0.40,
+  .cellular_distance = .euclidean,
   .cellular_return = .distance2,
   .cellular_jitter_mod = 0.88,
 };

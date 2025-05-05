@@ -129,7 +129,7 @@ pub const DomainWarpType = enum {
 pub fn Noise(comptime Float: type) type {
     // Compile-error if a non-float is specified
     switch (@typeInfo(Float)) {
-        .Float => |f| switch (f.bits) {
+        .float => |f| switch (f.bits) {
             32, 64 => {},
             else => @compileError("only 32 and 64 bit types supported"),
         },
