@@ -56,10 +56,6 @@
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h> 
@@ -219,6 +215,10 @@ typedef struct fnl_state
     float domain_warp_amp;
 } fnl_state;
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /**
  * Creates a noise state with default values.
  * @param seed Optionally set the state seed.
@@ -259,11 +259,21 @@ void fnlDomainWarp2D(const fnl_state *state, FNLfloat *x, FNLfloat *y);
  */
 void fnlDomainWarp3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z);
 
+#if defined(__cplusplus)
+}
+#endif
+
+#endif // FASTNOISELITE_H
+
 // ====================
 // Below this line is the implementation
 // ====================
 
 #if defined(FNL_IMPL)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // Constants
 
@@ -2424,10 +2434,8 @@ void fnlDomainWarp3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat 
     }
 }
 
-#endif // FNL_IMPL
-
 #if defined(__cplusplus)
 }
 #endif
 
-#endif // FASTNOISELITE_H
+#endif // FNL_IMPL
