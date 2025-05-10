@@ -56,10 +56,6 @@
 typedef float FNLfloat;
 //typedef double FNLfloat;
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h> 
@@ -219,6 +215,10 @@ typedef struct fnl_state
     float domain_warp_amp;
 } fnl_state;
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /**
  * Creates a noise state with default values.
  * @param seed Optionally set the state seed.
@@ -229,13 +229,13 @@ fnl_state fnlCreateState();
  * 2D noise at given position using the state settings
  * @returns Noise output bounded between -1 and 1.
  */
-float fnlGetNoise2D(fnl_state *state, FNLfloat x, FNLfloat y);
+float fnlGetNoise2D(const fnl_state *state, FNLfloat x, FNLfloat y);
 
 /**
  * 3D noise at given position using the state settings
  * @returns Noise output bounded between -1 and 1.
  */
-float fnlGetNoise3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z);
+float fnlGetNoise3D(const fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z);
 
 /**
  * 2D warps the input position using current domain warp settings.
@@ -246,7 +246,7 @@ float fnlGetNoise3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z);
  * noise = fnlGetNoise2D(&state, x, y);
  * ```
  */
-void fnlDomainWarp2D(fnl_state *state, FNLfloat *x, FNLfloat *y);
+void fnlDomainWarp2D(const fnl_state *state, FNLfloat *x, FNLfloat *y);
 
 /**
  * 3D warps the input position using current domain warp settings.
@@ -257,13 +257,23 @@ void fnlDomainWarp2D(fnl_state *state, FNLfloat *x, FNLfloat *y);
  * noise = fnlGetNoise3D(&state, x, y, z);
  * ```
  */
-void fnlDomainWarp3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z);
+void fnlDomainWarp3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z);
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif // FASTNOISELITE_H
 
 // ====================
 // Below this line is the implementation
 // ====================
 
 #if defined(FNL_IMPL)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // Constants
 
@@ -458,7 +468,7 @@ static inline float _fnlPingPong(float t)
     return t < 1 ? t : 2 - t;
 }
 
-static float _fnlCalculateFractalBounding(fnl_state *state)
+static float _fnlCalculateFractalBounding(const fnl_state *state)
 {
     float gain = _fnlFastAbs(state->gain);
     float amp = gain;
@@ -585,8 +595,8 @@ static float _fnlSingleSimplex2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSingleOpenSimplex23D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSingleOpenSimplex2S2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSingleOpenSimplex2S3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
-static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLfloat y);
-static float _fnlSingleCellular3D(fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z);
+static float _fnlSingleCellular2D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y);
+static float _fnlSingleCellular3D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSinglePerlin2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSinglePerlin3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 static float _fnlSingleValueCubic2D(int seed, FNLfloat x, FNLfloat y);
@@ -594,7 +604,7 @@ static float _fnlSingleValueCubic3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z
 static float _fnlSingleValue2D(int seed, FNLfloat x, FNLfloat y);
 static float _fnlSingleValue3D(int seed, FNLfloat x, FNLfloat y, FNLfloat z);
 
-static float _fnlGenNoiseSingle2D(fnl_state *state, int seed, FNLfloat x, FNLfloat y)
+static float _fnlGenNoiseSingle2D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y)
 {
     switch (state->noise_type)
     {
@@ -615,7 +625,7 @@ static float _fnlGenNoiseSingle2D(fnl_state *state, int seed, FNLfloat x, FNLflo
     }
 }
 
-static float _fnlGenNoiseSingle3D(fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
+static float _fnlGenNoiseSingle3D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     switch (state->noise_type)
     {
@@ -638,7 +648,7 @@ static float _fnlGenNoiseSingle3D(fnl_state *state, int seed, FNLfloat x, FNLflo
 
 // Noise Coordinate Transforms (frequency, and possible skew or rotation)
 
-static void _fnlTransformNoiseCoordinate2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+static void _fnlTransformNoiseCoordinate2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     *x *= state->frequency;
     *y *= state->frequency;
@@ -660,7 +670,7 @@ static void _fnlTransformNoiseCoordinate2D(fnl_state *state, FNLfloat *x, FNLflo
     }
 }
 
-static void _fnlTransformNoiseCoordinate3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+static void _fnlTransformNoiseCoordinate3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     *x *= state->frequency;
     *y *= state->frequency;
@@ -709,7 +719,7 @@ static void _fnlTransformNoiseCoordinate3D(fnl_state *state, FNLfloat *x, FNLflo
 
 // Domain Warp Coordinate Transforms
 
-static void _fnlTransformDomainWarpCoordinate2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+static void _fnlTransformDomainWarpCoordinate2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     switch (state->domain_warp_type)
     {
@@ -728,7 +738,7 @@ static void _fnlTransformDomainWarpCoordinate2D(fnl_state *state, FNLfloat *x, F
     }
 }
 
-static void _fnlTransformDomainWarpCoordinate3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+static void _fnlTransformDomainWarpCoordinate3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     switch (state->rotation_type_3d)
     {
@@ -772,7 +782,7 @@ static void _fnlTransformDomainWarpCoordinate3D(fnl_state *state, FNLfloat *x, F
 }
 
 // Fractal FBm
-static float _fnlGenFractalFBM2D(fnl_state *state, FNLfloat x, FNLfloat y)
+static float _fnlGenFractalFBM2D(const fnl_state *state, FNLfloat x, FNLfloat y)
 {
     int seed = state->seed;
     float sum = 0;
@@ -792,7 +802,7 @@ static float _fnlGenFractalFBM2D(fnl_state *state, FNLfloat x, FNLfloat y)
     return sum;
 }
 
-static float _fnlGenFractalFBM3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
+static float _fnlGenFractalFBM3D(const fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     int seed = state->seed;
     float sum = 0;
@@ -815,7 +825,7 @@ static float _fnlGenFractalFBM3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfl
 
 // Fractal Ridged
 
-static float _fnlGenFractalRidged2D(fnl_state *state, FNLfloat x, FNLfloat y)
+static float _fnlGenFractalRidged2D(const fnl_state *state, FNLfloat x, FNLfloat y)
 {
     int seed = state->seed;
     float sum = 0;
@@ -835,7 +845,7 @@ static float _fnlGenFractalRidged2D(fnl_state *state, FNLfloat x, FNLfloat y)
     return sum;
 }
 
-static float _fnlGenFractalRidged3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
+static float _fnlGenFractalRidged3D(const fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     int seed = state->seed;
     float sum = 0;
@@ -858,7 +868,7 @@ static float _fnlGenFractalRidged3D(fnl_state *state, FNLfloat x, FNLfloat y, FN
 
 // Fractal PingPong
 
-static float _fnlGenFractalPingPong2D(fnl_state *state, FNLfloat x, FNLfloat y)
+static float _fnlGenFractalPingPong2D(const fnl_state *state, FNLfloat x, FNLfloat y)
 {
     int seed = state->seed;
     float sum = 0;
@@ -878,7 +888,7 @@ static float _fnlGenFractalPingPong2D(fnl_state *state, FNLfloat x, FNLfloat y)
     return sum;
 }
 
-static float _fnlGenFractalPingPong3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
+static float _fnlGenFractalPingPong3D(const fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     int seed = state->seed;
     float sum = 0;
@@ -1399,7 +1409,7 @@ static float _fnlSingleOpenSimplex2S3D(int seed, FNLfloat x, FNLfloat y, FNLfloa
 
 // Cellular Noise
 
-static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLfloat y)
+static float _fnlSingleCellular2D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y)
 {
     int xr = _fnlFastRound(x);
     int yr = _fnlFastRound(y);
@@ -1524,7 +1534,7 @@ static float _fnlSingleCellular2D(fnl_state *state, int seed, FNLfloat x, FNLflo
     }
 }
 
-static float _fnlSingleCellular3D(fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
+static float _fnlSingleCellular3D(const fnl_state *state, int seed, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     int xr = _fnlFastRound(x);
     int yr = _fnlFastRound(y);
@@ -1875,7 +1885,7 @@ static void _fnlSingleDomainWarpBasicGrid3D(int seed, float warpAmp, float frequ
 static void _fnlSingleDomainWarpSimplexGradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat *xr, FNLfloat *yr, bool outGradOnly);
 static void _fnlSingleDomainWarpOpenSimplex2Gradient(int seed, float warpAmp, float frequency, FNLfloat x, FNLfloat y, FNLfloat z, FNLfloat *xr, FNLfloat *yr, FNLfloat *zr, bool outGradOnly);
 
-static inline void _fnlDoSingleDomainWarp2D(fnl_state *state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat *xp, FNLfloat *yp)
+static inline void _fnlDoSingleDomainWarp2D(const fnl_state *state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat *xp, FNLfloat *yp)
 {
     switch (state->domain_warp_type)
     {
@@ -1891,7 +1901,7 @@ static inline void _fnlDoSingleDomainWarp2D(fnl_state *state, int seed, float am
     }
 }
 
-static inline void _fnlDoSingleDomainWarp3D(fnl_state *state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat z, FNLfloat *xp, FNLfloat *yp, FNLfloat *zp)
+static inline void _fnlDoSingleDomainWarp3D(const fnl_state *state, int seed, float amp, float freq, FNLfloat x, FNLfloat y, FNLfloat z, FNLfloat *xp, FNLfloat *yp, FNLfloat *zp)
 {
     switch (state->domain_warp_type)
     {
@@ -1909,7 +1919,7 @@ static inline void _fnlDoSingleDomainWarp3D(fnl_state *state, int seed, float am
 
 // Domain Warp Single Wrapper
 
-static void _fnlDomainWarpSingle2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+static void _fnlDomainWarpSingle2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     int seed = state->seed;
     float amp = state->domain_warp_amp * _fnlCalculateFractalBounding(state);
@@ -1922,7 +1932,7 @@ static void _fnlDomainWarpSingle2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
     _fnlDoSingleDomainWarp2D(state, seed, amp, freq, xs, ys, x, y);
 }
 
-static void _fnlDomainWarpSingle3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+static void _fnlDomainWarpSingle3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     int seed = state->seed;
     float amp = state->domain_warp_amp * _fnlCalculateFractalBounding(state);
@@ -1938,7 +1948,7 @@ static void _fnlDomainWarpSingle3D(fnl_state *state, FNLfloat *x, FNLfloat *y, F
 
 // Domain Warp Fractal Progressive
 
-static void _fnlDomainWarpFractalProgressive2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+static void _fnlDomainWarpFractalProgressive2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     int seed = state->seed;
     float amp = state->domain_warp_amp * _fnlCalculateFractalBounding(state);
@@ -1958,7 +1968,7 @@ static void _fnlDomainWarpFractalProgressive2D(fnl_state *state, FNLfloat *x, FN
     }
 }
 
-static void _fnlDomainWarpFractalProgressive3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+static void _fnlDomainWarpFractalProgressive3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     int seed = state->seed;
     float amp = state->domain_warp_amp * _fnlCalculateFractalBounding(state);
@@ -1981,7 +1991,7 @@ static void _fnlDomainWarpFractalProgressive3D(fnl_state *state, FNLfloat *x, FN
 
 // Domain Warp Fractal Independent
 
-static void _fnlDomainWarpFractalIndependent2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+static void _fnlDomainWarpFractalIndependent2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     FNLfloat xs = *x;
     FNLfloat ys = *y;
@@ -2001,7 +2011,7 @@ static void _fnlDomainWarpFractalIndependent2D(fnl_state *state, FNLfloat *x, FN
     }
 }
 
-static void _fnlDomainWarpFractalIndependent3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+static void _fnlDomainWarpFractalIndependent3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     FNLfloat xs = *x;
     FNLfloat ys = *y;
@@ -2357,7 +2367,7 @@ fnl_state fnlCreateState()
     return newState;
 }
 
-float fnlGetNoise2D(fnl_state *state, FNLfloat x, FNLfloat y)
+float fnlGetNoise2D(const fnl_state *state, FNLfloat x, FNLfloat y)
 {
     _fnlTransformNoiseCoordinate2D(state, &x, &y);
 
@@ -2374,7 +2384,7 @@ float fnlGetNoise2D(fnl_state *state, FNLfloat x, FNLfloat y)
     }
 }
 
-float fnlGetNoise3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
+float fnlGetNoise3D(const fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
 {
     _fnlTransformNoiseCoordinate3D(state, &x, &y, &z);
 
@@ -2392,7 +2402,7 @@ float fnlGetNoise3D(fnl_state *state, FNLfloat x, FNLfloat y, FNLfloat z)
     }
 }
 
-void fnlDomainWarp2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
+void fnlDomainWarp2D(const fnl_state *state, FNLfloat *x, FNLfloat *y)
 {
     switch (state->fractal_type)
     {
@@ -2408,7 +2418,7 @@ void fnlDomainWarp2D(fnl_state *state, FNLfloat *x, FNLfloat *y)
     }
 }
 
-void fnlDomainWarp3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
+void fnlDomainWarp3D(const fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
 {
     switch (state->fractal_type)
     {
@@ -2424,10 +2434,8 @@ void fnlDomainWarp3D(fnl_state *state, FNLfloat *x, FNLfloat *y, FNLfloat *z)
     }
 }
 
-#endif // FNL_IMPL
-
 #if defined(__cplusplus)
 }
 #endif
 
-#endif // FASTNOISELITE_H
+#endif // FNL_IMPL
