@@ -129,7 +129,7 @@ pub const DomainWarpType = enum {
 pub fn Noise(comptime Float: type) type {
     // Compile-error if a non-float is specified
     switch (@typeInfo(Float)) {
-        .Float => |f| switch (f.bits) {
+        .float => |f| switch (f.bits) {
             32, 64 => {},
             else => @compileError("only 32 and 64 bit types supported"),
         },
@@ -1914,10 +1914,11 @@ test "range of all 2D noise/fractal combinations" {
     const size = 768;
     var noise = Noise(f32){};
 
-    inline for (@typeInfo(FractalType).Enum.fields) |fractal| {
+    inline for (@typeInfo(FractalType).@"enum".fields) |fractal| {
         noise.fractal_type = comptime std.meta.stringToEnum(FractalType, fractal.name).?;
 
-        inline for (@typeInfo(NoiseType).Enum.fields) |noise_type| {
+        @setEvalBranchQuota(size * size);
+        inline for (@typeInfo(NoiseType).@"enum".fields) |noise_type| {
             noise.noise_type = comptime std.meta.stringToEnum(NoiseType, noise_type.name).?;
             for (0..size * size) |i| {
                 const value = noise.genNoise2D(@floatFromInt(i % size), @floatFromInt(i / size));
@@ -1931,10 +1932,11 @@ test "range of all 3D noise/fractal combinations" {
     const size = 64;
     var noise = Noise(f32){};
 
-    inline for (@typeInfo(FractalType).Enum.fields) |fractal| {
+    inline for (@typeInfo(FractalType).@"enum".fields) |fractal| {
         noise.fractal_type = comptime std.meta.stringToEnum(FractalType, fractal.name).?;
 
-        inline for (@typeInfo(NoiseType).Enum.fields) |noise_type| {
+        @setEvalBranchQuota(size * size * size);
+        inline for (@typeInfo(NoiseType).@"enum".fields) |noise_type| {
             noise.noise_type = comptime std.meta.stringToEnum(NoiseType, noise_type.name).?;
             for (0..size) |z| for (0..size) |y| for (0..size) |x| {
                 const value = noise.genNoise3D(@floatFromInt(x), @floatFromInt(y), @floatFromInt(z));
@@ -1950,9 +1952,9 @@ test "range of all 2D cellular return/distance combinations (f64)" {
         .noise_type = .cellular,
     };
 
-    inline for (@typeInfo(CellularDistanceFunc).Enum.fields) |dist| {
+    inline for (@typeInfo(CellularDistanceFunc).@"enum".fields) |dist| {
         noise.cellular_distance = comptime std.meta.stringToEnum(CellularDistanceFunc, dist.name).?;
-        inline for (@typeInfo(CellularReturnType).Enum.fields) |ret| {
+        inline for (@typeInfo(CellularReturnType).@"enum".fields) |ret| {
             noise.cellular_return = std.meta.stringToEnum(CellularReturnType, ret.name).?;
             for (0..size * size) |i| {
                 const value = noise.genNoise2D(@floatFromInt(i % size), @floatFromInt(i / size));
@@ -1968,9 +1970,9 @@ test "range of all 3D cellular return/distance combinations" {
         .noise_type = .cellular,
     };
 
-    inline for (@typeInfo(CellularDistanceFunc).Enum.fields) |dist| {
+    inline for (@typeInfo(CellularDistanceFunc).@"enum".fields) |dist| {
         noise.cellular_distance = comptime std.meta.stringToEnum(CellularDistanceFunc, dist.name).?;
-        inline for (@typeInfo(CellularReturnType).Enum.fields) |ret| {
+        inline for (@typeInfo(CellularReturnType).@"enum".fields) |ret| {
             noise.cellular_return = std.meta.stringToEnum(CellularReturnType, ret.name).?;
             for (0..size) |z| for (0..size) |y| for (0..size) |x| {
                 const value = noise.genNoise3D(@floatFromInt(x), @floatFromInt(y), @floatFromInt(z));
