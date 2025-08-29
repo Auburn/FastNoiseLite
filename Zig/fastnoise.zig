@@ -682,7 +682,7 @@ pub fn Noise(comptime Float: type) type {
         // Domain Warp Single Wrapper
 
         fn domainWarpSingle2D(state: *const State, x: *Float, y: *Float) void {
-            const amp = state.domain_warp_amp * state.calculateFractalBounding();
+            const amp = state.domain_warp_amp;
             var xs: Float = x.*;
             var ys: Float = y.*;
             state.transformDomainWarpCoordinate2D(&xs, &ys);
@@ -690,7 +690,7 @@ pub fn Noise(comptime Float: type) type {
         }
 
         fn domainWarpSingle3D(state: *const State, x: *Float, y: *Float, z: *Float) void {
-            const amp = state.domain_warp_amp * state.calculateFractalBounding();
+            const amp = state.domain_warp_amp;
             var xs: Float = x.*;
             var ys: Float = y.*;
             var zs: Float = z.*;
@@ -733,8 +733,8 @@ pub fn Noise(comptime Float: type) type {
             var xs: Float = x.*;
             var ys: Float = y.*;
             state.transformDomainWarpCoordinate2D(&xs, &ys);
-            const amp = state.domain_warp_amp * state.calculateFractalBounding();
-            const freq = state.frequency;
+            var amp = state.domain_warp_amp * state.calculateFractalBounding();
+            var freq = state.frequency;
             for (0..state.octaves) |i| {
                 state.doSingleDomainWarp2D(state.seed + @as(i32, @intCast(i)), amp, freq, xs, ys, x, y);
                 amp *= state.gain;
@@ -747,8 +747,8 @@ pub fn Noise(comptime Float: type) type {
             var ys: Float = y.*;
             var zs: Float = z.*;
             state.transformDomainWarpCoordinate3D(&xs, &ys, &zs);
-            const amp = state.domain_warp_amp * state.calculateFractalBounding();
-            const freq = state.frequency;
+            var amp = state.domain_warp_amp * state.calculateFractalBounding();
+            var freq = state.frequency;
             for (0..state.octaves) |i| {
                 state.doSingleDomainWarp3D(state.seed + @as(i32, @intCast(i)), amp, freq, xs, ys, zs, x, y, z);
                 amp *= state.gain;
