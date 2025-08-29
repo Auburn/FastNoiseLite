@@ -395,7 +395,7 @@ pub fn Noise(comptime Float: type) type {
             const gain: Float = @abs(self.gain);
             var amp = gain;
             var amp_fractal: Float = 1.0;
-            for (0..self.octaves) |_| {
+            for (1..self.octaves) |_| {
                 amp_fractal += amp;
                 amp *= gain;
             }
