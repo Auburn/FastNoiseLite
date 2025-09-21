@@ -47,11 +47,10 @@
 // VERSION: 1.1.1
 // https://github.com/Auburn/FastNoiseLite
 
-// Developed using odin version dev-2024-10:7c1922b0a
+// Port based off the C version using Odin version dev-2024-10
 
 package fast_noise_lite
 import "core:math"
-import "core:math/linalg"
 
 // Switch between using floats or doubles for input position
 FNL_USE_F64 :: #config(USE_F64, false)
@@ -354,7 +353,7 @@ fast_round :: #force_inline proc(f: FNL_Float) -> i32 {
 }
 
 @private
-lerp :: #force_inline proc(a, b, t : f32) -> f32 {
+lerp :: #force_inline proc(a, b, t: f32) -> f32 {
     return a + t * (b - a)
 }
 
@@ -386,7 +385,7 @@ calculate_fractal_bounding :: proc(state: FNL_State) -> f32 {
     gain: f32 = math.abs(state.gain)
     amp: f32 = gain
     ampFractal: f32 = 1.0
-    for i in 1..<state.octaves {
+    for _ in 1..<state.octaves {
         ampFractal += amp
         amp *= gain
     }
@@ -447,7 +446,7 @@ grad_coord_3d :: proc (seed, xPrimed, yPrimed, zPrimed: i32, xd, yd, zd: f32) ->
 }
 
 @private
-grad_coord_out_2d :: proc (seed, xPrimed, yPrimed: i32, xo, yo : ^f32) {
+grad_coord_out_2d :: proc (seed, xPrimed, yPrimed: i32, xo, yo: ^f32) {
     hash := hash_2d(seed, xPrimed, yPrimed) & (255 << 1)
 
     xo^ = f32(RAND_VECS_2D[hash])
@@ -652,7 +651,7 @@ gen_fractal_fbm_2d :: proc(state: FNL_State, x, y: FNL_Float) -> f32 {
     sum  :f32= 0.0
     amp  := calculate_fractal_bounding(state)
 
-    for i in 0..<state.octaves {
+    for _ in 0..<state.octaves {
         noise := gen_noise_single_2d(state, seed, x, y)
         seed  += 1
         sum   += noise * amp
@@ -673,7 +672,7 @@ gen_fractal_fbm_3d :: proc (state: FNL_State, x, y, z: FNL_Float) -> f32 {
     sum :f32= 0
     amp := calculate_fractal_bounding(state)
 
-    for i in 0..<state.octaves {
+    for _ in 0..<state.octaves {
         noise := gen_noise_single_3d(state, seed, x, y, z)
         seed += 1
         sum += noise * amp
@@ -697,7 +696,7 @@ gen_fractal_ridged_2d :: proc (state: FNL_State, x, y: FNL_Float) -> f32 {
     sum: f32 = 0
     amp := calculate_fractal_bounding(state)
 
-    for  i in 0..<state.octaves {
+    for  _ in 0..<state.octaves {
         noise := math.abs(gen_noise_single_2d(state, seed, x, y))
         seed += 1
         sum += (noise * -2 + 1) * amp
@@ -718,7 +717,7 @@ gen_fractal_ridged_3d :: proc(state: FNL_State, x, y, z: FNL_Float) -> f32 {
     sum: f32 = 0
     amp := calculate_fractal_bounding(state)
 
-    for i in 0..<state.octaves {
+    for _ in 0..<state.octaves {
         noise := math.abs(gen_noise_single_3d(state, seed, x, y, z))
         seed += 1
         sum += (noise * -2 + 1) * amp
@@ -741,7 +740,7 @@ gen_fractal_ping_pong_2d :: proc (state: FNL_State, x, y: FNL_Float) -> f32 {
     sum: f32 = 0
     amp := calculate_fractal_bounding(state)
 
-    for i in 0..<state.octaves {
+    for _ in 0..<state.octaves {
         noise := ping_pong((gen_noise_single_2d(state, seed, x, y) + 1) * state.ping_pong_strength)
         seed += 1
         sum += (noise - 0.5) * 2 * amp
@@ -762,7 +761,7 @@ gen_fractal_ping_pong_3d :: proc (state: FNL_State, x, y, z: FNL_Float) -> f32 {
     sum: f32 = 0
     amp := calculate_fractal_bounding(state)
 
-    for i in 0..<state.octaves {
+    for _ in 0..<state.octaves {
         noise := ping_pong((gen_noise_single_3d(state, seed, x, y, z) + 1) * state.ping_pong_strength)
         seed += 1
         sum += (noise - 0.5) * 2 * amp
