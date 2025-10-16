@@ -1,0 +1,12 @@
+{
+  "name": "cn.refactor.thirdparty.fastnoiselite",
+  "version": "1.1.1",
+  "displayName": "Refactor Thirdparty FastNoiseLite",
+  "description": "A Unity Package Manager fork of Auburn/FastNoiseLite, adapted for the Refactor ecosystem. FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms. Original work by Jordan Peck.",
+  "unity": "2021.3",
+  "author": {
+    "name": "Refactor Labs",
+    "url": "https://github.com/refactor-op/cn.refactor.thirdparty.fastnoiselite"
+  },
+  "dependencies": {}
+}
