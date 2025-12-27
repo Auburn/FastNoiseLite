@@ -226,19 +226,19 @@ pub enum TransformType3D {
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct FastNoiseLite {
     pub seed: i32,
-    pub frequency: f32,
+    pub frequency: Float,
     pub noise_type: NoiseType,
     pub rotation_type_3d: RotationType3D,
     transform_type_3d: TransformType3D,
 
     pub fractal_type: FractalType,
     pub octaves: i32,
-    pub lacunarity: f32,
-    pub gain: f32,
-    pub weighted_strength: f32,
-    pub ping_pong_strength: f32,
+    pub lacunarity: Float,
+    pub gain: Float,
+    pub weighted_strength: Float,
+    pub ping_pong_strength: Float,
 
-    fractal_bounding: f32,
+    fractal_bounding: Float,
 
     pub cellular_distance_function: CellularDistanceFunction,
     pub cellular_return_type: CellularReturnType,
@@ -438,7 +438,7 @@ impl FastNoiseLite {
     /// let noise = get_noise_2d(x, y); // Value in the -1..1 range
     /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
-    pub fn get_noise_2d(&self, x: Float, y: Float) -> f32 {
+    pub fn get_noise_2d(&self, x: Float, y: Float) -> Float {
         let (x, y) = self.transform_noise_coordinate_2d(x, y);
 
         match self.fractal_type {
@@ -458,7 +458,7 @@ impl FastNoiseLite {
     /// let noise = get_noise_3d(x, y, z); // Value in the -1..1 range
     /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
-    pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> f32 {
+    pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> Float {
         let (x, y, z) = self.transform_noise_coordinate_3d(x, y, z);
 
         match self.fractal_type {
