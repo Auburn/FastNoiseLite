@@ -23,12 +23,11 @@ FastNoise Lite is an extremely portable open source noise generation library wit
 
 To begin install the npm package **fastnoise-lite** with
 
-
 Note FastNoise Lite does **not** support the node.js require(''); function.
 Instead, enable ES6 modules and **import**.
 
 ```javascript
-import FastNoiseLite from "fastnoise-lite";
+import { FastNoiseLite } from "fastnoise-lite";
 
 let noise = new FastNoiseLite();
 ```
@@ -36,9 +35,11 @@ let noise = new FastNoiseLite();
 ### Creating a 128x128 Array of OpenSimplex2 Noise
 
 ```javascript
+import { FastNoiseLite, NoiseType } from "fastnoise-lite";
+
 // Create and configure FastNoiseLite object
 let noise = new FastNoiseLite();
-noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+noise.SetNoiseType(NoiseType.OpenSimplex2);
 
 // Gather noise data
 let noiseData = [];
