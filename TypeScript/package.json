@@ -1,0 +1,47 @@
+{
+  "name": "fastnoise-lite-ts",
+  "type": "module",
+  "version": "1.1.1",
+  "description": "FastNoise Lite is an extremely portable open source noise generation library with a large selection of noise algorithms",
+  "main": "FastNoiseLite.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Auburn/FastNoiseLite.git"
+  },
+  "keywords": [
+    "noise",
+    "fastnoise",
+    "procedural",
+    "simplex",
+    "opensimplex",
+    "cellular",
+    "voronoi",
+    "perlin",
+    "value",
+    "cubic",
+    "fractal",
+    "domain-warping",
+    "2D",
+    "3D",
+    "heightmap",
+    "terrain",
+    "texture",
+    "random",
+    "generative"
+  ],
+  "contributors": [
+    "Jordan Peck",
+    "Abdiel Lopez"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Auburn/FastNoiseLite/issues"
+  },
+  "homepage": "https://github.com/Auburn/FastNoiseLite#readme",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
