@@ -123,17 +123,6 @@ npm run test
 
 Output from tests should be:
 ```sh
-✔ Simple example code from readme (4.791875ms)
-✔ Basic noise types (0.673916ms)
-✔ Cellular noise options (0.298542ms)
-✔ Domain warp (0.146375ms)
-✔ Create an image (1.47075ms)
-ℹ tests 5
-ℹ suites 0
-ℹ pass 5
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 928.119625
+✔ Simple example code from readme (4.676334ms)
+✔ Create an image (5420.873042ms)
 ```
