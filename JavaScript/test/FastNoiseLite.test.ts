@@ -31,7 +31,10 @@ test('Simple example code from readme', () => {
   // TODO test specific values?
 })
 
-test("Basic noise types", () => {
+test("Create an image", () => {
+    const testCases: { noise: FastNoiseLite, warp?: FastNoiseLite }[] = [];
+
+    // basic noise types and fractal types
     for (const noiseType of [
         NoiseType.OpenSimplex2,
         NoiseType.OpenSimplex2S,
@@ -39,18 +42,21 @@ test("Basic noise types", () => {
         NoiseType.Value,
         NoiseType.ValueCubic
     ]) {
-        for (const fractalType of [FractalType.None, FractalType.FBm, FractalType.PingPong, FractalType.Ridged]) {
+        for (const fractalType of [
+            FractalType.None,
+            FractalType.FBm,
+            FractalType.PingPong,
+            FractalType.Ridged
+        ]) {
             const noise = new FastNoiseLite();
+            noise.SetDomainWarpAmp(0);
             noise.SetNoiseType(noiseType);
-            noise.SetFractalType(fractalType);
-            
-            const value = noise.GetNoise(0, 0);
-            if (typeof value !== "number") throw new Error("Expected number");
+            noise.SetFractalType(fractalType)
+            testCases.push({ noise });
         }
     }
-});
 
-test("Cellular noise options", () => {
+    // cellular options
     for (const distFunc of [
         CellularDistanceFunction.Euclidean,
         CellularDistanceFunction.EuclideanSq,
@@ -61,39 +67,41 @@ test("Cellular noise options", () => {
             CellularReturnType.CellValue,
             CellularReturnType.Distance,
             CellularReturnType.Distance2,
+            CellularReturnType.Distance2Add,
+            CellularReturnType.Distance2Div,
+            CellularReturnType.Distance2Mul,
+            CellularReturnType.Distance2Sub,
         ]) {
             const noise = new FastNoiseLite();
+            noise.SetDomainWarpAmp(0);
             noise.SetNoiseType(NoiseType.Cellular);
             noise.SetCellularDistanceFunction(distFunc);
             noise.SetCellularReturnType(returnType);
-            
-            const value = noise.GetNoise(0, 0);
-            if (typeof value !== "number") throw new Error("Expected number");
+            testCases.push({ noise });
         }
     }
-});
 
-test("Domain warp", () => {
-    for (const warpType of [DomainWarpType.BasicGrid, DomainWarpType.OpenSimplex2]) {
-        const noise = new FastNoiseLite();
-        const warp = new FastNoiseLite();
-        warp.SetDomainWarpType(warpType);
-        warp.SetDomainWarpAmp(50);
-        
-        const pos = { x: 10, y: 10 };
-        warp.DomainWarp(pos);
-        const value = noise.GetNoise(pos.x, pos.y);
-        if (typeof value !== "number") throw new Error("Expected number");
+    // domain warp
+    for (const warpType of [
+        DomainWarpType.BasicGrid,
+        DomainWarpType.OpenSimplex2,
+        DomainWarpType.OpenSimplex2Reduced,
+    ]) {
+        for (const warpFractalType of [
+            FractalType.None,
+            FractalType.DomainWarpIndependent,
+            FractalType.DomainWarpProgressive,
+        ]) {
+            const noise = new FastNoiseLite();
+            const warp = new FastNoiseLite();
+            warp.SetFrequency(0.05);
+            warp.SetDomainWarpType(warpType);
+            warp.SetFractalType(warpFractalType);
+            warp.SetRotationType3D(RotationType3D.ImproveXYPlanes);
+            warp.SetDomainWarpAmp(50);
+            testCases.push({ noise, warp });
+        }
     }
-});
-
-test("Create an image", () => {
-    /*
-    * This script generates an image with various types of noise.
-    * Use this to check if the noise output has changed.
-    */
-
-    const testCases: { noise: FastNoiseLite, warp?: FastNoiseLite }[] = [];
 
     const SCALE = 2;
     const ROWS = 8;
