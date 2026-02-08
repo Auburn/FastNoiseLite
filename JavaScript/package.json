@@ -11,7 +11,8 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "node --loader ts-node/esm --test test/**/*.test.ts"
   },
   "repository": {
     "type": "git",
@@ -48,9 +49,10 @@
   },
   "homepage": "https://github.com/Auburn/FastNoiseLite#readme",
   "devDependencies": {
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.19.10",
     "@types/pngjs": "^6.0.5",
     "pngjs": "7.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

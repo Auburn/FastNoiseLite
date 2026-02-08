@@ -1,0 +1,151 @@
+import FastNoiseLite, { CellularDistanceFunction, CellularReturnType, DomainWarpType, FractalType, NoiseType, RotationType3D, type Vector3 } from "../src/FastNoiseLite.js";
+import test from 'node:test';
+import { PNG } from "pngjs";
+import { createWriteStream } from "node:fs";
+
+test('Simple example code from readme', () => {
+  // Create and configure FastNoiseLite object
+  let noise = new FastNoiseLite();
+  noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+
+  // Gather noise data
+  let noiseData: number[][] = [];
+
+  for (let x = 0; x < 128; x++) {
+    noiseData[x] = [];
+
+    for (let y = 0; y < 128; y++) {        
+      noiseData[x]![y] = noise.GetNoise(x,y);
+    }
+  }
+
+  noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
+  noise.SetDomainWarpAmp(1.5);
+
+  // let vec1 = new THREE.Vector2(1, 2);
+  // noise.DomainWarp(vec1);
+
+  let vec2 = {x: 1, y: 2};
+  noise.DomainWarp(vec2);
+
+  // TODO test specific values?
+})
+
+test("Basic noise types", () => {
+    for (const noiseType of [
+        NoiseType.OpenSimplex2,
+        NoiseType.OpenSimplex2S,
+        NoiseType.Perlin,
+        NoiseType.Value,
+        NoiseType.ValueCubic
+    ]) {
+        for (const fractalType of [FractalType.None, FractalType.FBm, FractalType.PingPong, FractalType.Ridged]) {
+            const noise = new FastNoiseLite();
+            noise.SetNoiseType(noiseType);
+            noise.SetFractalType(fractalType);
+            
+            const value = noise.GetNoise(0, 0);
+            if (typeof value !== "number") throw new Error("Expected number");
+        }
+    }
+});
+
+test("Cellular noise options", () => {
+    for (const distFunc of [
+        CellularDistanceFunction.Euclidean,
+        CellularDistanceFunction.EuclideanSq,
+        CellularDistanceFunction.Manhattan,
+        CellularDistanceFunction.Hybrid,
+    ]) {
+        for (const returnType of [
+            CellularReturnType.CellValue,
+            CellularReturnType.Distance,
+            CellularReturnType.Distance2,
+        ]) {
+            const noise = new FastNoiseLite();
+            noise.SetNoiseType(NoiseType.Cellular);
+            noise.SetCellularDistanceFunction(distFunc);
+            noise.SetCellularReturnType(returnType);
+            
+            const value = noise.GetNoise(0, 0);
+            if (typeof value !== "number") throw new Error("Expected number");
+        }
+    }
+});
+
+test("Domain warp", () => {
+    for (const warpType of [DomainWarpType.BasicGrid, DomainWarpType.OpenSimplex2]) {
+        const noise = new FastNoiseLite();
+        const warp = new FastNoiseLite();
+        warp.SetDomainWarpType(warpType);
+        warp.SetDomainWarpAmp(50);
+        
+        const pos = { x: 10, y: 10 };
+        warp.DomainWarp(pos);
+        const value = noise.GetNoise(pos.x, pos.y);
+        if (typeof value !== "number") throw new Error("Expected number");
+    }
+});
+
+test("Create an image", () => {
+    /*
+    * This script generates an image with various types of noise.
+    * Use this to check if the noise output has changed.
+    */
+
+    const testCases: { noise: FastNoiseLite, warp?: FastNoiseLite }[] = [];
+
+    const SCALE = 2;
+    const ROWS = 8;
+    const TEST_CASE_SIZE = 512;
+
+    const png = new PNG({
+        width: TEST_CASE_SIZE * ROWS,
+        height: (1 + Math.floor((2 * testCases.length) / ROWS)) * TEST_CASE_SIZE,
+        filterType: -1
+    });
+
+    console.time("testCases");
+
+    let tcIndex = 0
+    const Z = 42;
+    const pos2 = { x: 0, y: 0 };
+    const pos3 = { x: 0, y: 0, z: Z };
+    for (const testCase of testCases) {
+        for (let dims = 2; dims <= 3; dims++) {
+            const yBase = Math.floor(tcIndex / ROWS) * TEST_CASE_SIZE;
+            const xBase = (tcIndex % ROWS) * TEST_CASE_SIZE;
+            for (let y = 0; y < TEST_CASE_SIZE; y++) {
+                for (let x = 0; x < TEST_CASE_SIZE; x++) {
+                    const idx = (png.width * (yBase + y) + (xBase + x)) << 2;
+
+                    let v;
+                    if (dims === 2) {
+                        pos2.x = x * SCALE;
+                        pos2.y = y * SCALE;
+                        if (testCase.warp) testCase.warp.DomainWarp(pos2);
+                        v = testCase.noise.GetNoise(pos2.x, pos2.y);
+                    } else {
+                        pos3.x = x * SCALE;
+                        pos3.y = y * SCALE;
+                        pos3.z = Z;
+                        if (testCase.warp) testCase.warp.DomainWarp(pos3);
+                        v = testCase.noise.GetNoise(pos3.x, pos3.y, (pos3 as Vector3).z);
+                    }
+
+                    let color = (v + 1) * 128;
+                    color = Math.max(0, Math.min(color, 255));
+                    png.data[idx] = color; // red
+                    png.data[idx + 1] = color; // green
+                    png.data[idx + 2] = color; // blue
+                    png.data[idx + 3] = 255; // alpha (0 is transparent)
+                }
+            }
+            tcIndex += 1;
+        }
+    }
+
+    console.timeEnd("testCases")
+
+    png.pack().pipe(createWriteStream('test-output.png'));
+})

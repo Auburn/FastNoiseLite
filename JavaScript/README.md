@@ -41,7 +41,7 @@ let noise = new FastNoiseLite();
 ### Creating a 128x128 Array of OpenSimplex2 Noise
 
 ```typescript
-import FastNoiseLite from "../dist/FastNoiseLite"
+import FastNoiseLite from "fastnoise-lite"
 
 // Create and configure FastNoiseLite object
 let noise = new FastNoiseLite();
@@ -114,16 +114,26 @@ class FastNoiseLite {
 
 ## Testing
 
-There's a test script for the JS version. It generates a collection of noise images.
-
-When making changes, you can compare the output between your branch and the master version.
-
 (It requires node version 23.6+)
 
 ```sh
 npm install
-node test.mts
-# it outputs test-output.png
+npm run test
 ```
 
-### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D
+Output from tests should be:
+```sh
+✔ Simple example code from readme (4.791875ms)
+✔ Basic noise types (0.673916ms)
+✔ Cellular noise options (0.298542ms)
+✔ Domain warp (0.146375ms)
+✔ Create an image (1.47075ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 928.119625
+```
