@@ -1,4 +1,4 @@
-import FastNoiseLite, { CellularDistanceFunction, CellularReturnType, DomainWarpType, FractalType, NoiseType, RotationType3D, type Vector2, type Vector3 } from "./dist/FastNoiseLite.js";
+import FastNoiseLite, { CellularDistanceFunction, CellularReturnType, DomainWarpType, FractalType, NoiseType, RotationType3D, type Vector2, type Vector3 } from "./src/FastNoiseLite";
 import { PNG } from "pngjs";
 import { createWriteStream } from "node:fs";
 
@@ -106,13 +106,13 @@ for (const testCase of testCases) {
                 if (dims === 2) {
                     pos2.x = x * SCALE;
                     pos2.y = y * SCALE;
-                    if (testCase.warp) testCase.warp.DomainWrap(pos2);
+                    if (testCase.warp) testCase.warp.DomainWarp(pos2);
                     v = testCase.noise.GetNoise(pos2.x, pos2.y);
                 } else {
                     pos3.x = x * SCALE;
                     pos3.y = y * SCALE;
                     pos3.z = Z;
-                    if (testCase.warp) testCase.warp.DomainWrap(pos3);
+                    if (testCase.warp) testCase.warp.DomainWarp(pos3);
                     v = testCase.noise.GetNoise(pos3.x, pos3.y, (pos3 as Vector3).z);
                 }
 

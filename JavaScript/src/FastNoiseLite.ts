@@ -408,7 +408,7 @@ export default class FastNoiseLite {
     /**
      * @description 2D/3D warps the input position using current domain warp settings
      */
-    DomainWrap(coord: Vector2 | Vector3) {
+    DomainWarp(coord: Vector2 | Vector3) {
         switch (this._FractalType) {
             default:
                 this._DomainWarpSingle(coord);
