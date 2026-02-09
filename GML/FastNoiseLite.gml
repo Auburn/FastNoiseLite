@@ -471,7 +471,7 @@ function FastNoiseLite(_seed) constructor {
 		}
 	}
 	
-	static DomainWrap = function(_coord) {
+	static DomainWarp = function(_coord) {
 		/**
 			* @description 2D/3D warps the input position using current domain warp settings
 			* @param {Vector2|Vector3} coord
