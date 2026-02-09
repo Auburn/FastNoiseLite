@@ -70,10 +70,10 @@ noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
 noise.SetDomainWarpAmp(1.5);
 
 let vec1 = new THREE.Vector2(1, 2);
-noise.DomainWarp(vec);
+noise.DomainWarp(vec1);
 
 let vec2 = {x: 1, y: 2};
-noise.DomainWarp(vec);
+noise.DomainWarp(vec2);
 ```
 
 
