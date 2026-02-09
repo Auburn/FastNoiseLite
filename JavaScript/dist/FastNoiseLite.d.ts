@@ -199,7 +199,7 @@ export default class FastNoiseLite {
     /**
      * @description 2D/3D warps the input position using current domain warp settings
      */
-    DomainWrap(coord: Vector2 | Vector3): void;
+    DomainWarp(coord: Vector2 | Vector3): void;
     private _Gradients2D;
     private _RandVecs2D;
     private _Gradients3D;
