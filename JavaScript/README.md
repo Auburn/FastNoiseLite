@@ -113,15 +113,13 @@ class FastNoiseLite {
 
 ## Testing
 
-There's a test script for the JS version. It generates a collection of noise images.
+A test suite is included. It also generates a collection of noise images. Compare the test image on your branch with one generated on master.
 
-Generate the test image for your branch and for master and compare the two.
-
-(Requires node version 23.6+)
+(Requires node version 22.6+)
 
 ```sh
 npm install
-node test.mts # outputs test-output.png
+npm run test # runs tests and also outputs test-output.png
 ```
 
 ### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D
