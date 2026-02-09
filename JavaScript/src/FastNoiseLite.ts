@@ -50,6 +50,8 @@
 //
 // Ported to JavaScript by snowfoxsh (Patrick U):
 // Discord: dev_storm (preferred) | Email: storm1surge@gmail.com | GitHub: snowfoxsh (https://github.com/snowfoxsh)
+// And Simon Paris:
+// GitHub: simon-paris (https://github.com/simon-paris)
 //
 
 export enum NoiseType {
@@ -593,7 +595,7 @@ export default class FastNoiseLite {
         return hash;
     }
 
-    private _HashR3(seed: number, xPrimed: number, yPrimed: number, zPrimed: number){
+    private _HashR3(seed: number, xPrimed: number, yPrimed: number, zPrimed: number) {
         let hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
         hash = Math.imul(hash, 0x27d4eb2d);
         return hash;
@@ -607,7 +609,7 @@ export default class FastNoiseLite {
         return hash * (1 / 2147483648.0);
     }
 
-    private _ValCoordR3(seed: number, xPrimed: number, yPrimed: number, zPrimed: number){
+    private _ValCoordR3(seed: number, xPrimed: number, yPrimed: number, zPrimed: number) {
         let hash = this._HashR3(seed, xPrimed, yPrimed, zPrimed);
 
         hash = Math.imul(hash, hash);
@@ -657,7 +659,7 @@ export default class FastNoiseLite {
         }
     }
 
-    private _GenNoiseSingleR3(seed: number, x: number, y: number, z: number){
+    private _GenNoiseSingleR3(seed: number, x: number, y: number, z: number) {
         switch (this._NoiseType) {
             case FastNoiseLite.NoiseType.OpenSimplex2:
                 return this._SingleOpenSimplex2R3(seed, x, y, z);
@@ -737,7 +739,7 @@ export default class FastNoiseLite {
         return sum;
     }
 
-    private _GenFractalFBmR3(x: number, y: number, z: number){
+    private _GenFractalFBmR3(x: number, y: number, z: number) {
         let seed = this._Seed;
         let sum = 0;
         let amp = this._FractalBounding;
@@ -772,7 +774,7 @@ export default class FastNoiseLite {
         return sum;
     }
 
-    private _GenFractalRidgedR3(x: number, y: number, z: number){
+    private _GenFractalRidgedR3(x: number, y: number, z: number) {
         let seed = this._Seed;
         let sum = 0;
         let amp = this._FractalBounding;
@@ -809,7 +811,7 @@ export default class FastNoiseLite {
         return sum;
     }
 
-    private _GenFractalPingPongR3(x: number, y: number, z: number){
+    private _GenFractalPingPongR3(x: number, y: number, z: number) {
         let seed = this._Seed;
         let sum = 0;
         let amp = this._FractalBounding;
@@ -887,7 +889,7 @@ export default class FastNoiseLite {
         return (n0 + n1 + n2) * 99.83685446303647;
     }
 
-    private _SingleOpenSimplex2R3(seed: number, x: number, y: number, z: number){
+    private _SingleOpenSimplex2R3(seed: number, x: number, y: number, z: number) {
         let i = Math.round(x);
         let j = Math.round(y);
         let k = Math.round(z);
@@ -1553,7 +1555,7 @@ export default class FastNoiseLite {
 
     }
 
-    private _SingleCellularR3 (seed: number, x: number, y: number, z: number) {
+    private _SingleCellularR3(seed: number, x: number, y: number, z: number) {
         let xr = Math.round(x);
         let yr = Math.round(y);
         let zr = Math.round(z);
@@ -1671,7 +1673,7 @@ export default class FastNoiseLite {
         ) {
             distance0 = Math.sqrt(distance0);
 
-            if (this._CellularReturnType  >= CellularReturnType.Distance2) {
+            if (this._CellularReturnType >= CellularReturnType.Distance2) {
                 distance1 = Math.sqrt(distance1);
             }
         }
@@ -1727,7 +1729,7 @@ export default class FastNoiseLite {
         return FastNoiseLite._Lerp(xf0, xf1, ys) * 1.4247691104677813;
     }
 
-    private _SinglePerlinR3 (seed: number, x: number, y: number, z: number) {
+    private _SinglePerlinR3(seed: number, x: number, y: number, z: number) {
         let x0 = Math.floor(x);
         let y0 = Math.floor(y);
         let z0 = Math.floor(z);
@@ -2149,25 +2151,25 @@ export default class FastNoiseLite {
             let zs = coord.z;
             switch (this._WarpTransformType3D) {
                 case FastNoiseLite.TransformType3D.ImproveXYPlanes:
-                {
-                    let xy = xs + ys;
-                    let s2 = xy * -0.211324865405187;
-                    zs *= 0.577350269189626;
-                    xs += s2 - zs;
-                    ys = ys + s2 - zs;
-                    zs += xy * 0.577350269189626;
-                }
+                    {
+                        let xy = xs + ys;
+                        let s2 = xy * -0.211324865405187;
+                        zs *= 0.577350269189626;
+                        xs += s2 - zs;
+                        ys = ys + s2 - zs;
+                        zs += xy * 0.577350269189626;
+                    }
                     break;
 
                 case FastNoiseLite.TransformType3D.ImproveXZPlanes:
-                {
-                    let xz = xs + zs;
-                    let s2 = xz * -0.211324865405187;
-                    ys *= 0.577350269189626;
-                    xs += s2 - ys;
-                    zs += s2 - ys;
-                    ys += xz * 0.577350269189626;
-                }
+                    {
+                        let xz = xs + zs;
+                        let s2 = xz * -0.211324865405187;
+                        ys *= 0.577350269189626;
+                        xs += s2 - ys;
+                        zs += s2 - ys;
+                        ys += xz * 0.577350269189626;
+                    }
                     break;
                 case FastNoiseLite.TransformType3D.DefaultOpenSimplex2:
                     const R3 = 2.0 / 3.0;
@@ -2231,33 +2233,33 @@ export default class FastNoiseLite {
                 let zs = coord.z;
                 switch (this._WarpTransformType3D) {
                     case FastNoiseLite.TransformType3D.ImproveXYPlanes:
-                    {
-                        let xy = xs + ys;
-                        let s2 = xy * -0.211324865405187;
-                        zs *= 0.577350269189626;
-                        xs += s2 - zs;
-                        ys = ys + s2 - zs;
-                        zs += xy * 0.577350269189626;
-                    }
+                        {
+                            let xy = xs + ys;
+                            let s2 = xy * -0.211324865405187;
+                            zs *= 0.577350269189626;
+                            xs += s2 - zs;
+                            ys = ys + s2 - zs;
+                            zs += xy * 0.577350269189626;
+                        }
                         break;
                     case FastNoiseLite.TransformType3D.ImproveXZPlanes:
-                    {
-                        let xz = xs + zs;
-                        let s2 = xz * -0.211324865405187;
-                        ys *= 0.577350269189626;
-                        xs += s2 - ys;
-                        zs += s2 - ys;
-                        ys += xz * 0.577350269189626;
-                    }
+                        {
+                            let xz = xs + zs;
+                            let s2 = xz * -0.211324865405187;
+                            ys *= 0.577350269189626;
+                            xs += s2 - ys;
+                            zs += s2 - ys;
+                            ys += xz * 0.577350269189626;
+                        }
                         break;
                     case FastNoiseLite.TransformType3D.DefaultOpenSimplex2:
-                    {
-                        const R3 = 2.0 / 3.0;
-                        let r = (xs + ys + zs) * R3; // Rotation, not skew
-                        xs = r - xs;
-                        ys = r - ys;
-                        zs = r - zs;
-                    }
+                        {
+                            const R3 = 2.0 / 3.0;
+                            let r = (xs + ys + zs) * R3; // Rotation, not skew
+                            xs = r - xs;
+                            ys = r - ys;
+                            zs = r - zs;
+                        }
                         break;
                     default:
                         break;
@@ -2313,33 +2315,33 @@ export default class FastNoiseLite {
             let zs = coord.z;
             switch (this._WarpTransformType3D) {
                 case FastNoiseLite.TransformType3D.ImproveXYPlanes:
-                {
-                    let xy = xs + ys;
-                    let s2 = xy * -0.211324865405187;
-                    zs *= 0.577350269189626;
-                    xs += s2 - zs;
-                    ys = ys + s2 - zs;
-                    zs += xy * 0.577350269189626;
-                }
+                    {
+                        let xy = xs + ys;
+                        let s2 = xy * -0.211324865405187;
+                        zs *= 0.577350269189626;
+                        xs += s2 - zs;
+                        ys = ys + s2 - zs;
+                        zs += xy * 0.577350269189626;
+                    }
                     break;
                 case FastNoiseLite.TransformType3D.ImproveXZPlanes:
-                {
-                    let xz = xs + zs;
-                    let s2 = xz * -0.211324865405187;
-                    ys *= 0.577350269189626;
-                    xs += s2 - ys;
-                    zs += s2 - ys;
-                    ys += xz * 0.577350269189626;
-                }
+                    {
+                        let xz = xs + zs;
+                        let s2 = xz * -0.211324865405187;
+                        ys *= 0.577350269189626;
+                        xs += s2 - ys;
+                        zs += s2 - ys;
+                        ys += xz * 0.577350269189626;
+                    }
                     break;
                 case FastNoiseLite.TransformType3D.DefaultOpenSimplex2:
-                {
-                    const R3 = 2.0 / 3.0;
-                    let r = (xs + ys + zs) * R3; // Rotation, not skew
-                    xs = r - xs;
-                    ys = r - ys;
-                    zs = r - zs;
-                }
+                    {
+                        const R3 = 2.0 / 3.0;
+                        let r = (xs + ys + zs) * R3; // Rotation, not skew
+                        xs = r - xs;
+                        ys = r - ys;
+                        zs = r - zs;
+                    }
                     break;
                 default:
                     break;

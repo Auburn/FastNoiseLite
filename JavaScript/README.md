@@ -122,4 +122,8 @@ npm install
 npm run test # runs tests and also outputs test-output.png
 ```
 
-### DM dev_storm on discord or email w/ any questions or need any support or ask someone in our discord :D
+## Build
+
+Run `npm run build` to build .js and .d.ts files.
+
+Build output should be committed.

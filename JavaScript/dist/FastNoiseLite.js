@@ -50,6 +50,8 @@
 //
 // Ported to JavaScript by snowfoxsh (Patrick U):
 // Discord: dev_storm (preferred) | Email: storm1surge@gmail.com | GitHub: snowfoxsh (https://github.com/snowfoxsh)
+// And Simon Paris:
+// GitHub: simon-paris (https://github.com/simon-paris)
 //
 export var NoiseType;
 (function (NoiseType) {
