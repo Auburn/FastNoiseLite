@@ -63,7 +63,7 @@ for (let x = 0; x < 128; x++) {
 
 The DomainWarp method takes in a `Vector2 | Vector3` object, which is any object with x, y or x, y, z properties.
 
-Use your own Vector class from any math library (e.g. three.js), or a plain object. Anything with x, y, and optionally z properties will work. Vectors are treated as 3D if they have a `z` property.
+Use your own Vector class from any math library (e.g. three.js), or a plain object. Anything with x, y, and optionally z properties will work. Vectors are treated as 3D if their `z` property is defined.
 ```typescript
 let noise = new FastNoiseLite();
 noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
@@ -102,9 +102,9 @@ class FastNoiseLite {
         }
 
         if ((coord as any).z === undefined) {
-            return R2(coord as Vector3);
+            return R2(coord as Vector2);
         } else {
-            return R3(coord as Vector2);
+            return R3(coord as Vector3);
         }
     }
 

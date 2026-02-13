@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "node --experimental-strip-types --experimental-transform-types --test test/**/*.test.ts"
+    "test": "node --experimental-strip-types --experimental-transform-types --test"
   },
   "repository": {
     "type": "git",
