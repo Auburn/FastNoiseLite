@@ -144,6 +144,7 @@ public:
     /// Default: 1337
     /// </remarks>
     void SetSeed(int seed) { mSeed = seed; }
+    int GetSeed() const { return mSeed; }
 
     /// <summary>
     /// Sets frequency for all noise types
@@ -152,6 +153,7 @@ public:
     /// Default: 0.01
     /// </remarks>
     void SetFrequency(float frequency) { mFrequency = frequency; }
+    float GetFrequency() const { return mFrequency; }
 
     /// <summary>
     /// Sets noise algorithm used for GetNoise(...)
@@ -164,6 +166,7 @@ public:
         mNoiseType = noiseType;
         UpdateTransformType3D();
     }
+    NoiseType GetNoiseType() const { return mNoiseType; }
 
     /// <summary>
     /// Sets domain rotation type for 3D Noise and 3D DomainWarp.
@@ -178,6 +181,7 @@ public:
         UpdateTransformType3D();
         UpdateWarpTransformType3D();
     }
+    RotationType3D GeRotationType3D() const { return mRotationType3D; }
 
     /// <summary>
     /// Sets method for combining octaves in all fractal noise types
@@ -187,6 +191,7 @@ public:
     /// Note: FractalType_DomainWarp... only affects DomainWarp(...)
     /// </remarks>
     void SetFractalType(FractalType fractalType) { mFractalType = fractalType; }
+    FractalType GetFractalType() const { return mFractalType; }
 
     /// <summary>
     /// Sets octave count for all fractal noise types 
@@ -199,6 +204,7 @@ public:
         mOctaves = octaves;
         CalculateFractalBounding();
     }
+    int GetFractalOctaves() const { return mOctaves; }
 
     /// <summary>
     /// Sets octave lacunarity for all fractal noise types
@@ -207,6 +213,7 @@ public:
     /// Default: 2.0
     /// </remarks>
     void SetFractalLacunarity(float lacunarity) { mLacunarity = lacunarity; }
+    float GetFractalLacunarity() const { return mLacunarity; }
 
     /// <summary>
     /// Sets octave gain for all fractal noise types
@@ -219,6 +226,7 @@ public:
         mGain = gain;
         CalculateFractalBounding();
     }
+    float GetFractalGain() const { return mGain; }
 
     /// <summary>
     /// Sets octave weighting for all none DomainWarp fratal types
@@ -228,6 +236,7 @@ public:
     /// Note: Keep between 0...1 to maintain -1...1 output bounding
     /// </remarks>
     void SetFractalWeightedStrength(float weightedStrength) { mWeightedStrength = weightedStrength; }
+    float GetFractalWeightedStrength() const { return mWeightedStrength; }
 
     /// <summary>
     /// Sets strength of the fractal ping pong effect
@@ -236,7 +245,7 @@ public:
     /// Default: 2.0
     /// </remarks>
     void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStrength = pingPongStrength; }
-
+    float GetFractalPingPongStrength() const { return mPingPongStrength; }
 
     /// <summary>
     /// Sets distance function used in cellular noise calculations
@@ -245,6 +254,7 @@ public:
     /// Default: Distance
     /// </remarks>
     void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { mCellularDistanceFunction = cellularDistanceFunction; }
+    CellularDistanceFunction GetCellularDistanceFunction() const { return mCellularDistanceFunction; }
 
     /// <summary>
     /// Sets return type from cellular noise calculations
@@ -253,6 +263,7 @@ public:
     /// Default: EuclideanSq
     /// </remarks>
     void SetCellularReturnType(CellularReturnType cellularReturnType) { mCellularReturnType = cellularReturnType; }
+    CellularReturnType GetCellularReturnType() const { return mCellularReturnType; }
 
     /// <summary>
     /// Sets the maximum distance a cellular point can move from it's grid position
@@ -262,7 +273,7 @@ public:
     /// Note: Setting this higher than 1 will cause artifacts
     /// </remarks> 
     void SetCellularJitter(float cellularJitter) { mCellularJitterModifier = cellularJitter; }
-
+    float GetCellularJitter() const { return mCellularJitterModifier; }
 
     /// <summary>
     /// Sets the warp algorithm when using DomainWarp(...)
@@ -275,7 +286,7 @@ public:
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
     }
-
+    DomainWarpType GetDomainWarpType() const { return mDomainWarpType; }
 
     /// <summary>
     /// Sets the maximum warp distance from original position when using DomainWarp(...)
@@ -284,7 +295,7 @@ public:
     /// Default: 1.0
     /// </remarks>
     void SetDomainWarpAmp(float domainWarpAmp) { mDomainWarpAmp = domainWarpAmp; }
-
+    float GetDomainWarpAmp() const { return mDomainWarpAmp; }
 
     /// <summary>
     /// 2D noise at given position using current settings
