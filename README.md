@@ -99,7 +99,7 @@ Million points of noise generated per second (higher = better)
 - [@itsdanott](https://github.com/itsdanott) for creating the Odin port.
 - [@Zylann](https://github.com/Zylann) for creating the Haxe port.
 - [@CptnRoughnight](https://github.com/CptnRoughnight) for creating the Pascal port.
-- [@Tinkerer_Red]([https://github.com/CptnRoughnight](https://github.com/tinkerer-red)) for creating the GameMaker port.
+- [@Tinkerer_Red](https://github.com/tinkerer-red) for creating the GameMaker port.
 - [@simon-paris](https://github.com/simon-paris) for creating the TypeScript port.
 
 ## Contributing
