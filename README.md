@@ -33,7 +33,7 @@ If you are looking for a more extensive noise generation library consider using 
 - [GLSL](/GLSL/)
 - [Go](/Go/)
 - [Java](/Java/)
-- [JavaScript](/JavaScript/)  
+- [JavaScript and TypeScript](/JavaScript/)  
   [![npm](https://img.shields.io/npm/v/fastnoise-lite?logo=npm "npm")](https://www.npmjs.com/package/fastnoise-lite)
 - [Rust](/Rust/)  
   [![crates.io](https://img.shields.io/crates/v/fastnoise-lite?logo=rust "crates.io")](https://crates.io/crates/fastnoise-lite)

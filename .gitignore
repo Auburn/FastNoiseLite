@@ -40,5 +40,7 @@ msbuild.wrn
 
 # JS stuff
 node_modules
+yarn.lock
+package-lock.json
 
 emsdk
