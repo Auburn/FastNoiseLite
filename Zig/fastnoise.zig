@@ -276,7 +276,7 @@ pub fn Noise(comptime Float: type) type {
                 .fbm => self.genFractalFBm3D(ox, oy, oz),
                 .ridged => self.genFractalRidged3D(ox, oy, oz),
                 .ping_pong => self.genFractalPingPong3D(ox, oy, oz),
-                else => self.genNoiseSingle3D(self.seed, ox, oy, oz),
+                else => @min(self.genNoiseSingle3D(self.seed, ox, oy, oz), 1.0),
             };
         }
 
@@ -351,7 +351,7 @@ pub fn Noise(comptime Float: type) type {
             }
         }
 
-        inline fn doSingleDomainWarp3D(self: *const State, seed: u32, amp: Float, freq: Float, x: Float, y: Float, z: Float, xp: *Float, yp: *Float, zp: *Float) void {
+        inline fn doSingleDomainWarp3D(self: *const State, seed: i32, amp: Float, freq: Float, x: Float, y: Float, z: Float, xp: *Float, yp: *Float, zp: *Float) void {
             switch (self.domain_warp_type) {
                 .simplex => singleDomainWarpOpenSimplex2Gradient(seed, amp * 32.69428253173828125, freq, x, y, z, xp, yp, zp, false),
                 .simplex_reduced => singleDomainWarpOpenSimplex2Gradient(seed, amp * 7.71604938271605, freq, x, y, z, xp, yp, zp, true),
@@ -360,13 +360,20 @@ pub fn Noise(comptime Float: type) type {
         }
 
         // Utilities
-
         inline fn fastFloor(f: Float) i32 {
-            return @intFromFloat(if (f >= 0) f else f - 1);
+            // Math and std-lib compatable non-library implementation of floor.
+            // 1 instruction slower than @floor on new hardware but always faster than
+            // methods based on (f >= 0 ? (int)f : (int)f - 1) which is incorrect for
+            // negative integers and numbers near n + 0.5 where n is an integer.
+            const truncated: i32 = @intFromFloat(f);
+            const diff = @as(Float, @floatFromInt(truncated)) > f;
+            return truncated - @intFromBool(diff);
         }
 
         inline fn fastRound(f: Float) i32 {
-            return @intFromFloat(if (f >= 0) f + 0.5 else f - 0.5);
+            // If you use +0.5 to round you will get incorrect results for numbers near n + 0.5 where n is an integer.
+            const number_before_half = if (Float == f32) 0.49999997 else 0.49999999999999994;
+            return if (f >= 0) @intFromFloat(f + number_before_half) else @intFromFloat(f - number_before_half);
         }
 
         inline fn lerp(a: Float, b: Float, t: Float) Float {
@@ -395,7 +402,7 @@ pub fn Noise(comptime Float: type) type {
             const gain: Float = @abs(self.gain);
             var amp = gain;
             var amp_fractal: Float = 1.0;
-            for (0..self.octaves) |_| {
+            for (1..self.octaves) |_| {
                 amp_fractal += amp;
                 amp *= gain;
             }
@@ -471,7 +478,7 @@ pub fn Noise(comptime Float: type) type {
             yo.* = value * ygo;
         }
 
-        inline fn gradCoordDual3D(seed: u32, x_primed: i32, y_primed: i32, z_primed: i32, xd: Float, yd: Float, zd: Float, xo: *Float, yo: *Float, zo: *Float) void {
+        inline fn gradCoordDual3D(seed: i32, x_primed: i32, y_primed: i32, z_primed: i32, xd: Float, yd: Float, zd: Float, xo: *Float, yo: *Float, zo: *Float) void {
             const hash = hash3D(seed, x_primed, y_primed, z_primed);
             const index1: usize = @intCast(hash & (63 << 2));
             const index2: usize = @intCast((hash >> 6) & (255 << 2));
@@ -556,11 +563,11 @@ pub fn Noise(comptime Float: type) type {
         fn transformDomainWarpCoordinate3D(state: *const State, x: *Float, y: *Float, z: *Float) void {
             switch (state.rotation_type) {
                 .improve_xy_planes => {
-                    const xy: Float = *x + *y;
+                    const xy: Float = x.* + y.*;
                     const s2: Float = xy * -0.211324865405187;
                     z.* *= 0.577350269189626;
-                    x.* += s2 - *z;
-                    y.* = *y + s2 - *z;
+                    x.* += s2 - z.*;
+                    y.* = y.* + s2 - z.*;
                     z.* += xy * 0.577350269189626;
                 },
                 .improve_xz_planes => {
@@ -597,7 +604,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         fn genFractalFBm3D(state: *const State, x: Float, y: Float, z: Float) Float {
@@ -612,7 +619,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         // Fractal Ridged
@@ -629,7 +636,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         fn genFractalRidged3D(state: *const State, x: Float, y: Float, z: Float) Float {
@@ -644,7 +651,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         // Fractal PingPong
@@ -661,7 +668,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         fn genFractalPingPong3D(state: *const State, x: Float, y: Float, z: Float) Float {
@@ -676,7 +683,7 @@ pub fn Noise(comptime Float: type) type {
                 vec *= mul;
             }
 
-            return sum;
+            return @max(-1.0, @min(sum, 1.0));
         }
 
         // Domain Warp Single Wrapper
@@ -747,8 +754,8 @@ pub fn Noise(comptime Float: type) type {
             var ys: Float = y.*;
             var zs: Float = z.*;
             state.transformDomainWarpCoordinate3D(&xs, &ys, &zs);
-            const amp = state.domain_warp_amp * state.calculateFractalBounding();
-            const freq = state.frequency;
+            var amp = state.domain_warp_amp * state.calculateFractalBounding();
+            var freq = state.frequency;
             for (0..state.octaves) |i| {
                 state.doSingleDomainWarp3D(state.seed + @as(i32, @intCast(i)), amp, freq, xs, ys, zs, x, y, z);
                 amp *= state.gain;
@@ -812,9 +819,9 @@ pub fn Noise(comptime Float: type) type {
             var idx0: usize = @intCast(hash3D(seed, x0, y0, z0) & (255 << 2));
             var idx1: usize = @intCast(hash3D(seed, x1, y0, z0) & (255 << 2));
 
-            const lx0x = lerp(rand_3d[idx0], rand_3d[idx1], xs);
-            const ly0x = lerp(rand_3d[idx0 | 1], rand_3d[idx1 | 1], xs);
-            const lz0x = lerp(rand_3d[idx0 | 2], rand_3d[idx1 | 2], xs);
+            var lx0x = lerp(rand_3d[idx0], rand_3d[idx1], xs);
+            var ly0x = lerp(rand_3d[idx0 | 1], rand_3d[idx1 | 1], xs);
+            var lz0x = lerp(rand_3d[idx0 | 2], rand_3d[idx1 | 2], xs);
 
             idx0 = @intCast(hash3D(seed, x0, y1, z0) & (255 << 2));
             idx1 = @intCast(hash3D(seed, x1, y1, z0) & (255 << 2));
@@ -827,15 +834,15 @@ pub fn Noise(comptime Float: type) type {
             const ly0y = lerp(ly0x, ly1x, ys);
             const lz0y = lerp(lz0x, lz1x, ys);
 
-            idx0 = hash3D(seed, x0, y0, z1) & (255 << 2);
-            idx1 = hash3D(seed, x1, y0, z1) & (255 << 2);
+            idx0 = @intCast(hash3D(seed, x0, y0, z1) & (255 << 2));
+            idx1 = @intCast(hash3D(seed, x1, y0, z1) & (255 << 2));
 
             lx0x = lerp(rand_3d[idx0], rand_3d[idx1], xs);
             ly0x = lerp(rand_3d[idx0 | 1], rand_3d[idx1 | 1], xs);
             lz0x = lerp(rand_3d[idx0 | 2], rand_3d[idx1 | 2], xs);
 
-            idx0 = hash3D(seed, x0, y1, z1) & (255 << 2);
-            idx1 = hash3D(seed, x1, y1, z1) & (255 << 2);
+            idx0 = @intCast(hash3D(seed, x0, y1, z1) & (255 << 2));
+            idx1 = @intCast(hash3D(seed, x1, y1, z1) & (255 << 2));
 
             lx1x = lerp(rand_3d[idx0], rand_3d[idx1], xs);
             ly1x = lerp(rand_3d[idx0 | 1], rand_3d[idx1 | 1], xs);
@@ -937,17 +944,17 @@ pub fn Noise(comptime Float: type) type {
             var i = fastRound(xx);
             var j = fastRound(yy);
             var k = fastRound(zz);
-            const x0 = xx - @as(Float, @floatFromInt(i));
-            const y0 = yy - @as(Float, @floatFromInt(j));
-            const z0 = zz - @as(Float, @floatFromInt(k));
+            var x0 = xx - @as(Float, @floatFromInt(i));
+            var y0 = yy - @as(Float, @floatFromInt(j));
+            var z0 = zz - @as(Float, @floatFromInt(k));
 
             var xNSign = @as(i32, @intFromFloat(-x0 - 1.0)) | 1;
             var yNSign = @as(i32, @intFromFloat(-y0 - 1.0)) | 1;
             var zNSign = @as(i32, @intFromFloat(-z0 - 1.0)) | 1;
 
-            const ax0 = @as(Float, @floatFromInt(xNSign)) * -x0;
-            const ay0 = @as(Float, @floatFromInt(yNSign)) * -y0;
-            const az0 = @as(Float, @floatFromInt(zNSign)) * -z0;
+            var ax0 = @as(Float, @floatFromInt(xNSign)) * -x0;
+            var ay0 = @as(Float, @floatFromInt(yNSign)) * -y0;
+            var az0 = @as(Float, @floatFromInt(zNSign)) * -z0;
 
             i *%= prime_x;
             j *%= prime_y;
@@ -961,7 +968,7 @@ pub fn Noise(comptime Float: type) type {
             var zo: Float = undefined;
 
             var seed_value = seed;
-            const a = (0.6 - x0 * x0) - (y0 * y0 + z0 * z0);
+            var a = (0.6 - x0 * x0) - (y0 * y0 + z0 * z0);
             var l: usize = 0;
             while (l < 2) : (l += 1) {
                 const xNSignf: Float = @floatFromInt(xNSign);
@@ -990,15 +997,15 @@ pub fn Noise(comptime Float: type) type {
                 if (ax0 >= ay0 and ax0 >= az0) {
                     x1 += xNSignf;
                     b -= xNSignf * 2.0 * x1;
-                    ii -= xNSign *% prime_x;
+                    ii -%= xNSign *% prime_x;
                 } else if (ay0 > ax0 and ay0 >= az0) {
                     y1 += yNSignf;
                     b -= yNSignf * 2.0 * y1;
-                    jj -= yNSign *% prime_y;
+                    jj -%= yNSign *% prime_y;
                 } else {
                     z1 += zNSignf;
                     b -= zNSignf * 2.0 * z1;
-                    kk -= zNSign *% prime_z;
+                    kk -%= zNSign *% prime_z;
                 }
 
                 if (b > 0) {
@@ -1019,15 +1026,15 @@ pub fn Noise(comptime Float: type) type {
                 ay0 = 0.5 - ay0;
                 az0 = 0.5 - az0;
 
-                x0 = xNSign * ax0;
-                y0 = yNSign * ay0;
-                z0 = zNSign * az0;
+                x0 = @as(f32, @floatFromInt(xNSign)) * ax0;
+                y0 = @as(f32, @floatFromInt(yNSign)) * ay0;
+                z0 = @as(f32, @floatFromInt(zNSign)) * az0;
 
                 a += (0.75 - ax0) - (ay0 + az0);
 
-                i += (xNSign >> 1) & prime_x;
-                j += (yNSign >> 1) & prime_y;
-                k += (zNSign >> 1) & prime_z;
+                i +%= (xNSign >> 1) & prime_x;
+                j +%= (yNSign >> 1) & prime_y;
+                k +%= (zNSign >> 1) & prime_z;
 
                 xNSign = -xNSign;
                 yNSign = -yNSign;
@@ -1218,7 +1225,7 @@ pub fn Noise(comptime Float: type) type {
                 yNSign = -yNSign;
                 zNSign = -zNSign;
 
-                seed_value = ~seed_value;
+                seed_value +%= 1293373; //~seed_value;
             }
 
             return value * 32.69428253173828125;
@@ -1289,7 +1296,13 @@ pub fn Noise(comptime Float: type) type {
             const x3 = x1 +% prime_x_shl1;
             const y3 = y1 +% prime_y_shl1;
 
-            return cubicLerp(cubicLerp(valCoord2D(seed, x0, y0), valCoord2D(seed, x1, y0), valCoord2D(seed, x2, y0), valCoord2D(seed, x3, y0), xs), cubicLerp(valCoord2D(seed, x0, y1), valCoord2D(seed, x1, y1), valCoord2D(seed, x2, y1), valCoord2D(seed, x3, y1), xs), cubicLerp(valCoord2D(seed, x0, y2), valCoord2D(seed, x1, y2), valCoord2D(seed, x2, y2), valCoord2D(seed, x3, y2), xs), cubicLerp(valCoord2D(seed, x0, y3), valCoord2D(seed, x1, y3), valCoord2D(seed, x2, y3), valCoord2D(seed, x3, y3), xs), ys) * (1.0 / (1.5 * 1.5));
+            return cubicLerp(
+                cubicLerp(valCoord2D(seed, x0, y0), valCoord2D(seed, x1, y0), valCoord2D(seed, x2, y0), valCoord2D(seed, x3, y0), xs),
+                cubicLerp(valCoord2D(seed, x0, y1), valCoord2D(seed, x1, y1), valCoord2D(seed, x2, y1), valCoord2D(seed, x3, y1), xs),
+                cubicLerp(valCoord2D(seed, x0, y2), valCoord2D(seed, x1, y2), valCoord2D(seed, x2, y2), valCoord2D(seed, x3, y2), xs),
+                cubicLerp(valCoord2D(seed, x0, y3), valCoord2D(seed, x1, y3), valCoord2D(seed, x2, y3), valCoord2D(seed, x3, y3), xs),
+                ys,
+            ) * (1.0 / (1.5 * 1.5));
         }
 
         fn singleValueCubic3D(seed: i32, x: Float, y: Float, z: Float) Float {
@@ -1316,7 +1329,37 @@ pub fn Noise(comptime Float: type) type {
             const y3 = y1 +% prime_y_shl1;
             const z3 = z1 +% prime_z_shl1;
 
-            return cubicLerp(cubicLerp(cubicLerp(valCoord3D(seed, x0, y0, z0), valCoord3D(seed, x1, y0, z0), valCoord3D(seed, x2, y0, z0), valCoord3D(seed, x3, y0, z0), xs), cubicLerp(valCoord3D(seed, x0, y1, z0), valCoord3D(seed, x1, y1, z0), valCoord3D(seed, x2, y1, z0), valCoord3D(seed, x3, y1, z0), xs), cubicLerp(valCoord3D(seed, x0, y2, z0), valCoord3D(seed, x1, y2, z0), valCoord3D(seed, x2, y2, z0), valCoord3D(seed, x3, y2, z0), xs), cubicLerp(valCoord3D(seed, x0, y3, z0), valCoord3D(seed, x1, y3, z0), valCoord3D(seed, x2, y3, z0), valCoord3D(seed, x3, y3, z0), xs), ys), cubicLerp(cubicLerp(valCoord3D(seed, x0, y0, z1), valCoord3D(seed, x1, y0, z1), valCoord3D(seed, x2, y0, z1), valCoord3D(seed, x3, y0, z1), xs), cubicLerp(valCoord3D(seed, x0, y1, z1), valCoord3D(seed, x1, y1, z1), valCoord3D(seed, x2, y1, z1), valCoord3D(seed, x3, y1, z1), xs), cubicLerp(valCoord3D(seed, x0, y2, z1), valCoord3D(seed, x1, y2, z1), valCoord3D(seed, x2, y2, z1), valCoord3D(seed, x3, y2, z1), xs), cubicLerp(valCoord3D(seed, x0, y3, z1), valCoord3D(seed, x1, y3, z1), valCoord3D(seed, x2, y3, z1), valCoord3D(seed, x3, y3, z1), xs), ys), cubicLerp(cubicLerp(valCoord3D(seed, x0, y0, z2), valCoord3D(seed, x1, y0, z2), valCoord3D(seed, x2, y0, z2), valCoord3D(seed, x3, y0, z2), xs), cubicLerp(valCoord3D(seed, x0, y1, z2), valCoord3D(seed, x1, y1, z2), valCoord3D(seed, x2, y1, z2), valCoord3D(seed, x3, y1, z2), xs), cubicLerp(valCoord3D(seed, x0, y2, z2), valCoord3D(seed, x1, y2, z2), valCoord3D(seed, x2, y2, z2), valCoord3D(seed, x3, y2, z2), xs), cubicLerp(valCoord3D(seed, x0, y3, z2), valCoord3D(seed, x1, y3, z2), valCoord3D(seed, x2, y3, z2), valCoord3D(seed, x3, y3, z2), xs), ys), cubicLerp(cubicLerp(valCoord3D(seed, x0, y0, z3), valCoord3D(seed, x1, y0, z3), valCoord3D(seed, x2, y0, z3), valCoord3D(seed, x3, y0, z3), xs), cubicLerp(valCoord3D(seed, x0, y1, z3), valCoord3D(seed, x1, y1, z3), valCoord3D(seed, x2, y1, z3), valCoord3D(seed, x3, y1, z3), xs), cubicLerp(valCoord3D(seed, x0, y2, z3), valCoord3D(seed, x1, y2, z3), valCoord3D(seed, x2, y2, z3), valCoord3D(seed, x3, y2, z3), xs), cubicLerp(valCoord3D(seed, x0, y3, z3), valCoord3D(seed, x1, y3, z3), valCoord3D(seed, x2, y3, z3), valCoord3D(seed, x3, y3, z3), xs), ys), zs) * (1.0 / (1.5 * 1.5 * 1.5));
+            return cubicLerp(
+                cubicLerp(
+                    cubicLerp(valCoord3D(seed, x0, y0, z0), valCoord3D(seed, x1, y0, z0), valCoord3D(seed, x2, y0, z0), valCoord3D(seed, x3, y0, z0), xs),
+                    cubicLerp(valCoord3D(seed, x0, y1, z0), valCoord3D(seed, x1, y1, z0), valCoord3D(seed, x2, y1, z0), valCoord3D(seed, x3, y1, z0), xs),
+                    cubicLerp(valCoord3D(seed, x0, y2, z0), valCoord3D(seed, x1, y2, z0), valCoord3D(seed, x2, y2, z0), valCoord3D(seed, x3, y2, z0), xs),
+                    cubicLerp(valCoord3D(seed, x0, y3, z0), valCoord3D(seed, x1, y3, z0), valCoord3D(seed, x2, y3, z0), valCoord3D(seed, x3, y3, z0), xs),
+                    ys,
+                ),
+                cubicLerp(
+                    cubicLerp(valCoord3D(seed, x0, y0, z1), valCoord3D(seed, x1, y0, z1), valCoord3D(seed, x2, y0, z1), valCoord3D(seed, x3, y0, z1), xs),
+                    cubicLerp(valCoord3D(seed, x0, y1, z1), valCoord3D(seed, x1, y1, z1), valCoord3D(seed, x2, y1, z1), valCoord3D(seed, x3, y1, z1), xs),
+                    cubicLerp(valCoord3D(seed, x0, y2, z1), valCoord3D(seed, x1, y2, z1), valCoord3D(seed, x2, y2, z1), valCoord3D(seed, x3, y2, z1), xs),
+                    cubicLerp(valCoord3D(seed, x0, y3, z1), valCoord3D(seed, x1, y3, z1), valCoord3D(seed, x2, y3, z1), valCoord3D(seed, x3, y3, z1), xs),
+                    ys,
+                ),
+                cubicLerp(
+                    cubicLerp(valCoord3D(seed, x0, y0, z2), valCoord3D(seed, x1, y0, z2), valCoord3D(seed, x2, y0, z2), valCoord3D(seed, x3, y0, z2), xs),
+                    cubicLerp(valCoord3D(seed, x0, y1, z2), valCoord3D(seed, x1, y1, z2), valCoord3D(seed, x2, y1, z2), valCoord3D(seed, x3, y1, z2), xs),
+                    cubicLerp(valCoord3D(seed, x0, y2, z2), valCoord3D(seed, x1, y2, z2), valCoord3D(seed, x2, y2, z2), valCoord3D(seed, x3, y2, z2), xs),
+                    cubicLerp(valCoord3D(seed, x0, y3, z2), valCoord3D(seed, x1, y3, z2), valCoord3D(seed, x2, y3, z2), valCoord3D(seed, x3, y3, z2), xs),
+                    ys,
+                ),
+                cubicLerp(
+                    cubicLerp(valCoord3D(seed, x0, y0, z3), valCoord3D(seed, x1, y0, z3), valCoord3D(seed, x2, y0, z3), valCoord3D(seed, x3, y0, z3), xs),
+                    cubicLerp(valCoord3D(seed, x0, y1, z3), valCoord3D(seed, x1, y1, z3), valCoord3D(seed, x2, y1, z3), valCoord3D(seed, x3, y1, z3), xs),
+                    cubicLerp(valCoord3D(seed, x0, y2, z3), valCoord3D(seed, x1, y2, z3), valCoord3D(seed, x2, y2, z3), valCoord3D(seed, x3, y2, z3), xs),
+                    cubicLerp(valCoord3D(seed, x0, y3, z3), valCoord3D(seed, x1, y3, z3), valCoord3D(seed, x2, y3, z3), valCoord3D(seed, x3, y3, z3), xs),
+                    ys,
+                ),
+                zs,
+            ) * (1.0 / (1.5 * 1.5 * 1.5));
         }
 
         // OpenSimplex2S Noise
@@ -1980,4 +2023,57 @@ test "range of all 3D cellular return/distance combinations" {
             };
         }
     }
+}
+
+test "fastFloor/fastRound" {
+    var fail = false;
+    const N = Noise(f32);
+    // Test every floating point number where adding the fractional part to the floor makes sense.
+    for (0..2) |sign| {
+        const sign_bit: u32 = @truncate(sign);
+        for (0..40) |pow| {
+            const pow_bits: u32 = @as(u8, @truncate(pow)) + 127 - 9;
+            for (0..(1 << 23) - 1) |mantissa| {
+                const mantissa_bits: u32 = @truncate(mantissa);
+                const float_bits = (sign_bit << 31) | (pow_bits << 23) | mantissa_bits;
+                const the_float: f32 = @floatCast(@as(f32, @bitCast(float_bits)));
+                const cmp = @as(i32, @intFromFloat(@floor(the_float))) != N.fastFloor(the_float);
+                if (cmp) {
+                    std.debug.print("Floor: {} {} {}\n", .{ the_float, N.fastFloor(the_float), @floor(the_float) });
+                    fail = true;
+                }
+                const cmp2 = @as(i32, @intFromFloat(@round(the_float))) != N.fastRound(the_float);
+                if (cmp2) {
+                    std.debug.print("Round: {} {} {}\n", .{ the_float, N.fastRound(the_float), @round(the_float) });
+                    fail = true;
+                }
+            }
+        }
+    }
+    try std.testing.expect(!fail);
+    const N64 = Noise(f64);
+    // Test every floating point number where adding the fractional part to the floor makes sense.
+    for (0..2) |sign| {
+        const sign_bit: u64 = @truncate(sign);
+        for (0..40) |pow| {
+            std.debug.print("{}\n", .{pow});
+            const pow_bits: u64 = @as(u11, @truncate(pow)) + 1023 - 9;
+            for (0..(1 << 31) - 1) |mantissa| {
+                const mantissa_bits: u64 = @truncate(mantissa);
+                const float_bits = (sign_bit << 63) | (pow_bits << 52) | mantissa_bits;
+                const the_float: f64 = @floatCast(@as(f64, @bitCast(float_bits)));
+                const cmp = @as(i32, @intFromFloat(@floor(the_float))) != N64.fastFloor(the_float);
+                if (cmp) {
+                    std.debug.print("Floor: {} {} {}\n", .{ the_float, N64.fastFloor(the_float), @floor(the_float) });
+                    fail = true;
+                }
+                const cmp2 = @as(i32, @intFromFloat(@round(the_float))) != N64.fastRound(the_float);
+                if (cmp2) {
+                    std.debug.print("Round: {} {} {}\n", .{ the_float, N64.fastRound(the_float), @round(the_float) });
+                    fail = true;
+                }
+            }
+        }
+    }
+    try std.testing.expect(!fail);
 }
