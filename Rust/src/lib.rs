@@ -234,6 +234,19 @@ pub struct FastNoiseLite {
 
 impl Default for FastNoiseLite {
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl FastNoiseLite {
+    // =====================
+    // Constructor functions
+    // =====================
+
+    /// # Constructor
+    ///
+    /// Create new FastNoise object with the default seed of `1337`.
+    pub const fn new() -> Self {
         Self {
             seed: 1337,
             frequency: 0.01,
@@ -248,7 +261,7 @@ impl Default for FastNoiseLite {
             weighted_strength: 0.,
             ping_pong_strength: 2.,
 
-            /* private */ fractal_bounding: 1. / 1.75,
+            /* private */ fractal_bounding: 0.5714285714, // = 1.0 / 1.75
 
             cellular_distance_function: CellularDistanceFunction::EuclideanSq,
             cellular_return_type: CellularReturnType::Distance,
@@ -259,24 +272,11 @@ impl Default for FastNoiseLite {
             domain_warp_amp: 1.,
         }
     }
-}
-
-impl FastNoiseLite {
-    // =====================
-    // Constructor functions
-    // =====================
-
-    /// # Constructor
-    ///
-    /// Create new FastNoise object with the default seed of `1337`.
-    pub fn new() -> Self {
-        Self::default()
-    }
 
     /// Create new FastNoise object with a specific seed.
-    pub fn with_seed(seed: i32) -> Self {
-        let mut fnl = Self::default();
-        fnl.set_seed(Some(seed));
+    pub const fn with_seed(seed: i32) -> Self {
+        let mut fnl = Self::new();
+        fnl.seed = seed;
         fnl
     }
 
