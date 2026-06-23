@@ -77,13 +77,11 @@ use num_traits::float::Float as FloatOps;
 
 // Use the standard library's `f32` type for floating point math operators if we're in an `std` (not `no_std`) context and the user hasn't enabled the `libm` feature flag
 #[cfg(all(feature = "std", not(feature = "libm")))]
-use f32 as FloatOps;
+use Float as FloatOps;
 
 // Ensures a user-facing compile error if this crate is misused by having neither the "std" or "libm" feature flags
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
 compile_error!("`fastnoise-lite` crate: either the "std" or "libm" feature must be enabled");
-#[cfg(all(not(feature = "std"), not(feature = "libm")))]
-use Float as FloatOps;
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
 impl DummyFloatExt for Float {}
 #[cfg(all(not(feature = "std"), not(feature = "libm")))]
@@ -101,11 +99,20 @@ trait DummyFloatExt: Sized {
     }
 }
 
+// ===================================================================================
+// "serde" feature flag:
+// For serialization and deserialization using serde
+// ===================================================================================
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ========================================
 // Option enums for FastNoise Lite settings
 // ========================================
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum NoiseType {
     OpenSimplex2,
     OpenSimplex2S,
@@ -116,6 +123,7 @@ pub enum NoiseType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum RotationType3D {
     None,
     ImproveXYPlanes,
@@ -123,6 +131,7 @@ pub enum RotationType3D {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum FractalType {
     None,
     FBm,
@@ -133,6 +142,7 @@ pub enum FractalType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum CellularDistanceFunction {
     Euclidean,
     EuclideanSq,
@@ -141,6 +151,7 @@ pub enum CellularDistanceFunction {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum CellularReturnType {
     CellValue = 0,
     Distance = 1,
@@ -152,6 +163,7 @@ pub enum CellularReturnType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum DomainWarpType {
     OpenSimplex2,
     OpenSimplex2Reduced,
@@ -159,6 +171,7 @@ pub enum DomainWarpType {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum TransformType3D {
     None,
     ImproveXYPlanes,
@@ -207,29 +220,31 @@ pub enum TransformType3D {
 /// // Do something with this data...
 /// ```
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", serde(default))]
 pub struct FastNoiseLite {
     pub seed: i32,
-    pub frequency: f32,
+    pub frequency: Float,
     pub noise_type: NoiseType,
     pub rotation_type_3d: RotationType3D,
     transform_type_3d: TransformType3D,
 
     pub fractal_type: FractalType,
     pub octaves: i32,
-    pub lacunarity: f32,
-    pub gain: f32,
-    pub weighted_strength: f32,
-    pub ping_pong_strength: f32,
+    pub lacunarity: Float,
+    pub gain: Float,
+    pub weighted_strength: Float,
+    pub ping_pong_strength: Float,
 
-    fractal_bounding: f32,
+    fractal_bounding: Float,
 
     pub cellular_distance_function: CellularDistanceFunction,
     pub cellular_return_type: CellularReturnType,
-    pub cellular_jitter_modifier: f32,
+    pub cellular_jitter_modifier: Float,
 
     pub domain_warp_type: DomainWarpType,
     warp_transform_type_3d: TransformType3D,
-    pub domain_warp_amp: f32,
+    pub domain_warp_amp: Float,
 }
 
 impl Default for FastNoiseLite {
@@ -294,7 +309,7 @@ impl FastNoiseLite {
     /// Sets frequency used for all noise types.
     ///
     /// If set to [`None`], it is reset to its default: `0.01`.
-    pub fn set_frequency(&mut self, frequency: Option<f32>) {
+    pub fn set_frequency(&mut self, frequency: Option<Float>) {
         self.frequency = frequency.unwrap_or(Self::default().frequency);
     }
 
@@ -336,14 +351,14 @@ impl FastNoiseLite {
     /// Sets octave lacunarity for all fractal noise types.
     ///
     /// If set to [`None`], it is reset to its default: `2.0`.
-    pub fn set_fractal_lacunarity(&mut self, lacunarity: Option<f32>) {
+    pub fn set_fractal_lacunarity(&mut self, lacunarity: Option<Float>) {
         self.lacunarity = lacunarity.unwrap_or(Self::default().lacunarity);
     }
 
     /// Sets octave gain for all fractal noise types.
     ///
     /// If set to [`None`], it is reset to its default: `0.5`.
-    pub fn set_fractal_gain(&mut self, gain: Option<f32>) {
+    pub fn set_fractal_gain(&mut self, gain: Option<Float>) {
         self.gain = gain.unwrap_or(Self::default().gain);
         self.calculate_fractal_bounding();
     }
@@ -353,14 +368,14 @@ impl FastNoiseLite {
     /// If set to [`None`], it is reset to its default: `0.0`.
     ///
     /// Note: Keep between 0..1 to maintain -1..1 output bounding.
-    pub fn set_fractal_weighted_strength(&mut self, weighted_strength: Option<f32>) {
+    pub fn set_fractal_weighted_strength(&mut self, weighted_strength: Option<Float>) {
         self.weighted_strength = weighted_strength.unwrap_or(Self::default().weighted_strength);
     }
 
     /// Sets strength of the fractal ping pong effect.
     ///
     /// If set to [`None`], it is reset to its default: `2.0`.
-    pub fn set_fractal_ping_pong_strength(&mut self, ping_pong_strength: Option<f32>) {
+    pub fn set_fractal_ping_pong_strength(&mut self, ping_pong_strength: Option<Float>) {
         self.ping_pong_strength = ping_pong_strength.unwrap_or(Self::default().ping_pong_strength);
     }
 
@@ -388,7 +403,7 @@ impl FastNoiseLite {
     /// If set to [`None`], it is reset to its default: `1.0`.
     ///
     /// Note: Setting this higher than 1 will cause artifacts.
-    pub fn set_cellular_jitter(&mut self, cellular_jitter: Option<f32>) {
+    pub fn set_cellular_jitter(&mut self, cellular_jitter: Option<Float>) {
         self.cellular_jitter_modifier =
             cellular_jitter.unwrap_or(Self::default().cellular_jitter_modifier);
     }
@@ -404,7 +419,7 @@ impl FastNoiseLite {
     /// Sets the maximum warp distance from original position when using [`domain_warp_2d`](Self::domain_warp_2d).
     ///
     /// If set to [`None`], it is reset to its default: `1.0`.
-    pub fn set_domain_warp_amp(&mut self, domain_warp_amp: Option<f32>) {
+    pub fn set_domain_warp_amp(&mut self, domain_warp_amp: Option<Float>) {
         self.domain_warp_amp = domain_warp_amp.unwrap_or(Self::default().domain_warp_amp);
     }
 
@@ -421,7 +436,7 @@ impl FastNoiseLite {
     /// let noise = get_noise_2d(x, y); // Value in the -1..1 range
     /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
-    pub fn get_noise_2d(&self, x: Float, y: Float) -> f32 {
+    pub fn get_noise_2d(&self, x: Float, y: Float) -> Float {
         let (x, y) = self.transform_noise_coordinate_2d(x, y);
 
         match self.fractal_type {
@@ -441,7 +456,7 @@ impl FastNoiseLite {
     /// let noise = get_noise_3d(x, y, z); // Value in the -1..1 range
     /// let noise = (noise + 1.) / 2.; // Consider remapping it to the 0..1 range
     /// ```
-    pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> f32 {
+    pub fn get_noise_3d(&self, x: Float, y: Float, z: Float) -> Float {
         let (x, y, z) = self.transform_noise_coordinate_3d(x, y, z);
 
         match self.fractal_type {
@@ -493,7 +508,7 @@ impl FastNoiseLite {
     // =================
     
     #[rustfmt::skip]
-    const GRADIENTS_2D: [f32; 256] = [
+    const GRADIENTS_2D: [Float; 256] = [
          0.130526192220052,  0.99144486137381,   0.38268343236509,   0.923879532511287,  0.608761429008721,  0.793353340291235,  0.793353340291235,  0.608761429008721,
          0.923879532511287,  0.38268343236509,   0.99144486137381,   0.130526192220051,  0.99144486137381,  -0.130526192220051,  0.923879532511287, -0.38268343236509,
          0.793353340291235, -0.60876142900872,   0.608761429008721, -0.793353340291235,  0.38268343236509,  -0.923879532511287,  0.130526192220052, -0.99144486137381,
@@ -529,7 +544,7 @@ impl FastNoiseLite {
     ];
 
     #[rustfmt::skip]
-    const RAND_VECS_2D: [f32; 512] = [
+    const RAND_VECS_2D: [Float; 512] = [
         -0.2700222198, -0.9628540911, 0.3863092627, -0.9223693152, 0.04444859006, -0.999011673, -0.5992523158, -0.8005602176, -0.7819280288, 0.6233687174, 0.9464672271, 0.3227999196, -0.6514146797, -0.7587218957, 0.9378472289, 0.347048376,
         -0.8497875957, -0.5271252623, -0.879042592, 0.4767432447, -0.892300288, -0.4514423508, -0.379844434, -0.9250503802, -0.9951650832, 0.0982163789, 0.7724397808, -0.6350880136, 0.7573283322, -0.6530343002, -0.9928004525, -0.119780055,
         -0.0532665713, 0.9985803285, 0.9754253726, -0.2203300762, -0.7665018163, 0.6422421394, 0.991636706, 0.1290606184, -0.994696838, 0.1028503788, -0.5379205513, -0.84299554, 0.5022815471, -0.8647041387, 0.4559821461, -0.8899889226,
@@ -565,7 +580,7 @@ impl FastNoiseLite {
     ];
 
     #[rustfmt::skip]
-    const GRADIENTS_3D: [f32; 256] = [
+    const GRADIENTS_3D: [Float; 256] = [
         0., 1., 1., 0.,  0.,-1., 1., 0.,  0., 1.,-1., 0.,  0.,-1.,-1., 0.,
         1., 0., 1., 0., -1., 0., 1., 0.,  1., 0.,-1., 0., -1., 0.,-1., 0.,
         1., 1., 0., 0., -1., 1., 0., 0.,  1.,-1., 0., 0., -1.,-1., 0., 0.,
@@ -585,7 +600,7 @@ impl FastNoiseLite {
     ];
 
     #[rustfmt::skip]
-    const RAND_VECS_3D: [f32; 1024] = [
+    const RAND_VECS_3D: [Float; 1024] = [
         -0.7292736885, -0.6618439697, 0.1735581948, 0., 0.790292081, -0.5480887466, -0.2739291014, 0., 0.7217578935, 0.6226212466, -0.3023380997, 0., 0.565683137, -0.8208298145, -0.0790000257, 0., 0.760049034, -0.5555979497, -0.3370999617, 0., 0.3713945616, 0.5011264475, 0.7816254623, 0., -0.1277062463, -0.4254438999, -0.8959289049, 0., -0.2881560924, -0.5815838982, 0.7607405838, 0.,
          0.5849561111, -0.662820239, -0.4674352136, 0., 0.3307171178, 0.0391653737, 0.94291689, 0., 0.8712121778, -0.4113374369, -0.2679381538, 0., 0.580981015, 0.7021915846, 0.4115677815, 0., 0.503756873, 0.6330056931, -0.5878203852, 0., 0.4493712205, 0.601390195, 0.6606022552, 0., -0.6878403724, 0.09018890807, -0.7202371714, 0., -0.5958956522, -0.6469350577, 0.475797649, 0.,
         -0.5127052122, 0.1946921978, -0.8361987284, 0., -0.9911507142, -0.05410276466, -0.1212153153, 0., -0.2149721042, 0.9720882117, -0.09397607749, 0., -0.7518650936, -0.5428057603, 0.3742469607, 0., 0.5237068895, 0.8516377189, -0.02107817834, 0., 0.6333504779, 0.1926167129, -0.7495104896, 0., -0.06788241606, 0.3998305789, 0.9140719259, 0., -0.5538628599, -0.4729896695, -0.6852128902, 0.,
@@ -643,28 +658,28 @@ impl FastNoiseLite {
     }
 
     #[inline(always)]
-    fn lerp(a: f32, b: f32, t: f32) -> f32 {
+    fn lerp(a: Float, b: Float, t: Float) -> Float {
         a + t * (b - a)
     }
 
     #[inline(always)]
-    fn interp_hermite(t: f32) -> f32 {
+    fn interp_hermite(t: Float) -> Float {
         t * t * (t * -2. + 3.)
     }
 
     #[inline(always)]
-    fn interp_quintic(t: f32) -> f32 {
+    fn interp_quintic(t: Float) -> Float {
         t * t * t * (t * (t * 6. - 15.) + 10.)
     }
 
     #[inline(always)]
-    fn cubic_lerp(a: f32, b: f32, c: f32, d: f32, t: f32) -> f32 {
+    fn cubic_lerp(a: Float, b: Float, c: Float, d: Float, t: Float) -> Float {
         let p = (d - c) - (a - b);
         t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b
     }
 
     #[inline(always)]
-    fn ping_pong(t: f32) -> f32 {
+    fn ping_pong(t: Float) -> Float {
         let t = t - FloatOps::trunc(t * 0.5) * 2.;
 
         if t < 1. {
@@ -714,24 +729,24 @@ impl FastNoiseLite {
     // ===================================
 
     #[inline(always)]
-    fn val_coord_2d(seed: i32, x_primed: i32, y_primed: i32) -> f32 {
+    fn val_coord_2d(seed: i32, x_primed: i32, y_primed: i32) -> Float {
         let hash = Self::hash_2d(seed, x_primed, y_primed);
         let hash = hash.wrapping_mul(hash);
         let hash = hash ^ (hash << 19);
-        hash as f32 * (1. / 2147483648.)
+        hash as Float * (1. / 2147483648.)
     }
 
     #[inline(always)]
-    fn val_coord_3d(seed: i32, x_primed: i32, y_primed: i32, z_primed: i32) -> f32 {
+    fn val_coord_3d(seed: i32, x_primed: i32, y_primed: i32, z_primed: i32) -> Float {
         let hash = Self::hash_3d(seed, x_primed, y_primed, z_primed);
 
         let hash = hash.wrapping_mul(hash);
         let hash = hash ^ (hash << 19);
-        hash as f32 * (1. / 2147483648.)
+        hash as Float * (1. / 2147483648.)
     }
 
     #[inline(always)]
-    fn grad_coord_2d(seed: i32, x_primed: i32, y_primed: i32, xd: f32, yd: f32) -> f32 {
+    fn grad_coord_2d(seed: i32, x_primed: i32, y_primed: i32, xd: Float, yd: Float) -> Float {
         let hash = Self::hash_2d(seed, x_primed, y_primed);
         let hash = hash ^ (hash >> 15);
         let hash = hash & (127 << 1);
@@ -748,10 +763,10 @@ impl FastNoiseLite {
         x_primed: i32,
         y_primed: i32,
         z_primed: i32,
-        xd: f32,
-        yd: f32,
-        zd: f32,
-    ) -> f32 {
+        xd: Float,
+        yd: Float,
+        zd: Float,
+    ) -> Float {
         let hash = Self::hash_3d(seed, x_primed, y_primed, z_primed);
         let hash = hash ^ (hash >> 15);
         let hash = hash & (63 << 2);
@@ -764,7 +779,7 @@ impl FastNoiseLite {
     }
 
     #[inline(always)]
-    fn grad_coord_out_2d(seed: i32, x_primed: i32, y_primed: i32) -> (f32, f32) {
+    fn grad_coord_out_2d(seed: i32, x_primed: i32, y_primed: i32) -> (Float, Float) {
         let hash = Self::hash_2d(seed, x_primed, y_primed) & (255 << 1);
 
         let xo = Self::RAND_VECS_2D[hash as usize];
@@ -779,7 +794,7 @@ impl FastNoiseLite {
         x_primed: i32,
         y_primed: i32,
         z_primed: i32,
-    ) -> (f32, f32, f32) {
+    ) -> (Float, Float, Float) {
         let hash = Self::hash_3d(seed, x_primed, y_primed, z_primed) & (255 << 2);
 
         let xo = Self::RAND_VECS_3D[hash as usize];
@@ -790,7 +805,7 @@ impl FastNoiseLite {
     }
 
     #[inline(always)]
-    fn grad_coord_dual_2d(seed: i32, x_primed: i32, y_primed: i32, xd: f32, yd: f32) -> (f32, f32) {
+    fn grad_coord_dual_2d(seed: i32, x_primed: i32, y_primed: i32, xd: Float, yd: Float) -> (Float, Float) {
         let hash = Self::hash_2d(seed, x_primed, y_primed);
         let index1 = hash & (127 << 1);
         let index2 = (hash >> 7) & (255 << 1);
@@ -814,10 +829,10 @@ impl FastNoiseLite {
         x_primed: i32,
         y_primed: i32,
         z_primed: i32,
-        xd: f32,
-        yd: f32,
-        zd: f32,
-    ) -> (f32, f32, f32) {
+        xd: Float,
+        yd: Float,
+        zd: Float,
+    ) -> (Float, Float, Float) {
         let hash = Self::hash_3d(seed, x_primed, y_primed, z_primed);
         let index1 = hash & (63 << 2);
         let index2 = (hash >> 6) & (255 << 2);
@@ -840,7 +855,7 @@ impl FastNoiseLite {
 
     // Generic noise gen
 
-    fn gen_noise_single_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn gen_noise_single_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         match self.noise_type {
             NoiseType::OpenSimplex2 => self.single_simplex_2d(seed, x, y),
             NoiseType::OpenSimplex2S => self.single_open_simplex_2s_2d(seed, x, y),
@@ -851,7 +866,7 @@ impl FastNoiseLite {
         }
     }
 
-    fn gen_noise_single_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn gen_noise_single_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         match self.noise_type {
             NoiseType::OpenSimplex2 => self.single_open_simplex_2(seed, x, y, z),
             NoiseType::OpenSimplex2S => self.single_open_simplex_2s_3d(seed, x, y, z),
@@ -1023,7 +1038,7 @@ impl FastNoiseLite {
 
     // Fractal FBm
 
-    fn gen_fractal_fbm_2d(&self, x: Float, y: Float) -> f32 {
+    fn gen_fractal_fbm_2d(&self, x: Float, y: Float) -> Float {
         let mut x = x;
         let mut y = y;
 
@@ -1046,7 +1061,7 @@ impl FastNoiseLite {
         sum
     }
 
-    fn gen_fractal_fbm_3d(&self, x: Float, y: Float, z: Float) -> f32 {
+    fn gen_fractal_fbm_3d(&self, x: Float, y: Float, z: Float) -> Float {
         let mut x = x;
         let mut y = y;
         let mut z = z;
@@ -1073,7 +1088,7 @@ impl FastNoiseLite {
 
     // Fractal Ridged
 
-    fn gen_fractal_ridged_2d(&self, x: Float, y: Float) -> f32 {
+    fn gen_fractal_ridged_2d(&self, x: Float, y: Float) -> Float {
         let mut x = x;
         let mut y = y;
 
@@ -1096,7 +1111,7 @@ impl FastNoiseLite {
         sum
     }
 
-    fn gen_fractal_ridged_3d(&self, x: Float, y: Float, z: Float) -> f32 {
+    fn gen_fractal_ridged_3d(&self, x: Float, y: Float, z: Float) -> Float {
         let mut x = x;
         let mut y = y;
         let mut z = z;
@@ -1123,7 +1138,7 @@ impl FastNoiseLite {
 
     // Fractal PingPong
 
-    fn gen_fractal_ping_pong_2d(&self, x: Float, y: Float) -> f32 {
+    fn gen_fractal_ping_pong_2d(&self, x: Float, y: Float) -> Float {
         let mut x = x;
         let mut y = y;
 
@@ -1148,7 +1163,7 @@ impl FastNoiseLite {
         sum
     }
 
-    fn gen_fractal_ping_pong_3d(&self, x: Float, y: Float, z: Float) -> f32 {
+    fn gen_fractal_ping_pong_3d(&self, x: Float, y: Float, z: Float) -> Float {
         let mut x = x;
         let mut y = y;
         let mut z = z;
@@ -1177,7 +1192,7 @@ impl FastNoiseLite {
 
     // Simplex/OpenSimplex2 Noise
 
-    fn single_simplex_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_simplex_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         // 2D OpenSimplex2 case uses the same algorithm as ordinary Simplex.
 
         let sqrt3 = 1.7320508075688772935274463415059;
@@ -1193,9 +1208,9 @@ impl FastNoiseLite {
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
         #[allow(clippy::unnecessary_cast)]
-        let xi = (x - i as Float) as f32;
+        let xi = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yi = (y - j as Float) as f32;
+        let yi = (y - j as Float) as Float;
 
         let t = (xi + yi) * g2;
         let x0 = xi - t;
@@ -1259,7 +1274,7 @@ impl FastNoiseLite {
         (n0 + n1 + n2) * 99.83685446303647
     }
 
-    fn single_open_simplex_2(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_open_simplex_2(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         // 3D OpenSimplex2 case uses two offset rotated cube grids.
 
         /*
@@ -1275,19 +1290,19 @@ impl FastNoiseLite {
         let j = Self::fast_round(y);
         let k = Self::fast_round(z);
         #[allow(clippy::unnecessary_cast)]
-        let mut x0 = (x - i as Float) as f32;
+        let mut x0 = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let mut y0 = (y - j as Float) as f32;
+        let mut y0 = (y - j as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let mut z0 = (z - k as Float) as f32;
+        let mut z0 = (z - k as Float) as Float;
 
         let mut x_n_sign = (-1. - x0) as i32 | 1;
         let mut y_n_sign = (-1. - y0) as i32 | 1;
         let mut z_n_sign = (-1. - z0) as i32 | 1;
 
-        let mut ax0 = x_n_sign as f32 * -x0;
-        let mut ay0 = y_n_sign as f32 * -y0;
-        let mut az0 = z_n_sign as f32 * -z0;
+        let mut ax0 = x_n_sign as Float * -x0;
+        let mut ay0 = y_n_sign as Float * -y0;
+        let mut az0 = z_n_sign as Float * -z0;
 
         let mut i = i.wrapping_mul(Self::PRIME_X);
         let mut j = j.wrapping_mul(Self::PRIME_Y);
@@ -1313,7 +1328,7 @@ impl FastNoiseLite {
                             i.wrapping_sub(x_n_sign.wrapping_mul(Self::PRIME_X)),
                             j,
                             k,
-                            x0 + x_n_sign as f32,
+                            x0 + x_n_sign as Float,
                             y0,
                             z0,
                         );
@@ -1330,7 +1345,7 @@ impl FastNoiseLite {
                             j.wrapping_sub(y_n_sign.wrapping_mul(Self::PRIME_Y)),
                             k,
                             x0,
-                            y0 + y_n_sign as f32,
+                            y0 + y_n_sign as Float,
                             z0,
                         );
                 }
@@ -1347,7 +1362,7 @@ impl FastNoiseLite {
                             k.wrapping_sub(z_n_sign.wrapping_mul(Self::PRIME_Z)),
                             x0,
                             y0,
-                            z0 + z_n_sign as f32,
+                            z0 + z_n_sign as Float,
                         );
                 }
             }
@@ -1360,9 +1375,9 @@ impl FastNoiseLite {
             ay0 = 0.5 - ay0;
             az0 = 0.5 - az0;
 
-            x0 = x_n_sign as f32 * ax0;
-            y0 = y_n_sign as f32 * ay0;
-            z0 = z_n_sign as f32 * az0;
+            x0 = x_n_sign as Float * ax0;
+            y0 = y_n_sign as Float * ay0;
+            z0 = z_n_sign as Float * az0;
 
             a = a + (0.75 - ax0) - (ay0 + az0);
 
@@ -1384,7 +1399,7 @@ impl FastNoiseLite {
 
     // OpenSimplex2S Noise
 
-    fn single_open_simplex_2s_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_open_simplex_2s_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         // 2D OpenSimplex2S case is a modified 2D simplex noise.
 
         let sqrt3 = 1.7320508075688772935274463415059;
@@ -1400,9 +1415,9 @@ impl FastNoiseLite {
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
         #[allow(clippy::unnecessary_cast)]
-        let xi = (x - i as Float) as f32;
+        let xi = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yi = (y - j as Float) as f32;
+        let yi = (y - j as Float) as Float;
 
         let i = i.wrapping_mul(Self::PRIME_X);
         let j = j.wrapping_mul(Self::PRIME_Y);
@@ -1521,7 +1536,7 @@ impl FastNoiseLite {
         value * 18.24196194486065
     }
 
-    fn single_open_simplex_2s_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_open_simplex_2s_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         // 3D OpenSimplex2S case uses two offset rotated cube grids.
 
         /*
@@ -1535,11 +1550,11 @@ impl FastNoiseLite {
         let j = Self::fast_floor(y);
         let k = Self::fast_floor(z);
         #[allow(clippy::unnecessary_cast)]
-        let xi = (x - i as Float) as f32;
+        let xi = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yi = (y - j as Float) as f32;
+        let yi = (y - j as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let zi = (z - k as Float) as f32;
+        let zi = (z - k as Float) as Float;
 
         let i = i.wrapping_mul(Self::PRIME_X);
         let j = j.wrapping_mul(Self::PRIME_Y);
@@ -1550,9 +1565,9 @@ impl FastNoiseLite {
         let y_n_mask = (-0.5 - yi) as i32;
         let z_n_mask = (-0.5 - zi) as i32;
 
-        let x0 = xi + x_n_mask as f32;
-        let y0 = yi + y_n_mask as f32;
-        let z0 = zi + z_n_mask as f32;
+        let x0 = xi + x_n_mask as Float;
+        let y0 = yi + y_n_mask as Float;
+        let z0 = zi + z_n_mask as Float;
         let a0 = 0.75 - x0 * x0 - y0 * y0 - z0 * z0;
         let mut value = (a0 * a0)
             * (a0 * a0)
@@ -1582,17 +1597,17 @@ impl FastNoiseLite {
                 z1,
             );
 
-        let x_a_flip_mask_0 = ((x_n_mask | 1) << 1) as f32 * x1;
-        let y_a_flip_mask_0 = ((y_n_mask | 1) << 1) as f32 * y1;
-        let z_a_flip_mask_0 = ((z_n_mask | 1) << 1) as f32 * z1;
-        let x_a_flip_mask_1 = (-2 - (x_n_mask << 2)) as f32 * x1 - 1.;
-        let y_a_flip_mask_1 = (-2 - (y_n_mask << 2)) as f32 * y1 - 1.;
-        let z_a_flip_mask_1 = (-2 - (z_n_mask << 2)) as f32 * z1 - 1.;
+        let x_a_flip_mask_0 = ((x_n_mask | 1) << 1) as Float * x1;
+        let y_a_flip_mask_0 = ((y_n_mask | 1) << 1) as Float * y1;
+        let z_a_flip_mask_0 = ((z_n_mask | 1) << 1) as Float * z1;
+        let x_a_flip_mask_1 = (-2 - (x_n_mask << 2)) as Float * x1 - 1.;
+        let y_a_flip_mask_1 = (-2 - (y_n_mask << 2)) as Float * y1 - 1.;
+        let z_a_flip_mask_1 = (-2 - (z_n_mask << 2)) as Float * z1 - 1.;
 
         let mut skip_5 = false;
         let a2 = x_a_flip_mask_0 + a0;
         if a2 > 0. {
-            let x2 = x0 - (x_n_mask | 1) as f32;
+            let x2 = x0 - (x_n_mask | 1) as Float;
             let y2 = y0;
             let z2 = z0;
             value += (a2 * a2)
@@ -1610,8 +1625,8 @@ impl FastNoiseLite {
             let a3 = y_a_flip_mask_0 + z_a_flip_mask_0 + a0;
             if a3 > 0. {
                 let x3 = x0;
-                let y3 = y0 - (y_n_mask | 1) as f32;
-                let z3 = z0 - (z_n_mask | 1) as f32;
+                let y3 = y0 - (y_n_mask | 1) as Float;
+                let z3 = z0 - (z_n_mask | 1) as Float;
                 value += (a3 * a3)
                     * (a3 * a3)
                     * Self::grad_coord_3d(
@@ -1627,7 +1642,7 @@ impl FastNoiseLite {
 
             let a4 = x_a_flip_mask_1 + a1;
             if a4 > 0. {
-                let x4 = (x_n_mask | 1) as f32 + x1;
+                let x4 = (x_n_mask | 1) as Float + x1;
                 let y4 = y1;
                 let z4 = z1;
                 value += (a4 * a4)
@@ -1649,7 +1664,7 @@ impl FastNoiseLite {
         let a6 = y_a_flip_mask_0 + a0;
         if a6 > 0. {
             let x6 = x0;
-            let y6 = y0 - (y_n_mask | 1) as f32;
+            let y6 = y0 - (y_n_mask | 1) as Float;
             let z6 = z0;
             value += (a6 * a6)
                 * (a6 * a6)
@@ -1665,9 +1680,9 @@ impl FastNoiseLite {
         } else {
             let a7 = x_a_flip_mask_0 + z_a_flip_mask_0 + a0;
             if a7 > 0. {
-                let x7 = x0 - (x_n_mask | 1) as f32;
+                let x7 = x0 - (x_n_mask | 1) as Float;
                 let y7 = y0;
-                let z7 = z0 - (z_n_mask | 1) as f32;
+                let z7 = z0 - (z_n_mask | 1) as Float;
                 value += (a7 * a7)
                     * (a7 * a7)
                     * Self::grad_coord_3d(
@@ -1684,7 +1699,7 @@ impl FastNoiseLite {
             let a8 = y_a_flip_mask_1 + a1;
             if a8 > 0. {
                 let x8 = x1;
-                let y8 = (y_n_mask | 1) as f32 + y1;
+                let y8 = (y_n_mask | 1) as Float + y1;
                 let z8 = z1;
                 value += (a8 * a8)
                     * (a8 * a8)
@@ -1706,7 +1721,7 @@ impl FastNoiseLite {
         if a_a > 0. {
             let x_a = x0;
             let y_a = y0;
-            let z_a = z0 - (z_n_mask | 1) as f32;
+            let z_a = z0 - (z_n_mask | 1) as Float;
             value += (a_a * a_a)
                 * (a_a * a_a)
                 * Self::grad_coord_3d(
@@ -1721,8 +1736,8 @@ impl FastNoiseLite {
         } else {
             let a_b = x_a_flip_mask_0 + y_a_flip_mask_0 + a0;
             if a_b > 0. {
-                let x_b = x0 - (x_n_mask | 1) as f32;
-                let y_b = y0 - (y_n_mask | 1) as f32;
+                let x_b = x0 - (x_n_mask | 1) as Float;
+                let y_b = y0 - (y_n_mask | 1) as Float;
                 let z_b = z0;
                 value += (a_b * a_b)
                     * (a_b * a_b)
@@ -1741,7 +1756,7 @@ impl FastNoiseLite {
             if a_c > 0. {
                 let x_c = x1;
                 let y_c = y1;
-                let z_c = (z_n_mask | 1) as f32 + z1;
+                let z_c = (z_n_mask | 1) as Float + z1;
                 value += (a_c * a_c)
                     * (a_c * a_c)
                     * Self::grad_coord_3d(
@@ -1761,8 +1776,8 @@ impl FastNoiseLite {
             let a5 = y_a_flip_mask_1 + z_a_flip_mask_1 + a1;
             if a5 > 0. {
                 let x5 = x1;
-                let y5 = (y_n_mask | 1) as f32 + y1;
-                let z5 = (z_n_mask | 1) as f32 + z1;
+                let y5 = (y_n_mask | 1) as Float + y1;
+                let z5 = (z_n_mask | 1) as Float + z1;
                 value += (a5 * a5)
                     * (a5 * a5)
                     * Self::grad_coord_3d(
@@ -1780,9 +1795,9 @@ impl FastNoiseLite {
         if !skip_9 {
             let a9 = x_a_flip_mask_1 + z_a_flip_mask_1 + a1;
             if a9 > 0. {
-                let x9 = (x_n_mask | 1) as f32 + x1;
+                let x9 = (x_n_mask | 1) as Float + x1;
                 let y9 = y1;
-                let z9 = (z_n_mask | 1) as f32 + z1;
+                let z9 = (z_n_mask | 1) as Float + z1;
                 value += (a9 * a9)
                     * (a9 * a9)
                     * Self::grad_coord_3d(
@@ -1800,8 +1815,8 @@ impl FastNoiseLite {
         if !skip_d {
             let a_d = x_a_flip_mask_1 + y_a_flip_mask_1 + a1;
             if a_d > 0. {
-                let x_d = (x_n_mask | 1) as f32 + x1;
-                let y_d = (y_n_mask | 1) as f32 + y1;
+                let x_d = (x_n_mask | 1) as Float + x1;
+                let y_d = (y_n_mask | 1) as Float + y1;
                 let z_d = z1;
                 value += (a_d * a_d)
                     * (a_d * a_d)
@@ -1822,12 +1837,12 @@ impl FastNoiseLite {
 
     // Cellular Noise
 
-    fn single_cellular_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_cellular_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         let xr = Self::fast_round(x);
         let yr = Self::fast_round(y);
 
-        let mut distance0 = f32::MAX;
-        let mut distance1 = f32::MAX;
+        let mut distance0 = Float::MAX;
+        let mut distance1 = Float::MAX;
         let mut closest_hash = 0;
 
         let cellular_jitter = 0.43701595 * self.cellular_jitter_modifier;
@@ -1845,10 +1860,10 @@ impl FastNoiseLite {
                         let idx = hash & (255 << 1);
 
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = (xi as Float - x) as f32
+                        let vec_x = (xi as Float - x) as Float
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = (yi as Float - y) as f32
+                        let vec_y = (yi as Float - y) as Float
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance = vec_x * vec_x + vec_y * vec_y;
@@ -1872,10 +1887,10 @@ impl FastNoiseLite {
                         let idx = hash & (255 << 1);
 
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = (xi as Float - x) as f32
+                        let vec_x = (xi as Float - x) as Float
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = (yi as Float - y) as f32
+                        let vec_y = (yi as Float - y) as Float
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance = FloatOps::abs(vec_x) + FloatOps::abs(vec_y);
@@ -1899,10 +1914,10 @@ impl FastNoiseLite {
                         let idx = hash & (255 << 1);
 
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_x = (xi as Float - x) as f32
+                        let vec_x = (xi as Float - x) as Float
                             + Self::RAND_VECS_2D[idx as usize] * cellular_jitter;
                         #[allow(clippy::unnecessary_cast)]
-                        let vec_y = (yi as Float - y) as f32
+                        let vec_y = (yi as Float - y) as Float
                             + Self::RAND_VECS_2D[(idx | 1) as usize] * cellular_jitter;
 
                         let new_distance = (FloatOps::abs(vec_x) + FloatOps::abs(vec_y))
@@ -1931,7 +1946,7 @@ impl FastNoiseLite {
         }
 
         match self.cellular_return_type {
-            CellularReturnType::CellValue => closest_hash as f32 * (1. / 2147483648.),
+            CellularReturnType::CellValue => closest_hash as Float * (1. / 2147483648.),
             CellularReturnType::Distance => distance0 - 1.,
             CellularReturnType::Distance2 => distance1 - 1.,
             CellularReturnType::Distance2Add => (distance1 + distance0) * 0.5 - 1.,
@@ -1941,13 +1956,13 @@ impl FastNoiseLite {
         }
     }
 
-    fn single_cellular_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_cellular_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         let xr = Self::fast_round(x);
         let yr = Self::fast_round(y);
         let zr = Self::fast_round(z);
 
-        let mut distance0 = f32::MAX;
-        let mut distance1 = f32::MAX;
+        let mut distance0 = Float::MAX;
+        let mut distance1 = Float::MAX;
         let mut closest_hash = 0;
 
         let cellular_jitter = 0.39614353 * self.cellular_jitter_modifier;
@@ -1969,13 +1984,13 @@ impl FastNoiseLite {
                             let idx = hash & (255 << 2);
 
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = (xi as Float - x) as f32
+                            let vec_x = (xi as Float - x) as Float
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = (yi as Float - y) as f32
+                            let vec_y = (yi as Float - y) as Float
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = (zi as Float - z) as f32
+                            let vec_z = (zi as Float - z) as Float
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance = vec_x * vec_x + vec_y * vec_y + vec_z * vec_z;
@@ -2004,13 +2019,13 @@ impl FastNoiseLite {
                             let idx = hash & (255 << 2);
 
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = (xi as Float - x) as f32
+                            let vec_x = (xi as Float - x) as Float
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = (yi as Float - y) as f32
+                            let vec_y = (yi as Float - y) as Float
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = (zi as Float - z) as f32
+                            let vec_z = (zi as Float - z) as Float
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance =
@@ -2040,13 +2055,13 @@ impl FastNoiseLite {
                             let idx = hash & (255 << 2);
 
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_x = (xi as Float - x) as f32
+                            let vec_x = (xi as Float - x) as Float
                                 + Self::RAND_VECS_3D[idx as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_y = (yi as Float - y) as f32
+                            let vec_y = (yi as Float - y) as Float
                                 + Self::RAND_VECS_3D[(idx | 1) as usize] * cellular_jitter;
                             #[allow(clippy::unnecessary_cast)]
-                            let vec_z = (zi as Float - z) as f32
+                            let vec_z = (zi as Float - z) as Float
                                 + Self::RAND_VECS_3D[(idx | 2) as usize] * cellular_jitter;
 
                             let new_distance = (FloatOps::abs(vec_x)
@@ -2079,7 +2094,7 @@ impl FastNoiseLite {
         }
 
         match self.cellular_return_type {
-            CellularReturnType::CellValue => closest_hash as f32 * (1. / 2147483648.),
+            CellularReturnType::CellValue => closest_hash as Float * (1. / 2147483648.),
             CellularReturnType::Distance => distance0 - 1.,
             CellularReturnType::Distance2 => distance1 - 1.,
             CellularReturnType::Distance2Add => (distance1 + distance0) * 0.5 - 1.,
@@ -2091,14 +2106,14 @@ impl FastNoiseLite {
 
     // Perlin Noise
 
-    fn single_perlin_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_perlin_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
 
         #[allow(clippy::unnecessary_cast)]
-        let xd0 = (x - x0 as Float) as f32;
+        let xd0 = (x - x0 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yd0 = (y - y0 as Float) as f32;
+        let yd0 = (y - y0 as Float) as Float;
         let xd1 = xd0 - 1.;
         let yd1 = yd0 - 1.;
 
@@ -2124,17 +2139,17 @@ impl FastNoiseLite {
         Self::lerp(xf0, xf1, ys) * 1.4247691104677813
     }
 
-    fn single_perlin_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_perlin_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
         let z0 = Self::fast_floor(z);
 
         #[allow(clippy::unnecessary_cast)]
-        let xd0 = (x - x0 as Float) as f32;
+        let xd0 = (x - x0 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yd0 = (y - y0 as Float) as f32;
+        let yd0 = (y - y0 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let zd0 = (z - z0 as Float) as f32;
+        let zd0 = (z - z0 as Float) as Float;
         let xd1 = xd0 - 1.;
         let yd1 = yd0 - 1.;
         let zd1 = zd0 - 1.;
@@ -2179,14 +2194,14 @@ impl FastNoiseLite {
 
     // Value Cubic Noise
 
-    fn single_value_cubic_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_value_cubic_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         let x1 = Self::fast_floor(x);
         let y1 = Self::fast_floor(y);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = (x - x1 as Float) as f32;
+        let xs = (x - x1 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let ys = (y - y1 as Float) as f32;
+        let ys = (y - y1 as Float) as Float;
 
         let x1 = x1.wrapping_mul(Self::PRIME_X);
         let y1 = y1.wrapping_mul(Self::PRIME_Y);
@@ -2230,17 +2245,17 @@ impl FastNoiseLite {
         ) * (1. / (1.5 * 1.5))
     }
 
-    fn single_value_cubic_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_value_cubic_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         let x1 = Self::fast_floor(x);
         let y1 = Self::fast_floor(y);
         let z1 = Self::fast_floor(z);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = (x - x1 as Float) as f32;
+        let xs = (x - x1 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let ys = (y - y1 as Float) as f32;
+        let ys = (y - y1 as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let zs = (z - z1 as Float) as f32;
+        let zs = (z - z1 as Float) as Float;
 
         let x1 = x1.wrapping_mul(Self::PRIME_X);
         let y1 = y1.wrapping_mul(Self::PRIME_Y);
@@ -2387,14 +2402,14 @@ impl FastNoiseLite {
 
     // Value Noise
 
-    fn single_value_2d(&self, seed: i32, x: Float, y: Float) -> f32 {
+    fn single_value_2d(&self, seed: i32, x: Float, y: Float) -> Float {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = Self::interp_hermite((x - x0 as Float) as f32);
+        let xs = Self::interp_hermite((x - x0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let ys = Self::interp_hermite((y - y0 as Float) as f32);
+        let ys = Self::interp_hermite((y - y0 as Float) as Float);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2415,17 +2430,17 @@ impl FastNoiseLite {
         Self::lerp(xf0, xf1, ys)
     }
 
-    fn single_value_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> f32 {
+    fn single_value_3d(&self, seed: i32, x: Float, y: Float, z: Float) -> Float {
         let x0 = Self::fast_floor(x);
         let y0 = Self::fast_floor(y);
         let z0 = Self::fast_floor(z);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = Self::interp_hermite((x - x0 as Float) as f32);
+        let xs = Self::interp_hermite((x - x0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let ys = Self::interp_hermite((y - y0 as Float) as f32);
+        let ys = Self::interp_hermite((y - y0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let zs = Self::interp_hermite((z - z0 as Float) as f32);
+        let zs = Self::interp_hermite((z - z0 as Float) as Float);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2467,8 +2482,8 @@ impl FastNoiseLite {
     fn do_single_domain_warp_2d(
         &self,
         seed: i32,
-        amp: f32,
-        freq: f32,
+        amp: Float,
+        freq: Float,
         x: Float,
         y: Float,
         xr: Float,
@@ -2505,8 +2520,8 @@ impl FastNoiseLite {
     fn do_single_domain_warp_3d(
         &self,
         seed: i32,
-        amp: f32,
-        freq: f32,
+        amp: Float,
+        freq: Float,
         x: Float,
         y: Float,
         z: Float,
@@ -2673,8 +2688,8 @@ impl FastNoiseLite {
     fn single_domain_warp_basic_grid_2d(
         &self,
         seed: i32,
-        warp_amp: f32,
-        frequency: f32,
+        warp_amp: Float,
+        frequency: Float,
         x: Float,
         y: Float,
         xr: Float,
@@ -2687,9 +2702,9 @@ impl FastNoiseLite {
         let y0 = Self::fast_floor(yf);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = Self::interp_hermite((xf - x0 as Float) as f32);
+        let xs = Self::interp_hermite((xf - x0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let ys = Self::interp_hermite((yf - y0 as Float) as f32);
+        let ys = Self::interp_hermite((yf - y0 as Float) as Float);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2734,8 +2749,8 @@ impl FastNoiseLite {
     fn single_domain_warp_basic_grid_3d(
         &self,
         seed: i32,
-        warp_amp: f32,
-        frequency: f32,
+        warp_amp: Float,
+        frequency: Float,
         x: Float,
         y: Float,
         z: Float,
@@ -2752,11 +2767,11 @@ impl FastNoiseLite {
         let z0 = Self::fast_floor(zf);
 
         #[allow(clippy::unnecessary_cast)]
-        let xs = Self::interp_hermite((xf - x0 as Float) as f32);
+        let xs = Self::interp_hermite((xf - x0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let ys = Self::interp_hermite((yf - y0 as Float) as f32);
+        let ys = Self::interp_hermite((yf - y0 as Float) as Float);
         #[allow(clippy::unnecessary_cast)]
-        let zs = Self::interp_hermite((zf - z0 as Float) as f32);
+        let zs = Self::interp_hermite((zf - z0 as Float) as Float);
 
         let x0 = x0.wrapping_mul(Self::PRIME_X);
         let y0 = y0.wrapping_mul(Self::PRIME_Y);
@@ -2857,16 +2872,16 @@ impl FastNoiseLite {
     fn single_domain_warp_simplex_gradient_2d(
         &self,
         seed: i32,
-        warp_amp: f32,
-        frequency: f32,
+        warp_amp: Float,
+        frequency: Float,
         x: Float,
         y: Float,
         xr: Float,
         yr: Float,
         out_frad_only: bool,
     ) -> (Float, Float) {
-        const SQRT3: f32 = 1.7320508075688772935274463415059;
-        const G2: f32 = (3. - SQRT3) / 6.;
+        const SQRT3: Float = 1.7320508075688772935274463415059;
+        const G2: Float = (3. - SQRT3) / 6.;
 
         let x = x * frequency as Float;
         let y = y * frequency as Float;
@@ -2881,9 +2896,9 @@ impl FastNoiseLite {
         let i = Self::fast_floor(x);
         let j = Self::fast_floor(y);
         #[allow(clippy::unnecessary_cast)]
-        let xi = (x - i as Float) as f32;
+        let xi = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let yi = (y - j as Float) as f32;
+        let yi = (y - j as Float) as Float;
 
         let t = (xi + yi) * G2;
         let x0 = xi - t;
@@ -2972,8 +2987,8 @@ impl FastNoiseLite {
     fn single_domain_warp_open_simplex_2_gradient(
         &self,
         seed: i32,
-        warp_amp: f32,
-        frequency: f32,
+        warp_amp: Float,
+        frequency: Float,
         x: Float,
         y: Float,
         z: Float,
@@ -2999,19 +3014,19 @@ impl FastNoiseLite {
         let j = Self::fast_round(y);
         let k = Self::fast_round(z);
         #[allow(clippy::unnecessary_cast)]
-        let mut x0 = (x - i as Float) as f32;
+        let mut x0 = (x - i as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let mut y0 = (y - j as Float) as f32;
+        let mut y0 = (y - j as Float) as Float;
         #[allow(clippy::unnecessary_cast)]
-        let mut z0 = (z - k as Float) as f32;
+        let mut z0 = (z - k as Float) as Float;
 
         let mut x_n_sign = (-x0 - 1.) as i32 | 1;
         let mut y_n_sign = (-y0 - 1.) as i32 | 1;
         let mut z_n_sign = (-z0 - 1.) as i32 | 1;
 
-        let mut ax0 = x_n_sign as f32 * -x0;
-        let mut ay0 = y_n_sign as f32 * -y0;
-        let mut az0 = z_n_sign as f32 * -z0;
+        let mut ax0 = x_n_sign as Float * -x0;
+        let mut ay0 = y_n_sign as Float * -y0;
+        let mut az0 = z_n_sign as Float * -z0;
 
         let mut i = i.wrapping_mul(Self::PRIME_X);
         let mut j = j.wrapping_mul(Self::PRIME_Y);
@@ -3045,15 +3060,15 @@ impl FastNoiseLite {
             let mut z1 = z0;
 
             if ax0 >= ay0 && ax0 >= az0 {
-                x1 += x_n_sign as f32;
+                x1 += x_n_sign as Float;
                 b = b + ax0 + ax0;
                 i1 = i1.wrapping_sub(x_n_sign.wrapping_mul(Self::PRIME_X));
             } else if ay0 > ax0 && ay0 >= az0 {
-                y1 += y_n_sign as f32;
+                y1 += y_n_sign as Float;
                 b = b + ay0 + ay0;
                 j1 = j1.wrapping_sub(y_n_sign.wrapping_mul(Self::PRIME_Y));
             } else {
-                z1 += z_n_sign as f32;
+                z1 += z_n_sign as Float;
                 b = b + az0 + az0;
                 k1 = k1.wrapping_sub(z_n_sign.wrapping_mul(Self::PRIME_Z));
             }
@@ -3079,9 +3094,9 @@ impl FastNoiseLite {
             ay0 = 0.5 - ay0;
             az0 = 0.5 - az0;
 
-            x0 = x_n_sign as f32 * ax0;
-            y0 = y_n_sign as f32 * ay0;
-            z0 = z_n_sign as f32 * az0;
+            x0 = x_n_sign as Float * ax0;
+            y0 = y_n_sign as Float * ay0;
+            z0 = z_n_sign as Float * az0;
 
             a += (0.75 - ax0) - (ay0 + az0);
 
