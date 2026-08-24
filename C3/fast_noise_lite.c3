@@ -109,7 +109,7 @@ enum FnlDomainWarpType
 
 /**
  * Structure containing entire noise system state.
- * Note: Must only be created using fnlCreateState(optional: seed). To ensure defaults are set.
+ * Note: Must only be used after calling `.init()` on it, to ensure defaults are set.
  */
 struct FnlState
 {
@@ -210,77 +210,76 @@ struct FnlState
  Creates a noise state with default values.
 
  @param seed : "Optionally set the state seed"
- @return "A newly initialized noise state"
 *>
-fn FnlState createState(int seed = 1337)
+fn FnlState* FnlState.init(&self, int seed = 1337)
 {
-    FnlState new_state;
-    new_state.seed = seed;
-    new_state.frequency = 0.01f;
-    new_state.noise_type = OPENSIMPLEX2;
-    new_state.rotation_type_3d = NONE;
-    new_state.fractal_type = NONE;
-    new_state.octaves = 3;
-    new_state.lacunarity = 2.0f;
-    new_state.gain = 0.5f;
-    new_state.weighted_strength = 0.0f;
-    new_state.ping_pong_strength = 2.0f;
-    new_state.cellular_distance_func = EUCLIDEANSQ;
-    new_state.cellular_return_type = DISTANCE;
-    new_state.cellular_jitter_mod = 1.0f;
-    new_state.domain_warp_amp = 30.0f;
-    new_state.domain_warp_type = OPENSIMPLEX2;
-    return new_state;
+    self.seed = seed;
+    self.frequency = 0.01f;
+    self.noise_type = OPENSIMPLEX2;
+    self.rotation_type_3d = NONE;
+    self.fractal_type = NONE;
+    self.octaves = 3;
+    self.lacunarity = 2.0f;
+    self.gain = 0.5f;
+    self.weighted_strength = 0.0f;
+    self.ping_pong_strength = 2.0f;
+    self.cellular_distance_func = EUCLIDEANSQ;
+    self.cellular_return_type = DISTANCE;
+    self.cellular_jitter_mod = 1.0f;
+    self.domain_warp_amp = 30.0f;
+    self.domain_warp_type = OPENSIMPLEX2;
+
+    return self;
 }
 
 <*
  2D noise at given position using the state settings.
 
- @param [&in] state : "Noise generator state, read-only"
+ @param [&in] self : "Noise generator state, read-only"
  @param x : "X coordinate"
  @param y : "Y coordinate"
  @return "Noise output bounded between -1 and 1"
 *>
-fn float getNoise2D(FnlState* state, FNLfloat x, FNLfloat y)
+fn float FnlState.getNoise2D(&self, FNLfloat x, FNLfloat y)
 {
-    transformNoiseCoordinate2D(state, &x, &y);
+    transformNoiseCoordinate2D(self, &x, &y);
 
-    switch (state.fractal_type)
+    switch (self.fractal_type)
     {
     case FBM:
-        return genFractalFBM2D(state, x, y);
+        return genFractalFBM2D(self, x, y);
     case RIDGED:
-        return genFractalRidged2D(state, x, y);
+        return genFractalRidged2D(self, x, y);
     case PINGPONG:
-        return genFractalPingPong2D(state, x, y);
+        return genFractalPingPong2D(self, x, y);
     default:
-        return genNoiseSingle2D(state, state.seed, x, y);
+        return genNoiseSingle2D(self, self.seed, x, y);
     }
 }
 
 <*
  3D noise at given position using the state settings.
 
- @param [&in] state : "Noise generator state, read-only"
+ @param [&in] self : "Noise generator state, read-only"
  @param x : "X coordinate"
  @param y : "Y coordinate"
  @param z : "Z coordinate"
  @return "Noise output bounded between -1 and 1"
 *>
-fn float getNoise3D(FnlState* state, FNLfloat x, FNLfloat y, FNLfloat z)
+fn float FnlState.getNoise3D(&self, FNLfloat x, FNLfloat y, FNLfloat z)
 {
-    transformNoiseCoordinate3D(state, &x, &y, &z);
+    transformNoiseCoordinate3D(self, &x, &y, &z);
 
-    switch (state.fractal_type)
+    switch (self.fractal_type)
     {
     case FBM:
-        return genFractalFBM3D(state, x, y, z);
+        return genFractalFBM3D(self, x, y, z);
     case RIDGED:
-        return genFractalRidged3D(state, x, y, z);
+        return genFractalRidged3D(self, x, y, z);
     case PINGPONG:
-        return genFractalPingPong3D(state, x, y, z);
+        return genFractalPingPong3D(self, x, y, z);
     default:
-        return genNoiseSingle3D(state, state.seed, x, y, z);
+        return genNoiseSingle3D(self, self.seed, x, y, z);
     }
 }
 
@@ -289,26 +288,26 @@ fn float getNoise3D(FnlState* state, FNLfloat x, FNLfloat y, FNLfloat z)
 
  Example usage with getNoise2D:
  ```
- fnl::domainWarp2D(&state, &x, &y);
- noise = fnl::getNoise2D(&state, x, y);
+ state.domainWarp2D(&x, &y);
+ noise = state.getNoise2D(x, y);
  ```
 
- @param [&in] state : "Noise generator state, read-only"
+ @param [&in] self : "Noise generator state, read-only"
  @param [&inout] x : "X coordinate, warped in place"
  @param [&inout] y : "Y coordinate, warped in place"
 *>
-fn void domainWarp2D(FnlState* state, FNLfloat* x, FNLfloat* y)
+fn void FnlState.domainWarp2D(&self, FNLfloat* x, FNLfloat* y)
 {
-    switch (state.fractal_type)
+    switch (self.fractal_type)
     {
     case DOMAIN_WARP_PROGRESSIVE:
-        domainWarpFractalProgressive2D(state, x, y);
+        domainWarpFractalProgressive2D(self, x, y);
         break;
     case DOMAIN_WARP_INDEPENDENT:
-        domainWarpFractalIndependent2D(state, x, y);
+        domainWarpFractalIndependent2D(self, x, y);
         break;
     default:
-        domainWarpSingle2D(state, x, y);
+        domainWarpSingle2D(self, x, y);
         break;
     }
 }
@@ -318,27 +317,27 @@ fn void domainWarp2D(FnlState* state, FNLfloat* x, FNLfloat* y)
 
  Example usage with getNoise3D:
  ```
- fnl::domainWarp3D(&state, &x, &y, &z);
- noise = fnl::getNoise3D(&state, x, y, z);
+ state.domainWarp3D(&x, &y, &z);
+ noise = state.getNoise3D(x, y, z);
  ```
 
- @param [&in] state : "Noise generator state, read-only"
+ @param [&in] self : "Noise generator state, read-only"
  @param [&inout] x : "X coordinate, warped in place"
  @param [&inout] y : "Y coordinate, warped in place"
  @param [&inout] z : "Z coordinate, warped in place"
 *>
-fn void domainWarp3D(FnlState* state, FNLfloat* x, FNLfloat* y, FNLfloat* z)
+fn void FnlState.domainWarp3D(&self, FNLfloat* x, FNLfloat* y, FNLfloat* z)
 {
-    switch (state.fractal_type)
+    switch (self.fractal_type)
     {
     case DOMAIN_WARP_PROGRESSIVE:
-        domainWarpFractalProgressive3D(state, x, y, z);
+        domainWarpFractalProgressive3D(self, x, y, z);
         break;
     case DOMAIN_WARP_INDEPENDENT:
-        domainWarpFractalIndependent3D(state, x, y, z);
+        domainWarpFractalIndependent3D(self, x, y, z);
         break;
     default:
-        domainWarpSingle3D(state, x, y, z);
+        domainWarpSingle3D(self, x, y, z);
         break;
     }
 }
