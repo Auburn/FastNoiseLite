@@ -54,7 +54,8 @@ alias FNLfloat = float;
 //alias FNLfloat = double;
 
 // Enums
-enum FnlNoiseType {
+enum FnlNoiseType
+{
     OPENSIMPLEX2,
     OPENSIMPLEX2S,
     CELLULAR,
@@ -63,13 +64,15 @@ enum FnlNoiseType {
     VALUE,
 }
 
-enum FnlRotationType3D {
+enum FnlRotationType3D
+{
     NONE,
     IMPROVE_XY_PLANES,
     IMPROVE_XZ_PLANES,
 }
 
-enum FnlFractalType {
+enum FnlFractalType
+{
     NONE,
     FBM,
     RIDGED,
@@ -78,14 +81,16 @@ enum FnlFractalType {
     DOMAIN_WARP_INDEPENDENT
 }
 
-enum FnlCellularDistanceFunc {
+enum FnlCellularDistanceFunc
+{
     EUCLIDEAN,
     EUCLIDEANSQ,
     MANHATTAN,
     HYBRID,
 }
 
-enum FnlCellularReturnType {
+enum FnlCellularReturnType
+{
     CELLVALUE,
     DISTANCE,
     DISTANCE2,
@@ -95,7 +100,8 @@ enum FnlCellularReturnType {
     DISTANCE2DIV,
 }
 
-enum FnlDomainWarpType {
+enum FnlDomainWarpType
+{
     OPENSIMPLEX2,
     OPENSIMPLEX2_REDUCED,
     BASICGRID,
@@ -105,7 +111,8 @@ enum FnlDomainWarpType {
  * Structure containing entire noise system state.
  * Note: Must only be created using fnlCreateState(optional: seed). To ensure defaults are set.
  */
-struct FnlState {
+struct FnlState
+{
     /**
      * Seed used for all noise types.
      * Default: 1337
