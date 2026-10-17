@@ -143,7 +143,9 @@ def run(ports, ref, show, update_baseline, update_reference):
             refs = [os.path.join(ref, f"{vset}.{t}.txt") for t in ("float", "double")]
             res = compare.compare(os.path.join(OUT, name, f), sets[vset], refs)
             bad, allowed = res["bad"], baseline.get(key, 0)
-            if bad > allowed:
+            if update_baseline:
+                status = "recorded in baseline" if bad else "pass"
+            elif bad > allowed:
                 status = f"REGRESSED (baseline {allowed})"
                 failed = True
                 annotate("error", f"{key}: {bad} bad values, baseline allows {allowed}")
@@ -155,7 +157,7 @@ def run(ports, ref, show, update_baseline, update_reference):
             else:
                 status = "known deviations (baseline)"
             print(f"  {vset}/{variant}: {bad} bad of {res['total']} - {status}")
-            if bad > allowed:
+            if bad > allowed and not update_baseline:
                 print(compare.report(res, sets[vset], show, indent="    "))
             if update_baseline:
                 if bad:

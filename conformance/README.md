@@ -51,7 +51,9 @@ are good starting points; most drivers are 70–130 lines.
 
 ### 1. The driver
 
-`driver VECTORS_DIR` reads three files from `VECTORS_DIR` and prints results to stdout.
+`driver VECTORS_DIR` reads three files from `VECTORS_DIR` and prints results to stdout. It may take
+extra arguments of your choosing after `VECTORS_DIR`, such as the precision to test (the Go and Zig
+drivers do this).
 
 - `points2d.txt`: one point per line, `x y`.
 - `points3d.txt`: one point per line, `x y z`.
@@ -118,8 +120,9 @@ and shows the expected value. Known deviations that can't be fixed in the same P
 
 ### 4. CI
 
-Add a job for the port to `.github/workflows/conformance.yml`, which installs the toolchain and runs
-`python3 conformance/run.py MyLang`. The maintainer can do this when merging.
+Add the port to the `matrix` in `.github/workflows/conformance.yml`, plus a step that installs its
+toolchain if the `ubuntu-24.04` runner image doesn't already have it. The maintainer can do this when
+merging.
 
 ## Changing the reference
 

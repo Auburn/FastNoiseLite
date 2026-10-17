@@ -1,0 +1,74 @@
+name: Conformance
+
+# Runs each port's conformance driver and compares its output with the C++ reference.
+# See conformance/README.md. Known deviations are listed in conformance/baseline.json.
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    name: ${{ matrix.port }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        port: [C, CSharp, Fortran, GLSL, Go, Haxe, HLSL, Java, JavaScript, Odin, Pascal, PowerShell, Rust, Zig]
+    steps:
+      - uses: actions/checkout@v6
+
+      # Toolchains. The runner image already has gcc/g++ (also used for the C++ reference),
+      # .NET, Java, Node.js, Rust and PowerShell.
+      - if: matrix.port == 'Fortran' || matrix.port == 'Pascal'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gfortran fp-compiler
+
+      - if: matrix.port == 'Go'
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+          cache: false
+
+      - if: matrix.port == 'Haxe'
+        uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.3.3
+
+      - if: matrix.port == 'Zig'
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - if: matrix.port == 'Odin'
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/odin.zip" https://github.com/odin-lang/Odin/releases/download/dev-2025-04/odin-ubuntu-amd64-dev-2025-04.zip
+          echo "9ae733ee979859448e2393c991874d77f4644de07118dc83abea7f4840112188  $RUNNER_TEMP/odin.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/odin.zip" -d "$RUNNER_TEMP/odin"
+          tar -xzf "$RUNNER_TEMP/odin/dist.tar.gz" -C "$RUNNER_TEMP/odin"
+          echo "$RUNNER_TEMP/odin/odin-linux-amd64-nightly+2025-04-03" >> "$GITHUB_PATH"
+
+      # Shaders run as compute shaders on Mesa's software renderer (llvmpipe) through moderngl.
+      - if: matrix.port == 'GLSL' || matrix.port == 'HLSL'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - if: matrix.port == 'GLSL' || matrix.port == 'HLSL'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libegl1 libgl1 libegl-mesa0 libgl1-mesa-dri spirv-cross
+          python -m pip install moderngl==5.13.0 glcontext==3.1.0
+      - if: matrix.port == 'HLSL'
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/dxc.tar.gz" https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2407/linux_dxc_2024_07_31.x86_64.tar.gz
+          echo "b58725ac191df0686994fb9d54d27ee8dd3f180b023d562733112a499ea1195c  $RUNNER_TEMP/dxc.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/dxc" && tar -xzf "$RUNNER_TEMP/dxc.tar.gz" -C "$RUNNER_TEMP/dxc"
+          echo "$RUNNER_TEMP/dxc/bin" >> "$GITHUB_PATH"
+
+      - run: python3 conformance/run.py ${{ matrix.port }}
