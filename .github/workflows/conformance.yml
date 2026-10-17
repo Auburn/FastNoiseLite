@@ -1,7 +1,7 @@
 name: Conformance
 
 # Runs each port's conformance driver and compares its output with the C++ reference.
-# See conformance/README.md. Known deviations are listed in conformance/baseline.json.
+# One job per port: a port whose output differs from C++ fails its own job. See conformance/README.md.
 on:
   push:
     paths-ignore:

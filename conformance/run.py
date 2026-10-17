@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 """Run the FastNoiseLite conformance suite. See README.md.
 
-usage: run.py [PORT ...] [--show N] [--update-baseline] [--update-reference]
+usage: run.py [PORT ...] [--show N] [--update-reference]
 
   PORT                 port folder names (e.g. C Rust GLSL). Default: every folder that has
                        conformance/run.sh. "Cpp" alone only checks the reference.
-  --show N             print up to N mismatching values per output that fails (default 10);
-                       given explicitly, also for outputs within their baseline
-  --update-baseline    write the current bad counts of the ports run into baseline.json
+  --show N             print up to N mismatching values per failing output (default 10)
   --update-reference   accept a changed C++ output and rewrite reference.sha256
 
 Steps: build and run the C++ driver to produce the reference output (and check it against
-reference.sha256), run each port's conformance/run.sh, compare every output file with the
-reference, and compare each bad count with baseline.json. Exits 1 if a count differs from
-its baseline (higher is a regression; lower means baseline.json should be lowered).
+reference.sha256), run each port's conformance/run.sh and compare every output file with the
+reference. Exits 1 if any output has a bad value.
 """
 import hashlib
-import json
 import os
 import shutil
 import subprocess
@@ -31,7 +27,6 @@ ROOT = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "out")
 VECTORS = sorted(p for p in (os.path.join(HERE, "vectors", d) for d in os.listdir(os.path.join(HERE, "vectors")))
                  if os.path.isdir(p))
-BASELINE = os.path.join(HERE, "baseline.json")
 REFERENCE_HASHES = os.path.join(HERE, "reference.sha256")
 GITHUB = os.environ.get("GITHUB_ACTIONS") == "true"
 
@@ -91,12 +86,11 @@ def check_reference(ref, update):
 
 def main():
     args = sys.argv[1:]
-    show, show_given = 10, "--show" in args
-    if show_given:
+    show = 10
+    if "--show" in args:
         i = args.index("--show")
         show = int(args[i + 1])
         del args[i:i + 2]
-    update_baseline = "--update-baseline" in args
     update_reference = "--update-reference" in args
     ports = [a for a in args if not a.startswith("--")]
     if not ports:
@@ -111,17 +105,16 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     ref = tempfile.mkdtemp(prefix="reference-", dir=OUT)
     try:
-        return run(ports, ref, show, show_given, update_baseline, update_reference)
+        return run(ports, ref, show, update_reference)
     finally:
         shutil.rmtree(ref, ignore_errors=True)
 
 
-def run(ports, ref, show, show_given, update_baseline, update_reference):
+def run(ports, ref, show, update_reference):
     if not check_reference(ref, update_reference):
         return 1
-    baseline = json.load(open(BASELINE)) if os.path.exists(BASELINE) else {}
     sets = {os.path.basename(v): v for v in VECTORS}
-    failed = False
+    rows, failed = [], False
 
     for name in ports:
         if name == "Cpp":
@@ -133,6 +126,7 @@ def run(ports, ref, show, show_given, update_baseline, update_reference):
             msg = f"{name}: conformance/run.sh failed (build error?), see conformance/out/{name}/log.txt"
             print("  " + msg + "\n" + tail(os.path.join(OUT, name, "log.txt")))
             annotate("error", msg)
+            rows.append((name, "build", "run.sh failed"))
             continue
         seen = set()
         for f in files:
@@ -141,52 +135,26 @@ def run(ports, ref, show, show_given, update_baseline, update_reference):
                 print(f"  ignoring {f} (expected <set>.<variant>.txt)")
                 continue
             vset, variant = parts
-            key = f"{name}/{vset}/{variant}"
-            seen.add(key)
+            seen.add(vset)
             refs = [os.path.join(ref, f"{vset}.{t}.txt") for t in ("float", "double")]
             res = compare.compare(os.path.join(OUT, name, f), sets[vset], refs)
-            bad, allowed = res["bad"], baseline.get(key, 0)
-            if update_baseline:
-                status = "recorded in baseline" if bad else "pass"
-            elif bad > allowed:
-                status = f"REGRESSED (baseline {allowed})"
+            bad = res["bad"]
+            print(f"  {vset}/{variant}: {bad} bad of {res['total']} - {'pass' if bad == 0 else 'FAIL'}")
+            rows.append((name, f"{vset}/{variant}", f"{bad} of {res['total']}"))
+            if bad:
                 failed = True
-                annotate("error", f"{key}: {bad} bad values, baseline allows {allowed}")
-            elif bad < allowed:
-                status = f"IMPROVED from {allowed}: lower the baseline with run.py {name} --update-baseline"
-                failed = True
-                annotate("error", f"{key}: {bad} bad values, below its baseline {allowed}. "
-                                  f"Run `python3 conformance/run.py {name} --update-baseline` and commit baseline.json.")
-            elif bad == 0:
-                status = "pass"
-            else:
-                status = "known deviations (baseline)"
-            print(f"  {vset}/{variant}: {bad} bad of {res['total']} - {status}")
-            if bad and not update_baseline and (bad > allowed or show_given):
+                annotate("error", f"{name} {vset}/{variant}: {bad} of {res['total']} values differ from the C++ reference")
                 print(compare.report(res, sets[vset], show, indent="    "))
-            if update_baseline:
-                if bad:
-                    baseline[key] = bad
-                else:
-                    baseline.pop(key, None)
-        for key in sorted(k for k in baseline if k.startswith(name + "/") and k not in seen):
-            if update_baseline:
-                del baseline[key]
-            else:
-                failed = True
-                msg = f"{key}: listed in baseline.json but no output was produced"
-                print("  " + msg)
-                annotate("error", msg)
-        for vset in sets:
-            if not any(k.startswith(f"{name}/{vset}/") for k in seen):
-                failed = True
-                print(f"  no output for vector set '{vset}'")
+        for vset in sorted(set(sets) - seen):
+            failed = True
+            print(f"  no output for vector set '{vset}'")
+            rows.append((name, vset, "no output"))
 
-    if update_baseline:
-        with open(BASELINE, "w") as fh:
-            json.dump(dict(sorted(baseline.items())), fh, indent=2)
-            fh.write("\n")
-        print("\nbaseline.json updated")
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a") as fh:
+            fh.write("| Port | Output | Bad values |\n|---|---|---|\n")
+            fh.writelines(f"| {port} | {output} | {bad} |\n" for port, output, bad in rows)
     return 1 if failed else 0
 
 
