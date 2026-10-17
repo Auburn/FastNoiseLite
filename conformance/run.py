@@ -149,10 +149,10 @@ def check(port, refs, show):
     for o in outputs:
         res = compare.compare(o.path, VECTORS[o.set], refs[o.set])
         name = f"{o.set}/{o.variant}"
-        result = f"{res['bad']} bad of {res['total']}"
+        result = f"{res.bad} bad of {res.total}"
         if o.status:
             result += f", {exit_text(o.status)} (see log.txt)"
-        ok = res["bad"] == 0 and o.status == 0
+        ok = res.bad == 0 and o.status == 0
         print(f"  {name}: {result} - {'pass' if ok else 'FAIL'}")
         rows.append((port, name, result))
         if not ok:

@@ -21,18 +21,20 @@ the build output and any errors the drivers print.
 2. **Ports.** For each port, `run.py` runs `<Port>/conformance/build.sh`, which builds the port's driver
    and lists its variants (precisions or build modes). `run.py` then runs each variant's driver on each
    vector set.
-3. **Compare.** Every output value is compared with the float and the double reference, and the closer
-   one counts. Each value is judged on its own scale (a warped `x` near 0 is not excused by a large `y`):
+3. **Compare.** Every output line is compared with the float and the double reference, and the closer
+   one counts. Each value is judged on its own scale: a noise value by its size, a warped coordinate by
+   how far the warp moved it (so neither a large coordinate nor a large `y` excuses a wrong warped `x`).
+   Differences within the output's own float32 rounding are ignored. `compare.py` has the exact bounds.
 
    | Tier | Meaning |
    |---|---|
-   | exact | equal up to printing precision |
-   | tol | within float rounding (noise: 2e-4) |
-   | small | the size of difference float vs double arithmetic alone produces |
+   | EXACT | equal up to printing precision |
+   | TOL | within float rounding (noise: 2e-4) |
+   | SMALL | the size of difference float vs double arithmetic alone produces |
    | MISMATCH | larger than that, or non-finite where C++ is finite. Almost always a logic difference |
 
-   An output's **bad count** is MISMATCH values + missing values + unparsable or duplicate lines (+ the
-   small values at ordinary points, if there are more than 40, because then the difference is
+   An output's **bad count** is MISMATCH lines + missing lines + unparsable or duplicate lines (+ the
+   SMALL lines at ordinary points, if there are more than 40, because then the difference is
    systematic, not rounding). A port passes when every output has a bad count of 0 and no driver
    exited with an error.
 
