@@ -2,7 +2,7 @@
 # Conformance runner for the C port. Usage: run.sh OUT_DIR VECTOR_DIR...
 # Variants: float (header as shipped) and double (FNLfloat switched to double in a copy).
 set -euo pipefail
-out=$1; shift
+out=$(cd "$1" && pwd); shift
 here=$(cd "$(dirname "$0")" && pwd)
 CC=${CC:-gcc}
 sed 's|^typedef float FNLfloat;|typedef double FNLfloat;|' "$here/../FastNoiseLite.h" > "$out/FastNoiseLite_double.h"
