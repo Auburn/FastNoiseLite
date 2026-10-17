@@ -107,6 +107,8 @@ Million points of noise generated per second (higher = better)
 New ports of FastNoise Lite are always welcome, create a PR or come discuss the port with me on the discord linked above.
 I'm not an expert or even familiar with every language FastNoise lite has been ported to, so if you see something that could be improved please contribute or create a GitHub issue.
 
+Every port is tested against the C++ reference by the [conformance suite](conformance/README.md). A new port needs a small driver program for it; the suite's README explains how to add one.
+
 
 # Examples
 
