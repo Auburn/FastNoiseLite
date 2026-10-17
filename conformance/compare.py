@@ -7,17 +7,19 @@ Each output line is "N2 cfg pt v", "N3 cfg pt v", "W2 cfg pt x y" or "W3 cfg pt 
 Every line is compared with each reference file (float and double C++ builds) and the
 closest one counts, so float and double ports are judged against the matching build.
 
-Tiers (d = largest absolute difference on the line, r = largest |reference value|):
+Tiers, per value (d = absolute difference, r = |reference value|; a line takes the worst
+tier of its values, so each warp coordinate is judged on its own scale):
   EXACT     d <= 1e-6 * max(1, r)
   TOL       noise: d <= 2e-4        warp: d <= 2e-4 + 2e-5 * max(1, r)
   SMALL     noise: d <= 0.02        warp: d <= 0.02 + 1e-4 * max(1, r)
-            (0.05 / 0.15 at precision-sensitive points). This is the size of difference
-            float vs double arithmetic alone produces. Fine unless it is systematic.
+            (0.05 / 0.15 at points listed in precision_sensitive.txt). This is the size of
+            difference float vs double arithmetic alone produces. Fine unless systematic.
   MISMATCH  anything larger, a non-finite value where the reference is finite, or a
             missing line. Almost always a logic difference from C++.
 
-A port's "bad" count = MISMATCH + missing (+ SMALL values at ordinary points when there
-are more than 40 of them, which means the difference is systematic rather than rounding).
+A port's "bad" count = MISMATCH + missing + unparsable or duplicate lines (+ SMALL values
+at ordinary points when there are more than 40 of them, which means the difference is
+systematic rather than rounding).
 """
 import math
 import os
@@ -35,7 +37,7 @@ SYSTEMATIC_SMALL = 40
 
 
 def load(path):
-    """Return {(kind, cfg, pt): [values]} and the number of unparsable lines."""
+    """Return {(kind, cfg, pt): [values]} and the number of unparsable or duplicate lines."""
     data, bad = {}, 0
     with open(path, errors="replace") as f:
         for line in f:
@@ -43,22 +45,37 @@ def load(path):
             if not parts or parts[0] not in KINDS:
                 continue
             try:
-                data[(parts[0], int(parts[1]), int(parts[2]))] = [float(v) for v in parts[3:]]
-            except ValueError:
+                key = (parts[0], int(parts[1]), int(parts[2]))
+                values = [float(v) for v in parts[3:]]
+            except (ValueError, IndexError):
                 bad += 1
+                continue
+            if key in data:
+                bad += 1
+            else:
+                data[key] = values
     return data, bad
 
 
 def load_sensitive(vectors_dir):
-    """Point indices where float vs double coordinates alone move results (2d/3d)."""
-    s = {"2d": set(), "3d": set()}
+    """Precision-sensitive points from precision_sensitive.txt.
+
+    Each line is "2d|3d [config=N] point...": the points where float vs double coordinates
+    alone move results, for every config or only for config N. Returns a predicate.
+    """
+    rules = []
     path = os.path.join(vectors_dir, "precision_sensitive.txt")
     if os.path.exists(path):
         for line in open(path):
             parts = line.split()
-            if parts and parts[0] in s:
-                s[parts[0]].update(int(p) for p in parts[1:])
-    return {"N2": s["2d"], "W2": s["2d"], "N3": s["3d"], "W3": s["3d"]}
+            if not parts or parts[0] not in ("2d", "3d"):
+                continue
+            cfg = None
+            if len(parts) > 1 and parts[1].startswith("config="):
+                cfg = int(parts[1][len("config="):])
+                parts = parts[:1] + parts[2:]
+            rules.append((parts[0][0], cfg, {int(p) for p in parts[1:]}))
+    return lambda kind, c, pt: any(kind[1] == dim and cfg in (None, c) and pt in pts for dim, cfg, pts in rules)
 
 
 def describe(vectors_dir, cfg):
@@ -74,30 +91,30 @@ def describe(vectors_dir, cfg):
             f"jitter={jit} warp={WT[int(wt)]} amp={amp}")
 
 
-def tier(kind, sensitive, d, r):
-    if not math.isfinite(d):
-        return 3
-    if d <= 1e-6 * max(1.0, r):
+def value_tier(kind, sensitive, a, b):
+    """Tier of one output value a against reference value b."""
+    if not (math.isfinite(a) and math.isfinite(b)):
+        return 0 if a == b or (math.isnan(a) and math.isnan(b)) else 3
+    d, r = abs(a - b), max(1.0, abs(b))
+    if d <= 1e-6 * r:
         return 0
     if kind[0] == "N":
         if d <= 2e-4:
             return 1
         return 2 if d <= (0.05 if sensitive else 0.02) else 3
-    if d <= 2e-4 + 2e-5 * max(1.0, r):
+    if d <= 2e-4 + 2e-5 * r:
         return 1
-    return 2 if d <= (0.15 if sensitive else 0.02 + 1e-4 * max(1.0, r)) else 3
+    return 2 if d <= (0.15 if sensitive else 0.02 + 1e-4 * r) else 3
 
 
-def line_diff(pv, rv):
+def line_tier(kind, sensitive, pv, rv):
+    """(tier, largest difference) of one output line against one reference line."""
     if len(pv) != len(rv):
-        return math.inf
-    worst = 0.0
-    for a, b in zip(pv, rv):
-        if math.isfinite(a) and math.isfinite(b):
-            worst = max(worst, abs(a - b))
-        elif not (a == b or (math.isnan(a) and math.isnan(b))):
-            return math.inf
-    return worst
+        return 3, math.inf
+    t = max(value_tier(kind, sensitive, a, b) for a, b in zip(pv, rv))
+    d = max((abs(a - b) if math.isfinite(a) and math.isfinite(b) else (0.0 if a == b else math.inf)
+             for a, b in zip(pv, rv)), default=0.0)
+    return t, d
 
 
 def compare(output_path, vectors_dir, reference_paths):
@@ -113,18 +130,16 @@ def compare(output_path, vectors_dir, reference_paths):
             missing.append(key)
             continue
         best = None
+        is_sensitive = sensitive(*key)
         for r in refs:
             if key in r:
-                rv = r[key]
-                d = line_diff(port[key], rv)
-                rmax = max((abs(v) for v in rv if math.isfinite(v)), default=0.0)
-                t = tier(key[0], key[2] in sensitive[key[0]], d, rmax)
+                t, d = line_tier(key[0], is_sensitive, port[key], r[key])
                 if best is None or (t, d) < best[:2]:
-                    best = (t, d, rv)
+                    best = (t, d, r[key])
         counts[key[0]][best[0]] += 1
         if best[0] == 3:
             mismatches.append((key, port[key], best[2], best[1]))
-        elif best[0] == 2 and key[2] not in sensitive[key[0]]:
+        elif best[0] == 2 and not is_sensitive:
             ordinary_small.append(key)
     systematic = len(ordinary_small) > SYSTEMATIC_SMALL
     return {
@@ -133,7 +148,7 @@ def compare(output_path, vectors_dir, reference_paths):
         "missing": missing,
         "unparsable": unparsable,
         "systematic_small": len(ordinary_small) if systematic else 0,
-        "bad": len(mismatches) + len(missing) + (len(ordinary_small) if systematic else 0),
+        "bad": len(mismatches) + len(missing) + unparsable + (len(ordinary_small) if systematic else 0),
         "total": len(keys),
     }
 
@@ -144,7 +159,7 @@ def report(res, vectors_dir, show=20, indent="  "):
     for k in KINDS:
         e, t, s, m = res["counts"][k]
         out.append(f"{indent}{k}: exact={e} tol={t} small={s} MISMATCH={m}")
-    out.append(f"{indent}missing={len(res['missing'])} unparsable={res['unparsable']} "
+    out.append(f"{indent}missing={len(res['missing'])} unparsable-or-duplicate={res['unparsable']} "
                f"systematic-small={res['systematic_small']} -> bad={res['bad']} of {res['total']}")
     if res["missing"] and len(res["missing"]) < res["total"]:
         out.append(f"{indent}first missing: {res['missing'][:6]}")

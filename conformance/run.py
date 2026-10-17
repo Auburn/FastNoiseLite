@@ -5,13 +5,15 @@ usage: run.py [PORT ...] [--show N] [--update-baseline] [--update-reference]
 
   PORT                 port folder names (e.g. C Rust GLSL). Default: every folder that has
                        conformance/run.sh. "Cpp" alone only checks the reference.
-  --show N             print up to N mismatching values per failing output (default 10)
+  --show N             print up to N mismatching values per output that fails (default 10);
+                       given explicitly, also for outputs within their baseline
   --update-baseline    write the current bad counts of the ports run into baseline.json
   --update-reference   accept a changed C++ output and rewrite reference.sha256
 
 Steps: build and run the C++ driver to produce the reference output (and check it against
 reference.sha256), run each port's conformance/run.sh, compare every output file with the
-reference, and compare each bad count with baseline.json. Exits 1 if anything got worse.
+reference, and compare each bad count with baseline.json. Exits 1 if a count differs from
+its baseline (higher is a regression; lower means baseline.json should be lowered).
 """
 import hashlib
 import json
@@ -27,7 +29,8 @@ import compare
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "out")
-VECTORS = sorted(os.path.join(HERE, "vectors", d) for d in os.listdir(os.path.join(HERE, "vectors")))
+VECTORS = sorted(p for p in (os.path.join(HERE, "vectors", d) for d in os.listdir(os.path.join(HERE, "vectors")))
+                 if os.path.isdir(p))
 BASELINE = os.path.join(HERE, "baseline.json")
 REFERENCE_HASHES = os.path.join(HERE, "reference.sha256")
 GITHUB = os.environ.get("GITHUB_ACTIONS") == "true"
@@ -88,8 +91,8 @@ def check_reference(ref, update):
 
 def main():
     args = sys.argv[1:]
-    show = 10
-    if "--show" in args:
+    show, show_given = 10, "--show" in args
+    if show_given:
         i = args.index("--show")
         show = int(args[i + 1])
         del args[i:i + 2]
@@ -108,12 +111,12 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     ref = tempfile.mkdtemp(prefix="reference-", dir=OUT)
     try:
-        return run(ports, ref, show, update_baseline, update_reference)
+        return run(ports, ref, show, show_given, update_baseline, update_reference)
     finally:
         shutil.rmtree(ref, ignore_errors=True)
 
 
-def run(ports, ref, show, update_baseline, update_reference):
+def run(ports, ref, show, show_given, update_baseline, update_reference):
     if not check_reference(ref, update_reference):
         return 1
     baseline = json.load(open(BASELINE)) if os.path.exists(BASELINE) else {}
@@ -150,14 +153,16 @@ def run(ports, ref, show, update_baseline, update_reference):
                 failed = True
                 annotate("error", f"{key}: {bad} bad values, baseline allows {allowed}")
             elif bad < allowed:
-                status = f"IMPROVED from {allowed}: lower the baseline (run.py {name} --update-baseline)"
-                annotate("notice", f"{key}: {bad} bad values, baseline {allowed}. Update baseline.json.")
+                status = f"IMPROVED from {allowed}: lower the baseline with run.py {name} --update-baseline"
+                failed = True
+                annotate("error", f"{key}: {bad} bad values, below its baseline {allowed}. "
+                                  f"Run `python3 conformance/run.py {name} --update-baseline` and commit baseline.json.")
             elif bad == 0:
                 status = "pass"
             else:
                 status = "known deviations (baseline)"
             print(f"  {vset}/{variant}: {bad} bad of {res['total']} - {status}")
-            if bad > allowed and not update_baseline:
+            if bad and not update_baseline and (bad > allowed or show_given):
                 print(compare.report(res, sets[vset], show, indent="    "))
             if update_baseline:
                 if bad:

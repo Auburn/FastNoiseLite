@@ -27,20 +27,26 @@ const rows = (name) => fs.readFileSync(path.join(dir, name), "utf8").split("\n")
 const p2 = rows("points2d.txt");
 const p3 = rows("points3d.txt");
 const out = [];
+// A call that throws skips only its own line (counted as missing).
+const emit = (line) => {
+    try {
+        out.push(line());
+    } catch {}
+};
 
 function run(n, c) {
-    p2.forEach(([x, y], i) => out.push(`N2 ${c} ${i} ${n.GetNoise(x, y)}`));
-    p3.forEach(([x, y, z], i) => out.push(`N3 ${c} ${i} ${n.GetNoise(x, y, z)}`));
-    p2.forEach(([x, y], i) => {
+    p2.forEach(([x, y], i) => emit(() => `N2 ${c} ${i} ${n.GetNoise(x, y)}`));
+    p3.forEach(([x, y, z], i) => emit(() => `N3 ${c} ${i} ${n.GetNoise(x, y, z)}`));
+    p2.forEach(([x, y], i) => emit(() => {
         const v = { x, y };
         n.DomainWarp(v);
-        out.push(`W2 ${c} ${i} ${v.x} ${v.y}`);
-    });
-    p3.forEach(([x, y, z], i) => {
+        return `W2 ${c} ${i} ${v.x} ${v.y}`;
+    }));
+    p3.forEach(([x, y, z], i) => emit(() => {
         const v = { x, y, z };
         n.DomainWarp(v);
-        out.push(`W3 ${c} ${i} ${v.x} ${v.y} ${v.z}`);
-    });
+        return `W3 ${c} ${i} ${v.x} ${v.y} ${v.z}`;
+    }));
 }
 
 run(new FastNoiseLite(), -1);

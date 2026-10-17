@@ -8,8 +8,8 @@ Each set has:
 Every coordinate is exactly representable in float32, so float and double ports
 read identical inputs.
 
-Changing the vectors changes the reference output: run `run.py --update-reference`
-afterwards and commit the new reference.sha256.
+Changing the vectors changes the reference output: run
+`python3 conformance/run.py Cpp --update-reference` afterwards and commit reference.sha256.
 """
 import os
 import struct
@@ -140,7 +140,7 @@ def edge_set():
     ]
     # Coordinates stay below 2^23 so cell indices and half-integers are exact in float32.
     # The large points are precision-sensitive only for the default instance (OpenSimplex2).
-    sensitive = "2d 7 8 9 10 11\n3d 4 5 6 7 8 9\n"
+    sensitive = "2d config=-1 7 8 9 10 11\n3d config=-1 4 5 6 7 8 9\n"
     return c, p2, p3, sensitive
 
 
