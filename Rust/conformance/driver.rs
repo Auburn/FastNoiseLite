@@ -1,6 +1,6 @@
 // FastNoiseLite conformance driver (Rust). See conformance/README.md.
 // Usage: driver VECTORS_DIR > output.txt
-// run.sh builds this as src/main.rs of a scratch crate whose "f64" feature enables fastnoise-lite/f64.
+// build.sh builds this as src/main.rs of a scratch crate whose "f64" feature enables fastnoise-lite/f64.
 use fastnoise_lite::*;
 use std::io::{BufWriter, Write};
 use std::panic::{catch_unwind, AssertUnwindSafe};

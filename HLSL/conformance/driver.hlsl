@@ -1,6 +1,6 @@
 // FastNoiseLite conformance kernel (HLSL). See conformance/README.md; driver.py runs it.
 // One invocation per (point, instance): instance 0 is fnlCreateState(), instance c + 1 is config c.
-// run.sh puts the port's folder (or a double-precision copy of it) on the include path.
+// build.sh puts the port's folder (or a double-precision copy of it) on the include path.
 #include "FastNoiseLite.hlsl"
 
 struct Config

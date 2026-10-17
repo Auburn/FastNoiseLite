@@ -1,6 +1,6 @@
 // FastNoiseLite conformance driver (Zig 0.15). See conformance/README.md.
-// Usage: driver VECTORS_DIR [f32|f64] > output.txt   (default f32)
-// The port is generic over the float type, so one binary holds both precisions. run.sh builds it with
+// Usage: driver f32|f64 VECTORS_DIR > output.txt
+// The port is generic over the float type, so one binary holds both precisions. build.sh builds it with
 // fastnoise.zig passed as the module "fastnoise". The port's enums use the C++ ordinals.
 const std = @import("std");
 const fnl = @import("fastnoise");
@@ -80,9 +80,9 @@ pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     const alloc = arena.allocator();
     const args = try std.process.argsAlloc(alloc);
-    if (args.len < 2) {
-        std.debug.print("usage: driver VECTORS_DIR [f32|f64]\n", .{});
+    if (args.len != 3 or !(std.mem.eql(u8, args[1], "f32") or std.mem.eql(u8, args[1], "f64"))) {
+        std.debug.print("usage: driver f32|f64 VECTORS_DIR\n", .{});
         std.process.exit(2);
     }
-    if (args.len > 2 and std.mem.eql(u8, args[2], "f64")) try run(f64, alloc, args[1]) else try run(f32, alloc, args[1]);
+    if (std.mem.eql(u8, args[1], "f64")) try run(f64, alloc, args[2]) else try run(f32, alloc, args[2]);
 }

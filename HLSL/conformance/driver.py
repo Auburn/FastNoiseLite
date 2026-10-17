@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FastNoiseLite conformance driver (HLSL). See conformance/README.md.
 Usage: driver.py KERNEL.comp float|double VECTORS_DIR > output.txt
-KERNEL.comp is driver.hlsl translated to GLSL by run.sh; it runs as an OpenGL compute shader on the
+KERNEL.comp is driver.hlsl translated to GLSL by build.sh; it runs as an OpenGL compute shader on the
 EGL default device (Mesa llvmpipe on a machine without a GPU). The variant names FNLfloat's type."""
 import os
 import struct

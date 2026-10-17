@@ -1,6 +1,6 @@
 // FastNoiseLite conformance driver (Go). See conformance/README.md.
-// Usage: driver VECTORS_DIR [float32|float64] > output.txt
-// The port is generic; the second argument picks the instantiation (default float32).
+// Usage: driver float32|float64 VECTORS_DIR > output.txt
+// The port is generic; the first argument picks the instantiation.
 // The Go enum constants have the same ordinals as the C++ enums.
 package main
 
@@ -103,13 +103,13 @@ func all[T fastnoise.Float](dir string) {
 
 func main() {
 	defer out.Flush()
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: driver VECTORS_DIR [float32|float64]")
+	if len(os.Args) != 3 || (os.Args[1] != "float32" && os.Args[1] != "float64") {
+		fmt.Fprintln(os.Stderr, "usage: driver float32|float64 VECTORS_DIR")
 		os.Exit(2)
 	}
-	if len(os.Args) > 2 && os.Args[2] == "float64" {
-		all[float64](os.Args[1])
+	if os.Args[1] == "float64" {
+		all[float64](os.Args[2])
 	} else {
-		all[float32](os.Args[1])
+		all[float32](os.Args[2])
 	}
 }

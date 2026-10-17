@@ -1,6 +1,6 @@
 /* FastNoiseLite conformance driver (C). See conformance/README.md.
  * Usage: driver VECTORS_DIR > output.txt
- * FNL_HEADER selects the header (run.sh passes a double-precision copy for the double variant). */
+ * FNL_HEADER selects the header (build.sh passes a double-precision copy for the double variant). */
 #define FNL_IMPL
 #ifndef FNL_HEADER
 #define FNL_HEADER "../FastNoiseLite.h"

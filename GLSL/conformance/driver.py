@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FastNoiseLite conformance driver (GLSL). See conformance/README.md.
 Usage: python3 driver.py VECTORS_DIR > output.txt
-       python3 driver.py --build    (only compile the shader; run.sh uses this as its build step)
+       python3 driver.py --build    (only compile the shader; build.sh uses this as its build step)
 
 Runs ../FastNoiseLite.glsl in an OpenGL 4.3 compute shader (headless EGL, e.g. Mesa llvmpipe)
 through moderngl: one invocation per (instance, point index), results read back from an SSBO.

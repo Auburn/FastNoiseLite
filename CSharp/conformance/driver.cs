@@ -1,6 +1,6 @@
 // FastNoiseLite conformance driver (C#). See conformance/README.md.
 // Usage: dotnet driver.dll VECTORS_DIR > output.txt
-// The port picks its coordinate type with a file-local `using FNLfloat` alias, so run.sh builds the
+// The port picks its coordinate type with a file-local `using FNLfloat` alias, so build.sh builds the
 // double variant from a copy with that alias switched and defines FNL_DOUBLE to match it here.
 #if FNL_DOUBLE
 using FNLfloat = System.Double;
