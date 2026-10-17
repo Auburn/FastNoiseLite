@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
 """Run the FastNoiseLite conformance suite. See README.md.
 
-usage: run.py [PORT ...] [--show N] [--update-reference]
-
-  PORT                 port folder names (e.g. C Rust GLSL). Default: every folder that has
-                       conformance/build.sh. "Cpp" alone only checks the reference.
-  --show N             print up to N mismatching values per failing output (default 10)
-  --update-reference   accept a changed C++ output and rewrite reference.sha256
-
 Steps: build and run the C++ reference (and check its output against reference.sha256), then for
 each port run its conformance/build.sh, run every variant's driver on every vector set and compare
 each output with the reference. Exits 1 if a build fails, a driver exits with an error or an output
 has a bad value.
 """
+import argparse
 import collections
 import hashlib
 import os
@@ -169,28 +163,27 @@ def check(port, refs, show):
 
 
 def main():
-    args = sys.argv[1:]
-    show = 10
-    if "--show" in args:
-        i = args.index("--show")
-        show = int(args[i + 1])
-        del args[i:i + 2]
-    update_reference = "--update-reference" in args
-    ports = [a for a in args if not a.startswith("--")]
-    if not ports:
-        ports = sorted(d for d in os.listdir(ROOT) if os.path.exists(build_script(d)))
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("ports", nargs="*", metavar="PORT",
+                        help='port folder names (e.g. C Rust GLSL). Default: every folder that has '
+                             'conformance/build.sh. "Cpp" alone only checks the reference.')
+    parser.add_argument("--show", type=int, default=10, metavar="N",
+                        help="print up to N mismatching values per failing output (default 10)")
+    parser.add_argument("--update-reference", action="store_true",
+                        help="accept a changed C++ output and rewrite reference.sha256")
+    args = parser.parse_args()
+    ports = args.ports or sorted(d for d in os.listdir(ROOT) if os.path.exists(build_script(d)))
     unknown = [p for p in ports if not os.path.exists(build_script(p))]
     if unknown:
-        print("no conformance/build.sh for: " + ", ".join(unknown))
-        return 2
+        parser.error("no conformance/build.sh for: " + ", ".join(unknown))
 
-    refs = reference(update_reference)
+    refs = reference(args.update_reference)
     if refs is None:
         return 1
     rows, failed = [], False
     for port in ports:
         if port != REFERENCE:
-            port_rows, passed = check(port, refs, show)
+            port_rows, passed = check(port, refs, args.show)
             rows += port_rows
             failed |= not passed
 

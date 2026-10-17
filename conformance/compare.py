@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-"""Compare a port's conformance output with the C++ reference output.
-
-usage: compare.py OUTPUT VECTORS_DIR REFERENCE... [--show N]
+"""Compare a port's conformance output with the C++ reference output. Used by run.py.
 
 Each output line is "N2 cfg pt v", "N3 cfg pt v", "W2 cfg pt x y" or "W3 cfg pt x y z".
 Every line is compared with each reference file (float and double C++ builds) and the
@@ -23,7 +20,6 @@ systematic rather than rounding).
 """
 import math
 import os
-import sys
 from collections import Counter
 
 KINDS = ("N2", "N3", "W2", "W3")
@@ -153,7 +149,7 @@ def compare(output_path, vectors_dir, reference_paths):
     }
 
 
-def report(res, vectors_dir, show=20, indent="  "):
+def report(res, vectors_dir, show, indent):
     """Human-readable summary of a compare() result."""
     out = []
     for k in KINDS:
@@ -169,22 +165,3 @@ def report(res, vectors_dir, show=20, indent="  "):
     for key, pv, rv, d in sorted(res["mismatches"])[:show]:
         out.append(f"{indent}  {key[0]} config {key[1]} point {key[2]}: got {pv} expected {rv} (diff {d:.3g})")
     return "\n".join(out)
-
-
-def main():
-    args = sys.argv[1:]
-    show = 20
-    if "--show" in args:
-        i = args.index("--show")
-        show = int(args[i + 1])
-        del args[i:i + 2]
-    if len(args) < 3:
-        print(__doc__)
-        return 2
-    res = compare(args[0], args[1], args[2:])
-    print(report(res, args[1], show))
-    return 0 if res["bad"] == 0 else 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())
