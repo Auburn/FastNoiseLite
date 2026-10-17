@@ -7,7 +7,7 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 DXC=${DXC:-dxc}
 mkdir -p double
-sed 's|^typedef float FNLfloat;|typedef double FNLfloat;|' "$here/../FastNoiseLite.hlsl" > double/FastNoiseLite.hlsl
+bash "$here/../../conformance/replace.sh" "$here/../FastNoiseLite.hlsl" double/FastNoiseLite.hlsl 'typedef float FNLfloat;' 'typedef double FNLfloat;'
 for t in float double; do
     inc=$here/..
     [ $t = double ] && inc=double

@@ -6,8 +6,9 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 for t in float double; do
     mkdir -p $t
-    sed "s|/\*FNLfloat\*/ float|/*FNLfloat*/ $t|g" "$here/../FastNoiseLite.java" > $t/FastNoiseLite.java
-    sed "s|/\*FNLfloat\*/ float|/*FNLfloat*/ $t|g" "$here/Driver.java" > $t/Driver.java
+    for f in "$here/../FastNoiseLite.java" "$here/Driver.java"; do
+        bash "$here/../../conformance/replace.sh" "$f" "$t/$(basename "$f")" '/*FNLfloat*/ float' "/*FNLfloat*/ $t"
+    done
     javac -d $t $t/FastNoiseLite.java $t/Driver.java
 done
 cat > variants.txt <<EOF

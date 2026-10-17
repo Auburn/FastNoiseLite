@@ -6,7 +6,8 @@
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
-sed 's|^using FNLfloat = System.Single;|using FNLfloat = System.Double;|' "$here/../FastNoiseLite.cs" > FastNoiseLite_double.cs
+bash "$here/../../conformance/replace.sh" "$here/../FastNoiseLite.cs" FastNoiseLite_double.cs \
+    'using FNLfloat = System.Single;' 'using FNLfloat = System.Double;'
 build() { # build VARIANT PORT_SOURCE DEFINES
     mkdir -p "$1"
     cat > "$1/driver.csproj" <<EOF

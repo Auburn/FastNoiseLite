@@ -113,6 +113,9 @@ double ./driver_double
   Paths are relative to the output directory. Refer to files in the repository through the script's own
   location, `$(dirname "$0")`.
 - Write build products only in the output directory, never inside the repository.
+- If a precision is selected by editing the source (a `typedef` or `using` line), make the edited copy
+  with `conformance/replace.sh SRC DEST FROM TO`, as the C, C#, HLSL and Java scripts do. It fails when
+  `FROM` isn't found, so a changed switch can't quietly turn the double variant into a second float one.
 - Exit non-zero if the build fails. If there is nothing to build, check that the toolchain is installed
   (the JavaScript and PowerShell scripts print its version).
 
