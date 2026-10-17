@@ -54,7 +54,7 @@ jobs:
           tar -xzf "$RUNNER_TEMP/odin/dist.tar.gz" -C "$RUNNER_TEMP/odin"
           echo "$RUNNER_TEMP/odin/odin-linux-amd64-nightly+2025-04-03" >> "$GITHUB_PATH"
 
-      # Shaders run as compute shaders on Mesa's software renderer (llvmpipe) through moderngl.
+      # Shaders run as compute shaders on Mesa's software renderer (llvmpipe) through moderngl (conformance/gpu.py).
       - if: matrix.port == 'GLSL' || matrix.port == 'HLSL'
         uses: actions/setup-python@v6
         with:

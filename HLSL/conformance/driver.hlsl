@@ -1,4 +1,5 @@
-// FastNoiseLite conformance kernel (HLSL). See conformance/README.md; driver.py runs it.
+// FastNoiseLite conformance kernel (HLSL). See conformance/README.md.
+// build.sh translates it to GLSL and conformance/gpu.py runs the result; gpu.py describes the buffers.
 // One invocation per (point, instance): instance 0 is fnlCreateState(), instance c + 1 is config c.
 // build.sh puts the port's folder (or a double-precision copy of it) on the include path.
 #include "FastNoiseLite.hlsl"
